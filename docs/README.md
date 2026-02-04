@@ -1,0 +1,117 @@
+# 두르비터 프로젝트 문서
+
+## 프로젝트 개요
+
+**두르비터**는 기업 출퇴근 관리 웹 플랫폼입니다.
+
+### 플랫폼 구조
+- **멀티테넌트 구조**: 플랫폼 → 기업 → 직원
+- **3단계 사용자**:
+  - 두르비터 관리자 (단일 계정) - 플랫폼 전체 관리
+  - 기업 - 소속 직원 관리
+  - 직원 - 출퇴근 및 업무 관리
+
+### 핵심 기능
+- 직원 출퇴근 기록 및 관리
+- 업무 내용 등록 및 조회
+- 일일/주간/월간 보고서 생성
+- 기업별 직원 관리
+- 결근 자동 판단
+
+---
+
+## 문서 구조
+
+```
+docs/
+├── README.md                    # 전체 문서 인덱스 (현재 파일)
+│
+├── design/                      # 설계 문서
+│   ├── requirements.md          # 요구사항
+│   ├── database-schema.md       # DB 스키마
+│   ├── api-design.md            # API 설계
+│   ├── architecture.md          # 시스템 아키텍처
+│   ├── dashboard-employee.md    # 직원 대시보드 기능 명세
+│   ├── dashboard-company.md     # 기업 대시보드 기능 명세
+│   └── dashboard-admin.md       # 관리자 대시보드 기능 명세
+│
+└── reference/                   # 참조 문서
+    ├── tech-stack.md            # 기술 스택
+    └── platform-accounts.md     # 플랫폼 계정
+```
+
+---
+
+## 문서 목록
+
+### 설계 문서 (design/)
+
+| 문서 | 설명 |
+|------|------|
+| [요구사항](design/requirements.md) | 기능 요구사항, 사용자 흐름, 인증 방식 |
+| [DB 스키마](design/database-schema.md) | 테이블 구조, 관계, 암호화 정책 |
+| [API 설계](design/api-design.md) | REST API 엔드포인트 명세 |
+| [아키텍처](design/architecture.md) | 시스템 구조, 인증 흐름, 모듈 구조 |
+| [직원 대시보드](design/dashboard-employee.md) | 직원 출퇴근 앱 기능 명세 |
+| [기업 대시보드](design/dashboard-company.md) | 기업 관리자 대시보드 기능 명세 |
+| [관리자 대시보드](design/dashboard-admin.md) | 플랫폼 관리자 대시보드 기능 명세 |
+
+
+### 참조 문서 (reference/)
+
+| 문서 | 설명 |
+|------|------|
+| [기술 스택](reference/tech-stack.md) | 기술 선정, 비용, 인프라 계획 |
+| [계정 체크리스트](reference/platform-accounts.md) | 필요 플랫폼 계정 목록 |
+
+---
+
+## 관련 저장소
+
+두르비터 프로젝트는 여러 저장소로 구성됩니다:
+
+| 저장소 | 설명 | 기술 스택 |
+|--------|------|----------|
+| `durubitteo_web` | 프론트엔드 (현재) | Next.js, React, TypeScript |
+| `durubitteo_design` | 디자인 목업 (참조용) | Vite, Tailwind CSS |
+| `durubitteo_server` | 백엔드 API (예정) | NestJS |
+
+### 프로젝트 관계
+
+```
+durubitteo_design (디자인)
+       ↓ 참조
+durubitteo_web (프론트엔드) ←→ durubitteo_server (백엔드)
+                                      ↓
+                                  Supabase (DB)
+```
+
+- **durubitteo_design**: UI/UX 디자인 구현의 참조 소스. JSX 컴포넌트로 각 화면의 레이아웃과 스타일 정의
+- **durubitteo_web**: 실제 프론트엔드 구현. 디자인 프로젝트를 참고하여 Next.js로 개발
+- **durubitteo_server**: API 서버. 프론트엔드와 REST API로 통신
+
+---
+
+## 진행 상황
+
+### 기획 단계
+- [x] 요구사항 정리
+- [x] 기술 스택 선정
+- [x] DB 스키마 설계
+- [x] API 설계
+- [x] 아키텍처 설계
+
+### 개발 단계
+- [ ] 프로젝트 초기 설정
+- [ ] 인증 시스템 구현
+- [ ] 기업 관리 기능
+- [ ] 직원 관리 기능
+- [ ] 출퇴근 관리 기능
+- [ ] 보고서 기능
+- [ ] 관리자 대시보드
+
+### 배포 단계
+- [ ] Supabase 프로덕션 설정
+- [ ] Vercel 배포
+- [ ] Railway 백엔드 배포
+- [ ] 도메인 연결
