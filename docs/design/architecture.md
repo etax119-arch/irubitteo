@@ -255,9 +255,23 @@ src/
 │
 ├── attendance/                  # 출퇴근 모듈
 │
-├── tasks/                       # 업무 모듈
+├── schedules/                   # 근무일정 모듈
+│
+├── notices/                     # 공지사항 모듈
+│
+├── notifications/               # 알림 모듈 (관리자용)
 │
 ├── reports/                     # 보고서 모듈
+│
+├── inquiries/                   # 문의 모듈
+│
+├── templates/                   # 문서 템플릿 모듈
+│
+├── files/                       # 파일 관리 모듈
+│   ├── company-files/          # 기업 첨부파일
+│   └── employee-files/         # 직원 첨부파일
+│
+├── audit/                       # 감사 로그 모듈
 │
 ├── common/                      # 공통 모듈
 │   ├── filters/                # 예외 필터

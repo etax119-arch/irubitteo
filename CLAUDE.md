@@ -13,11 +13,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - [API 설계](docs/design/api-design.md) - 엔드포인트 명세
 - [아키텍처](docs/design/architecture.md) - 시스템 구조 및 흐름
 
-### 가이드 문서
-- [개발 환경 설정](docs/guides/setup.md) - 로컬 개발 환경 구성
+
 
 ### 의사결정/참조
-- [질문/확정 사항](docs/decisions/questions.md) - 미팅 결과
 - [기술 스택](docs/reference/tech-stack.md) - 기술 선정 및 비용
 - [계정 체크리스트](docs/reference/platform-accounts.md) - 필요 플랫폼 계정
 
