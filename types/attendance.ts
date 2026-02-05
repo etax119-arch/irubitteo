@@ -30,15 +30,13 @@ export type ClockOutInput = {
   note?: string;
 };
 
-/** 출퇴근 수정 입력 (관리자용) */
+/** 출퇴근 수정 입력 (관리자/기업용) */
 export type AttendanceUpdateInput = {
   clockIn?: Date;
   clockOut?: Date;
-  status?: AttendanceStatus;
-  isLate?: boolean;
-  isEarlyLeave?: boolean;
   workContent?: string;
   note?: string;
+  // status, isLate, isEarlyLeave는 clockIn/clockOut 기준 자동 계산
 };
 
 /** 출퇴근 현황 조회용 (직원 정보 포함) */

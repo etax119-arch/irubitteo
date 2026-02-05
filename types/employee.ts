@@ -47,6 +47,8 @@ export type Employee = {
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
+  companyNote: string | null;
+  adminNote: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -75,6 +77,8 @@ export type EmployeeCreateInput = {
 /** 직원 수정 입력 (ssn, hireDate는 수정 불가) */
 export type EmployeeUpdateInput = Partial<Omit<EmployeeCreateInput, 'ssn' | 'hireDate'>> & {
   resignDate?: Date;
+  companyNote?: string;
+  adminNote?: string;
 };
 
 /** 직원 첨부파일 */

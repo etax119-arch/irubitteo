@@ -50,7 +50,6 @@
 - 프로필 사진: `profiles/{company_id}/{employee_id}/`
 - 직원 첨부파일: `employees/{company_id}/{employee_id}/`
 - 기업 첨부파일: `companies/{company_id}/`
-- 보고서: `reports/{company_id}/{year}/{month}/`
 
 ### 용량 제한
 - 프로필 사진: 최대 2MB

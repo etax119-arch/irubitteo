@@ -22,13 +22,35 @@ export type JwtPayload = {
   exp: number;
 };
 
-/** 인증된 사용자 정보 */
-export type AuthUser = {
+/** 인증된 사용자 정보 (기본) */
+export type AuthUserBase = {
   id: string;
   role: UserRole;
   name: string;
-  companyId?: string;
 };
+
+/** 직원 인증 정보 */
+export type AuthUserEmployee = AuthUserBase & {
+  role: 'employee';
+  code: string;
+  companyId: string;
+  companyName: string;
+};
+
+/** 기업 인증 정보 */
+export type AuthUserCompany = AuthUserBase & {
+  role: 'company';
+  code: string;
+};
+
+/** 관리자 인증 정보 */
+export type AuthUserAdmin = AuthUserBase & {
+  role: 'admin';
+  email: string;
+};
+
+/** 인증된 사용자 정보 (역할별 유니온) */
+export type AuthUser = AuthUserEmployee | AuthUserCompany | AuthUserAdmin;
 
 /** 로그인 응답 */
 export type LoginResponse = {

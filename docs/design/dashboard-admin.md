@@ -8,6 +8,61 @@
 
 ---
 
+## 구현 상태
+
+**구현 완료** (2026-02-05)
+
+### 라우트 구조
+
+```
+/app/admin/
+├── layout.tsx              # 헤더 + 6개 탭 네비게이션 (Link 기반)
+├── page.tsx                # → /admin/dashboard 리다이렉트
+├── _components/
+│   ├── AdminStatCard.tsx   # 통계 카드 (badge 지원)
+│   ├── CompanyAttendanceAccordion.tsx  # 회사별 출퇴근 아코디언
+│   ├── CompanyCard.tsx     # 회원사 카드
+│   ├── WorkerTable.tsx     # 근로자 테이블 (필터 포함)
+│   ├── WorkStatsTable.tsx  # 근무통계 테이블
+│   ├── AbsenceAlertList.tsx  # 결근 알림 리스트
+│   ├── InquiryList.tsx     # 기업 문의 리스트
+│   ├── AddCompanyModal.tsx # 회원사 추가 모달
+│   ├── InquiryDetailModal.tsx  # 문의 상세 모달
+│   └── PrintPreviewModal.tsx   # 인쇄 프리뷰 모달
+├── _data/
+│   └── dummyData.ts        # 더미 데이터 통합
+├── dashboard/page.tsx      # 대시보드 탭
+├── companies/
+│   ├── page.tsx            # 회원사 관리 탭
+│   └── [id]/page.tsx       # 회원사 상세
+├── employees/
+│   ├── page.tsx            # 근로자 관리 탭
+│   └── [id]/page.tsx       # 근로자 상세
+├── workstats/page.tsx      # 근무 통계 탭
+├── notifications/page.tsx  # 알림센터 탭
+└── reports/page.tsx        # 리포트 탭
+```
+
+### 타입 정의
+
+- `/types/adminDashboard.ts` - 모든 Admin 관련 타입 정의
+
+### URL 구조
+
+| URL | 설명 |
+|-----|------|
+| `/admin` | `/admin/dashboard`로 리다이렉트 |
+| `/admin/dashboard` | 대시보드 탭 |
+| `/admin/companies` | 회원사 관리 탭 |
+| `/admin/companies/[id]` | 회원사 상세 페이지 |
+| `/admin/employees` | 근로자 관리 탭 |
+| `/admin/employees/[id]` | 근로자 상세 페이지 |
+| `/admin/workstats` | 근무 통계 탭 |
+| `/admin/notifications` | 알림센터 탭 |
+| `/admin/reports` | 리포트 탭 |
+
+---
+
 ## 탭 구성
 
 | 탭 ID | 탭 이름 | 아이콘 | 설명 |
@@ -41,8 +96,8 @@
 - "전체보기 →" 링크 (알림센터 탭으로 이동)
 
 **알림 유형**:
-- 계약 만료 임박
-- 장기 결근
+- 결근 알림 (출근 시간 30분 초과 미출근)
+- 신규 기업 문의
 
 #### 회사별 출퇴근 현황
 
@@ -273,3 +328,27 @@
 - 기업 대시보드: 개별 회사 관리 기능
 - 직원 대시보드: 근로자 출퇴근 앱
 - 랜딩 페이지 > 기업 문의: 문의 접수
+
+---
+
+## 구현 완료 내역
+
+### UI 구현 완료
+- [x] 라우트 기반 탭 구조 (URL 북마크/공유 가능, 브라우저 히스토리 지원)
+- [x] 대시보드 탭: 통계 카드, 긴급 알림, 회사별 출퇴근 아코디언
+- [x] 회원사 관리 탭: 회원사 목록, 검색, 추가 모달, 월정산액 인라인 수정
+- [x] 회원사 상세 페이지: 기본정보, PM정보, 소속 근로자, 첨부파일
+- [x] 근로자 관리 탭: 필터(현재/퇴사/전체), 검색, 테이블
+- [x] 근로자 상세 페이지: 프로필, 출퇴근 기록, 달력 뷰, 문서 관리
+- [x] 근무 통계 탭: 회사별 아코디언, 인라인 수정, 인쇄 프리뷰 모달
+- [x] 알림센터 탭: 결근 알림, 기업 문의, 상세 모달
+- [x] 리포트 탭: 문서 템플릿, 통계 리포트 목록
+
+### 백엔드 연동 대기
+- [ ] 실제 API 연동 (현재 더미 데이터 사용)
+- [ ] 회원사 CRUD API
+- [ ] 근로자 CRUD API
+- [ ] 출퇴근 기록 API
+- [ ] 기업 문의 API
+- [ ] 파일 업로드/다운로드 API
+- [ ] 인쇄 기능 (window.print() 사용 중)

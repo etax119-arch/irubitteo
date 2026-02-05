@@ -70,6 +70,42 @@ npm run lint     # ESLint check
 ### App Router Structure
 All pages and layouts live in `app/`. Server Components are the default - add `'use client'` directive only for components that need interactivity.
 
+### Route-based Tab Navigation Pattern
+탭 UI가 있는 대시보드는 URL 기반 라우팅을 사용합니다:
+- `layout.tsx`: 공통 헤더 + Link 기반 탭 네비게이션
+- `page.tsx`: 기본 탭으로 리다이렉트 (예: `/company` → `/company/dashboard`)
+- 각 탭은 독립적인 `page.tsx`로 구현
+
+```
+/company/
+├── layout.tsx      # 헤더 + 탭 (Link 컴포넌트)
+├── page.tsx        # redirect('/company/dashboard')
+├── dashboard/page.tsx
+├── employees/
+│   ├── page.tsx
+│   └── [id]/page.tsx
+├── schedule/page.tsx
+└── notices/page.tsx
+
+/admin/
+├── layout.tsx      # 헤더 + 6개 탭 (Link 컴포넌트)
+├── page.tsx        # redirect('/admin/dashboard')
+├── _components/    # AdminStatCard, CompanyCard, WorkerTable 등
+├── _data/          # dummyData.ts
+├── dashboard/page.tsx
+├── companies/
+│   ├── page.tsx
+│   └── [id]/page.tsx
+├── employees/
+│   ├── page.tsx
+│   └── [id]/page.tsx
+├── workstats/page.tsx
+├── notifications/page.tsx
+└── reports/page.tsx
+```
+
+장점: URL 북마크/공유 가능, 브라우저 히스토리 지원
+
 ### Path Alias
 `@/*` maps to the project root (configured in tsconfig.json).
 
@@ -90,18 +126,77 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 ```
 durubitteo_web/
 ├── app/
-│   ├── (public)/
-│   │   ├── _components/      # (public) 전용 컴포넌트
-│   │   └── _hooks/           # (public) 전용 훅
-│   ├── (employee)/
+│   ├── _components/          # 루트 레벨 공용 컴포넌트
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   ├── HeroSection.tsx
+│   │   ├── HeroSlider.tsx
+│   │   ├── ServiceSection.tsx
+│   │   ├── TargetAudienceSection.tsx
+│   │   ├── PartnersSection.tsx
+│   │   └── CommuteSection.tsx
+│   │
+│   ├── login/                # 로그인 페이지들
+│   │   ├── admin/page.tsx    # /login/admin
+│   │   ├── company/page.tsx  # /login/company
+│   │   └── employee/page.tsx # /login/employee
+│   │
+│   ├── inquiry/              # 기업 문의 페이지
+│   │   └── page.tsx          # /inquiry
+│   │
+│   ├── playground/           # 개발용 테스트 페이지
+│   │   └── page.tsx          # /playground
+│   │
+│   ├── employee/             # 직원 영역
+│   │   ├── layout.tsx
+│   │   ├── page.tsx          # 직원 메인
+│   │   ├── checkin/page.tsx  # 출근 페이지
+│   │   ├── checkout/page.tsx # 퇴근 페이지
+│   │   └── _components/
+│   │       ├── SuccessModal.tsx
+│   │       ├── PhotoLightbox.tsx
+│   │       ├── NoticeSection.tsx
+│   │       └── WorkRecordsSection.tsx
+│   │
+│   ├── company/              # 기업 영역 (라우트 기반 탭)
+│   │   ├── layout.tsx        # 공통 헤더 + 탭 네비게이션
+│   │   ├── page.tsx          # → /company/dashboard 리다이렉트
 │   │   ├── _components/
-│   │   └── _hooks/
-│   ├── (company)/
-│   │   ├── _components/
-│   │   └── _hooks/
-│   └── (admin)/
+│   │   │   ├── StatCard.tsx
+│   │   │   ├── EmployeeTable.tsx
+│   │   │   ├── AttendanceTable.tsx
+│   │   │   ├── CalendarGrid.tsx
+│   │   │   ├── NoticeHistory.tsx
+│   │   │   ├── AddWorkerModal.tsx
+│   │   │   ├── ScheduleModal.tsx
+│   │   │   └── WorkerSelector.tsx
+│   │   ├── _data/            # 더미 데이터
+│   │   ├── dashboard/        # 대시보드 탭
+│   │   ├── employees/        # 근로자 관리 탭 + [id] 상세
+│   │   ├── schedule/         # 근무일정 탭
+│   │   └── notices/          # 공지사항 탭
+│   │
+│   └── admin/                # 관리자 영역 (라우트 기반 탭)
+│       ├── layout.tsx        # 공통 헤더 + 6개 탭 네비게이션
+│       ├── page.tsx          # → /admin/dashboard 리다이렉트
 │       ├── _components/
-│       └── _hooks/
+│       │   ├── AdminStatCard.tsx
+│       │   ├── CompanyCard.tsx
+│       │   ├── WorkerTable.tsx
+│       │   ├── WorkStatsTable.tsx
+│       │   ├── CompanyAttendanceAccordion.tsx
+│       │   ├── AbsenceAlertList.tsx
+│       │   ├── InquiryList.tsx
+│       │   ├── InquiryDetailModal.tsx
+│       │   ├── AddCompanyModal.tsx
+│       │   └── PrintPreviewModal.tsx
+│       ├── _data/            # 더미 데이터
+│       ├── dashboard/        # 대시보드 탭
+│       ├── companies/        # 회원사 관리 탭 + [id] 상세
+│       ├── employees/        # 근로자 관리 탭 + [id] 상세
+│       ├── workstats/        # 근무 통계 탭
+│       ├── notifications/    # 알림센터 탭
+│       └── reports/          # 리포트 탭
 │
 ├── components/               # 공용 컴포넌트 (app 외부)
 │   ├── ui/                   # 전역 UI 프리미티브 (Button, Input, Modal 등)
@@ -111,6 +206,18 @@ durubitteo_web/
 │   └── queries/              # 서버 상태 훅 (TanStack Query 등)
 │
 ├── types/                    # 공용 타입 정의
+│   ├── api.ts                # API 공통 타입 (ApiResponse, Pagination 등)
+│   ├── auth.ts               # 인증 관련 타입
+│   ├── admin.ts              # 관리자 타입
+│   ├── adminDashboard.ts     # 관리자 대시보드 타입
+│   ├── company.ts            # 기업 타입
+│   ├── companyDashboard.ts   # 기업 대시보드 타입
+│   ├── employee.ts           # 직원 타입
+│   ├── attendance.ts         # 출퇴근 타입
+│   ├── schedule.ts           # 근무일정 타입
+│   ├── notice.ts             # 공지사항 타입
+│   ├── inquiry.ts            # 문의 타입
+│   └── template.ts           # 템플릿 타입
 │
 └── lib/                      # 유틸리티 함수
 ```
@@ -118,7 +225,7 @@ durubitteo_web/
 #### Component & Hook Placement
 | 조건 | 위치 |
 |------|------|
-| 한 라우트 그룹에서만 사용 | `app/(group)/_components/`, `app/(group)/_hooks/` |
+| 한 라우트 폴더에서만 사용 | `app/employee/_components/`, `app/admin/_hooks/` 등 |
 | 여러 라우트에서 재사용 | `@/components/`, `@/hooks/` |
 | 범용 UI 프리미티브 | `@/components/ui/` |
 | 서버 상태 훅 | `@/hooks/queries/` |
@@ -135,9 +242,40 @@ durubitteo_web/
 | 상황 | 경로 방식 |
 |------|----------|
 | `app/` 외부 파일 import | 절대 경로 `@/` (e.g., `@/components/ui/Button`) |
-| 같은 라우트 그룹 내 | 상대 경로 `./` (e.g., `./_components/HeroSlider`) |
-| 다른 라우트 그룹 참조 | **금지** - 공용 폴더로 승격 필요 |
+| 같은 라우트 폴더 내 | 상대 경로 `./` (e.g., `./_components/NoticeSection`) |
+| 다른 라우트 폴더 참조 | **금지** - 공용 폴더로 승격 필요 |
 
 #### Type Placement
 - **Component Props**: 같은 파일에 정의
 - **Domain types**: `@/types/` 폴더에 정의
+
+### UI Components (공용 컴포넌트)
+
+`@/components/ui/`에 공용 UI 컴포넌트가 구현되어 있습니다. **페이지 UI 구현 시 반드시 이 컴포넌트들을 우선 사용하세요.**
+
+| 컴포넌트 | 용도 | 주요 Props |
+|---------|------|-----------|
+| `Button` | 버튼 | `variant`, `size`, `fullWidth`, `leftIcon`, `rightIcon` |
+| `Badge` | 상태 표시 | `variant`, `size` |
+| `Card` | 카드 컨테이너 | `padding`, `hover` + `CardHeader`, `CardContent`, `CardFooter` |
+| `Avatar` | 프로필 이미지/이니셜 | `src`, `name`, `size` |
+| `Input` | 텍스트 입력 | `label`, `error`, `leftIcon`, `size` |
+| `Textarea` | 여러 줄 입력 | `label`, `error` |
+| `Checkbox` | 체크박스 | `label`, `size` |
+| `IconButton` | 아이콘 버튼 | `icon`, `variant`, `size`, `label` |
+| `Modal` | 모달 다이얼로그 | `isOpen`, `onClose`, `title`, `size` |
+| `Tabs` | 탭 UI | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
+
+**사용 예시:**
+```tsx
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+
+<Button variant="primary" size="lg" leftIcon={<Icon />}>
+  버튼 텍스트
+</Button>
+```
+
+**유틸리티:**
+- `cn()` - Tailwind 클래스 병합 (`@/lib/cn`)

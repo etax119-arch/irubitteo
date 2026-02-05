@@ -1,0 +1,50 @@
+import Link from 'next/link';
+import { Clock, Building2, ChevronRight } from 'lucide-react';
+import HeroSlider from './HeroSlider';
+
+export default function HeroSection() {
+  return (
+    <section className="pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="space-y-8 text-left">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="w-12 h-[2px] bg-duru-orange-500"></span>
+            <span className="text-duru-orange-500 font-bold tracking-[0.2em] text-sm uppercase">
+              DURUBITTEO : SHINING TOGETHER
+            </span>
+          </div>
+
+          <h1 className="text-5xl lg:text-6xl font-bold leading-[1.3] tracking-tight text-gray-900 break-keep">
+            장애인 근로자와 기업이<br/>
+            <span className="text-duru-orange-600">함께 빛나는</span> 일터
+          </h1>
+
+          <p className="text-xl text-gray-600 leading-relaxed break-keep max-w-xl">
+            두루빛터는 장애인 근로자를 위한 맞춤형 일자리 매칭부터<br className="hidden sm:block"/>
+            편리한 출퇴근 관리까지, 든든한 다리가 되어드립니다.
+          </p>
+
+          <div className="flex flex-wrap gap-4 pt-4">
+            <Link
+              href="/login/employee"
+              className="px-8 py-4 bg-duru-orange-500 text-white rounded font-medium text-lg hover:bg-duru-orange-600 transition-colors shadow-soft flex items-center gap-2"
+            >
+              <Clock className="w-5 h-5" />
+              출퇴근 하기
+              <ChevronRight className="w-5 h-5" />
+            </Link>
+            <Link
+              href="/login/company"
+              className="px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded font-medium text-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
+            >
+              <Building2 className="w-5 h-5" />
+              기업 관리자 페이지
+            </Link>
+          </div>
+        </div>
+
+        <HeroSlider />
+      </div>
+    </section>
+  );
+}

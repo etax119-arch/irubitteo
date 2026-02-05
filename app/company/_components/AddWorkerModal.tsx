@@ -1,0 +1,447 @@
+'use client';
+
+import {
+  X,
+  Users,
+  Phone,
+  Heart,
+  Shield,
+  Briefcase,
+  Calendar,
+  Clock,
+  Hash,
+  Lock,
+  ChevronDown,
+  Check,
+  CheckCircle2,
+} from 'lucide-react';
+import type { AddWorkerForm } from '@/types/companyDashboard';
+
+interface AddWorkerModalProps {
+  isOpen: boolean;
+  form: AddWorkerForm;
+  complete: Record<string, boolean>;
+  onClose: () => void;
+  onUpdateForm: (field: keyof AddWorkerForm, value: string | string[]) => void;
+  onSubmit: () => void;
+}
+
+const DISABILITY_TYPES = [
+  '지체장애',
+  '뇌병변장애',
+  '시각장애',
+  '청각장애',
+  '언어장애',
+  '지적장애',
+  '정신장애',
+  '자폐성장애',
+  '신장장애',
+  '심장장애',
+  '호흡기장애',
+  '간장애',
+  '안면장애',
+  '장루·요루장애',
+  '간질장애',
+];
+
+const REQUIRED_FIELDS: (keyof AddWorkerForm)[] = [
+  'name',
+  'ssn',
+  'phone',
+  'gender',
+  'emergencyName',
+  'emergencyRelation',
+  'emergencyPhone',
+  'disabilityType',
+  'disabilitySeverity',
+  'hireDate',
+  'recognitionDate',
+  'workDays',
+  'workStartTime',
+  'workerId',
+];
+
+export function AddWorkerModal({
+  isOpen,
+  form,
+  complete,
+  onClose,
+  onUpdateForm,
+  onSubmit,
+}: AddWorkerModalProps) {
+  if (!isOpen) return null;
+
+  const isFormValid = REQUIRED_FIELDS.every((field) => {
+    if (field === 'workDays') {
+      return form[field] && Array.isArray(form[field]) && form[field].length > 0;
+    }
+    return form[field] && form[field].toString().trim();
+  });
+
+  const toggleWorkDay = (day: string) => {
+    const currentDays = form.workDays || [];
+    const newDays = currentDays.includes(day)
+      ? currentDays.filter((d) => d !== day)
+      : [...currentDays, day];
+    onUpdateForm('workDays', newDays);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto shadow-xl">
+        {/* 모달 헤더 */}
+        <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-200 px-6 py-5 flex items-center justify-between z-10">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">근로자 추가</h2>
+            <p className="text-xs text-gray-500 mt-0.5">근로자 기본 정보를 입력해주세요</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-400" />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-5">
+          {/* 섹션 1: 기본 인적 정보 */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Users className="w-4 h-4 text-duru-orange-500" />
+              기본 인적 정보
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  이름 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="근로자 이름"
+                    value={form.name}
+                    onChange={(e) => onUpdateForm('name', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
+                  />
+                  {complete.name && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+
+              {/* 민감 정보 영역 */}
+              <div className="bg-amber-50/60 rounded-lg p-3 space-y-3 border border-amber-200/60">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    주민등록번호 <span className="text-duru-orange-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="000000-0000000"
+                      value={form.ssn}
+                      onChange={(e) => onUpdateForm('ssn', e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 bg-white"
+                    />
+                    {complete.ssn && (
+                      <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    성별 <span className="text-duru-orange-500">*</span>
+                  </label>
+                  <div className="flex gap-2">
+                    {['남', '여'].map((g) => (
+                      <button
+                        key={g}
+                        onClick={() => onUpdateForm('gender', g)}
+                        className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors border ${
+                          form.gender === g
+                            ? 'bg-duru-orange-500 text-white border-duru-orange-500'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  휴대폰 번호 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="tel"
+                    placeholder="010-0000-0000"
+                    value={form.phone}
+                    onChange={(e) => onUpdateForm('phone', e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
+                  />
+                  {complete.phone && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 섹션 2: 비상 연락처 정보 */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Heart className="w-4 h-4 text-duru-orange-500" />
+              비상 연락처 정보
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  비상 연락처 이름 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="보호자 / 비상연락 대상자"
+                    value={form.emergencyName}
+                    onChange={(e) => onUpdateForm('emergencyName', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
+                  />
+                  {complete.emergencyName && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  근로자와의 관계 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="부모, 보호자 등"
+                    value={form.emergencyRelation}
+                    onChange={(e) => onUpdateForm('emergencyRelation', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
+                  />
+                  {complete.emergencyRelation && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  비상 연락처 전화번호 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="tel"
+                    placeholder="010-0000-0000"
+                    value={form.emergencyPhone}
+                    onChange={(e) => onUpdateForm('emergencyPhone', e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
+                  />
+                  {complete.emergencyPhone && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 섹션 3: 장애 정보 */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-duru-orange-500" />
+              장애 정보
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  장애 유형 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={form.disabilityType}
+                    onChange={(e) => onUpdateForm('disabilityType', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent appearance-none bg-white text-gray-700"
+                  >
+                    <option value="">장애 유형 선택</option>
+                    {DISABILITY_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  중증 / 경증 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  {['중증', '경증'].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => onUpdateForm('disabilitySeverity', s)}
+                      className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors border ${
+                        form.disabilitySeverity === s
+                          ? s === '중증'
+                            ? 'bg-red-500 text-white border-red-500'
+                            : 'bg-blue-500 text-white border-blue-500'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 섹션 4: 근무 및 인정 정보 */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-duru-orange-500" />
+              근무 및 인정 정보
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  입사일 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="date"
+                    value={form.hireDate}
+                    onChange={(e) => onUpdateForm('hireDate', e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent text-gray-700"
+                  />
+                  {complete.hireDate && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  장애인 인정일 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="date"
+                    value={form.recognitionDate}
+                    onChange={(e) => onUpdateForm('recognitionDate', e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent text-gray-700"
+                  />
+                  {complete.recognitionDate && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-2">
+                  근무 요일 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="grid grid-cols-7 gap-2 mb-3">
+                  {['월', '화', '수', '목', '금', '토', '일'].map((day) => {
+                    const isSelected = form.workDays.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => toggleWorkDay(day)}
+                        className={`py-2.5 rounded-lg text-sm font-semibold transition-colors border ${
+                          isSelected
+                            ? 'bg-duru-orange-500 text-white border-duru-orange-500'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+                {complete.workDays && (
+                  <div className="flex items-center gap-1 text-xs text-green-600 mb-3">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>{form.workDays.join(', ')} 선택됨</span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  출근 시간 <span className="text-duru-orange-500">*</span>
+                </label>
+                <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="time"
+                    value={form.workStartTime}
+                    onChange={(e) => onUpdateForm('workStartTime', e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent text-gray-700"
+                  />
+                  {complete.workStartTime && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 섹션 5: 근로자 고유 번호 설정 */}
+          <div className="bg-duru-orange-50 rounded-xl p-5 border border-duru-orange-200">
+            <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Hash className="w-4 h-4 text-duru-orange-500" />
+              근로자 고유 번호 설정
+            </h3>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                근로자 고유 번호 <span className="text-duru-orange-500">*</span>
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-duru-orange-400" />
+                <input
+                  type="text"
+                  placeholder="관리자가 부여하는 고유 번호"
+                  value={form.workerId}
+                  onChange={(e) => onUpdateForm('workerId', e.target.value)}
+                  className="w-full pl-9 pr-3 py-2.5 border border-duru-orange-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 bg-white"
+                />
+                {complete.workerId && (
+                  <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 모달 푸터 */}
+        <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-gray-200 px-6 py-4 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors text-sm"
+          >
+            취소
+          </button>
+          <button
+            onClick={onSubmit}
+            disabled={!isFormValid}
+            className="flex-[2] py-3 bg-duru-orange-500 text-white rounded-xl font-semibold hover:bg-duru-orange-600 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <Check className="w-4 h-4" />
+            근로자 추가 완료
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

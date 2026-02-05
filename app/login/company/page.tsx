@@ -1,0 +1,95 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { Hash, LogIn, AlertTriangle } from 'lucide-react';
+
+export default function CompanyLoginPage() {
+  const [companyId, setCompanyId] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  const isValidId = companyId.length >= 1;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 영숫자만 허용 (포맷 제한 없음)
+    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+    setCompanyId(value);
+    setLoginError('');
+  };
+
+  const handleLogin = () => {
+    if (!isValidId) return;
+    // TODO: 실제 로그인 로직 구현
+    console.log('Login with:', companyId);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && isValidId) {
+      handleLogin();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-duru-ivory flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-lg p-8 border border-duru-orange-100">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-duru-orange-100 rounded-full mb-4">
+              <Hash className="w-8 h-8 text-duru-orange-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">두루빛 기업</h1>
+            <p className="text-gray-600">부여받은 고유 번호를 입력해주세요</p>
+          </div>
+
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                고유 번호
+              </label>
+              <input
+                type="text"
+                placeholder="예) COMPANY123"
+                value={companyId}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                autoFocus
+                className={`w-full px-4 py-4 border rounded-lg text-2xl text-center tracking-[0.3em] font-semibold placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-500 placeholder:text-center focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent ${
+                  loginError ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              {loginError && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700">{loginError}</p>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleLogin}
+              disabled={!isValidId}
+              className="w-full py-5 bg-duru-orange-500 text-white rounded-lg font-bold text-xl hover:bg-duru-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <LogIn className="w-5 h-5" />
+              로그인
+            </button>
+
+            <p className="text-center text-sm text-gray-400">
+              고유 번호를 모르시나요?{' '}
+              <span className="text-gray-500 underline underline-offset-2">
+                관리자에게 문의해주세요
+              </span>
+            </p>
+
+            <Link
+              href="/"
+              className="block w-full py-3 text-center text-gray-600 hover:text-gray-900 transition-colors font-medium"
+            >
+              메인으로 돌아가기
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
