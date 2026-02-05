@@ -262,7 +262,9 @@ DB는 snake_case, API는 camelCase를 사용합니다. 주요 필드 예시:
   "email": "updated@company.com",
   "phone": "02-9876-5432",
   "address": "서울시 서초구...",
-  "businessNumber": "123-45-67890"
+  "businessNumber": "123-45-67890",
+  "resignDate": "2024-01-15",
+  "resignReason": "계약 해지"
 }
 ```
 
@@ -281,14 +283,16 @@ DB는 snake_case, API는 camelCase를 사용합니다. 주요 필드 예시:
   "hrContactName": "김담당",
   "hrContactPhone": "010-1111-2222",
   "hrContactEmail": "hr@company.com",
-  "isActive": true,
+  "resignDate": "2024-01-15",
+  "resignReason": "계약 해지",
+  "isActive": false,
   "employeeCount": 15,
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-15T10:00:00Z"
 }
 ```
 
-**참고**: `code`는 수정 불가. `contractStartDate`, `contractEndDate`, `hrContactName`, `hrContactPhone`, `hrContactEmail`은 수정 가능합니다.
+**참고**: `code`는 수정 불가. `contractStartDate`, `contractEndDate`, `hrContactName`, `hrContactPhone`, `hrContactEmail`은 수정 가능합니다. `resignDate`와 `resignReason`은 탈퇴 처리 시 함께 전송하며, 탈퇴 시 `isActive`는 자동으로 `false`로 변경됩니다.
 
 ### DELETE /companies/:id
 기업 삭제 (비활성화, 관리자 전용)

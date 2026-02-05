@@ -22,6 +22,7 @@ import {
   Hash,
   Copy,
   Check,
+  AlertTriangle,
 } from 'lucide-react';
 import { companiesData } from '../../_data/dummyData';
 
@@ -75,6 +76,11 @@ export default function CompanyDetailPage() {
   const [isEditingPm, setIsEditingPm] = useState(false);
   const [editedPm, setEditedPm] = useState<PMInfo>({ name: '', phone: '', email: '' });
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [showResignModal, setShowResignModal] = useState(false);
+  const [resignForm, setResignForm] = useState({
+    date: new Date().toISOString().split('T')[0],
+    reason: '',
+  });
 
   const workers: Worker[] = [
     { id: 1, name: '김민수', phone: '010-1234-5678', hireDate: '2025-06-15', workerId: 'ms0315', disability: '지체장애' },
@@ -358,6 +364,15 @@ export default function CompanyDetailPage() {
                 </div>
               </div>
             </div>
+
+            {/* 회원사 탈퇴 버튼 (활성 회원사인 경우만) */}
+            <button
+              onClick={() => setShowResignModal(true)}
+              className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-semibold hover:bg-red-100 transition-colors flex items-center justify-center gap-2 border border-red-200"
+            >
+              <Trash2 className="w-5 h-5" />
+              회원사 탈퇴
+            </button>
           </div>
 
           {/* 오른쪽: 상세 정보 */}
@@ -463,6 +478,86 @@ export default function CompanyDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 회원사 탈퇴 모달 */}
+      {showResignModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <AlertTriangle className="w-6 h-6 text-red-500" />
+                회원사 탈퇴
+              </h3>
+              <button
+                onClick={() => setShowResignModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-red-700">
+                <strong>{company.name}</strong> 회원사를 탈퇴 처리합니다.
+                <br />
+                탈퇴 처리 후 해당 회원사와 소속 근로자는 서비스에 접속할 수 없습니다.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  탈퇴일 <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="date"
+                    value={resignForm.date}
+                    onChange={(e) => setResignForm({ ...resignForm, date: e.target.value })}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  비고 (탈퇴 사유 등)
+                </label>
+                <textarea
+                  value={resignForm.reason}
+                  onChange={(e) => setResignForm({ ...resignForm, reason: e.target.value })}
+                  placeholder="탈퇴 사유나 특이사항을 입력해주세요..."
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowResignModal(false)}
+                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={() => {
+                    if (!resignForm.date) return;
+                    alert('회원사 탈퇴가 완료되었습니다.');
+                    setShowResignModal(false);
+                    setResignForm({ date: new Date().toISOString().split('T')[0], reason: '' });
+                  }}
+                  disabled={!resignForm.date}
+                  className="flex-1 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  회원사 탈퇴
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

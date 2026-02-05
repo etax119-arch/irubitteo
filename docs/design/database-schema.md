@@ -71,6 +71,8 @@ CREATE TABLE admins (
 | hr_contact_name | VARCHAR(100) | | 인사담당자명 |
 | hr_contact_phone | VARCHAR(20) | | 인사담당자 연락처 |
 | hr_contact_email | VARCHAR(255) | | 인사담당자 이메일 |
+| resign_date | DATE | | 탈퇴일 |
+| resign_reason | TEXT | | 탈퇴 사유/비고 |
 | is_active | BOOLEAN | DEFAULT TRUE | 활성 상태 |
 | created_at | TIMESTAMP | DEFAULT NOW() | 생성일 |
 | updated_at | TIMESTAMP | DEFAULT NOW() | 수정일 |
@@ -89,6 +91,8 @@ CREATE TABLE companies (
   hr_contact_name VARCHAR(100),
   hr_contact_phone VARCHAR(20),
   hr_contact_email VARCHAR(255),
+  resign_date DATE,
+  resign_reason TEXT,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
