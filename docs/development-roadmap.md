@@ -7,65 +7,35 @@
 | 문서 설계 | ✅ 완료 | 14개 테이블, 50+ API 엔드포인트 |
 | 프론트 구조설계 | ✅ 완료 | 23개 페이지, 10개 공용 컴포넌트 |
 | UI 구현 | ✅ 완료 | 70-75% 완성 (더미 데이터 기반) |
-| DB 테이블 | ❌ 미진행 | Supabase 사용 예정 |
+| DB 테이블 | ✅ 완료 | Supabase에 13개 테이블 생성 |
 | 서버 설계/구현 | ❌ 미진행 | NestJS 사용 예정 |
 | 프론트-백엔드 연동 | ❌ 미진행 | API 클라이언트 필요 |
 
 ---
 
-## Phase 1: DB 테이블 생성 (Supabase)
+## Phase 1: DB 테이블 생성 (Supabase) ✅ 완료
 
-### 목표
-설계 문서(`docs/design/database-schema.md`) 기반으로 Supabase에 테이블 생성
+### 완료 내용
+- [x] Supabase 프로젝트: `welkit_job` (ap-northeast-2)
+- [x] 13개 테이블 생성 완료
+- [x] 인덱스 생성 완료
+- [x] RLS 활성화 (정책 없음 - service_role로 접근)
+- [x] 테스트용 관리자/기업 데이터 입력
 
-### 작업 내용
-
-#### 1-1. Supabase 프로젝트 확인
-- [ ] 프로젝트 URL, API 키 확인
-- [ ] 환경변수 파일 설정 (`.env.local`)
-
-#### 1-2. 테이블 생성 (순서 중요 - 외래키 의존성)
-
-**1단계: 독립 테이블**
-```sql
--- 1. admins (관리자)
--- 2. inquiries (기업 문의)
--- 3. templates (문서 템플릿)
-```
-
-**2단계: companies 관련**
-```sql
--- 4. companies (기업)
--- 5. company_files (기업 첨부파일) - FK: companies
-```
-
-**3단계: employees 관련**
-```sql
--- 6. employees (직원) - FK: companies
--- 7. employee_files (직원 첨부파일) - FK: employees
-```
-
-**4단계: 기능 테이블**
-```sql
--- 8. attendances (출퇴근) - FK: employees
--- 9. schedules (근무일정) - FK: companies
--- 10. notices (공지사항) - FK: companies
--- 11. notice_recipients (공지 수신자) - FK: notices, employees
--- 12. employee_monthly_stats (월간 통계) - FK: employees
-```
-
-**5단계: 로그 테이블**
-```sql
--- 13. audit_logs (감사 로그)
-```
-
-#### 1-3. 인덱스 생성
-- database-schema.md에 명시된 인덱스들 생성
-
-#### 1-4. 초기 데이터
-- [ ] 관리자 계정 1개 생성 (비밀번호 bcrypt 해시)
-- [ ] 테스트용 기업 1개 생성
-- [ ] 테스트용 직원 2-3명 생성
+### 생성된 테이블
+1. `admins` - 관리자
+2. `inquiries` - 기업 문의
+3. `templates` - 문서 템플릿
+4. `companies` - 기업
+5. `company_files` - 기업 첨부파일
+6. `employees` - 직원
+7. `employee_files` - 직원 첨부파일
+8. `attendances` - 출퇴근
+9. `schedules` - 근무일정
+10. `notices` - 공지사항
+11. `notice_recipients` - 공지 수신자
+12. `employee_monthly_stats` - 월간 통계
+13. `audit_logs` - 감사 로그
 
 ### 참고 파일
 - `docs/design/database-schema.md` - 전체 SQL 스크립트 포함
@@ -367,10 +337,10 @@ Week 11-12: Phase 3-4 + 4-4,5
 
 ## 검증 체크리스트
 
-### Phase 1 완료 시
-- [ ] Supabase 대시보드에서 14개 테이블 확인
-- [ ] 테이블 간 외래키 관계 확인
-- [ ] 테스트 데이터 입력 및 조회
+### Phase 1 완료 시 ✅
+- [x] Supabase 대시보드에서 13개 테이블 확인
+- [x] 테이블 간 외래키 관계 확인
+- [x] 테스트 데이터 입력 및 조회
 
 ### Phase 2 완료 시
 - [ ] `npm run start:dev` 서버 실행 확인
