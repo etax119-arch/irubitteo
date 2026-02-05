@@ -1,0 +1,185 @@
+import type {
+  DailyAttendanceRecord,
+  CompanyEmployee,
+  ScheduleEntry,
+  SentNotice,
+  AddWorkerForm,
+} from '@/types/companyDashboard';
+
+// 더미 데이터
+export const initialEmployees: CompanyEmployee[] = [
+  {
+    id: 1,
+    name: '김민수',
+    phone: '010-1234-5678',
+    disability: '지체장애 3급',
+    hireDate: '2025-03-01',
+    contractEnd: '2026-12-31',
+    status: 'checkin',
+    checkinTime: '09:00',
+    checkoutTime: null,
+    workerId: 'ms0315',
+    notes: '성실하고 꼼꼼함. 품질 검수 업무에 적합',
+    isResigned: false,
+    resignDate: null,
+    resignReason: null,
+  },
+  {
+    id: 2,
+    name: '이영희',
+    phone: '010-2345-6789',
+    disability: '청각장애 2급',
+    hireDate: '2025-06-15',
+    contractEnd: '2026-12-31',
+    status: 'checkin',
+    checkinTime: '09:15',
+    checkoutTime: null,
+    workerId: 'yh0520',
+    notes: '수화 가능. 포장 작업 숙련도 높음',
+    isResigned: false,
+    resignDate: null,
+    resignReason: null,
+  },
+  {
+    id: 3,
+    name: '박철수',
+    phone: '010-3456-7890',
+    disability: '시각장애 4급',
+    hireDate: '2025-08-01',
+    contractEnd: '2026-03-15',
+    status: 'checkout',
+    checkinTime: '09:00',
+    checkoutTime: '18:00',
+    workerId: 'cs1108',
+    notes: '보조기기 사용. 단순 조립 업무 담당',
+    isResigned: false,
+    resignDate: null,
+    resignReason: null,
+  },
+  {
+    id: 4,
+    name: '정미라',
+    phone: '010-4567-8901',
+    disability: '지체장애 2급',
+    hireDate: '2025-09-01',
+    contractEnd: '2027-06-30',
+    status: 'checkin',
+    checkinTime: '08:45',
+    checkoutTime: null,
+    workerId: 'mr0723',
+    notes: '휠체어 사용. 사무 보조 업무 가능',
+    isResigned: false,
+    resignDate: null,
+    resignReason: null,
+  },
+  {
+    id: 5,
+    name: '최동욱',
+    phone: '010-5678-9012',
+    disability: '발달장애 3급',
+    hireDate: '2025-11-01',
+    contractEnd: '2026-01-22',
+    status: 'resigned',
+    checkinTime: null,
+    checkoutTime: null,
+    workerId: 'dw0412',
+    notes: '반복 작업 능숙. 재배 작업 담당했음',
+    isResigned: true,
+    resignDate: '2026-01-22',
+    resignReason: '개인 사유로 인한 자진 퇴사',
+  },
+];
+
+export const initialNotices: SentNotice[] = [
+  {
+    id: 1,
+    date: '2026-01-28 14:30',
+    workers: ['김민수', '이영희', '박철수', '정미라', '최동욱'],
+    content: '내일 오전 10시에 안전교육이 진행됩니다.\n필히 참석 부탁드립니다.',
+    sender: '관리자',
+  },
+  {
+    id: 2,
+    date: '2026-01-25 09:00',
+    workers: ['김민수', '이영희'],
+    content: '금일 제조부 근무시간이 1시간 연장됩니다.',
+    sender: '관리자',
+  },
+];
+
+export const schedules: Record<string, ScheduleEntry> = {
+  '2': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-blue-50 border-blue-300' },
+  '3': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 6, color: 'bg-sky-50 border-sky-300' },
+  '5': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-blue-50 border-blue-300' },
+  '6': { workType: '업무 지시서', startTime: '10:00', endTime: '16:00', workers: 5, color: 'bg-cyan-50 border-cyan-300' },
+  '7': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-blue-50 border-blue-300' },
+  '8': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-sky-50 border-sky-300' },
+  '9': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 4, color: 'bg-cyan-50 border-cyan-300' },
+  '10': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 6, color: 'bg-blue-50 border-blue-300' },
+  '12': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-sky-50 border-sky-300' },
+  '13': { workType: '업무 지시서', startTime: '10:00', endTime: '16:00', workers: 5, color: 'bg-cyan-50 border-cyan-300' },
+  '14': { workType: '업무 지시서', startTime: '13:00', endTime: '17:00', workers: 3, color: 'bg-blue-50 border-blue-300' },
+  '15': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-sky-50 border-sky-300' },
+  '16': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-cyan-50 border-cyan-300' },
+  '17': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 6, color: 'bg-blue-50 border-blue-300' },
+  '19': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-sky-50 border-sky-300' },
+  '20': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-cyan-50 border-cyan-300' },
+  '21': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 5, color: 'bg-blue-50 border-blue-300' },
+  '22': { workType: '업무 지시서', startTime: '10:00', endTime: '16:00', workers: 4, color: 'bg-sky-50 border-sky-300' },
+  '23': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-cyan-50 border-cyan-300' },
+  '24': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 6, color: 'bg-blue-50 border-blue-300' },
+  '26': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-sky-50 border-sky-300' },
+  '27': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-cyan-50 border-cyan-300' },
+  '28': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-blue-50 border-blue-300' },
+};
+
+export const INITIAL_ADD_WORKER_FORM: AddWorkerForm = {
+  name: '',
+  ssn: '',
+  phone: '',
+  gender: '',
+  emergencyName: '',
+  emergencyRelation: '',
+  emergencyPhone: '',
+  disabilityType: '',
+  disabilitySeverity: '',
+  hireDate: '',
+  recognitionDate: '',
+  workDays: [],
+  workStartTime: '',
+  workerId: '',
+};
+
+export function getDailyAttendance(date: Date): DailyAttendanceRecord[] {
+  if (date.getDate() === 28 && date.getMonth() === 0 && date.getFullYear() === 2026) {
+    return [
+      { id: 1, name: '김민수', phone: '010-1234-5678', checkinTime: '09:00', checkoutTime: '-', status: 'checkin', workDone: '' },
+      { id: 2, name: '이영희', phone: '010-2345-6789', checkinTime: '09:15', checkoutTime: '-', status: 'checkin', workDone: '' },
+      { id: 3, name: '박철수', phone: '010-3456-7890', checkinTime: '09:00', checkoutTime: '-', status: 'checkin', workDone: '' },
+      { id: 4, name: '정미라', phone: '010-4567-8901', checkinTime: '08:45', checkoutTime: '-', status: 'checkin', workDone: '' },
+      { id: 5, name: '최동욱', phone: '010-5678-9012', checkinTime: '-', checkoutTime: '-', status: 'pending', workDone: '' },
+    ];
+  } else if (date.getDate() === 27 && date.getMonth() === 0 && date.getFullYear() === 2026) {
+    return [
+      { id: 1, name: '김민수', phone: '010-1234-5678', checkinTime: '09:05', checkoutTime: '18:10', status: 'checkout', workDone: '제품 검수 및 정리' },
+      { id: 2, name: '이영희', phone: '010-2345-6789', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '포장 작업' },
+      { id: 3, name: '박철수', phone: '010-3456-7890', checkinTime: '09:00', checkoutTime: '18:05', status: 'checkout', workDone: '조립 라인 관리' },
+      { id: 4, name: '정미라', phone: '010-4567-8901', checkinTime: '08:50', checkoutTime: '18:00', status: 'checkout', workDone: '품질 검사 및 보고서 작성' },
+      { id: 5, name: '최동욱', phone: '010-5678-9012', checkinTime: null, checkoutTime: null, status: 'absent', workDone: '' },
+    ];
+  } else if (date.getDate() === 26 && date.getMonth() === 0 && date.getFullYear() === 2026) {
+    return [
+      { id: 1, name: '김민수', phone: '010-1234-5678', checkinTime: '09:00', checkoutTime: '17:55', status: 'checkout', workDone: '재고 정리' },
+      { id: 2, name: '이영희', phone: '010-2345-6789', checkinTime: '09:10', checkoutTime: '18:00', status: 'checkout', workDone: '배송 준비' },
+      { id: 3, name: '박철수', phone: '010-3456-7890', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '기계 점검' },
+      { id: 4, name: '정미라', phone: '010-4567-8901', checkinTime: '09:00', checkoutTime: '18:10', status: 'checkout', workDone: '최종 검수' },
+      { id: 5, name: '최동욱', phone: '010-5678-9012', checkinTime: '09:15', checkoutTime: '18:05', status: 'checkout', workDone: '포장 작업' },
+    ];
+  } else {
+    return [
+      { id: 1, name: '김민수', phone: '010-1234-5678', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '일반 업무' },
+      { id: 2, name: '이영희', phone: '010-2345-6789', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '일반 업무' },
+      { id: 3, name: '박철수', phone: '010-3456-7890', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '일반 업무' },
+    ];
+  }
+}

@@ -70,6 +70,24 @@ npm run lint     # ESLint check
 ### App Router Structure
 All pages and layouts live in `app/`. Server Components are the default - add `'use client'` directive only for components that need interactivity.
 
+### Route-based Tab Navigation Pattern
+탭 UI가 있는 대시보드는 URL 기반 라우팅을 사용합니다:
+- `layout.tsx`: 공통 헤더 + Link 기반 탭 네비게이션
+- `page.tsx`: 기본 탭으로 리다이렉트 (예: `/company` → `/company/dashboard`)
+- 각 탭은 독립적인 `page.tsx`로 구현
+
+```
+/company/
+├── layout.tsx      # 헤더 + 탭 (Link 컴포넌트)
+├── page.tsx        # redirect('/company/dashboard')
+├── dashboard/page.tsx
+├── employees/page.tsx
+├── schedule/page.tsx
+└── notices/page.tsx
+```
+
+장점: URL 북마크/공유 가능, 브라우저 히스토리 지원
+
 ### Path Alias
 `@/*` maps to the project root (configured in tsconfig.json).
 
@@ -95,9 +113,15 @@ durubitteo_web/
 │   ├── employee/             # 직원 영역
 │   │   ├── _components/
 │   │   └── _hooks/
-│   ├── company/              # 기업 영역
-│   │   ├── _components/
-│   │   └── _hooks/
+│   ├── company/              # 기업 영역 (라우트 기반 탭)
+│   │   ├── layout.tsx        # 공통 헤더 + 탭 네비게이션
+│   │   ├── page.tsx          # → /company/dashboard 리다이렉트
+│   │   ├── _components/      # 공용 컴포넌트
+│   │   ├── _data/            # 더미 데이터
+│   │   ├── dashboard/        # 대시보드 탭
+│   │   ├── employees/        # 근로자 관리 탭
+│   │   ├── schedule/         # 근무일정 탭
+│   │   └── notices/          # 공지사항 탭
 │   └── admin/                # 관리자 영역
 │       ├── _components/
 │       └── _hooks/
