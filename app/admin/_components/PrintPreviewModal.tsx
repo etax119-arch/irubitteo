@@ -13,20 +13,55 @@ interface PrintPreviewModalProps {
   selectedMonth: string;
 }
 
-export function PrintPreviewModal({
-  isOpen,
+const ALL_DAYS = ['월', '화', '수', '목', '금', '토', '일'];
+
+function copyWorkers(workers: WorkStatWorker[]): WorkStatWorker[] {
+  return workers.map(w => ({ ...w, scheduledWorkDays: [...w.scheduledWorkDays] }));
+}
+
+interface PrintPreviewContentProps {
+  onClose: () => void;
+  companyName: string;
+  workers: WorkStatWorker[];
+  pm: PMInfo | null;
+  selectedMonth: string;
+}
+
+function PrintPreviewContent({
   onClose,
   companyName,
   workers,
   pm,
   selectedMonth,
-}: PrintPreviewModalProps) {
+}: PrintPreviewContentProps) {
   const [copiedEmail, setCopiedEmail] = useState(false);
+  // workers를 초기값으로 복사하여 로컬 상태로 관리
+  const [localWorkers, setLocalWorkers] = useState<WorkStatWorker[]>(() => copyWorkers(workers));
+  const [editingCell, setEditingCell] = useState<{ workerId: number; field: 'workDays' | 'totalHours' } | null>(null);
 
-  if (!isOpen) return null;
+  const avgWorkDays = localWorkers.length > 0
+    ? (localWorkers.reduce((sum, w) => sum + w.workDays, 0) / localWorkers.length).toFixed(1)
+    : '0';
+  const avgWorkHours = localWorkers.length > 0
+    ? (localWorkers.reduce((sum, w) => sum + w.totalHours, 0) / localWorkers.length).toFixed(1)
+    : '0';
 
-  const avgWorkDays = (workers.reduce((sum, w) => sum + w.workDays, 0) / workers.length).toFixed(1);
-  const avgWorkHours = (workers.reduce((sum, w) => sum + w.totalHours, 0) / workers.length).toFixed(1);
+  const toggleWorkDay = (workerId: number, day: string) => {
+    setLocalWorkers(prev => prev.map(w => {
+      if (w.id !== workerId) return w;
+      const days = w.scheduledWorkDays.includes(day)
+        ? w.scheduledWorkDays.filter(d => d !== day)
+        : [...w.scheduledWorkDays, day].sort((a, b) => ALL_DAYS.indexOf(a) - ALL_DAYS.indexOf(b));
+      return { ...w, scheduledWorkDays: days };
+    }));
+  };
+
+  const updateNumericField = (workerId: number, field: 'workDays' | 'totalHours', value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setLocalWorkers(prev => prev.map(w =>
+      w.id === workerId ? { ...w, [field]: numValue } : w
+    ));
+  };
 
   const handlePrint = () => {
     window.print();
@@ -119,19 +154,73 @@ export function PrintPreviewModal({
                 </tr>
               </thead>
               <tbody>
-                {workers.map((worker, index) => (
+                {localWorkers.map((worker, index) => (
                   <tr key={worker.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-4 py-3 font-semibold text-gray-900 border border-gray-300">
                       {worker.name}
                     </td>
-                    <td className="px-4 py-3 text-gray-700 border border-gray-300">
-                      {worker.scheduledWorkDays.join(', ')}
+                    <td className="px-4 py-2 text-gray-700 border border-gray-300 print:py-3">
+                      <div className="flex flex-wrap gap-1 print:hidden">
+                        {ALL_DAYS.map(day => (
+                          <button
+                            key={day}
+                            onClick={() => toggleWorkDay(worker.id, day)}
+                            className={`w-7 h-7 rounded-full text-xs font-medium transition-colors ${
+                              worker.scheduledWorkDays.includes(day)
+                                ? 'bg-duru-orange-500 text-white'
+                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                            }`}
+                          >
+                            {day}
+                          </button>
+                        ))}
+                      </div>
+                      <span className="hidden print:inline">
+                        {worker.scheduledWorkDays.join(', ')}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-center text-gray-900 border border-gray-300">
-                      {worker.workDays}일
+                      {editingCell?.workerId === worker.id && editingCell?.field === 'workDays' ? (
+                        <input
+                          type="number"
+                          min="0"
+                          className="w-16 px-2 py-1 text-center border border-duru-orange-300 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+                          value={worker.workDays}
+                          onChange={e => updateNumericField(worker.id, 'workDays', e.target.value)}
+                          onBlur={() => setEditingCell(null)}
+                          onKeyDown={e => e.key === 'Enter' && setEditingCell(null)}
+                          autoFocus
+                        />
+                      ) : (
+                        <span
+                          onClick={() => setEditingCell({ workerId: worker.id, field: 'workDays' })}
+                          className="cursor-pointer hover:bg-duru-orange-50 px-2 py-1 rounded print:cursor-default print:hover:bg-transparent"
+                        >
+                          {worker.workDays}일
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center font-bold text-blue-600 border border-gray-300">
-                      {worker.totalHours}h
+                      {editingCell?.workerId === worker.id && editingCell?.field === 'totalHours' ? (
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          className="w-16 px-2 py-1 text-center border border-duru-orange-300 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+                          value={worker.totalHours}
+                          onChange={e => updateNumericField(worker.id, 'totalHours', e.target.value)}
+                          onBlur={() => setEditingCell(null)}
+                          onKeyDown={e => e.key === 'Enter' && setEditingCell(null)}
+                          autoFocus
+                        />
+                      ) : (
+                        <span
+                          onClick={() => setEditingCell({ workerId: worker.id, field: 'totalHours' })}
+                          className="cursor-pointer hover:bg-duru-orange-50 px-2 py-1 rounded print:cursor-default print:hover:bg-transparent"
+                        >
+                          {worker.totalHours}h
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -167,13 +256,34 @@ export function PrintPreviewModal({
                 </div>
               </div>
             </div>
-            <div className="flex justify-between text-sm text-gray-600 mt-4">
-              <div>발급일: {new Date().toLocaleDateString('ko-KR')}</div>
+            <div className="flex justify-end text-sm text-gray-600 mt-4">
               <div>두루빛터 중앙 통제 시스템</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export function PrintPreviewModal({
+  isOpen,
+  onClose,
+  companyName,
+  workers,
+  pm,
+  selectedMonth,
+}: PrintPreviewModalProps) {
+  // isOpen이 true일 때만 내부 컴포넌트를 렌더링하여 상태를 매번 초기화
+  if (!isOpen) return null;
+
+  return (
+    <PrintPreviewContent
+      onClose={onClose}
+      companyName={companyName}
+      workers={workers}
+      pm={pm}
+      selectedMonth={selectedMonth}
+    />
   );
 }
