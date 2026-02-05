@@ -54,7 +54,6 @@ export type AuthUser = AuthUserEmployee | AuthUserCompany | AuthUserAdmin;
 
 /** 로그인 응답 */
 export type LoginResponse = {
-  accessToken: string;
-  refreshToken: string;
   user: AuthUser;
+  // accessToken, refreshToken은 HttpOnly Cookie로 서버에서 설정됨
 };

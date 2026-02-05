@@ -7,10 +7,20 @@
 - **Content-Type**: `application/json`
 
 ### 토큰 정책
-- **Access Token**: 유효기간 1시간
-- **Refresh Token**: 유효기간 7일
-- **저장 위치**: HttpOnly Cookie (보안 강화)
-- **갱신 방식**: Refresh Token으로 새 Access Token 발급
+- **Access Token**: 유효기간 1시간, HttpOnly Cookie
+- **Refresh Token**: 유효기간 7일, HttpOnly Cookie
+- **저장 위치**: HttpOnly Cookie (서버에서 Set-Cookie 헤더로 설정)
+- **갱신 방식**: Cookie 자동 전송, 서버에서 검증 후 새 Cookie 발급
+
+### Cookie 설정
+| Cookie | HttpOnly | Secure | SameSite | Path | Max-Age |
+|--------|----------|--------|----------|------|---------|
+| accessToken | Yes | Yes | Strict | / | 3600 (1시간) |
+| refreshToken | Yes | Yes | Strict | /auth | 604800 (7일) |
+| auth-status | No | Yes | Strict | / | 3600 |
+| user-role | No | Yes | Strict | / | 3600 |
+
+**참고**: `auth-status`와 `user-role`은 클라이언트(middleware.ts)에서 라우트 보호를 위해 읽을 수 있도록 HttpOnly가 아닙니다.
 
 ### 필드명 변환 규칙
 
@@ -57,16 +67,16 @@ DB는 snake_case, API는 camelCase를 사용합니다. 주요 필드 예시:
 ```json
 {
   "type": "employee | company | admin",
-  "identifier": "ABC-001",  // 직원/기업: 고유번호, 관리자: 이메일
-  "password": "string"      // 관리자만 필요
+  "identifier": "99011234",  // 직원: 생년월일4자리+전화번호뒤4자리, 기업: 고유번호, 관리자: 이메일
+  "password": "string"       // 관리자만 필요
 }
 ```
 
 **Response**
+- **Set-Cookie**: `accessToken` (HttpOnly), `refreshToken` (HttpOnly), `auth-status`, `user-role`
+
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
   "user": {
     "id": "uuid",
     "role": "employee | company | admin",
@@ -75,21 +85,20 @@ DB는 snake_case, API는 camelCase를 사용합니다. 주요 필드 예시:
 }
 ```
 
+**참고**: `accessToken`, `refreshToken`은 응답 body가 아닌 Set-Cookie 헤더로 전달됩니다.
+
 ### POST /auth/refresh
 토큰 갱신
 
 **Request**
-```json
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
-}
-```
+- Body 없음 (refreshToken은 Cookie로 자동 전송)
 
 **Response**
+- **Set-Cookie**: 새 `accessToken`, `refreshToken` Cookie 설정
+
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
+  "message": "토큰이 갱신되었습니다."
 }
 ```
 
@@ -97,13 +106,11 @@ DB는 snake_case, API는 camelCase를 사용합니다. 주요 필드 예시:
 로그아웃
 
 **Request**
-```json
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
-}
-```
+- Body 없음 (refreshToken은 Cookie로 자동 전송)
 
 **Response**
+- **Set-Cookie**: 모든 인증 관련 Cookie 삭제 (Max-Age=0)
+
 ```json
 {
   "message": "로그아웃되었습니다."
