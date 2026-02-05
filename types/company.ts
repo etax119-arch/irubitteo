@@ -17,6 +17,11 @@ export type Company = {
   updatedAt: Date;
 };
 
+/** 기업 목록 조회 응답 (직원 수 포함) */
+export type CompanyWithEmployeeCount = Company & {
+  employeeCount: number;
+};
+
 /** 기업 생성 입력 */
 export type CompanyCreateInput = {
   code: string;

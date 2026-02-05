@@ -3,33 +3,28 @@
 ## 1. 전체 구조
 
 ```
-┌─────────────┐     ┌─────────────────┐     ┌───────────────┐     ┌─────────────┐
-│   admins    │     │    companies    │     │ notifications │     │ audit_logs  │
-└─────────────┘     └────────┬────────┘     └───────────────┘     └─────────────┘
+                    ┌─────────────────┐
+                    │    companies    │
+                    └────────┬────────┘
                              │
-              ┌──────────────┼──────────────┬───────────────┐     ┌───────────┐
-              │              │              │               │     │ templates │
-              ▼              ▼              ▼               ▼     └───────────┘
-    ┌─────────────────┐ ┌──────────┐ ┌───────────┐ ┌─────────────────┐
-    │  company_files  │ │employees │ │ schedules │ │     reports     │
-    └─────────────────┘ └────┬─────┘ └───────────┘ └────────┬────────┘
-                             │                              │
-         ┌───────────────────┼────────────────┬─────────────┤
-         │                   │                │             │
-         ▼                   ▼                ▼             ▼
-┌──────────────┐ ┌───────────────────────┐ ┌─────────────┐ ┌─────────────────┐
-│employee_files│ │notices─notice_recip...│ │ attendances │ │  report_files   │
-└──────────────┘ └───────────────────────┘ └─────────────┘ └─────────────────┘
-                                                  │
-                                                  ▼
-                                   ┌────────────────────────┐
-                                   │ employee_monthly_stats │
-                                   └────────────────────────┘
-                                   (employees FK - 관리자 월간 통계 수정용)
+         ┌───────────────────┼───────────────────┐
+         │           │               │           │
+         ▼           ▼               ▼           ▼
+┌─────────────┐ ┌──────────┐ ┌───────────┐ ┌─────────┐
+│company_files│ │employees │ │ schedules │ │ notices │
+└─────────────┘ └────┬─────┘ └───────────┘ └────┬────┘
+                     │                          │
+    ┌────────────────┼────────────────┬─────────┴─────────┐
+    │                │                │                   │
+    ▼                ▼                ▼                   ▼
+┌────────────┐ ┌───────────┐ ┌──────────────────┐ ┌─────────────────┐
+│employee_   │ │attendances│ │employee_monthly_ │ │notice_recipients│
+│files       │ │           │ │stats             │ │                 │
+└────────────┘ └───────────┘ └──────────────────┘ └─────────────────┘
 
-┌───────────┐
-│ inquiries │  (독립 테이블 - 비인증 문의)
-└───────────┘
+┌─────────────┐ ┌─────────────┐ ┌───────────┐ ┌───────────┐
+│   admins    │ │ audit_logs  │ │ templates │ │ inquiries │  (독립 테이블들)
+└─────────────┘ └─────────────┘ └───────────┘ └───────────┘
 ```
 
 ---
@@ -98,6 +93,8 @@ CREATE TABLE companies (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE INDEX idx_companies_is_active ON companies(is_active);
 ```
 
 ---
@@ -154,6 +151,8 @@ CREATE INDEX idx_company_files_company ON company_files(company_id);
 | emergency_contact_name | VARCHAR(100) | | 비상연락처 이름 |
 | emergency_contact_relation | VARCHAR(50) | | 비상연락처 관계 |
 | emergency_contact_phone | VARCHAR(20) | | 비상연락처 전화번호 |
+| company_note | TEXT | | 기업 메모 (기업이 작성) |
+| admin_note | TEXT | | 관리자 메모 (두르비터 관리자가 작성) |
 | is_active | BOOLEAN | DEFAULT TRUE | 활성 상태 |
 | created_at | TIMESTAMP | DEFAULT NOW() | 생성일 |
 | updated_at | TIMESTAMP | DEFAULT NOW() | 수정일 |
@@ -180,13 +179,16 @@ CREATE TABLE employees (
   emergency_contact_name VARCHAR(100),
   emergency_contact_relation VARCHAR(50),
   emergency_contact_phone VARCHAR(20),
+  company_note TEXT,
+  admin_note TEXT,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE INDEX idx_employees_company ON employees(company_id);
-CREATE INDEX idx_employees_unique_code ON employees(unique_code);
+-- idx_employees_unique_code 제거: UNIQUE 제약조건이 이미 인덱스 생성
+CREATE INDEX idx_employees_company_active ON employees(company_id, is_active);
 ```
 
 ---
@@ -260,68 +262,8 @@ CREATE TABLE attendances (
 );
 
 CREATE INDEX idx_attendances_employee_date ON attendances(employee_id, date);
-CREATE INDEX idx_attendances_date ON attendances(date);
-```
-
----
-
-### reports (보고서)
-
-| 컬럼 | 타입 | 제약조건 | 설명 |
-|------|------|----------|------|
-| id | UUID | PK | 보고서 ID |
-| company_id | UUID | FK → companies | 기업 ID |
-| type | VARCHAR(20) | NOT NULL | 종류 |
-| period_start | DATE | NOT NULL | 기간 시작 |
-| period_end | DATE | NOT NULL | 기간 종료 |
-| status | VARCHAR(20) | DEFAULT 'generating' | 상태 |
-| data | JSONB | | 보고서 데이터 |
-| created_at | TIMESTAMP | DEFAULT NOW() | 생성일 |
-
-**type 값**: `daily` (일일), `weekly` (주간), `monthly` (월간)
-
-**status 값**: `generating` (생성 중), `completed` (완료)
-
-```sql
-CREATE TABLE reports (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-  type VARCHAR(20) NOT NULL,
-  period_start DATE NOT NULL,
-  period_end DATE NOT NULL,
-  status VARCHAR(20) DEFAULT 'generating',
-  data JSONB,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX idx_reports_company ON reports(company_id);
-CREATE INDEX idx_reports_period ON reports(period_start, period_end);
-```
-
----
-
-### report_files (보고서 파일)
-
-| 컬럼 | 타입 | 제약조건 | 설명 |
-|------|------|----------|------|
-| id | UUID | PK | 파일 ID |
-| report_id | UUID | FK → reports | 보고서 ID |
-| file_type | VARCHAR(10) | NOT NULL | 파일 형식 |
-| file_path | TEXT | NOT NULL | 저장 경로 |
-| created_at | TIMESTAMP | DEFAULT NOW() | 생성일 |
-
-**file_type 값**: `pdf`, `xlsx`
-
-```sql
-CREATE TABLE report_files (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  report_id UUID NOT NULL REFERENCES reports(id) ON DELETE CASCADE,
-  file_type VARCHAR(10) NOT NULL,
-  file_path TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX idx_report_files_report ON report_files(report_id);
+CREATE INDEX idx_attendances_date_employee ON attendances(date, employee_id);
+CREATE INDEX idx_attendances_absent ON attendances(date) WHERE status = 'absent';
 ```
 
 ---
@@ -396,7 +338,7 @@ CREATE TABLE schedules (
   UNIQUE(company_id, date)
 );
 
-CREATE INDEX idx_schedules_company_date ON schedules(company_id, date);
+-- idx_schedules_company_date 제거: UNIQUE(company_id, date)가 이미 동일 인덱스 생성
 ```
 
 ---
@@ -432,40 +374,6 @@ CREATE TABLE inquiries (
 
 CREATE INDEX idx_inquiries_status ON inquiries(status);
 CREATE INDEX idx_inquiries_created ON inquiries(created_at DESC);
-```
-
----
-
-### notifications (알림)
-
-| 컬럼 | 타입 | 제약조건 | 설명 |
-|------|------|----------|------|
-| id | UUID | PK | 알림 ID |
-| type | VARCHAR(50) | NOT NULL | 알림 유형 |
-| title | VARCHAR(255) | NOT NULL | 알림 제목 |
-| message | TEXT | | 알림 내용 |
-| related_id | UUID | | 관련 엔티티 ID (employee_id, company_id 등) |
-| is_read | BOOLEAN | DEFAULT FALSE | 읽음 여부 |
-| created_at | TIMESTAMP | DEFAULT NOW() | 생성일 |
-| updated_at | TIMESTAMP | DEFAULT NOW() | 수정일 |
-
-**type 값**: `absence` (결근), `contract_expiry` (계약 만료 임박), `long_absence` (장기 결근)
-
-```sql
-CREATE TABLE notifications (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  type VARCHAR(50) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  message TEXT,
-  related_id UUID,
-  is_read BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX idx_notifications_type ON notifications(type);
-CREATE INDEX idx_notifications_is_read ON notifications(is_read);
-CREATE INDEX idx_notifications_created ON notifications(created_at DESC);
 ```
 
 ---
@@ -527,9 +435,10 @@ CREATE TABLE audit_logs (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_audit_logs_user ON audit_logs(user_id);
-CREATE INDEX idx_audit_logs_action ON audit_logs(action);
 CREATE INDEX idx_audit_logs_created ON audit_logs(created_at DESC);
+CREATE INDEX idx_audit_logs_user_type ON audit_logs(user_type);
+-- idx_audit_logs_user 제거: user_id가 NULL 허용이므로 효과 제한적
+-- idx_audit_logs_action 제거: 카디널리티 낮음 (5개 값)
 ```
 
 ---
@@ -562,7 +471,7 @@ CREATE TABLE employee_monthly_stats (
   UNIQUE(employee_id, year, month)
 );
 
-CREATE INDEX idx_employee_monthly_stats_employee ON employee_monthly_stats(employee_id);
+-- idx_employee_monthly_stats_employee 제거: UNIQUE(employee_id, year, month)의 선행 컬럼으로 커버 가능
 CREATE INDEX idx_employee_monthly_stats_period ON employee_monthly_stats(year, month);
 ```
 
@@ -618,3 +527,4 @@ Base64 인코딩
 - 두르비터 관리자: 전체 복호화 가능
 - 기업: 소속 직원만 복호화 가능
 - 직원: 본인만 복호화 가능
+

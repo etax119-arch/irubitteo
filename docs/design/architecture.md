@@ -186,8 +186,6 @@ app/
 │   │       └── page.tsx
 │   ├── schedule/                # 근무 일정 관리 (캘린더)
 │   │   └── page.tsx
-│   ├── stats/                   # 통계
-│   │   └── page.tsx
 │   ├── notices/                 # 공지사항
 │   │   └── page.tsx
 │   └── layout.tsx               # 기업 레이아웃
@@ -207,8 +205,6 @@ app/
 │   │   └── page.tsx
 │   ├── inquiries/               # 신규 문의 관리
 │   │   └── page.tsx
-│   ├── reports/                 # 보고서
-│   │   └── page.tsx
 │   └── layout.tsx               # 관리자 레이아웃
 │
 └── layout.tsx                   # 루트 레이아웃
@@ -225,7 +221,6 @@ app/
 | `(company)/employees/` | CompanyDashboard.jsx | 탭: 직원 관리 |
 | `(company)/employees/[id]/` | EmployeeDetail.jsx | 직원 상세 |
 | `(company)/schedule/` | CompanyDashboard.jsx | 탭: attendance (근무 일정) |
-| `(company)/stats/` | CompanyDashboard.jsx | 탭: stats (통계) |
 | `(company)/notices/` | CompanyDashboard.jsx | 탭: 공지사항 |
 | `(admin)/dashboard/` | AdminDashboard.jsx | 탭: 대시보드 |
 | `(admin)/companies/` | AdminDashboard.jsx | 탭: 회사 관리 |
@@ -234,7 +229,6 @@ app/
 | `(admin)/employees/[id]/` | AdminWorkerDetail.jsx | 직원 상세 |
 | `(admin)/attendance/` | AdminDashboard.jsx | 탭: workstats (근무 통계) |
 | `(admin)/inquiries/` | AdminDashboard.jsx | 탭: notifications (알림센터) |
-| `(admin)/reports/` | AdminDashboard.jsx | 탭: 보고서 |
 
 ---
 
@@ -259,9 +253,7 @@ src/
 │
 ├── notices/                     # 공지사항 모듈
 │
-├── notifications/               # 알림 모듈 (관리자용)
-│
-├── reports/                     # 보고서 모듈
+├── notifications/               # 알림 모듈 (결근+문의 조회)
 │
 ├── inquiries/                   # 문의 모듈
 │

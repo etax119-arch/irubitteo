@@ -113,15 +113,35 @@ DB는 snake_case, API는 camelCase를 사용합니다. 주요 필드 예시:
 ### GET /auth/me
 현재 인증된 사용자 정보 조회
 
-**Response**
+**Response (직원)**
 ```json
 {
   "id": "uuid",
-  "role": "employee | company | admin",
+  "role": "employee",
   "name": "홍길동",
-  "code": "ABC-001",  // 직원/기업: 고유번호
-  "companyId": "uuid",  // 직원만 해당
-  "companyName": "테스트 기업"  // 직원만 해당
+  "code": "ABC-001",
+  "companyId": "uuid",
+  "companyName": "테스트 기업"
+}
+```
+
+**Response (기업)**
+```json
+{
+  "id": "uuid",
+  "role": "company",
+  "name": "테스트 기업",
+  "code": "ABC"
+}
+```
+
+**Response (관리자)**
+```json
+{
+  "id": "uuid",
+  "role": "admin",
+  "name": "관리자명",
+  "email": "admin@durubitteo.com"
 }
 ```
 
@@ -397,6 +417,7 @@ file: 업로드할 파일
 ```json
 {
   "id": "uuid",
+  "companyId": "uuid",
   "uniqueCode": "ABC-001",
   "name": "홍길동",
   "phone": "010-1234-5678",
@@ -710,102 +731,7 @@ file: 업로드할 파일
 
 ---
 
-## 5. 보고서 API
-
-### GET /reports
-보고서 목록 조회 (기업: 본인 보고서, 관리자: 전체)
-
-**Query Parameters**
-- `type`: daily, weekly, monthly
-- `startDate`, `endDate`: 기간
-- `page`, `limit`: 페이지네이션
-
-**Response**
-```json
-{
-  "data": [
-    {
-      "id": "uuid",
-      "companyId": "uuid",
-      "type": "weekly",
-      "periodStart": "2024-01-08",
-      "periodEnd": "2024-01-14",
-      "status": "completed",
-      "createdAt": "2024-01-15T00:00:00Z"
-    }
-  ],
-  "pagination": { ... }
-}
-```
-
-### GET /reports/:id
-보고서 상세 조회 (기업: 본인 보고서, 관리자: 전체)
-
-**Response**
-```json
-{
-  "id": "uuid",
-  "companyId": "uuid",
-  "type": "weekly",
-  "periodStart": "2024-01-08",
-  "periodEnd": "2024-01-14",
-  "status": "completed",
-  "data": {
-    "totalEmployees": 20,
-    "presentDays": 85,
-    "absentDays": 5,
-    "lateDays": 3,
-    "summary": "..."
-  },
-  "files": [
-    {
-      "id": "uuid",
-      "fileType": "pdf",
-      "filePath": "reports/2024/01/weekly-0108-0114.pdf"
-    }
-  ],
-  "createdAt": "2024-01-15T00:00:00Z"
-}
-```
-
-### POST /reports/generate
-보고서 생성 요청 (기업 전용)
-
-**Request**
-```json
-{
-  "type": "weekly",
-  "periodStart": "2024-01-08",
-  "periodEnd": "2024-01-14"
-}
-```
-
-**Response**
-```json
-{
-  "id": "uuid",
-  "companyId": "uuid",
-  "type": "weekly",
-  "periodStart": "2024-01-08",
-  "periodEnd": "2024-01-14",
-  "status": "generating",
-  "createdAt": "2024-01-15T00:00:00Z"
-}
-```
-
-**참고**: 보고서 생성은 비동기로 처리되며, 완료 후 `GET /reports/:id`로 결과를 조회합니다.
-
-**참고**: 보고서 삭제 API는 제공하지 않습니다. 보고서는 영구 보관됩니다.
-
-### GET /reports/:id/download
-보고서 파일 다운로드 (기업: 본인 보고서, 관리자: 전체)
-
-**Query Parameters**
-- `format`: pdf, xlsx
-
----
-
-## 6. 관리자 API
+## 5. 관리자 API
 
 ### GET /admin/stats
 전체 플랫폼 통계 (관리자 전용)
@@ -867,10 +793,11 @@ file: 업로드할 파일
 ### GET /admin/notifications
 관리자 알림 목록 (관리자 전용)
 
+결근(attendances.status='absent')과 미처리 문의(inquiries.status='pending')를 조회합니다.
+
 **Query Parameters**
 - `page`, `limit`: 페이지네이션
-- `type`: 알림 유형 필터 (absence, contract_expiry, long_absence)
-- `isRead`: 읽음 여부 필터
+- `type`: 알림 유형 필터 (absence, inquiry)
 
 **Response**
 ```json
@@ -882,31 +809,22 @@ file: 업로드할 파일
       "title": "결근 알림",
       "message": "홍길동님이 결근했습니다.",
       "relatedId": "uuid",
-      "isRead": false,
-      "createdAt": "2024-01-15T09:00:00Z",
-      "updatedAt": "2024-01-15T09:00:00Z"
+      "createdAt": "2024-01-15T09:00:00Z"
+    },
+    {
+      "id": "uuid",
+      "type": "inquiry",
+      "title": "신규 문의",
+      "message": "새로운 기업에서 문의가 접수되었습니다.",
+      "relatedId": "uuid",
+      "createdAt": "2024-01-15T10:00:00Z"
     }
   ],
   "pagination": { ... }
 }
 ```
 
-### PUT /admin/notifications/:id
-알림 읽음 처리 (관리자 전용)
-
-**Request**
-(Body 없음 - 읽음 처리만 수행)
-
-**Response**
-```json
-{
-  "id": "uuid",
-  "isRead": true,
-  "updatedAt": "2024-01-15T10:00:00Z"
-}
-```
-
-**참고**: 알림은 시스템이 자동 생성하며, 직접 생성/수정/삭제 API는 제공하지 않습니다.
+**참고**: 별도의 notifications 테이블 없이, attendances(absent)와 inquiries(pending)에서 실시간 조회합니다.
 
 ### GET /admin/stats/monthly
 회사별 월간 통계 (관리자 전용)
@@ -1068,7 +986,7 @@ file: 업로드할 파일
 
 ---
 
-## 7. 공지사항 API
+## 6. 공지사항 API
 
 ### POST /notices
 공지사항 발송 (기업 전용)
@@ -1172,7 +1090,7 @@ file: 업로드할 파일
 
 ---
 
-## 8. 근무일정 API
+## 7. 근무일정 API
 
 ### POST /schedules
 근무일정 등록 (기업 전용)
@@ -1272,7 +1190,7 @@ file: 업로드할 파일
 
 ---
 
-## 9. 문의 API
+## 8. 문의 API
 
 ### POST /inquiries
 기업 문의 등록 (비인증, 랜딩페이지용)
@@ -1368,7 +1286,7 @@ file: 업로드할 파일
 
 ---
 
-## 10. 출퇴근 수정 API
+## 9. 출퇴근 수정 API
 
 ### PUT /attendances/:id
 출퇴근 기록 수정 (관리자 또는 기업)
@@ -1378,10 +1296,12 @@ file: 업로드할 파일
 - `clockOut`: 퇴근 시간
 - `workContent`: 업무 내용
 - `note`: 비고 (수정 사유 기록용)
+- `status`: 상태 (present/absent) - 관리자/기업이 결근→출근 변경 가능
+
+**참고**: status를 'present'로 변경 시 clockIn이 필수. clockIn 없이 status만 변경 불가.
 
 **수정 불가 필드**
 - `date`: 날짜 (변경 불가)
-- `status`: 자동 계산 (출근/결근)
 - `isLate`: 자동 계산 (clockIn 기준)
 - `isEarlyLeave`: 자동 계산 (clockOut 기준)
 
@@ -1415,7 +1335,7 @@ file: 업로드할 파일
 
 ---
 
-## 11. 템플릿 API
+## 10. 템플릿 API
 
 ### GET /templates
 문서 템플릿 목록 조회 (인증된 사용자)

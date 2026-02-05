@@ -21,22 +21,18 @@ export type ApiResult<T> = ApiResponse<T> | ApiError;
 export type PaginationParams = {
   page?: number;
   limit?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
 };
 
 /** 페이지네이션 메타 정보 */
-export type PaginationMeta = {
-  currentPage: number;
+export type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
   totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
 };
 
 /** 페이지네이션 응답 */
 export type PaginatedResponse<T> = {
-  items: T[];
-  meta: PaginationMeta;
+  data: T[];
+  pagination: Pagination;
 };

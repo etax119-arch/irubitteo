@@ -141,3 +141,34 @@ durubitteo_web/
 #### Type Placement
 - **Component Props**: 같은 파일에 정의
 - **Domain types**: `@/types/` 폴더에 정의
+
+### UI Components (공용 컴포넌트)
+
+`@/components/ui/`에 공용 UI 컴포넌트가 구현되어 있습니다. **페이지 UI 구현 시 반드시 이 컴포넌트들을 우선 사용하세요.**
+
+| 컴포넌트 | 용도 | 주요 Props |
+|---------|------|-----------|
+| `Button` | 버튼 | `variant`, `size`, `fullWidth`, `leftIcon`, `rightIcon` |
+| `Badge` | 상태 표시 | `variant`, `size` |
+| `Card` | 카드 컨테이너 | `padding`, `hover` + `CardHeader`, `CardContent`, `CardFooter` |
+| `Avatar` | 프로필 이미지/이니셜 | `src`, `name`, `size` |
+| `Input` | 텍스트 입력 | `label`, `error`, `leftIcon`, `size` |
+| `Textarea` | 여러 줄 입력 | `label`, `error` |
+| `Checkbox` | 체크박스 | `label`, `size` |
+| `IconButton` | 아이콘 버튼 | `icon`, `variant`, `size`, `label` |
+| `Modal` | 모달 다이얼로그 | `isOpen`, `onClose`, `title`, `size` |
+| `Tabs` | 탭 UI | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
+
+**사용 예시:**
+```tsx
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+
+<Button variant="primary" size="lg" leftIcon={<Icon />}>
+  버튼 텍스트
+</Button>
+```
+
+**유틸리티:**
+- `cn()` - Tailwind 클래스 병합 (`@/lib/cn`)
