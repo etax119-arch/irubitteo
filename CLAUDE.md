@@ -90,16 +90,15 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 ```
 durubitteo_web/
 ├── app/
-│   ├── (public)/
-│   │   ├── _components/      # (public) 전용 컴포넌트
-│   │   └── _hooks/           # (public) 전용 훅
-│   ├── (employee)/
+│   ├── _components/          # 루트 레벨 공용 컴포넌트
+│   ├── login/                # 로그인 페이지들 (/login/admin, /login/company, /login/employee)
+│   ├── employee/             # 직원 영역
 │   │   ├── _components/
 │   │   └── _hooks/
-│   ├── (company)/
+│   ├── company/              # 기업 영역
 │   │   ├── _components/
 │   │   └── _hooks/
-│   └── (admin)/
+│   └── admin/                # 관리자 영역
 │       ├── _components/
 │       └── _hooks/
 │
@@ -118,7 +117,7 @@ durubitteo_web/
 #### Component & Hook Placement
 | 조건 | 위치 |
 |------|------|
-| 한 라우트 그룹에서만 사용 | `app/(group)/_components/`, `app/(group)/_hooks/` |
+| 한 라우트 폴더에서만 사용 | `app/employee/_components/`, `app/admin/_hooks/` 등 |
 | 여러 라우트에서 재사용 | `@/components/`, `@/hooks/` |
 | 범용 UI 프리미티브 | `@/components/ui/` |
 | 서버 상태 훅 | `@/hooks/queries/` |
@@ -135,8 +134,8 @@ durubitteo_web/
 | 상황 | 경로 방식 |
 |------|----------|
 | `app/` 외부 파일 import | 절대 경로 `@/` (e.g., `@/components/ui/Button`) |
-| 같은 라우트 그룹 내 | 상대 경로 `./` (e.g., `./_components/HeroSlider`) |
-| 다른 라우트 그룹 참조 | **금지** - 공용 폴더로 승격 필요 |
+| 같은 라우트 폴더 내 | 상대 경로 `./` (e.g., `./_components/NoticeSection`) |
+| 다른 라우트 폴더 참조 | **금지** - 공용 폴더로 승격 필요 |
 
 #### Type Placement
 - **Component Props**: 같은 파일에 정의
