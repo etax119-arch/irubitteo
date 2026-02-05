@@ -1,0 +1,232 @@
+'use client';
+
+import { useState } from 'react';
+import { Building2, ChevronDown, ChevronRight, Eye, Edit, Check, X } from 'lucide-react';
+import { cn } from '@/lib/cn';
+import type { MonthlyWorkStats, WorkStatWorker, Company } from '@/types/adminDashboard';
+
+interface WorkStatsTableProps {
+  monthlyWorkStats: MonthlyWorkStats;
+  companies: Company[];
+  selectedMonth: string;
+  onPrintPreview: (companyName: string, workers: WorkStatWorker[], pm: Company['pm'] | null) => void;
+  onWorkStatsUpdate?: (companyName: string, workerId: number, field: 'workDays' | 'totalHours', value: number) => void;
+}
+
+export function WorkStatsTable({
+  monthlyWorkStats,
+  companies,
+  selectedMonth,
+  onPrintPreview,
+  onWorkStatsUpdate,
+}: WorkStatsTableProps) {
+  const [expandedCompanies, setExpandedCompanies] = useState<Record<string, boolean>>({});
+  const [editingCell, setEditingCell] = useState<{
+    companyName: string;
+    workerId: number;
+    field: 'workDays' | 'totalHours';
+  } | null>(null);
+  const [editValue, setEditValue] = useState('');
+
+  const toggleCompany = (companyName: string) => {
+    setExpandedCompanies((prev) => ({
+      ...prev,
+      [companyName]: !prev[companyName],
+    }));
+  };
+
+  const startEdit = (companyName: string, workerId: number, field: 'workDays' | 'totalHours', currentValue: number) => {
+    setEditingCell({ companyName, workerId, field });
+    setEditValue(currentValue.toString());
+  };
+
+  const saveEdit = () => {
+    if (!editingCell) return;
+    const value = Number(editValue);
+    if (!isNaN(value) && value >= 0) {
+      onWorkStatsUpdate?.(editingCell.companyName, editingCell.workerId, editingCell.field, value);
+    }
+    setEditingCell(null);
+    setEditValue('');
+  };
+
+  const cancelEdit = () => {
+    setEditingCell(null);
+    setEditValue('');
+  };
+
+  return (
+    <div className="space-y-4">
+      {Object.entries(monthlyWorkStats).map(([companyName, companyWorkers]) => {
+        const totalEmployees = companyWorkers.length;
+        const avgWorkHours = (companyWorkers.reduce((sum, w) => sum + w.totalHours, 0) / totalEmployees).toFixed(1);
+        const avgWorkDays = (companyWorkers.reduce((sum, w) => sum + w.workDays, 0) / totalEmployees).toFixed(1);
+        const isExpanded = expandedCompanies[companyName];
+        const company = companies.find((c) => c.name === companyName);
+
+        return (
+          <div
+            key={companyName}
+            className="bg-white rounded-xl border border-gray-200 overflow-hidden print:break-inside-avoid"
+          >
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => toggleCompany(companyName)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleCompany(companyName);
+                }
+              }}
+              className="w-full bg-gradient-to-r from-duru-orange-50 to-white px-6 py-5 border-b border-gray-200 hover:from-duru-orange-100 hover:to-duru-orange-50 transition-all cursor-pointer"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                    {isExpanded ? (
+                      <ChevronDown className="w-5 h-5 text-duru-orange-600" />
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-duru-orange-600" />
+                    )}
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-1">
+                      <Building2 className="w-5 h-5 text-duru-orange-600" />
+                      {companyName}
+                    </h3>
+                    <p className="text-sm text-gray-600">전체 {totalEmployees}명</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPrintPreview(companyName, companyWorkers, company?.pm || null);
+                    }}
+                    className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    인쇄 프리뷰
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {isExpanded && (
+              <div className="p-6">
+                <div className="mb-6 print:block hidden">
+                  <h2 className="text-2xl font-bold text-center mb-2">{companyName} 월 근무 통계</h2>
+                  <p className="text-center text-gray-600">
+                    {selectedMonth.split('-')[0]}년 {selectedMonth.split('-')[1]}월
+                  </p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead className="bg-duru-orange-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border border-gray-300">
+                          이름
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border border-gray-300">
+                          전화번호
+                        </th>
+                        <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border border-gray-300">
+                          출근 일수
+                        </th>
+                        <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border border-gray-300">
+                          총 근무시간
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {companyWorkers.map((worker, index) => (
+                        <tr key={worker.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                          <td className="px-4 py-3 font-semibold text-gray-900 border border-gray-300">
+                            {worker.name}
+                          </td>
+                          <td className="px-4 py-3 text-gray-700 border border-gray-300">{worker.phone}</td>
+                          <td className="px-4 py-3 text-center text-gray-900 border border-gray-300">
+                            {editingCell?.companyName === companyName &&
+                            editingCell?.workerId === worker.id &&
+                            editingCell?.field === 'workDays' ? (
+                              <div className="flex items-center justify-center gap-2">
+                                <input
+                                  type="number"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  className="w-20 px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500 text-center"
+                                  autoFocus
+                                />
+                                <button onClick={saveEdit} className="p-1 hover:bg-green-100 rounded">
+                                  <Check className="w-4 h-4 text-green-600" />
+                                </button>
+                                <button onClick={cancelEdit} className="p-1 hover:bg-red-100 rounded">
+                                  <X className="w-4 h-4 text-red-600" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div
+                                onClick={() => startEdit(companyName, worker.id, 'workDays', worker.workDays)}
+                                className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded inline-flex items-center gap-1"
+                              >
+                                <span>{worker.workDays}일</span>
+                                <Edit className="w-3 h-3 text-gray-400" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center font-bold text-blue-600 border border-gray-300">
+                            {editingCell?.companyName === companyName &&
+                            editingCell?.workerId === worker.id &&
+                            editingCell?.field === 'totalHours' ? (
+                              <div className="flex items-center justify-center gap-2">
+                                <input
+                                  type="number"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  className="w-20 px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500 text-center"
+                                  autoFocus
+                                />
+                                <button onClick={saveEdit} className="p-1 hover:bg-green-100 rounded">
+                                  <Check className="w-4 h-4 text-green-600" />
+                                </button>
+                                <button onClick={cancelEdit} className="p-1 hover:bg-red-100 rounded">
+                                  <X className="w-4 h-4 text-red-600" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div
+                                onClick={() => startEdit(companyName, worker.id, 'totalHours', worker.totalHours)}
+                                className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded inline-flex items-center gap-1"
+                              >
+                                <span>{worker.totalHours}h</span>
+                                <Edit className="w-3 h-3 text-gray-400" />
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-duru-orange-100 border-t-2 border-duru-orange-500">
+                      <tr>
+                        <td colSpan={2} className="px-4 py-3 font-bold text-gray-900 border border-gray-300">
+                          평균
+                        </td>
+                        <td className="px-4 py-3 text-center font-bold text-gray-900 border border-gray-300">
+                          {avgWorkDays}일
+                        </td>
+                        <td className="px-4 py-3 text-center font-bold text-blue-600 border border-gray-300">
+                          {avgWorkHours}h
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}

@@ -8,6 +8,36 @@
 
 ---
 
+## 구현 상태
+
+**구현 완료** (라우트 기반 탭 구조)
+
+### 라우트 구조
+
+```
+/app/company/
+├── layout.tsx              # 헤더 + 4개 탭 네비게이션 (Link 기반)
+├── page.tsx                # → /company/dashboard 리다이렉트
+├── _components/            # 공용 컴포넌트
+├── _data/                  # 더미 데이터
+├── dashboard/page.tsx      # 대시보드 탭
+├── employees/page.tsx      # 근로자 관리 탭
+├── schedule/page.tsx       # 근무일정 탭
+└── notices/page.tsx        # 공지사항 탭
+```
+
+### URL 구조
+
+| URL | 설명 |
+|-----|------|
+| `/company` | `/company/dashboard`로 리다이렉트 |
+| `/company/dashboard` | 대시보드 탭 |
+| `/company/employees` | 근로자 관리 탭 |
+| `/company/schedule` | 근무일정 탭 |
+| `/company/notices` | 공지사항 탭 |
+
+---
+
 ## 탭 구성
 
 | 탭 ID | 탭 이름 | 아이콘 | 설명 |

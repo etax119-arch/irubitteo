@@ -84,6 +84,22 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 ├── employees/page.tsx
 ├── schedule/page.tsx
 └── notices/page.tsx
+
+/admin/
+├── layout.tsx      # 헤더 + 6개 탭 (Link 컴포넌트)
+├── page.tsx        # redirect('/admin/dashboard')
+├── _components/    # AdminStatCard, CompanyCard, WorkerTable 등
+├── _data/          # dummyData.ts
+├── dashboard/page.tsx
+├── companies/
+│   ├── page.tsx
+│   └── [id]/page.tsx
+├── employees/
+│   ├── page.tsx
+│   └── [id]/page.tsx
+├── workstats/page.tsx
+├── notifications/page.tsx
+└── reports/page.tsx
 ```
 
 장점: URL 북마크/공유 가능, 브라우저 히스토리 지원
@@ -122,9 +138,17 @@ durubitteo_web/
 │   │   ├── employees/        # 근로자 관리 탭
 │   │   ├── schedule/         # 근무일정 탭
 │   │   └── notices/          # 공지사항 탭
-│   └── admin/                # 관리자 영역
-│       ├── _components/
-│       └── _hooks/
+│   └── admin/                # 관리자 영역 (라우트 기반 탭)
+│       ├── layout.tsx        # 공통 헤더 + 6개 탭 네비게이션
+│       ├── page.tsx          # → /admin/dashboard 리다이렉트
+│       ├── _components/      # AdminStatCard, CompanyCard 등
+│       ├── _data/            # 더미 데이터
+│       ├── dashboard/        # 대시보드 탭
+│       ├── companies/        # 회원사 관리 탭 + [id] 상세
+│       ├── employees/        # 근로자 관리 탭 + [id] 상세
+│       ├── workstats/        # 근무 통계 탭
+│       ├── notifications/    # 알림센터 탭
+│       └── reports/          # 리포트 탭
 │
 ├── components/               # 공용 컴포넌트 (app 외부)
 │   ├── ui/                   # 전역 UI 프리미티브 (Button, Input, Modal 등)

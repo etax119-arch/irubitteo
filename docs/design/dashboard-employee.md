@@ -8,6 +8,31 @@
 
 ---
 
+## 구현 상태
+
+**구현 완료**
+
+### 라우트 구조
+
+```
+/app/employee/
+├── layout.tsx              # 직원용 레이아웃
+├── page.tsx                # 메인 화면 (출근/퇴근 버튼)
+├── checkin/page.tsx        # 출근 화면
+└── checkout/page.tsx       # 퇴근 화면
+```
+
+### URL 구조
+
+| URL | 설명 |
+|-----|------|
+| `/login/employee` | 직원 로그인 (고유번호 입력) |
+| `/employee` | 메인 화면 (출근/퇴근 버튼) |
+| `/employee/checkin` | 출근 화면 |
+| `/employee/checkout` | 퇴근 화면 |
+
+---
+
 ## 화면 구성
 
 | 화면 | 설명 |
