@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
-  ArrowLeft,
   Building2,
   Phone,
   Mail,
@@ -126,25 +125,17 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="min-h-screen bg-duru-ivory -mx-4 sm:-mx-6 lg:-mx-8 -my-8 px-4 sm:px-6 lg:px-8 py-8">
-      {/* 헤더 */}
-      <header className="bg-white border-b border-gray-200 sticky top-[64px] z-40 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-4 h-16">
-            <button
-              onClick={() => router.push('/admin/companies')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">회사 상세 정보</h1>
-              <p className="text-xs text-gray-500">관리자 모드</p>
-            </div>
-          </div>
+      <div className="max-w-7xl mx-auto pb-8">
+        {/* 닫기 버튼 */}
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={() => router.back()}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="닫기"
+          >
+            <X className="w-6 h-6 text-gray-500" />
+          </button>
         </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 왼쪽: 기본 정보 */}
           <div className="space-y-6">
