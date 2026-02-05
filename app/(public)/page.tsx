@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   Briefcase,
   Clock,
@@ -29,14 +30,14 @@ export default function LandingPage() {
               <a href="#" className="hover:text-duru-orange-600 transition-colors">채용정보</a>
               <a href="#" className="hover:text-duru-orange-600 transition-colors">고객센터</a>
             </nav>
-            <a
-              href="#"
+            <Link
+              href="/login/admin"
               className="text-base font-semibold text-white bg-duru-orange-500 px-6 py-2.5 rounded hover:bg-duru-orange-600 transition-colors flex items-center gap-2 shadow-sm"
             >
               <Shield className="w-4 h-4" />
               두루빛 관리자
               <ChevronRight className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
         </div>
       </header>
@@ -63,21 +64,21 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-wrap gap-4 pt-4">
-              <a
-                href="#"
+              <Link
+                href="/login/employee"
                 className="px-8 py-4 bg-duru-orange-500 text-white rounded font-medium text-lg hover:bg-duru-orange-600 transition-colors shadow-soft flex items-center gap-2"
               >
                 <Clock className="w-5 h-5" />
                 출퇴근 하기
                 <ChevronRight className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href="/login/company"
                 className="px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded font-medium text-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
               >
                 <Building2 className="w-5 h-5" />
                 기업 관리자 페이지
-              </a>
+              </Link>
             </div>
           </div>
 
