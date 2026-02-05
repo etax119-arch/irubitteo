@@ -81,7 +81,9 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 ├── layout.tsx      # 헤더 + 탭 (Link 컴포넌트)
 ├── page.tsx        # redirect('/company/dashboard')
 ├── dashboard/page.tsx
-├── employees/page.tsx
+├── employees/
+│   ├── page.tsx
+│   └── [id]/page.tsx
 ├── schedule/page.tsx
 └── notices/page.tsx
 
@@ -135,7 +137,7 @@ durubitteo_web/
 │   │   ├── _components/      # 공용 컴포넌트
 │   │   ├── _data/            # 더미 데이터
 │   │   ├── dashboard/        # 대시보드 탭
-│   │   ├── employees/        # 근로자 관리 탭
+│   │   ├── employees/        # 근로자 관리 탭 + [id] 상세
 │   │   ├── schedule/         # 근무일정 탭
 │   │   └── notices/          # 공지사항 탭
 │   └── admin/                # 관리자 영역 (라우트 기반 탭)
