@@ -51,7 +51,7 @@ export default function TargetAudienceSection() {
               </li>
             </ul>
             <a
-              href="#"
+              href="/inquiry"
               className="block w-full py-4 text-lg bg-white border border-gray-300 text-gray-700 font-bold rounded hover:bg-gray-100 transition-colors text-center"
             >
               신규 기업 문의 신청
