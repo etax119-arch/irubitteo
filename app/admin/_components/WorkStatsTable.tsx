@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Building2, ChevronDown, ChevronRight, Eye, Edit, Check, X } from 'lucide-react';
-import { cn } from '@/lib/cn';
 import type { MonthlyWorkStats, WorkStatWorker, Company } from '@/types/adminDashboard';
 
 interface WorkStatsTableProps {
@@ -129,7 +128,7 @@ export function WorkStatsTable({
                           이름
                         </th>
                         <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border border-gray-300">
-                          전화번호
+                          근무요일
                         </th>
                         <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border border-gray-300">
                           출근 일수
@@ -145,7 +144,18 @@ export function WorkStatsTable({
                           <td className="px-4 py-3 font-semibold text-gray-900 border border-gray-300">
                             {worker.name}
                           </td>
-                          <td className="px-4 py-3 text-gray-700 border border-gray-300">{worker.phone}</td>
+                          <td className="px-4 py-3 text-gray-700 border border-gray-300">
+                            <div className="flex gap-1 flex-wrap">
+                              {worker.scheduledWorkDays.map((day) => (
+                                <span
+                                  key={day}
+                                  className="px-2 py-0.5 bg-duru-orange-100 text-duru-orange-700 text-xs font-medium rounded"
+                                >
+                                  {day}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
                           <td className="px-4 py-3 text-center text-gray-900 border border-gray-300">
                             {editingCell?.companyName === companyName &&
                             editingCell?.workerId === worker.id &&

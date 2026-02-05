@@ -325,23 +325,23 @@ export const dailyAttendance: DailyAttendanceData = {
 
 export const monthlyWorkStats: MonthlyWorkStats = {
   '(주)두루빛 제조': [
-    { id: 1, name: '김민수', department: '제조부', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 0, phone: '010-1234-5678' },
-    { id: 2, name: '이영희', department: '포장부', totalHours: 168, avgHours: 7.6, workDays: 22, lateDays: 1, phone: '010-2345-6789' },
-    { id: 7, name: '김수진', department: '제조부', totalHours: 172, avgHours: 7.8, workDays: 22, lateDays: 0, phone: '010-7777-1234' },
-    { id: 16, name: '박영수', department: '포장부', totalHours: 180, avgHours: 8.2, workDays: 22, lateDays: 0, phone: '010-1616-2020' },
-    { id: 17, name: '최지현', department: '제조부', totalHours: 170, avgHours: 7.7, workDays: 22, lateDays: 1, phone: '010-1717-3030' },
-    { id: 18, name: '정민아', department: '품질관리', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 0, phone: '010-1818-4040' },
+    { id: 1, name: '김민수', department: '제조부', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
+    { id: 2, name: '이영희', department: '포장부', totalHours: 168, avgHours: 7.6, workDays: 22, lateDays: 1, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
+    { id: 7, name: '김수진', department: '제조부', totalHours: 172, avgHours: 7.8, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
+    { id: 16, name: '박영수', department: '포장부', totalHours: 180, avgHours: 8.2, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
+    { id: 17, name: '최지현', department: '제조부', totalHours: 170, avgHours: 7.7, workDays: 22, lateDays: 1, scheduledWorkDays: ['월', '화', '목', '금'] },
+    { id: 18, name: '정민아', department: '품질관리', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
   ],
   '세종식품': [
-    { id: 3, name: '박철수', department: '생산부', totalHours: 180, avgHours: 8.2, workDays: 22, lateDays: 0, phone: '010-3456-7890' },
-    { id: 8, name: '이민호', department: '생산부', totalHours: 160, avgHours: 7.3, workDays: 22, lateDays: 3, phone: '010-8888-3333' },
+    { id: 3, name: '박철수', department: '생산부', totalHours: 180, avgHours: 8.2, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
+    { id: 8, name: '이민호', department: '생산부', totalHours: 160, avgHours: 7.3, workDays: 22, lateDays: 3, scheduledWorkDays: ['화', '수', '목'] },
   ],
   '한빛포장': [
-    { id: 4, name: '정미라', department: '품질관리', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 2, phone: '010-4567-8901' },
-    { id: 9, name: '박지영', department: '포장부', totalHours: 175, avgHours: 8.0, workDays: 22, lateDays: 0, phone: '010-9999-4444' },
+    { id: 4, name: '정미라', department: '품질관리', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 2, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
+    { id: 9, name: '박지영', department: '포장부', totalHours: 175, avgHours: 8.0, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '수', '금'] },
   ],
   '그린팜': [
-    { id: 5, name: '최동욱', department: '재배', totalHours: 140, avgHours: 6.4, workDays: 22, lateDays: 5, phone: '010-5678-9012' },
-    { id: 10, name: '강태민', department: '재배', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 0, phone: '010-1010-5555' },
+    { id: 5, name: '최동욱', department: '재배', totalHours: 140, avgHours: 6.4, workDays: 22, lateDays: 5, scheduledWorkDays: ['월', '화', '수'] },
+    { id: 10, name: '강태민', department: '재배', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
   ],
 };

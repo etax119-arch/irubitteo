@@ -108,7 +108,7 @@ export function PrintPreviewModal({
                     이름
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border border-gray-300">
-                    전화번호
+                    근무요일
                   </th>
                   <th className="px-4 py-3 text-center text-sm font-bold text-gray-900 border border-gray-300">
                     출근 일수
@@ -124,7 +124,9 @@ export function PrintPreviewModal({
                     <td className="px-4 py-3 font-semibold text-gray-900 border border-gray-300">
                       {worker.name}
                     </td>
-                    <td className="px-4 py-3 text-gray-700 border border-gray-300">{worker.phone}</td>
+                    <td className="px-4 py-3 text-gray-700 border border-gray-300">
+                      {worker.scheduledWorkDays.join(', ')}
+                    </td>
                     <td className="px-4 py-3 text-center text-gray-900 border border-gray-300">
                       {worker.workDays}일
                     </td>

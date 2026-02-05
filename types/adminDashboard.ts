@@ -100,7 +100,7 @@ export interface WorkStatWorker {
   avgHours: number;
   workDays: number;
   lateDays: number;
-  phone?: string;
+  scheduledWorkDays: string[];
 }
 
 export type MonthlyWorkStats = Record<string, WorkStatWorker[]>;
