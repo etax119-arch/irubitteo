@@ -127,23 +127,69 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 durubitteo_web/
 ├── app/
 │   ├── _components/          # 루트 레벨 공용 컴포넌트
-│   ├── login/                # 로그인 페이지들 (/login/admin, /login/company, /login/employee)
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   ├── HeroSection.tsx
+│   │   ├── HeroSlider.tsx
+│   │   ├── ServiceSection.tsx
+│   │   ├── TargetAudienceSection.tsx
+│   │   ├── PartnersSection.tsx
+│   │   └── CommuteSection.tsx
+│   │
+│   ├── login/                # 로그인 페이지들
+│   │   ├── admin/page.tsx    # /login/admin
+│   │   ├── company/page.tsx  # /login/company
+│   │   └── employee/page.tsx # /login/employee
+│   │
+│   ├── inquiry/              # 기업 문의 페이지
+│   │   └── page.tsx          # /inquiry
+│   │
+│   ├── playground/           # 개발용 테스트 페이지
+│   │   └── page.tsx          # /playground
+│   │
 │   ├── employee/             # 직원 영역
-│   │   ├── _components/
-│   │   └── _hooks/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx          # 직원 메인
+│   │   ├── checkin/page.tsx  # 출근 페이지
+│   │   ├── checkout/page.tsx # 퇴근 페이지
+│   │   └── _components/
+│   │       ├── SuccessModal.tsx
+│   │       ├── PhotoLightbox.tsx
+│   │       ├── NoticeSection.tsx
+│   │       └── WorkRecordsSection.tsx
+│   │
 │   ├── company/              # 기업 영역 (라우트 기반 탭)
 │   │   ├── layout.tsx        # 공통 헤더 + 탭 네비게이션
 │   │   ├── page.tsx          # → /company/dashboard 리다이렉트
-│   │   ├── _components/      # 공용 컴포넌트
+│   │   ├── _components/
+│   │   │   ├── StatCard.tsx
+│   │   │   ├── EmployeeTable.tsx
+│   │   │   ├── AttendanceTable.tsx
+│   │   │   ├── CalendarGrid.tsx
+│   │   │   ├── NoticeHistory.tsx
+│   │   │   ├── AddWorkerModal.tsx
+│   │   │   ├── ScheduleModal.tsx
+│   │   │   └── WorkerSelector.tsx
 │   │   ├── _data/            # 더미 데이터
 │   │   ├── dashboard/        # 대시보드 탭
 │   │   ├── employees/        # 근로자 관리 탭 + [id] 상세
 │   │   ├── schedule/         # 근무일정 탭
 │   │   └── notices/          # 공지사항 탭
+│   │
 │   └── admin/                # 관리자 영역 (라우트 기반 탭)
 │       ├── layout.tsx        # 공통 헤더 + 6개 탭 네비게이션
 │       ├── page.tsx          # → /admin/dashboard 리다이렉트
-│       ├── _components/      # AdminStatCard, CompanyCard 등
+│       ├── _components/
+│       │   ├── AdminStatCard.tsx
+│       │   ├── CompanyCard.tsx
+│       │   ├── WorkerTable.tsx
+│       │   ├── WorkStatsTable.tsx
+│       │   ├── CompanyAttendanceAccordion.tsx
+│       │   ├── AbsenceAlertList.tsx
+│       │   ├── InquiryList.tsx
+│       │   ├── InquiryDetailModal.tsx
+│       │   ├── AddCompanyModal.tsx
+│       │   └── PrintPreviewModal.tsx
 │       ├── _data/            # 더미 데이터
 │       ├── dashboard/        # 대시보드 탭
 │       ├── companies/        # 회원사 관리 탭 + [id] 상세
@@ -160,6 +206,18 @@ durubitteo_web/
 │   └── queries/              # 서버 상태 훅 (TanStack Query 등)
 │
 ├── types/                    # 공용 타입 정의
+│   ├── api.ts                # API 공통 타입 (ApiResponse, Pagination 등)
+│   ├── auth.ts               # 인증 관련 타입
+│   ├── admin.ts              # 관리자 타입
+│   ├── adminDashboard.ts     # 관리자 대시보드 타입
+│   ├── company.ts            # 기업 타입
+│   ├── companyDashboard.ts   # 기업 대시보드 타입
+│   ├── employee.ts           # 직원 타입
+│   ├── attendance.ts         # 출퇴근 타입
+│   ├── schedule.ts           # 근무일정 타입
+│   ├── notice.ts             # 공지사항 타입
+│   ├── inquiry.ts            # 문의 타입
+│   └── template.ts           # 템플릿 타입
 │
 └── lib/                      # 유틸리티 함수
 ```
