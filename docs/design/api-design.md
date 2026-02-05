@@ -483,9 +483,12 @@ file: 업로드할 파일
   "workDays": [1, 2, 3, 4, 5],
   "workStartTime": "09:00",
   "workEndTime": "18:00",
-  "resignDate": null
+  "resignDate": "2024-01-15",
+  "resignReason": "계약 만료"
 }
 ```
+
+**참고**: `resignDate`와 `resignReason`은 퇴사 처리 시 함께 전송합니다. 퇴사 취소 시 `resignDate: null`로 전송합니다.
 
 **Response**
 ```json
@@ -496,7 +499,8 @@ file: 업로드할 파일
   "phone": "010-9876-5432",
   "gender": "male",
   "hireDate": "2024-01-01",
-  "resignDate": null,
+  "resignDate": "2024-01-15",
+  "resignReason": "계약 만료",
   "contractEndDate": "2025-12-31",
   "workDays": [1, 2, 3, 4, 5],
   "workStartTime": "09:00",

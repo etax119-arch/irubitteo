@@ -20,6 +20,7 @@ import {
   MessageSquare,
   UserX,
   Calendar,
+  AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { initialEmployees } from '../../_data/dummyData';
@@ -79,6 +80,11 @@ export default function CompanyEmployeeDetailPage() {
   ]);
 
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showResignModal, setShowResignModal] = useState(false);
+  const [resignForm, setResignForm] = useState({
+    date: new Date().toISOString().split('T')[0],
+    reason: '',
+  });
   const [isEditingWorkTime, setIsEditingWorkTime] = useState(false);
   const [editedWorkTime, setEditedWorkTime] = useState({
     date: '2026-01-28',
@@ -350,6 +356,17 @@ export default function CompanyEmployeeDetailPage() {
                 />
               )}
             </div>
+
+            {/* 퇴사 등록 버튼 (현재 근로자인 경우) */}
+            {!employee.isResigned && (
+              <button
+                onClick={() => setShowResignModal(true)}
+                className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-semibold hover:bg-red-100 transition-colors flex items-center justify-center gap-2 border border-red-200"
+              >
+                <UserX className="w-5 h-5" />
+                퇴사 등록
+              </button>
+            )}
 
             {/* 퇴사 정보 (퇴사자인 경우) */}
             {employee.isResigned && (
@@ -838,6 +855,86 @@ export default function CompanyEmployeeDetailPage() {
                 >
                   <Save className="w-4 h-4" />
                   저장
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 퇴사 등록 모달 */}
+      {showResignModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <AlertTriangle className="w-6 h-6 text-red-500" />
+                퇴사 등록
+              </h3>
+              <button
+                onClick={() => setShowResignModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-red-700">
+                <strong>{employee.name}</strong> 근로자를 퇴사 처리합니다.
+                <br />
+                퇴사 처리 후 해당 근로자는 출퇴근 서비스에 접속할 수 없습니다.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  퇴사일 <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="date"
+                    value={resignForm.date}
+                    onChange={(e) => setResignForm({ ...resignForm, date: e.target.value })}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  비고 (퇴사 사유 등)
+                </label>
+                <textarea
+                  value={resignForm.reason}
+                  onChange={(e) => setResignForm({ ...resignForm, reason: e.target.value })}
+                  placeholder="퇴사 사유나 특이사항을 입력해주세요..."
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowResignModal(false)}
+                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={() => {
+                    if (!resignForm.date) return;
+                    alert('퇴사 등록이 완료되었습니다.');
+                    setShowResignModal(false);
+                    setResignForm({ date: new Date().toISOString().split('T')[0], reason: '' });
+                  }}
+                  disabled={!resignForm.date}
+                  className="flex-1 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <UserX className="w-4 h-4" />
+                  퇴사 등록
                 </button>
               </div>
             </div>

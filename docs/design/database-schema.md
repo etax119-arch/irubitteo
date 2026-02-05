@@ -140,6 +140,7 @@ CREATE INDEX idx_company_files_company ON company_files(company_id);
 | ssn_encrypted | TEXT | NOT NULL | 주민번호 (암호화) |
 | hire_date | DATE | NOT NULL | 입사일 |
 | resign_date | DATE | | 퇴사일 |
+| resign_reason | TEXT | | 퇴사 사유/비고 |
 | contract_end_date | DATE | | 계약 만료일 |
 | work_days | INTEGER[] | DEFAULT '{1,2,3,4,5}' | 출근 요일 (1=월, 7=일) |
 | work_start_time | TIME | DEFAULT '09:00' | 근무 시작 |
@@ -168,6 +169,7 @@ CREATE TABLE employees (
   ssn_encrypted TEXT NOT NULL,
   hire_date DATE NOT NULL,
   resign_date DATE,
+  resign_reason TEXT,
   contract_end_date DATE,
   work_days INTEGER[] DEFAULT '{1,2,3,4,5}',  -- 출근 요일 (1=월, 7=일)
   work_start_time TIME DEFAULT '09:00',
