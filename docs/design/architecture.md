@@ -159,76 +159,71 @@
 
 ```
 app/
-├── (public)/                    # 비인증 페이지
-│   ├── page.tsx                 # 랜딩 페이지 (LandingPage.jsx)
-│   ├── inquiry/                 # 신규 기업 문의 (CompanyInquiry.jsx)
-│   │   └── page.tsx
-│   ├── login/                   # 로그인 페이지
-│   │   ├── employee/            # 직원 로그인 (고유번호)
-│   │   ├── company/             # 기업 로그인 (고유번호)
-│   │   └── admin/               # 관리자 로그인 (이메일+비밀번호)
-│   └── layout.tsx
+├── layout.tsx                   # 루트 레이아웃
+├── page.tsx                     # / (랜딩 페이지)
+├── _components/                 # 루트 레벨 공용 컴포넌트
 │
-├── (employee)/                  # 직원 전용 - 출퇴근 앱 (AttendanceApp.jsx)
+├── login/                       # 로그인 페이지
+│   ├── employee/page.tsx        # 직원 로그인 (고유번호)
+│   ├── company/page.tsx         # 기업 로그인 (고유번호)
+│   └── admin/page.tsx           # 관리자 로그인 (이메일+비밀번호)
+│
+├── inquiry/page.tsx             # 신규 기업 문의 (CompanyInquiry.jsx)
+├── playground/page.tsx          # UI 컴포넌트 테스트 페이지
+│
+├── employee/                    # 직원 전용 - 출퇴근 앱 (AttendanceApp.jsx)
+│   ├── layout.tsx               # 직원 레이아웃
+│   ├── _components/             # 직원 전용 컴포넌트
 │   ├── page.tsx                 # 메인 화면 (출근/퇴근 선택)
-│   ├── checkin/                 # 출근 처리
-│   │   └── page.tsx
-│   ├── checkout/                # 퇴근 처리
-│   │   └── page.tsx
-│   └── layout.tsx               # 직원 레이아웃
+│   ├── checkin/page.tsx         # 출근 처리
+│   └── checkout/page.tsx        # 퇴근 처리
 │
-├── (company)/                   # 기업 전용 (CompanyDashboard.jsx)
-│   ├── dashboard/               # 대시보드 (통계, 출퇴근 현황)
-│   │   └── page.tsx
+├── company/                     # 기업 전용 (CompanyDashboard.jsx)
+│   ├── layout.tsx               # 기업 레이아웃
+│   ├── _components/             # 기업 전용 컴포넌트
+│   ├── _hooks/                  # 기업 전용 훅
+│   ├── dashboard/page.tsx       # 대시보드 (통계, 출퇴근 현황)
 │   ├── employees/               # 직원 관리
 │   │   ├── page.tsx             # 직원 목록
-│   │   └── [id]/                # 직원 상세 (EmployeeDetail.jsx)
-│   │       └── page.tsx
-│   ├── schedule/                # 근무 일정 관리 (캘린더)
-│   │   └── page.tsx
-│   ├── notices/                 # 공지사항
-│   │   └── page.tsx
-│   └── layout.tsx               # 기업 레이아웃
+│   │   └── [id]/page.tsx        # 직원 상세 (EmployeeDetail.jsx)
+│   ├── schedule/page.tsx        # 근무 일정 관리 (캘린더)
+│   └── notices/page.tsx         # 공지사항
 │
-├── (admin)/                     # 관리자 전용 (AdminDashboard.jsx)
-│   ├── dashboard/               # 대시보드 (통계)
-│   │   └── page.tsx
-│   ├── companies/               # 회사 관리
-│   │   ├── page.tsx             # 회사 목록
-│   │   └── [id]/                # 회사 상세 (CompanyDetail.jsx)
-│   │       └── page.tsx
-│   ├── employees/               # 직원 통계
-│   │   ├── page.tsx             # 직원 목록/통계
-│   │   └── [id]/                # 직원 상세 (AdminWorkerDetail.jsx)
-│   │       └── page.tsx
-│   ├── attendance/              # 근무 통계
-│   │   └── page.tsx
-│   ├── inquiries/               # 신규 문의 관리
-│   │   └── page.tsx
-│   └── layout.tsx               # 관리자 레이아웃
-│
-└── layout.tsx                   # 루트 레이아웃
+└── admin/                       # 관리자 전용 (AdminDashboard.jsx)
+    ├── layout.tsx               # 관리자 레이아웃
+    ├── _components/             # 관리자 전용 컴포넌트
+    ├── _hooks/                  # 관리자 전용 훅
+    ├── dashboard/page.tsx       # 대시보드 (통계)
+    ├── companies/               # 회사 관리
+    │   ├── page.tsx             # 회사 목록
+    │   └── [id]/page.tsx        # 회사 상세 (CompanyDetail.jsx)
+    ├── employees/               # 직원 통계
+    │   ├── page.tsx             # 직원 목록/통계
+    │   └── [id]/page.tsx        # 직원 상세 (AdminWorkerDetail.jsx)
+    ├── attendance/page.tsx      # 근무 통계
+    ├── inquiries/page.tsx       # 신규 문의 관리
+    └── reports/page.tsx         # 리포트
 ```
 
 ### 디자인 파일 매핑
 
 | Next.js 라우트 | 디자인 파일 | 비고 |
 |---------------|------------|------|
-| `(public)/page.tsx` | LandingPage.jsx | 랜딩 페이지 |
-| `(public)/inquiry/` | CompanyInquiry.jsx | 기업 문의 폼 |
-| `(employee)/*` | AttendanceApp.jsx | 단계별 출퇴근 플로우 |
-| `(company)/dashboard/` | CompanyDashboard.jsx | 탭: 대시보드 |
-| `(company)/employees/` | CompanyDashboard.jsx | 탭: 직원 관리 |
-| `(company)/employees/[id]/` | EmployeeDetail.jsx | 직원 상세 |
-| `(company)/schedule/` | CompanyDashboard.jsx | 탭: attendance (근무 일정) |
-| `(company)/notices/` | CompanyDashboard.jsx | 탭: 공지사항 |
-| `(admin)/dashboard/` | AdminDashboard.jsx | 탭: 대시보드 |
-| `(admin)/companies/` | AdminDashboard.jsx | 탭: 회사 관리 |
-| `(admin)/companies/[id]/` | CompanyDetail.jsx | 회사 상세 |
-| `(admin)/employees/` | AdminDashboard.jsx | 탭: workers (직원 통계) |
-| `(admin)/employees/[id]/` | AdminWorkerDetail.jsx | 직원 상세 |
-| `(admin)/attendance/` | AdminDashboard.jsx | 탭: workstats (근무 통계) |
-| `(admin)/inquiries/` | AdminDashboard.jsx | 탭: notifications (알림센터) |
+| `/` (page.tsx) | LandingPage.jsx | 랜딩 페이지 |
+| `/inquiry` | CompanyInquiry.jsx | 기업 문의 폼 |
+| `/employee/*` | AttendanceApp.jsx | 단계별 출퇴근 플로우 |
+| `/company/dashboard` | CompanyDashboard.jsx | 탭: 대시보드 |
+| `/company/employees` | CompanyDashboard.jsx | 탭: 직원 관리 |
+| `/company/employees/[id]` | EmployeeDetail.jsx | 직원 상세 |
+| `/company/schedule` | CompanyDashboard.jsx | 탭: attendance (근무 일정) |
+| `/company/notices` | CompanyDashboard.jsx | 탭: 공지사항 |
+| `/admin/dashboard` | AdminDashboard.jsx | 탭: 대시보드 |
+| `/admin/companies` | AdminDashboard.jsx | 탭: 회사 관리 |
+| `/admin/companies/[id]` | CompanyDetail.jsx | 회사 상세 |
+| `/admin/employees` | AdminDashboard.jsx | 탭: workers (직원 통계) |
+| `/admin/employees/[id]` | AdminWorkerDetail.jsx | 직원 상세 |
+| `/admin/attendance` | AdminDashboard.jsx | 탭: workstats (근무 통계) |
+| `/admin/inquiries` | AdminDashboard.jsx | 탭: notifications (알림센터) |
 
 ---
 

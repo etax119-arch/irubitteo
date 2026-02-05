@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, ImagePlus, X } from 'lucide-react';
-import { SuccessModal } from '../../_components/SuccessModal';
+import { SuccessModal } from '../_components/SuccessModal';
 
 interface Photo {
   id: number;

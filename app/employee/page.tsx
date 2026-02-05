@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Clock, CheckCircle2, Home } from 'lucide-react';
-import { NoticeSection } from '../_components/NoticeSection';
-import { WorkRecordsSection } from '../_components/WorkRecordsSection';
-import { PhotoLightbox } from '../_components/PhotoLightbox';
+import { NoticeSection } from './_components/NoticeSection';
+import { WorkRecordsSection } from './_components/WorkRecordsSection';
+import { PhotoLightbox } from './_components/PhotoLightbox';
 
 interface Photo {
   id: number;

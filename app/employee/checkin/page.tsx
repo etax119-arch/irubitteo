@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle2 } from 'lucide-react';
-import { SuccessModal } from '../../_components/SuccessModal';
+import { SuccessModal } from '../_components/SuccessModal';
 
 // 오늘의 작업 안내 (실제로는 서버에서 받아올 데이터)
 const taskDescription = '오늘은 제품 포장 작업과\n부품 조립 작업을 진행할 예정입니다.\n작업 후에는 작업장 정리정돈을 함께 해주세요.\n안전하게 천천히 진행하시면 됩니다.';
