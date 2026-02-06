@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Clock, CheckCircle2, Home } from 'lucide-react';
 import { NoticeSection } from './_components/NoticeSection';
 import { WorkRecordsSection } from './_components/WorkRecordsSection';
 import { PhotoLightbox } from './_components/PhotoLightbox';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Photo {
   id: number;
@@ -113,7 +114,7 @@ const initialWorkRecords: WorkRecord[] = [
 
 export default function EmployeeDashboard() {
   const router = useRouter();
-  const [userName, setUserName] = useState('');
+  const { user, logout, isLoading } = useAuth();
   const [showPastNotices, setShowPastNotices] = useState(false);
   const [showWorkRecords, setShowWorkRecords] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -121,18 +122,8 @@ export default function EmployeeDashboard() {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [workRecords, setWorkRecords] = useState<WorkRecord[]>(initialWorkRecords);
 
-  useEffect(() => {
-    // localStorage에서 사용자 이름 가져오기
-    const storedName = localStorage.getItem('employeeName');
-    if (storedName) {
-      setUserName(storedName);
-    }
-  }, []);
-
-  const handleGoHome = () => {
-    localStorage.removeItem('employeeId');
-    localStorage.removeItem('employeeName');
-    router.push('/');
+  const handleGoHome = async () => {
+    await logout();
   };
 
   const handleCheckIn = () => {
@@ -220,6 +211,15 @@ export default function EmployeeDashboard() {
     );
   };
 
+  // 로딩 중일 때 스피너 표시
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-duru-ivory flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-duru-orange-500" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-duru-ivory">
       <div className="max-w-4xl mx-auto p-4 sm:p-8">
@@ -227,7 +227,7 @@ export default function EmployeeDashboard() {
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-duru-orange-100 mb-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{userName}님, 환영합니다!</h2>
+              <h2 className="text-2xl font-bold text-gray-900">{user?.name || ''}님, 환영합니다!</h2>
               <p className="text-gray-600 mt-1">
                 {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
               </p>
