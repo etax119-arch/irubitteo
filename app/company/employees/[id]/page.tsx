@@ -19,8 +19,8 @@ import {
   Shield,
   MessageSquare,
   UserX,
-  Calendar,
   AlertTriangle,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { initialEmployees } from '../../_data/dummyData';
@@ -58,8 +58,8 @@ export default function CompanyEmployeeDetailPage() {
   const [tempWorkDays, setTempWorkDays] = useState<string[]>([]);
   const [tempWorkStartTime, setTempWorkStartTime] = useState('');
 
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 0, 1));
+  const [showWorkDoneModal, setShowWorkDoneModal] = useState(false);
+  const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string } | null>(null);
 
   const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([
     { date: '2026-01-28', checkin: '결근', checkout: '-', status: '결근', workDone: '-' },
@@ -263,7 +263,7 @@ export default function CompanyEmployeeDetailPage() {
                   <span className="font-semibold text-gray-900">{employee.hireDate}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <CalendarIcon className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">계약 만료일:</span>
                   <span className="font-semibold text-gray-900">{employee.contractEnd}</span>
                 </div>
@@ -397,128 +397,10 @@ export default function CompanyEmployeeDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* 출퇴근 기록 */}
             <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-duru-orange-600" />
-                  최근 출퇴근 기록
-                  <span className="text-xs font-normal text-gray-500 ml-2">(클릭하여 수정 가능)</span>
-                </h3>
-                <button
-                  onClick={() => setShowCalendar(!showCalendar)}
-                  className={cn(
-                    'p-2 rounded-lg border transition-colors',
-                    showCalendar
-                      ? 'bg-duru-orange-50 border-duru-orange-300 text-duru-orange-600'
-                      : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
-                  )}
-                  title="달력 보기"
-                >
-                  <Calendar className="w-5 h-5" />
-                </button>
-              </div>
-
-              {showCalendar && (
-                <div className="mb-6 border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-                    <button
-                      onClick={() =>
-                        setCalendarMonth(
-                          new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1)
-                        )
-                      }
-                      className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-600"
-                    >
-                      &lt;
-                    </button>
-                    <span className="font-bold text-gray-900">
-                      {calendarMonth.getFullYear()}년 {calendarMonth.getMonth() + 1}월
-                    </span>
-                    <button
-                      onClick={() =>
-                        setCalendarMonth(
-                          new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1)
-                        )
-                      }
-                      className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-600"
-                    >
-                      &gt;
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-7">
-                    {['일', '월', '화', '수', '목', '금', '토'].map((d) => (
-                      <div
-                        key={d}
-                        className="py-2 text-center text-xs font-semibold text-gray-500 border-b border-gray-100"
-                      >
-                        {d}
-                      </div>
-                    ))}
-                    {(() => {
-                      const year = calendarMonth.getFullYear();
-                      const month = calendarMonth.getMonth();
-                      const firstDay = new Date(year, month, 1).getDay();
-                      const daysInMonth = new Date(year, month + 1, 0).getDate();
-                      const cells: (number | null)[] = [];
-                      for (let i = 0; i < firstDay; i++) cells.push(null);
-                      for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-
-                      return cells.map((day, i) => {
-                        if (day === null)
-                          return <div key={`empty-${i}`} className="py-3 border-b border-gray-50" />;
-                        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(
-                          2,
-                          '0'
-                        )}`;
-                        const record = attendanceHistory.find((r) => r.date === dateStr);
-                        const statusColor = record
-                          ? record.status === '정상'
-                            ? 'bg-green-500'
-                            : record.status === '지각'
-                            ? 'bg-yellow-500'
-                            : record.status === '휴가'
-                            ? 'bg-blue-400'
-                            : record.status === '결근'
-                            ? 'bg-red-500'
-                            : ''
-                          : '';
-
-                        return (
-                          <div
-                            key={day}
-                            className={cn(
-                              'py-3 flex flex-col items-center gap-1 border-b border-gray-50 transition-colors',
-                              record ? 'hover:bg-gray-100 cursor-pointer' : 'cursor-default'
-                            )}
-                          >
-                            <span className={cn('text-sm', record ? 'text-gray-900' : 'text-gray-300')}>
-                              {day}
-                            </span>
-                            {record && <span className={cn('w-2 h-2 rounded-full', statusColor)} />}
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
-                  <div className="flex items-center gap-4 px-4 py-2.5 bg-gray-50 border-t border-gray-200 text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-green-500" />
-                      정상
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-yellow-500" />
-                      지각
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-blue-400" />
-                      휴가
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-red-500" />
-                      결근
-                    </span>
-                  </div>
-                </div>
-              )}
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
+                <Clock className="w-5 h-5 text-duru-orange-600" />
+                최근 출퇴근 기록
+              </h3>
 
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -555,7 +437,21 @@ export default function CompanyEmployeeDetailPage() {
                             {record.status}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-600 text-sm">{record.workDone}</td>
+                        <td className="px-4 py-3">
+                          {record.workDone !== '-' ? (
+                            <button
+                              onClick={() => {
+                                setSelectedWorkDone({ date: record.date, workDone: record.workDone });
+                                setShowWorkDoneModal(true);
+                              }}
+                              className="text-sm text-duru-orange-600 underline hover:text-duru-orange-700"
+                            >
+                              확인하기
+                            </button>
+                          ) : (
+                            <span className="text-gray-400 text-sm">-</span>
+                          )}
+                        </td>
                         <td className="px-4 py-3">
                           <button
                             onClick={() => handleEditWorkTime(record)}
@@ -862,6 +758,41 @@ export default function CompanyEmployeeDetailPage() {
         </div>
       )}
 
+      {/* 업무내용 확인 모달 */}
+      {showWorkDoneModal && selectedWorkDone && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">업무 내용</h3>
+              <button
+                onClick={() => {
+                  setShowWorkDoneModal(false);
+                  setSelectedWorkDone(null);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+            <div className="mb-4">
+              <p className="text-sm text-gray-500 mb-2">{selectedWorkDone.date}</p>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-gray-700 whitespace-pre-wrap">{selectedWorkDone.workDone}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setShowWorkDoneModal(false);
+                setSelectedWorkDone(null);
+              }}
+              className="w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 퇴사 등록 모달 */}
       {showResignModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -893,7 +824,7 @@ export default function CompanyEmployeeDetailPage() {
                   퇴사일 <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="date"
                     value={resignForm.date}
