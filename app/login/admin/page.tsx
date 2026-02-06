@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Shield, LogIn, AlertTriangle, Mail, Lock } from 'lucide-react';
+import { Shield, LogIn, AlertTriangle, Mail, Lock, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { AxiosError } from 'axios';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
 
   // 이메일 형식 검증
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -24,10 +28,24 @@ export default function AdminLoginPage() {
     setLoginError('');
   };
 
-  const handleLogin = () => {
-    if (!isValid) return;
-    // TODO: 실제 로그인 로직 구현
-    console.log('Login with:', email, password);
+  const handleLogin = async () => {
+    if (!isValid || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setLoginError('');
+
+    try {
+      await login('admin', email, password);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const message = error.response?.data?.message;
+        setLoginError(message || '이메일 또는 비밀번호가 올바르지 않습니다.');
+      } else {
+        setLoginError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -97,11 +115,15 @@ export default function AdminLoginPage() {
 
             <button
               onClick={handleLogin}
-              disabled={!isValid}
+              disabled={!isValid || isSubmitting}
               className="w-full py-5 bg-duru-orange-500 text-white rounded-lg font-bold text-xl hover:bg-duru-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <LogIn className="w-5 h-5" />
-              로그인
+              {isSubmitting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <LogIn className="w-5 h-5" />
+              )}
+              {isSubmitting ? '로그인 중...' : '로그인'}
             </button>
 
             <Link

@@ -2,14 +2,18 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
-import { Hash, LogIn, AlertTriangle } from 'lucide-react';
+import { Hash, LogIn, AlertTriangle, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { AxiosError } from 'axios';
 
 export default function EmployeeLoginPage() {
   const [firstPart, setFirstPart] = useState('');
   const [secondPart, setSecondPart] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const secondInputRef = useRef<HTMLInputElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
+  const { login } = useAuth();
 
   const isValidId = firstPart.length === 4 && secondPart.length === 4;
 
@@ -46,11 +50,25 @@ export default function EmployeeLoginPage() {
     }
   };
 
-  const handleLogin = () => {
-    if (!isValidId) return;
+  const handleLogin = async () => {
+    if (!isValidId || isSubmitting) return;
+
     const employeeId = firstPart + secondPart;
-    // TODO: 실제 로그인 로직 구현
-    console.log('Login with:', employeeId);
+    setIsSubmitting(true);
+    setLoginError('');
+
+    try {
+      await login('employee', employeeId);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const message = error.response?.data?.message;
+        setLoginError(message || '유효하지 않은 고유 번호입니다.');
+      } else {
+        setLoginError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -110,11 +128,15 @@ export default function EmployeeLoginPage() {
 
             <button
               onClick={handleLogin}
-              disabled={!isValidId}
+              disabled={!isValidId || isSubmitting}
               className="w-full py-5 bg-duru-orange-500 text-white rounded-lg font-bold text-xl hover:bg-duru-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <LogIn className="w-5 h-5" />
-              출퇴근 시작
+              {isSubmitting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <LogIn className="w-5 h-5" />
+              )}
+              {isSubmitting ? '로그인 중...' : '출퇴근 시작'}
             </button>
 
             <p className="text-center text-sm text-gray-400">

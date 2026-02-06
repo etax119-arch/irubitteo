@@ -10,12 +10,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - [프로젝트 개요](docs/README.md) - 전체 문서 인덱스
 - [요구사항](docs/design/requirements.md) - 기능 요구사항, 사용자 흐름
 - [DB 스키마](docs/design/database-schema.md) - 테이블 구조 및 관계
-- [API 설계](docs/design/api-design.md) - 엔드포인트 명세
 - [아키텍처](docs/design/architecture.md) - 시스템 구조 및 흐름
 
+### 인증 시스템
+- [인증 개요](docs/design/auth/README.md) - 인증 방식, 토큰 정책
+- [프론트엔드 구현](docs/design/auth/frontend.md) - Next.js 인증 구현
+- [백엔드 구현](docs/design/auth/backend.md) - NestJS 인증 구현
 
+### API 설계
+- [API 공통](docs/design/api/README.md) - 공통 규칙, 응답 형식
+- [인증 API](docs/design/api/auth.md) - 로그인/로그아웃
+- [기업 API](docs/design/api/companies.md) - 기업 CRUD
+- [직원 API](docs/design/api/employees.md) - 직원 CRUD
+- [출퇴근 API](docs/design/api/attendance.md) - 출퇴근 기록
+- [관리자 API](docs/design/api/admin.md) - 플랫폼 통계
+- [기타 API](docs/design/api/misc.md) - 공지/일정/문의/템플릿
 
-### 의사결정/참조
+### 기능 명세
+- [관리자 대시보드](docs/design/features/admin-dashboard.md) - 관리자 기능
+- [기업 대시보드](docs/design/features/company-dashboard.md) - 기업 기능
+- [직원 앱](docs/design/features/employee-app.md) - 출퇴근 앱
+
+### 참조 문서
 - [기술 스택](docs/reference/tech-stack.md) - 기술 선정 및 비용
 - [계정 체크리스트](docs/reference/platform-accounts.md) - 필요 플랫폼 계정
 
