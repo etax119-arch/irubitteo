@@ -1,10 +1,5 @@
 import apiClient from './client';
-import type {
-  AuthUser,
-  LoginResponse,
-  AdminLoginInput,
-  CodeLoginInput,
-} from '@/types/auth';
+import type { AuthUser, LoginResponse } from '@/types/auth';
 
 export type LoginParams =
   | { type: 'admin'; email: string; password: string }
@@ -18,18 +13,15 @@ export const authApi = {
    * - 기업/직원: 고유 코드
    */
   async login(params: LoginParams): Promise<LoginResponse> {
-    let endpoint: string;
-    let body: AdminLoginInput | CodeLoginInput;
+    let body: { role: string; email?: string; password?: string; code?: string };
 
     if (params.type === 'admin') {
-      endpoint = '/auth/login/admin';
-      body = { email: params.email, password: params.password };
+      body = { role: 'admin', email: params.email, password: params.password };
     } else {
-      endpoint = '/auth/login/code';
-      body = { code: params.code, type: params.type };
+      body = { role: params.type, code: params.code };
     }
 
-    const response = await apiClient.post<LoginResponse>(endpoint, body);
+    const response = await apiClient.post<LoginResponse>('/auth/login', body);
     return response.data;
   },
 
