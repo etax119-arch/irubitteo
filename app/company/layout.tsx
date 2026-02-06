@@ -2,7 +2,9 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, TrendingUp, Users, Clock, MessageSquare } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, Clock, MessageSquare, LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/Button';
 
 const tabs = [
   { id: 'dashboard', label: '대시보드', icon: TrendingUp, href: '/company/dashboard' },
@@ -14,6 +16,7 @@ const tabs = [
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const getActiveTab = () => {
     if (pathname.startsWith('/company/employees')) return 'employees';
@@ -44,6 +47,14 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">2026년 1월 28일</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                rightIcon={<LogOut className="w-4 h-4" />}
+                onClick={logout}
+              >
+                로그아웃
+              </Button>
               <div className="w-10 h-10 bg-duru-orange-100 rounded-full flex items-center justify-center">
                 <span className="text-sm font-bold text-duru-orange-600">관</span>
               </div>
