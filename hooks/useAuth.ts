@@ -82,14 +82,20 @@ export function useAuth() {
       setUser(user);
     } catch {
       clearUser();
+    } finally {
+      setLoading(false);
     }
   }, [setUser, clearUser, setLoading]);
 
   // 컴포넌트 마운트 시 인증 상태 확인
   useEffect(() => {
-    // localStorage에 저장된 상태가 있어도 서버에서 확인
+    // 로그인 페이지에서는 인증 확인 스킵
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/login')) {
+      setLoading(false);
+      return;
+    }
     checkAuth();
-  }, [checkAuth]);
+  }, [checkAuth, setLoading]);
 
   return {
     user,

@@ -38,8 +38,8 @@ export default function AdminLoginPage() {
       await login('admin', email, password);
     } catch (error) {
       if (error instanceof AxiosError) {
-        const message = error.response?.data?.message;
-        setLoginError(message || '이메일 또는 비밀번호가 올바르지 않습니다.');
+        // 보안: 서버 메시지 무시, 일관된 메시지 사용 (사용자 존재 여부 식별 방지)
+        setLoginError('이메일 또는 비밀번호가 올바르지 않습니다.');
       } else {
         setLoginError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
       }

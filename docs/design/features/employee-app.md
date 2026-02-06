@@ -19,7 +19,19 @@
 ├── layout.tsx              # 직원용 레이아웃
 ├── page.tsx                # 메인 화면 (출근/퇴근 버튼)
 ├── checkin/page.tsx        # 출근 화면
-└── checkout/page.tsx       # 퇴근 화면
+├── checkout/page.tsx       # 퇴근 화면
+├── _components/
+│   ├── HeaderCard.tsx          # 사용자 인사 + 날짜 + 로그아웃
+│   ├── AttendanceButtons.tsx   # 출근/퇴근 버튼 그리드
+│   ├── NoticeSection.tsx       # 긴급 공지 섹션
+│   ├── WorkRecordsSection.tsx  # 활동 기록 아코디언
+│   ├── DateNavigator.tsx       # 연도/월 네비게이션
+│   ├── WorkRecordCard.tsx      # 활동 기록 카드
+│   ├── PhotoLightbox.tsx       # 사진 확대 모달
+│   ├── HeicImage.tsx           # HEIC 이미지 지원
+│   └── SuccessModal.tsx        # 출퇴근 완료 모달
+└── _hooks/
+    └── useWorkRecords.ts       # 활동 기록 상태 관리
 ```
 
 ### URL 구조

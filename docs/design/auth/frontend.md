@@ -161,7 +161,7 @@ if (typeof window !== 'undefined') {
 
 ### useAuth 훅 (`hooks/useAuth.ts`)
 
-컴포넌트 마운트 시 자동으로 인증 상태 확인:
+컴포넌트 마운트 시 자동으로 인증 상태 확인 (로그인 페이지 제외):
 
 ```typescript
 export function useAuth() {
@@ -175,13 +175,20 @@ export function useAuth() {
       setUser(user);
     } catch {
       clearUser();
+    } finally {
+      setLoading(false);  // 로딩 상태 해제 보장
     }
   }, [setUser, clearUser, setLoading]);
 
   // 컴포넌트 마운트 시 인증 상태 확인
   useEffect(() => {
+    // 로그인 페이지에서는 인증 확인 스킵 (불필요한 401 에러 방지)
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/login')) {
+      setLoading(false);
+      return;
+    }
     checkAuth();
-  }, [checkAuth]);
+  }, [checkAuth, setLoading]);
 
   return { user, isAuthenticated, isLoading, login, logout, checkAuth };
 }
@@ -219,6 +226,9 @@ export function useAuth() {
 | HttpOnly Cookie | accessToken, refreshToken | 서버 |
 | 일반 Cookie | auth-status, user-role | 서버 (middleware.ts 읽기용) |
 | Zustand (메모리) | 사용자 정보 (UI 표시용) | 클라이언트 |
+| localStorage | isAuthenticated만 저장 (user 정보 제외) | 클라이언트 |
+
+> **보안 주의**: 사용자 정보(id, name, code 등)는 XSS 공격 방지를 위해 localStorage에 저장하지 않고 메모리에만 유지합니다.
 
 ### 서버에서 설정해야 할 Cookie
 
@@ -276,6 +286,8 @@ export function useAuth() {
 ### 보안 검증
 
 - [x] 토큰이 localStorage/sessionStorage에 저장되지 않음
+- [x] 사용자 정보가 localStorage에 저장되지 않음 (메모리에만 유지)
+- [x] 로그인 에러 메시지 통일 (사용자/코드 존재 여부 식별 방지)
 - [ ] Cookie에 HttpOnly 플래그 설정됨 (서버 구현 필요)
 - [ ] HTTPS에서만 Cookie 전송됨 (서버 구현 필요)
 

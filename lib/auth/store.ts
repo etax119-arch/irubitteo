@@ -45,8 +45,7 @@ export const useAuthStore = create<AuthStore>()(
       name: 'auth-storage', // localStorage 키 이름
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        // 영속화할 상태만 선택 (isLoading 제외)
-        user: state.user,
+        // 영속화할 상태만 선택 (user, isLoading 제외 - 보안상 user는 메모리에만 유지)
         isAuthenticated: state.isAuthenticated,
       }),
     }

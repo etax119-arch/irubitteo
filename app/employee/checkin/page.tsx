@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
+import { useAttendance } from '@/hooks/useAttendance';
 
 // 오늘의 작업 안내 (실제로는 서버에서 받아올 데이터)
 const taskDescription = '오늘은 제품 포장 작업과\n부품 조립 작업을 진행할 예정입니다.\n작업 후에는 작업장 정리정돈을 함께 해주세요.\n안전하게 천천히 진행하시면 됩니다.';
@@ -12,13 +13,17 @@ export default function CheckInPage() {
   const router = useRouter();
   const [confirmedTasks, setConfirmedTasks] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const { clockIn, isLoading, error } = useAttendance();
 
   const handleBack = () => {
     router.back();
   };
 
-  const completeCheckIn = () => {
-    setShowModal(true);
+  const completeCheckIn = async () => {
+    const result = await clockIn();
+    if (result) {
+      setShowModal(true);
+    }
   };
 
   const handleModalClose = () => {
@@ -56,6 +61,13 @@ export default function CheckInPage() {
             </p>
           </div>
 
+          {/* 에러 메시지 */}
+          {error && (
+            <div className="mx-6 sm:mx-8 mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-red-600 text-center font-medium">{error}</p>
+            </div>
+          )}
+
           {/* 확인 체크 영역 */}
           <div className="mx-6 sm:mx-8 mb-6">
             <label className="flex items-center gap-4 p-5 border-2 border-duru-orange-200 rounded-xl cursor-pointer hover:bg-duru-orange-50 transition-colors">
@@ -73,11 +85,20 @@ export default function CheckInPage() {
           <div className="px-6 sm:px-8 pb-8">
             <button
               onClick={completeCheckIn}
-              disabled={!confirmedTasks}
+              disabled={!confirmedTasks || isLoading}
               className="w-full py-5 bg-duru-orange-500 text-white rounded-xl font-bold text-xl hover:bg-duru-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <CheckCircle2 className="w-6 h-6" />
-              출근 완료
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  처리 중...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-6 h-6" />
+                  출근 완료
+                </>
+              )}
             </button>
           </div>
         </div>
