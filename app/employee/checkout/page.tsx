@@ -1,45 +1,86 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle2, ImagePlus, X } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ImagePlus, X, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
-
-interface Photo {
-  id: number;
-  name: string;
-  url: string;
-}
+import { useAttendance } from '@/hooks/useAttendance';
+import { filesToBase64, isHeicFile, isHeicFileByContent, convertHeicToJpeg } from '@/lib/file';
+import type { UploadPhoto } from '@/types/attendance';
 
 export default function CheckOutPage() {
   const router = useRouter();
   const [workDone, setWorkDone] = useState('');
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [photos, setPhotos] = useState<UploadPhoto[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const { clockOut, isLoading, error } = useAttendance();
+
+  // 메모리 누수 방지: 페이지 언마운트 시 blob URL cleanup
+  useEffect(() => {
+    return () => {
+      photos.forEach((photo) => URL.revokeObjectURL(photo.url));
+    };
+  }, [photos]);
 
   const handleBack = () => {
     router.back();
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newPhotos = files.map((file) => ({
-      id: Date.now() + Math.random(),
-      name: file.name,
-      url: URL.createObjectURL(file)
-    }));
+    const newPhotos = await Promise.all(
+      files.map(async (file) => {
+        let previewUrl: string;
+        // 확장자/MIME 또는 실제 파일 내용(매직 바이트)으로 HEIC 감지
+        const isHeic = isHeicFile(file) || (await isHeicFileByContent(file));
+        if (isHeic) {
+          try {
+            const jpegBlob = await convertHeicToJpeg(file);
+            previewUrl = URL.createObjectURL(jpegBlob);
+          } catch {
+            // 변환 실패 시 원본 사용
+            previewUrl = URL.createObjectURL(file);
+          }
+        } else {
+          previewUrl = URL.createObjectURL(file);
+        }
+        return {
+          id: Date.now() + Math.random(),
+          name: file.name,
+          url: previewUrl,
+          file, // 원본 파일 저장
+        };
+      })
+    );
     setPhotos((prev) => [...prev, ...newPhotos]);
   };
 
   const removePhoto = (id: number) => {
+    const photo = photos.find((p) => p.id === id);
+    if (photo) {
+      URL.revokeObjectURL(photo.url); // 메모리 해제
+    }
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const completeCheckOut = () => {
-    setShowModal(true);
+  const completeCheckOut = async () => {
+    // 사진을 base64로 변환
+    const photoFiles = photos.map((p) => p.file);
+    const base64Photos = photoFiles.length > 0 ? await filesToBase64(photoFiles) : undefined;
+
+    const result = await clockOut({
+      workContent: workDone,
+      photos: base64Photos,
+    });
+
+    if (result) {
+      setShowModal(true);
+    }
   };
 
   const handleModalClose = () => {
+    // 메모리 해제
+    photos.forEach((photo) => URL.revokeObjectURL(photo.url));
     setShowModal(false);
     setWorkDone('');
     setPhotos([]);
@@ -66,6 +107,13 @@ export default function CheckOutPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">퇴근하기</h1>
             <p className="text-lg text-gray-500">오늘 한 일을 간단히 기록해주세요</p>
           </div>
+
+          {/* 에러 메시지 */}
+          {error && (
+            <div className="mx-6 sm:mx-8 mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-red-600 text-center font-medium">{error}</p>
+            </div>
+          )}
 
           {/* 오늘의 업무 내용 */}
           <div className="mx-6 sm:mx-8 mb-6">
@@ -104,7 +152,7 @@ export default function CheckOutPage() {
               <span className="text-base font-semibold text-duru-orange-600">사진 추가하기</span>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif"
                 multiple
                 onChange={handlePhotoUpload}
                 className="hidden"
@@ -116,11 +164,20 @@ export default function CheckOutPage() {
           <div className="px-6 sm:px-8 pb-8">
             <button
               onClick={completeCheckOut}
-              disabled={!workDone.trim()}
+              disabled={!workDone.trim() || isLoading}
               className="w-full py-5 bg-duru-orange-500 text-white rounded-xl font-bold text-xl hover:bg-duru-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <CheckCircle2 className="w-6 h-6" />
-              퇴근 완료
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  처리 중...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-6 h-6" />
+                  퇴근 완료
+                </>
+              )}
             </button>
           </div>
         </div>

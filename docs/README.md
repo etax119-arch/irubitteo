@@ -25,35 +25,19 @@
 ```
 docs/
 ├── README.md                          # 전체 문서 인덱스 (현재 파일)
-├── development-roadmap.md             # 개발 로드맵 (단계별 계획)
 │
 ├── design/                            # 설계 문서
 │   ├── requirements.md                # 요구사항
-│   ├── database-schema.md             # DB 스키마
 │   ├── architecture.md                # 시스템 아키텍처
 │   │
 │   ├── auth/                          # 인증 시스템
 │   │   ├── README.md                  # 인증 개요
-│   │   ├── frontend.md                # 프론트엔드 구현
-│   │   └── backend.md                 # 백엔드 구현
-│   │
-│   ├── api/                           # API 설계
-│   │   ├── README.md                  # 공통 규칙
-│   │   ├── auth.md                    # 인증 API
-│   │   ├── companies.md               # 기업 API
-│   │   ├── employees.md               # 직원 API
-│   │   ├── attendance.md              # 출퇴근 API
-│   │   ├── admin.md                   # 관리자 API
-│   │   └── misc.md                    # 공지/일정/문의/템플릿
+│   │   └── frontend.md                # 프론트엔드 구현
 │   │
 │   └── features/                      # 기능 명세
 │       ├── admin-dashboard.md         # 관리자 대시보드
 │       ├── company-dashboard.md       # 기업 대시보드
 │       └── employee-app.md            # 직원 앱
-│
-└── reference/                         # 참조 문서
-    ├── tech-stack.md                  # 기술 스택
-    └── platform-accounts.md           # 플랫폼 계정
 ```
 
 ---
@@ -66,7 +50,6 @@ docs/
 | 문서 | 설명 |
 |------|------|
 | [요구사항](design/requirements.md) | 기능 요구사항, 사용자 흐름 |
-| [DB 스키마](design/database-schema.md) | 테이블 구조, 관계, 암호화 정책 |
 | [아키텍처](design/architecture.md) | 시스템 구조, 모듈 구조 |
 
 #### 인증 시스템 (design/auth/)
@@ -75,19 +58,6 @@ docs/
 |------|------|
 | [인증 개요](design/auth/README.md) | 인증 방식, 토큰 정책, Cookie 설정 |
 | [프론트엔드 구현](design/auth/frontend.md) | Next.js 클라이언트 인증 구현 |
-| [백엔드 구현](design/auth/backend.md) | NestJS 서버 인증 구현 |
-
-#### API 설계 (design/api/)
-
-| 문서 | 설명 |
-|------|------|
-| [API 공통](design/api/README.md) | 공통 규칙, 응답 형식, 에러 코드 |
-| [인증 API](design/api/auth.md) | 로그인, 로그아웃, 토큰 갱신 |
-| [기업 API](design/api/companies.md) | 기업 CRUD, 첨부파일 |
-| [직원 API](design/api/employees.md) | 직원 CRUD, 첨부파일 |
-| [출퇴근 API](design/api/attendance.md) | 출퇴근 기록, 조회, 수정 |
-| [관리자 API](design/api/admin.md) | 플랫폼 통계, 감사 로그 |
-| [기타 API](design/api/misc.md) | 공지사항, 근무일정, 문의, 템플릿 |
 
 #### 기능 명세 (design/features/)
 
@@ -96,13 +66,6 @@ docs/
 | [관리자 대시보드](design/features/admin-dashboard.md) | 플랫폼 관리자 대시보드 기능 명세 |
 | [기업 대시보드](design/features/company-dashboard.md) | 기업 관리자 대시보드 기능 명세 |
 | [직원 앱](design/features/employee-app.md) | 직원 출퇴근 앱 기능 명세 |
-
-### 참조 문서 (reference/)
-
-| 문서 | 설명 |
-|------|------|
-| [기술 스택](reference/tech-stack.md) | 기술 선정, 비용, 인프라 계획 |
-| [계정 체크리스트](reference/platform-accounts.md) | 필요 플랫폼 계정 목록 |
 
 ---
 
@@ -114,7 +77,7 @@ docs/
 |--------|------|----------|
 | `durubitteo_web` | 프론트엔드 (현재) | Next.js, React, TypeScript |
 | `durubitteo_design` | 디자인 목업 (참조용) | Vite, Tailwind CSS |
-| `durubitteo_server` | 백엔드 API (예정) | NestJS |
+| `durubitteo_server` | 백엔드 API | NestJS |
 
 ### 프로젝트 관계
 
