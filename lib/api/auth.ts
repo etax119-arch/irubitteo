@@ -46,8 +46,8 @@ export const authApi = {
    * - access token으로 사용자 정보 확인
    */
   async getMe(): Promise<AuthUser> {
-    const response = await apiClient.get<AuthUser>('/auth/me');
-    return response.data;
+    const response = await apiClient.get<{ user: AuthUser }>('/auth/me');
+    return response.data.user;
   },
 };
 
