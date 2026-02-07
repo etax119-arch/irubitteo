@@ -1,5 +1,7 @@
 import { Search, Users } from 'lucide-react';
 import type { CompanyEmployee } from '@/types/companyDashboard';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
 
 interface WorkerSelectorProps {
   employees: CompanyEmployee[];
@@ -69,11 +71,7 @@ export function WorkerSelector({
               onChange={() => onToggleWorker(worker.id)}
               className="w-5 h-5 text-duru-orange-600 rounded focus:ring-duru-orange-500"
             />
-            <div className="w-10 h-10 bg-duru-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-sm font-bold text-duru-orange-600">
-                {worker.name[0]}
-              </span>
-            </div>
+            <Avatar name={worker.name} size="md" className="text-sm font-bold flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 truncate">{worker.name}</p>
               <p className="text-sm text-gray-600 truncate">
@@ -81,21 +79,22 @@ export function WorkerSelector({
               </p>
             </div>
             <div className="flex-shrink-0">
-              <span
-                className={`px-2 py-1 rounded-full text-xs font-semibold ${
+              <Badge
+                variant={
                   worker.status === 'checkin'
-                    ? 'bg-green-100 text-green-700'
+                    ? 'success'
                     : worker.status === 'checkout'
-                    ? 'bg-gray-200 text-gray-700'
-                    : 'bg-red-100 text-red-700'
-                }`}
+                    ? 'default'
+                    : 'danger'
+                }
+                className={`py-1 font-semibold${worker.status === 'checkout' ? ' bg-gray-200' : ''}`}
               >
                 {worker.status === 'checkin'
                   ? '근무중'
                   : worker.status === 'checkout'
                   ? '퇴근'
                   : '결근'}
-              </span>
+              </Badge>
             </div>
           </label>
         ))}

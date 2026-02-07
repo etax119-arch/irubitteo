@@ -1,5 +1,8 @@
 import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import type { DailyAttendanceRecord } from '@/types/companyDashboard';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import type { BadgeVariant } from '@/components/ui/Badge';
 
 interface AttendanceTableProps {
   selectedDate: Date;
@@ -9,11 +12,11 @@ interface AttendanceTableProps {
 }
 
 function getStatusBadge(status: DailyAttendanceRecord['status']) {
-  const styles = {
-    checkin: 'bg-duru-orange-100 text-duru-orange-700',
-    checkout: 'bg-gray-200 text-gray-700',
-    absent: 'bg-red-100 text-red-700',
-    pending: 'bg-yellow-100 text-yellow-700',
+  const variantMap: Record<DailyAttendanceRecord['status'], BadgeVariant> = {
+    checkin: 'orange',
+    checkout: 'default',
+    absent: 'danger',
+    pending: 'warning',
   };
 
   const labels = {
@@ -24,9 +27,12 @@ function getStatusBadge(status: DailyAttendanceRecord['status']) {
   };
 
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[status]}`}>
+    <Badge
+      variant={variantMap[status]}
+      className={`px-3 py-1 font-semibold${status === 'checkout' ? ' bg-gray-200' : ''}`}
+    >
       {labels[status]}
-    </span>
+    </Badge>
   );
 }
 
@@ -86,11 +92,7 @@ export function AttendanceTable({
               <tr key={record.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-duru-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-duru-orange-600">
-                        {record.name[0]}
-                      </span>
-                    </div>
+                    <Avatar name={record.name} size="sm" className="text-xs font-bold" />
                     <span className="font-semibold text-gray-900">{record.name}</span>
                   </div>
                 </td>

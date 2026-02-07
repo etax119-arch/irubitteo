@@ -1,5 +1,8 @@
 import { Search } from 'lucide-react';
 import type { CompanyEmployee } from '@/types/companyDashboard';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 
 interface EmployeeTableProps {
   employees: CompanyEmployee[];
@@ -26,12 +29,9 @@ export function EmployeeTable({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">근로자 관리</h2>
-        <button
-          onClick={onAddWorker}
-          className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors"
-        >
+        <Button variant="primary" onClick={onAddWorker} className="py-2">
           + 근로자 추가
-        </button>
+        </Button>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200">
@@ -65,11 +65,7 @@ export function EmployeeTable({
                 <tr key={emp.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-duru-orange-100 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-bold text-duru-orange-600">
-                          {emp.name[0]}
-                        </span>
-                      </div>
+                      <Avatar name={emp.name} size="md" className="text-sm font-bold" />
                       <span className="font-semibold text-gray-900">{emp.name}</span>
                     </div>
                   </td>
@@ -77,15 +73,12 @@ export function EmployeeTable({
                   <td className="px-6 py-4 text-gray-600">{emp.disability ?? '-'}</td>
                   <td className="px-6 py-4 text-gray-900">{emp.contractEndDate ?? '-'}</td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        emp.status === 'absent' || emp.status === 'resigned'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-green-100 text-green-700'
-                      }`}
+                    <Badge
+                      variant={emp.status === 'absent' || emp.status === 'resigned' ? 'danger' : 'success'}
+                      className="px-3 py-1 font-semibold"
                     >
                       {emp.status === 'absent' ? '결근' : emp.status === 'resigned' ? '퇴사' : '근무중'}
-                    </span>
+                    </Badge>
                   </td>
                   <td className="px-6 py-4">
                     <button

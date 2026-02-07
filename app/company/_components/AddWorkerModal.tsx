@@ -16,6 +16,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import type { AddWorkerForm } from '@/types/companyDashboard';
+import { IconButton } from '@/components/ui/IconButton';
+import { Button } from '@/components/ui/Button';
 
 interface AddWorkerModalProps {
   isOpen: boolean;
@@ -96,12 +98,13 @@ export function AddWorkerModal({
             <h2 className="text-lg font-bold text-gray-900">근로자 추가</h2>
             <p className="text-xs text-gray-500 mt-0.5">근로자 기본 정보를 입력해주세요</p>
           </div>
-          <button
+          <IconButton
+            variant="ghost"
+            icon={<X className="w-5 h-5" />}
+            label="닫기"
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-gray-400" />
-          </button>
+            className="text-gray-400"
+          />
         </div>
 
         <div className="px-6 py-5 space-y-5">
@@ -426,20 +429,24 @@ export function AddWorkerModal({
 
         {/* 모달 푸터 */}
         <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-gray-200 px-6 py-4 flex gap-3">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onClose}
-            className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors text-sm"
+            className="flex-1 py-3 rounded-xl"
           >
             취소
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
             onClick={onSubmit}
             disabled={!isFormValid}
-            className="flex-[2] py-3 bg-duru-orange-500 text-white rounded-xl font-semibold hover:bg-duru-orange-600 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            leftIcon={<Check className="w-4 h-4" />}
+            className="flex-[2] py-3 rounded-xl disabled:opacity-40"
           >
-            <Check className="w-4 h-4" />
             근로자 추가 완료
-          </button>
+          </Button>
         </div>
       </div>
     </div>
