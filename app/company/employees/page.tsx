@@ -40,7 +40,7 @@ export default function EmployeesPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await getEmployees();
+      const response = await getEmployees({ isActive: true });
       setEmployees(response.data);
     } catch {
       setError('근로자 목록을 불러오는데 실패했습니다.');

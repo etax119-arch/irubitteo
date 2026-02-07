@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getEmployee, updateEmployee } from '@/lib/api/employees';
 import { useToast } from '@/components/ui/Toast';
 import type { CompanyEmployee } from '@/types/companyDashboard';
@@ -35,27 +35,28 @@ export function useEmployeeDetail(employeeId: string) {
   const [tempDisabilitySeverity, setTempDisabilitySeverity] = useState('');
   const [tempDisabilityRecognitionDate, setTempDisabilityRecognitionDate] = useState('');
 
-  useEffect(() => {
-    async function fetchEmployee() {
-      try {
-        setIsLoading(true);
-        const response = await getEmployee(employeeId);
-        setEmployee(response.data);
-        setNotes(response.data.companyNote || '');
-        if (response.data.workDays) {
-          setWorkDays(response.data.workDays.map((n: number) => DAY_NUM_TO_LABEL[n] ?? ''));
-        }
-        if (response.data.workStartTime) {
-          setWorkStartTime(response.data.workStartTime);
-        }
-      } catch {
-        setError('근로자 정보를 불러오는데 실패했습니다.');
-      } finally {
-        setIsLoading(false);
+  const fetchEmployee = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await getEmployee(employeeId);
+      setEmployee(response.data);
+      setNotes(response.data.companyNote || '');
+      if (response.data.workDays) {
+        setWorkDays(response.data.workDays.map((n: number) => DAY_NUM_TO_LABEL[n] ?? ''));
       }
+      if (response.data.workStartTime) {
+        setWorkStartTime(response.data.workStartTime);
+      }
+    } catch {
+      setError('근로자 정보를 불러오는데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
     }
-    fetchEmployee();
   }, [employeeId]);
+
+  useEffect(() => {
+    fetchEmployee();
+  }, [fetchEmployee]);
 
   // --- Notes handlers ---
   const handleEditNotes = () => {
@@ -161,6 +162,7 @@ export function useEmployeeDetail(employeeId: string) {
     isLoading,
     error,
     isSaving,
+    fetchEmployee,
     notes,
     isEditingNotes,
     tempNotes,

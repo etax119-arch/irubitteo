@@ -71,6 +71,9 @@ export interface UpdateEmployeeInput {
   disabilitySeverity?: string | null;
   disabilityRecognitionDate?: string | null;
   companyNote?: string | null;
+  isActive?: boolean;
+  resignDate?: string | null;
+  resignReason?: string | null;
 }
 
 export async function updateEmployee(

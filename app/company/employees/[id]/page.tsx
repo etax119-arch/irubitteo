@@ -26,7 +26,7 @@ export default function CompanyEmployeeDetailPage() {
 
   const detail = useEmployeeDetail(employeeId);
   const attendance = useAttendanceHistory(employeeId);
-  const resign = useResign();
+  const resign = useResign({ employeeId, onSuccess: detail.fetchEmployee });
   const employeeFiles = useEmployeeFiles(employeeId);
 
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -153,6 +153,7 @@ export default function CompanyEmployeeDetailPage() {
         onClose={resign.closeResignModal}
         employeeName={employee.name}
         resignForm={resign.resignForm}
+        isSubmitting={resign.isSubmitting}
         onUpdateForm={resign.updateResignForm}
         onSubmit={resign.handleSubmitResign}
       />

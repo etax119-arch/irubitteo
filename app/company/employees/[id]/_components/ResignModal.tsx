@@ -8,6 +8,7 @@ interface ResignModalProps {
   onClose: () => void;
   employeeName: string;
   resignForm: ResignForm;
+  isSubmitting: boolean;
   onUpdateForm: (patch: Partial<ResignForm>) => void;
   onSubmit: () => void;
 }
@@ -17,11 +18,12 @@ export function ResignModal({
   onClose,
   employeeName,
   resignForm,
+  isSubmitting,
   onUpdateForm,
   onSubmit,
 }: ResignModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} showCloseButton={false}>
       <div className="flex items-center gap-2 mb-6">
         <AlertTriangle className="w-6 h-6 text-red-500" />
         <h3 className="text-xl font-bold text-gray-900">퇴사 등록</h3>
@@ -46,6 +48,7 @@ export function ResignModal({
               type="date"
               value={resignForm.date}
               onChange={(e) => onUpdateForm({ date: e.target.value })}
+              disabled={isSubmitting}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
@@ -60,22 +63,23 @@ export function ResignModal({
             onChange={(e) => onUpdateForm({ reason: e.target.value })}
             placeholder="퇴사 사유나 특이사항을 입력해주세요..."
             rows={4}
+            disabled={isSubmitting}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
           />
         </div>
 
         <div className="flex gap-3 pt-4">
-          <Button variant="outline" onClick={onClose} fullWidth>
+          <Button variant="outline" onClick={onClose} fullWidth disabled={isSubmitting}>
             취소
           </Button>
           <Button
             onClick={onSubmit}
-            disabled={!resignForm.date}
+            disabled={!resignForm.date || isSubmitting}
             leftIcon={<UserX className="w-4 h-4" />}
             className="flex-1 bg-red-500 text-white hover:bg-red-600"
             fullWidth
           >
-            퇴사 등록
+            {isSubmitting ? '처리 중...' : '퇴사 등록'}
           </Button>
         </div>
       </div>
