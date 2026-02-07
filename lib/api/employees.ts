@@ -38,6 +38,33 @@ export async function getEmployee(
   return response.data;
 }
 
+export interface CreateEmployeeInput {
+  name: string;
+  ssn: string;
+  phone: string;
+  gender: string;
+  uniqueCode: string;
+  hireDate: string;
+  workDays: number[];
+  workStartTime: string;
+  disabilityType: string;
+  disabilitySeverity: string;
+  disabilityRecognitionDate: string;
+  emergencyContactName: string;
+  emergencyContactRelation: string;
+  emergencyContactPhone: string;
+}
+
+export async function createEmployee(
+  data: CreateEmployeeInput
+): Promise<{ success: boolean; data: CompanyEmployee }> {
+  const response = await apiClient.post<{ success: boolean; data: CompanyEmployee }>(
+    '/employees',
+    data
+  );
+  return response.data;
+}
+
 export interface UpdateEmployeeInput {
   workDays?: number[];
   workStartTime?: string;
