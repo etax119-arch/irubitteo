@@ -9,13 +9,13 @@ import { initialEmployees, initialNotices } from '../_data/dummyData';
 
 export default function NoticesPage() {
   const [employees] = useState(initialEmployees);
-  const [selectedWorkersForNotice, setSelectedWorkersForNotice] = useState<number[]>([]);
+  const [selectedWorkersForNotice, setSelectedWorkersForNotice] = useState<string[]>([]);
   const [noticeContent, setNoticeContent] = useState('');
   const [workerSearchQuery, setWorkerSearchQuery] = useState('');
   const [sentNotices, setSentNotices] = useState<SentNotice[]>(initialNotices);
   const [expandedNotices, setExpandedNotices] = useState<Set<number>>(new Set());
 
-  const toggleWorkerForNotice = (workerId: number) => {
+  const toggleWorkerForNotice = (workerId: string) => {
     setSelectedWorkersForNotice((prev) =>
       prev.includes(workerId) ? prev.filter((id) => id !== workerId) : [...prev, workerId]
     );

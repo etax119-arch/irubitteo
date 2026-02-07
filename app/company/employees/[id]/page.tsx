@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   Phone,
@@ -23,9 +23,21 @@ import {
   Calendar as CalendarIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { initialEmployees } from '../../_data/dummyData';
+import { getEmployee, updateEmployee } from '@/lib/api/employees';
+import { attendanceApi } from '@/lib/api/attendance';
+import type { AttendanceWithEmployee } from '@/types/attendance';
+import type { CompanyEmployee } from '@/types/companyDashboard';
+
+const DAY_NUM_TO_LABEL: Record<number, string> = {
+  1: '월', 2: '화', 3: '수', 4: '목', 5: '금', 6: '토', 7: '일',
+};
+
+const LABEL_TO_DAY_NUM: Record<string, number> = {
+  '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 7,
+};
 
 interface AttendanceRecord {
+  id: string;
   date: string;
   checkin: string;
   checkout: string;
@@ -41,19 +53,47 @@ interface Document {
   size: string;
 }
 
+function formatKSTTime(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Seoul',
+  });
+}
+
+function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
+  const date = att.date.split('T')[0];
+
+  if (!att.clockIn) {
+    return { id: att.id, date, checkin: '결근', checkout: '-', status: '결근', workDone: '-' };
+  }
+
+  return {
+    id: att.id,
+    date,
+    checkin: formatKSTTime(att.clockIn),
+    checkout: att.clockOut ? formatKSTTime(att.clockOut) : '-',
+    status: att.isLate ? '지각' : '정상',
+    workDone: att.workContent || '-',
+  };
+}
+
 export default function CompanyEmployeeDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const employeeId = Number(params.id);
+  const employeeId = params.id as string;
 
-  const employee = initialEmployees.find((e) => e.id === employeeId);
-
-  const [notes, setNotes] = useState(employee?.notes || '');
+  const [employee, setEmployee] = useState<CompanyEmployee | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [notes, setNotes] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState('');
 
-  const [workDays, setWorkDays] = useState(['월', '화', '수', '목', '금']);
-  const [workStartTime, setWorkStartTime] = useState('09:00');
+  const [workDays, setWorkDays] = useState<string[]>([]);
+  const [workStartTime, setWorkStartTime] = useState('');
   const [isEditingWorkInfo, setIsEditingWorkInfo] = useState(false);
   const [tempWorkDays, setTempWorkDays] = useState<string[]>([]);
   const [tempWorkStartTime, setTempWorkStartTime] = useState('');
@@ -61,15 +101,7 @@ export default function CompanyEmployeeDetailPage() {
   const [showWorkDoneModal, setShowWorkDoneModal] = useState(false);
   const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string } | null>(null);
 
-  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([
-    { date: '2026-01-28', checkin: '결근', checkout: '-', status: '결근', workDone: '-' },
-    { date: '2026-01-27', checkin: '09:05', checkout: '18:10', status: '정상', workDone: '포장 작업' },
-    { date: '2026-01-26', checkin: '09:00', checkout: '17:55', status: '정상', workDone: '재고 정리' },
-    { date: '2026-01-25', checkin: '-', checkout: '-', status: '휴가', workDone: '-' },
-    { date: '2026-01-24', checkin: '09:10', checkout: '18:00', status: '지각', workDone: '품질 검사' },
-    { date: '2026-01-23', checkin: '09:00', checkout: '18:05', status: '정상', workDone: '설비 점검' },
-    { date: '2026-01-22', checkin: '09:00', checkout: '18:00', status: '정상', workDone: '제품 포장' },
-  ]);
+  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
 
   const [documents] = useState<Document[]>([
     { id: 1, name: '근로계약서.pdf', type: '계약서', uploadDate: '2025-12-01', size: '1.2MB' },
@@ -85,6 +117,9 @@ export default function CompanyEmployeeDetailPage() {
     date: new Date().toISOString().split('T')[0],
     reason: '',
   });
+  const [isEditingDisability, setIsEditingDisability] = useState(false);
+  const [tempDisabilitySeverity, setTempDisabilitySeverity] = useState('');
+  const [tempDisabilityRecognitionDate, setTempDisabilityRecognitionDate] = useState('');
   const [isEditingWorkTime, setIsEditingWorkTime] = useState(false);
   const [editedWorkTime, setEditedWorkTime] = useState({
     date: '2026-01-28',
@@ -93,14 +128,54 @@ export default function CompanyEmployeeDetailPage() {
     workDone: '제품 검수 완료',
   });
 
+  useEffect(() => {
+    async function fetchEmployee() {
+      try {
+        setIsLoading(true);
+        const response = await getEmployee(employeeId);
+        setEmployee(response.data);
+        setNotes(response.data.companyNote || '');
+        if (response.data.workDays) {
+          setWorkDays(response.data.workDays.map((n: number) => DAY_NUM_TO_LABEL[n] ?? ''));
+        }
+        if (response.data.workStartTime) {
+          setWorkStartTime(response.data.workStartTime);
+        }
+      } catch {
+        setError('근로자 정보를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchEmployee();
+  }, [employeeId]);
+
+  useEffect(() => {
+    async function fetchAttendance() {
+      try {
+        const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
+        setAttendanceHistory(response.data.map(toAttendanceRecord));
+      } catch {
+        // 조용히 실패 — 빈 테이블 표시
+      }
+    }
+    fetchAttendance();
+  }, [employeeId]);
+
   const handleEditNotes = () => {
     setTempNotes(notes);
     setIsEditingNotes(true);
   };
 
-  const handleSaveNotes = () => {
-    setNotes(tempNotes);
-    setIsEditingNotes(false);
+  const handleSaveNotes = async () => {
+    try {
+      const result = await updateEmployee(employeeId, { companyNote: tempNotes });
+      setNotes(result.data.companyNote || '');
+      setEmployee(result.data);
+      setIsEditingNotes(false);
+    } catch {
+      alert('비고란 수정에 실패했습니다.');
+    }
   };
 
   const handleCancelNotes = () => {
@@ -114,10 +189,20 @@ export default function CompanyEmployeeDetailPage() {
     setIsEditingWorkInfo(true);
   };
 
-  const handleSaveWorkInfo = () => {
-    setWorkDays([...tempWorkDays]);
-    setWorkStartTime(tempWorkStartTime);
-    setIsEditingWorkInfo(false);
+  const handleSaveWorkInfo = async () => {
+    try {
+      const workDayNums = tempWorkDays.map((d) => LABEL_TO_DAY_NUM[d]).filter(Boolean);
+      const result = await updateEmployee(employeeId, {
+        workDays: workDayNums,
+        workStartTime: tempWorkStartTime,
+      });
+      setWorkDays(tempWorkDays);
+      setWorkStartTime(tempWorkStartTime);
+      setEmployee(result.data);
+      setIsEditingWorkInfo(false);
+    } catch {
+      alert('근무 정보 수정에 실패했습니다.');
+    }
   };
 
   const handleCancelEditWorkInfo = () => {
@@ -144,21 +229,46 @@ export default function CompanyEmployeeDetailPage() {
     setIsEditingWorkTime(true);
   };
 
-  const handleSaveWorkTime = () => {
-    setAttendanceHistory((prev) =>
-      prev.map((record) =>
-        record.date === editedWorkTime.date
-          ? {
-              ...record,
-              checkin: editedWorkTime.checkin,
-              checkout: editedWorkTime.checkout,
-              workDone: editedWorkTime.workDone,
-              status: editedWorkTime.checkin > '09:00' ? '지각' : '정상',
-            }
-          : record
-      )
-    );
-    setIsEditingWorkTime(false);
+  const handleSaveWorkTime = async () => {
+    const record = attendanceHistory.find((r) => r.date === editedWorkTime.date);
+    if (!record) return;
+
+    try {
+      await attendanceApi.updateAttendance(record.id, {
+        clockIn: `${editedWorkTime.date}T${editedWorkTime.checkin}:00+09:00`,
+        clockOut: `${editedWorkTime.date}T${editedWorkTime.checkout}:00+09:00`,
+        workContent: editedWorkTime.workDone,
+      });
+      // 목록 새로고침
+      const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
+      setAttendanceHistory(response.data.map(toAttendanceRecord));
+      setIsEditingWorkTime(false);
+    } catch {
+      alert('출퇴근 기록 수정에 실패했습니다.');
+    }
+  };
+
+  const handleEditDisability = () => {
+    setTempDisabilitySeverity(employee?.disabilitySeverity || '');
+    setTempDisabilityRecognitionDate(employee?.disabilityRecognitionDate || '');
+    setIsEditingDisability(true);
+  };
+
+  const handleSaveDisability = async () => {
+    try {
+      const result = await updateEmployee(employeeId, {
+        disabilitySeverity: tempDisabilitySeverity || null,
+        disabilityRecognitionDate: tempDisabilityRecognitionDate || null,
+      });
+      setEmployee(result.data);
+      setIsEditingDisability(false);
+    } catch {
+      alert('장애 정보 수정에 실패했습니다.');
+    }
+  };
+
+  const handleCancelDisability = () => {
+    setIsEditingDisability(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -176,8 +286,8 @@ export default function CompanyEmployeeDetailPage() {
     }
   };
 
-  const getEmployeeStatusLabel = (status: string, isResigned: boolean) => {
-    if (isResigned) return '퇴사';
+  const getEmployeeStatusLabel = (status: string, isActive: boolean) => {
+    if (!isActive) return '퇴사';
     switch (status) {
       case 'checkin':
         return '근무중';
@@ -190,8 +300,8 @@ export default function CompanyEmployeeDetailPage() {
     }
   };
 
-  const getEmployeeStatusStyle = (status: string, isResigned: boolean) => {
-    if (isResigned) return 'bg-gray-200 text-gray-600';
+  const getEmployeeStatusStyle = (status: string, isActive: boolean) => {
+    if (!isActive) return 'bg-gray-200 text-gray-600';
     switch (status) {
       case 'checkin':
         return 'bg-green-100 text-green-700';
@@ -204,10 +314,18 @@ export default function CompanyEmployeeDetailPage() {
     }
   };
 
-  if (!employee) {
+  if (isLoading) {
     return (
       <div className="text-center py-20">
-        <p className="text-gray-500">근로자 정보를 찾을 수 없습니다.</p>
+        <p className="text-gray-500">근로자 정보를 불러오는 중...</p>
+      </div>
+    );
+  }
+
+  if (error || !employee) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-gray-500">{error || '근로자 정보를 찾을 수 없습니다.'}</p>
         <button
           onClick={() => router.push('/company/employees')}
           className="mt-4 text-duru-orange-600 hover:text-duru-orange-700 font-semibold"
@@ -244,10 +362,10 @@ export default function CompanyEmployeeDetailPage() {
                 <span
                   className={cn(
                     'inline-block px-3 py-1 rounded-full text-xs font-semibold mt-2',
-                    getEmployeeStatusStyle(employee.status, employee.isResigned)
+                    getEmployeeStatusStyle(employee.status, employee.isActive)
                   )}
                 >
-                  {getEmployeeStatusLabel(employee.status, employee.isResigned)}
+                  {getEmployeeStatusLabel(employee.status, employee.isActive)}
                 </span>
               </div>
 
@@ -265,7 +383,7 @@ export default function CompanyEmployeeDetailPage() {
                 <div className="flex items-center gap-3 text-sm">
                   <CalendarIcon className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">계약 만료일:</span>
-                  <span className="font-semibold text-gray-900">{employee.contractEnd}</span>
+                  <span className="font-semibold text-gray-900">{employee.contractEndDate ?? '-'}</span>
                 </div>
               </div>
             </div>
@@ -278,33 +396,101 @@ export default function CompanyEmployeeDetailPage() {
               </h3>
               <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
                 <p className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider">
-                  {employee.workerId}
+                  {employee.uniqueCode}
                 </p>
               </div>
             </div>
 
             {/* 장애 정보 */}
             <div className="bg-white rounded-xl p-4 border border-gray-200">
-              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-duru-orange-600" />
-                장애 정보
-              </h3>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-600">유형</span>
-                  <span className="font-bold text-gray-900">{employee.disability}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-600">중증/경증</span>
-                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
-                    경증
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-600">인정일</span>
-                  <span className="font-bold text-gray-900">2020-03-15</span>
-                </div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-duru-orange-600" />
+                  장애 정보
+                </h3>
+                {!isEditingDisability ? (
+                  <button
+                    onClick={handleEditDisability}
+                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200 transition-colors flex items-center gap-1"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                    수정
+                  </button>
+                ) : (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={handleCancelDisability}
+                      className="px-2 py-1 border border-gray-300 text-gray-700 rounded text-xs font-semibold hover:bg-gray-50 transition-colors"
+                    >
+                      취소
+                    </button>
+                    <button
+                      onClick={handleSaveDisability}
+                      className="px-2 py-1 bg-duru-orange-500 text-white rounded text-xs font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1"
+                    >
+                      <Check className="w-3 h-3" />
+                      저장
+                    </button>
+                  </div>
+                )}
               </div>
+              {!isEditingDisability ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">유형</span>
+                    <span className="font-bold text-gray-900">{employee.disability ?? '-'}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">중증/경증</span>
+                    <span className={cn(
+                      'inline-block px-2 py-0.5 rounded-full text-xs font-bold',
+                      employee.disabilitySeverity === '중증' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                    )}>
+                      {employee.disabilitySeverity ?? '-'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">인정일</span>
+                    <span className="font-bold text-gray-900">{employee.disabilityRecognitionDate ?? '-'}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">유형</span>
+                    <span className="font-bold text-gray-900">{employee.disability ?? '-'}</span>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">중증/경증</label>
+                    <div className="flex gap-2">
+                      {['중증', '경증'].map((severity) => (
+                        <button
+                          key={severity}
+                          type="button"
+                          onClick={() => setTempDisabilitySeverity(severity)}
+                          className={cn(
+                            'flex-1 py-1.5 rounded text-xs font-semibold transition-colors border',
+                            tempDisabilitySeverity === severity
+                              ? 'bg-duru-orange-500 text-white border-duru-orange-500'
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          )}
+                        >
+                          {severity}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">인정일</label>
+                    <input
+                      type="date"
+                      value={tempDisabilityRecognitionDate}
+                      onChange={(e) => setTempDisabilityRecognitionDate(e.target.value)}
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 비고란 */}
@@ -358,7 +544,7 @@ export default function CompanyEmployeeDetailPage() {
             </div>
 
             {/* 퇴사 등록 버튼 (현재 근로자인 경우) */}
-            {!employee.isResigned && (
+            {employee.isActive && (
               <button
                 onClick={() => setShowResignModal(true)}
                 className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-semibold hover:bg-red-100 transition-colors flex items-center justify-center gap-2 border border-red-200"
@@ -369,7 +555,7 @@ export default function CompanyEmployeeDetailPage() {
             )}
 
             {/* 퇴사 정보 (퇴사자인 경우) */}
-            {employee.isResigned && (
+            {!employee.isActive && (
               <div className="bg-gray-100 rounded-xl p-4 border border-gray-300">
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                   <UserX className="w-4 h-4 text-gray-500" />

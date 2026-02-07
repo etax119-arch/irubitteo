@@ -21,7 +21,9 @@
 ├── _components/            # 공용 컴포넌트
 ├── _data/                  # 더미 데이터
 ├── dashboard/page.tsx      # 대시보드 탭
-├── employees/page.tsx      # 근로자 관리 탭
+├── employees/
+│   ├── page.tsx            # 근로자 관리 탭 (목록)
+│   └── [id]/page.tsx       # 근로자 상세 페이지
 ├── schedule/page.tsx       # 근무일정 탭
 └── notices/page.tsx        # 공지사항 탭
 ```
@@ -32,7 +34,8 @@
 |-----|------|
 | `/company` | `/company/dashboard`로 리다이렉트 |
 | `/company/dashboard` | 대시보드 탭 |
-| `/company/employees` | 근로자 관리 탭 |
+| `/company/employees` | 근로자 관리 탭 (목록) |
+| `/company/employees/:id` | 근로자 상세 페이지 |
 | `/company/schedule` | 근무일정 탭 |
 | `/company/notices` | 공지사항 탭 |
 
@@ -90,21 +93,22 @@
 ### 2. 근로자 관리 탭
 
 **목적**: 소속 근로자 목록 조회 및 신규 등록
+**API 연동**: ✅ 완료 (`GET /v1/employees`)
 
 #### 상단 영역
 - "근로자 관리" 제목
-- 검색창 (이름, 전화번호 검색)
+- 검색창 (이름, 전화번호 클라이언트 필터링)
 - "+ 근로자 추가" 버튼
 
 #### 근로자 목록 테이블
 | 컬럼 | 설명 |
 |------|------|
-| 이름 | 아바타 + 이름 |
+| 이름 | 아바타(이니셜) + 이름 |
 | 전화번호 | 연락처 |
-| 장애유형 | 예: "지체장애 3급" |
+| 장애유형 | 예: "지체장애 중증" (타입+중증/경증 결합) |
 | 계약만료 | 계약 만료일 |
-| 상태 | 근무중 / 결근 |
-| 관리 | "상세보기" 버튼 → EmployeeDetail 화면 |
+| 상태 | 근무중 / 결근 / 퇴사 |
+| 관리 | "상세보기" 버튼 → `/company/employees/:id` |
 
 #### 근로자 추가 모달
 
@@ -146,6 +150,64 @@
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | 근로자 고유 번호 | 텍스트 | O | 출퇴근 앱 로그인용 코드 |
+
+---
+
+### 2-1. 근로자 상세 페이지 (`/company/employees/:id`)
+
+**목적**: 개별 근로자의 상세 정보 조회 및 편집
+**API 연동**: ✅ 완료 (`GET /v1/employees/:id`, `PATCH /v1/employees/:id`, `GET /v1/attendances`, `PATCH /v1/attendances/:id`)
+
+#### 레이아웃
+
+3열 그리드 (모바일에서 1열):
+- **왼쪽 (1/3)**: 기본 정보, 고유번호, 장애 정보, 비고란
+- **오른쪽 (2/3)**: 출퇴근 기록, 근무 정보, 문서 관리
+
+#### 왼쪽: 기본 정보
+
+**프로필 카드**
+- 이니셜 아바타 (이름 첫 글자)
+- 이름, 상태 배지 (근무중/퇴근/결근/퇴사)
+- 핸드폰번호, 입사일, 계약 만료일
+
+**근로자 고유번호 카드**
+- 주황색 강조 카드로 고유번호 표시
+
+**장애 정보 (편집 가능)**
+- 유형 (읽기 전용), 중증/경증 (수정 가능), 인정일 (수정 가능)
+- 수정 버튼 클릭 시 인라인 편집 모드
+- API: `PATCH /v1/employees/:id` (`disabilitySeverity`, `disabilityRecognitionDate`)
+
+**비고란 (편집 가능)**
+- 회사 메모 텍스트
+- 수정 버튼 클릭 시 textarea로 전환
+- API: `PATCH /v1/employees/:id` (`companyNote`)
+
+**퇴사 등록/퇴사 정보**
+- 활성 근로자: "퇴사 등록" 버튼 (퇴사일, 사유 입력 모달)
+- 퇴사자: 퇴사일, 비고 표시
+
+#### 오른쪽: 상세 정보
+
+**최근 출퇴근 기록**
+- 최근 7건 조회 (`GET /v1/attendances?employeeId=...&limit=7`)
+- 테이블 컬럼: 날짜, 출근, 퇴근, 상태(정상/지각/결근), 업무내용, 수정
+- 업무내용: "확인하기" 링크 → 모달로 전체 내용 표시
+- 수정: 각 행에 수정 아이콘 → 근무시간 수정 모달
+  - 출근시간, 퇴근시간, 업무내용 편집
+  - API: `PATCH /v1/attendances/:id` (`clockIn`, `clockOut`, `workContent`)
+
+**근무 정보 (편집 가능)**
+- 근무 요일: 월~일 토글 버튼 (선택된 요일 주황색 표시)
+- 출근 시간: HH:MM 표시
+- 수정 모드: 요일 토글 + time input
+- API: `PATCH /v1/employees/:id` (`workDays`, `workStartTime`)
+
+**문서 관리** (더미 데이터)
+- 문서 목록 (파일명, 타입, 업로드일, 크기)
+- 미리보기/다운로드 버튼
+- 파일 업로드 모달 (PDF, JPG, PNG, 최대 10MB)
 
 ---
 
@@ -232,6 +294,50 @@
 | 오늘의 작업 내용 | 직원 앱 출근 화면 | 해당 날짜 근무 내용 |
 | 긴급 공지 | 직원 앱 메인 화면 | 발송된 공지 표시 |
 | 출퇴근 기록 | 대시보드 | 근로자별 출퇴근 현황 |
+
+---
+
+## API 연동 현황
+
+| 기능 | API | 상태 |
+|------|-----|------|
+| 근로자 목록 조회 | `GET /v1/employees` | ✅ 완료 |
+| 근로자 상세 조회 | `GET /v1/employees/:id` | ✅ 완료 |
+| 근로자 정보 수정 | `PATCH /v1/employees/:id` | ✅ 완료 |
+| 출퇴근 기록 조회 | `GET /v1/attendances` | ✅ 완료 |
+| 출퇴근 기록 수정 | `PATCH /v1/attendances/:id` | ✅ 완료 |
+| 대시보드 통계 | - | 📋 더미 데이터 |
+| 근로자 등록 | `POST /v1/employees` | 📋 미연동 |
+| 근무일정 관리 | - | 📋 더미 데이터 |
+| 공지사항 발송 | - | 📋 더미 데이터 |
+
+## 주요 타입
+
+### CompanyEmployee
+
+```typescript
+interface CompanyEmployee {
+  id: string;                          // UUID
+  name: string;
+  phone: string;
+  disability: string | null;           // "지체장애 중증" (타입+중증/경증 결합)
+  hireDate: string;                    // "YYYY-MM-DD"
+  contractEndDate: string | null;
+  status: 'checkin' | 'checkout' | 'absent' | 'resigned';  // 실시간 추론
+  checkinTime: string | null;          // "HH:mm" (KST)
+  checkoutTime: string | null;         // "HH:mm" (KST)
+  uniqueCode: string;
+  companyNote: string | null;
+  isActive: boolean;
+  resignDate: string | null;
+  resignReason: string | null;
+  workDays: number[];                  // [1,2,3,4,5] (1=월 ~ 7=일)
+  workStartTime: string | null;        // "HH:mm"
+  disabilityType: string | null;
+  disabilitySeverity: string | null;   // "중증" | "경증"
+  disabilityRecognitionDate: string | null; // "YYYY-MM-DD"
+}
+```
 
 ---
 

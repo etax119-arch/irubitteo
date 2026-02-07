@@ -31,6 +31,7 @@ export function WorkRecordCard({
               {clockOutDate.toLocaleDateString('ko-KR', {
                 month: 'long',
                 day: 'numeric',
+                timeZone: 'Asia/Seoul',
               })}
             </span>
             <span className="text-xs text-gray-400">
@@ -38,6 +39,7 @@ export function WorkRecordCard({
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false,
+                timeZone: 'Asia/Seoul',
               })}
             </span>
           </>

@@ -4,6 +4,7 @@ import type {
   AttendanceWithEmployee,
   ClockInInput,
   ClockOutInput,
+  AttendanceUpdateInput,
 } from '@/types/attendance';
 
 export interface PaginatedResponse<T> {
@@ -64,6 +65,18 @@ export const attendanceApi = {
       { params }
     );
     return response.data;
+  },
+
+  /**
+   * 출퇴근 기록 수정
+   * PATCH /v1/attendances/:id
+   */
+  async updateAttendance(id: string, input: AttendanceUpdateInput): Promise<AttendanceWithEmployee> {
+    const response = await apiClient.patch<{ success: boolean; data: AttendanceWithEmployee }>(
+      `/attendances/${id}`,
+      input
+    );
+    return response.data.data;
   },
 
   /**

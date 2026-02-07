@@ -9,20 +9,25 @@ export interface DailyAttendanceRecord {
 }
 
 export interface CompanyEmployee {
-  id: number;
+  id: string;
   name: string;
   phone: string;
-  disability: string;
+  disability: string | null;
   hireDate: string;
-  contractEnd: string;
+  contractEndDate: string | null;
   status: 'checkin' | 'checkout' | 'absent' | 'resigned';
   checkinTime: string | null;
   checkoutTime: string | null;
-  workerId: string;
-  notes: string;
-  isResigned: boolean;
+  uniqueCode: string;
+  companyNote: string | null;
+  isActive: boolean;
   resignDate: string | null;
   resignReason: string | null;
+  workDays: number[];
+  workStartTime: string | null;
+  disabilityType: string | null;
+  disabilitySeverity: string | null;
+  disabilityRecognitionDate: string | null;
 }
 
 export interface ScheduleEntry {

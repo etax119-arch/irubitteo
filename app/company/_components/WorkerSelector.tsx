@@ -3,10 +3,10 @@ import type { CompanyEmployee } from '@/types/companyDashboard';
 
 interface WorkerSelectorProps {
   employees: CompanyEmployee[];
-  selectedWorkers: number[];
+  selectedWorkers: string[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onToggleWorker: (workerId: number) => void;
+  onToggleWorker: (workerId: string) => void;
   onToggleAll: () => void;
 }
 
@@ -22,7 +22,7 @@ export function WorkerSelector({
     (worker) =>
       worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       worker.phone.includes(searchQuery) ||
-      worker.disability.toLowerCase().includes(searchQuery.toLowerCase())
+      (worker.disability ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -77,7 +77,7 @@ export function WorkerSelector({
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 truncate">{worker.name}</p>
               <p className="text-sm text-gray-600 truncate">
-                {worker.disability} · {worker.phone}
+                {worker.disability ?? '-'} · {worker.phone}
               </p>
             </div>
             <div className="flex-shrink-0">

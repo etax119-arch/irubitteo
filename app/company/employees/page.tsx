@@ -1,19 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { CompanyEmployee, AddWorkerForm } from '@/types/companyDashboard';
 import { EmployeeTable } from '../_components/EmployeeTable';
 import { AddWorkerModal } from '../_components/AddWorkerModal';
-import { initialEmployees, INITIAL_ADD_WORKER_FORM } from '../_data/dummyData';
+import { INITIAL_ADD_WORKER_FORM } from '../_data/dummyData';
+import { getEmployees } from '@/lib/api/employees';
 
 export default function EmployeesPage() {
   const router = useRouter();
-  const [employees] = useState<CompanyEmployee[]>(initialEmployees);
+  const [employees, setEmployees] = useState<CompanyEmployee[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
   const [addWorkerForm, setAddWorkerForm] = useState<AddWorkerForm>(INITIAL_ADD_WORKER_FORM);
   const [addWorkerComplete, setAddWorkerComplete] = useState<Record<string, boolean>>({});
+
+  const fetchEmployees = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await getEmployees();
+      setEmployees(response.data);
+    } catch (err) {
+      setError('근로자 목록을 불러오는데 실패했습니다.');
+      console.error('Failed to fetch employees:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
 
   const updateAddWorkerForm = (field: keyof AddWorkerForm, value: string | string[]) => {
     setAddWorkerForm((prev) => ({ ...prev, [field]: value }));
@@ -42,6 +63,28 @@ export default function EmployeesPage() {
   const handleEmployeeClick = (emp: CompanyEmployee) => {
     router.push(`/company/employees/${emp.id}`);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="text-gray-500">로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button
+          onClick={fetchEmployees}
+          className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
