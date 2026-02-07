@@ -1,11 +1,24 @@
 export interface DailyAttendanceRecord {
-  id: number;
+  employeeId: string;
   name: string;
   phone: string;
   checkinTime: string | null;
   checkoutTime: string | null;
   status: 'checkin' | 'checkout' | 'absent' | 'pending';
-  workDone: string;
+  workContent: string | null;
+}
+
+export interface DailyAttendanceStats {
+  total: number;
+  checkedIn: number;
+  checkedOut: number;
+  attendanceRate: number;
+}
+
+export interface CompanyDailyResponse {
+  date: string;
+  stats: DailyAttendanceStats;
+  records: DailyAttendanceRecord[];
 }
 
 export interface CompanyEmployee {

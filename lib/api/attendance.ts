@@ -6,6 +6,7 @@ import type {
   ClockOutInput,
   AttendanceUpdateInput,
 } from '@/types/attendance';
+import type { CompanyDailyResponse } from '@/types/companyDashboard';
 
 export interface PaginatedResponse<T> {
   success: boolean;
@@ -88,6 +89,18 @@ export const attendanceApi = {
       success: boolean;
       data: AttendanceWithEmployee | null;
     }>('/attendances/today');
+    return response.data.data;
+  },
+
+  /**
+   * 기업 대시보드용 일별 출퇴근 현황
+   * GET /v1/attendances/company-daily
+   */
+  async getCompanyDaily(date?: string): Promise<CompanyDailyResponse> {
+    const response = await apiClient.get<{ success: boolean; data: CompanyDailyResponse }>(
+      '/attendances/company-daily',
+      { params: date ? { date } : undefined }
+    );
     return response.data.data;
   },
 };

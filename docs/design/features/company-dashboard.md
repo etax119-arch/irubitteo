@@ -57,20 +57,22 @@
 ### 1. 대시보드 탭
 
 **목적**: 오늘의 출퇴근 현황 한눈에 파악
+**API 연동**: ✅ 완료 (`GET /v1/attendances/company-daily`)
 
 #### 통계 카드 (4열)
 | 카드 | 아이콘 | 색상 | 데이터 |
 |------|--------|------|--------|
-| 전체 근로자 | Users | 파란색 | {총원}명 |
-| 출근 | UserCheck | 주황색 (강조) | {출근}명 |
-| 퇴근 | Clock | 회색 | {퇴근}명 |
-| 출근율 | TrendingUp | 녹색 | {출근율}% |
+| 전체 근로자 | Users | 파란색 | `stats.total`명 |
+| 출근 | UserCheck | 주황색 (강조) | `stats.checkedIn`명 |
+| 퇴근 | Clock | 회색 | `stats.checkedOut`명 |
+| 출근율 | TrendingUp | 녹색 | `stats.attendanceRate`% |
 
 #### 출퇴근 기록 테이블
 
 **날짜 선택**:
 - 이전/다음 날짜 버튼
 - 현재 선택 날짜 표시 (예: "2026년 1월 28일 (화)")
+- 날짜 변경 시 `GET /v1/attendances/company-daily?date=YYYY-MM-DD` 재요청
 
 **테이블 컬럼**:
 | 컬럼 | 설명 |
@@ -87,6 +89,10 @@
 - 퇴근 완료: 회색 배경
 - 결근: 빨간색 배경
 - 출근 전: 노란색 배경
+
+**로딩/에러 상태**:
+- 로딩 중: "로딩 중..." 표시
+- 에러 시: 에러 메시지 + "다시 시도" 버튼
 
 ---
 
@@ -325,12 +331,47 @@
 | 근로자 정보 수정 | `PATCH /v1/employees/:id` | ✅ 완료 |
 | 출퇴근 기록 조회 | `GET /v1/attendances` | ✅ 완료 |
 | 출퇴근 기록 수정 | `PATCH /v1/attendances/:id` | ✅ 완료 |
-| 대시보드 통계 | - | 📋 더미 데이터 |
+| 대시보드 일별 현황 | `GET /v1/attendances/company-daily` | ✅ 완료 |
 | 근로자 등록 | `POST /v1/employees` | ✅ 완료 |
 | 근무일정 관리 | - | 📋 더미 데이터 |
 | 공지사항 발송 | - | 📋 더미 데이터 |
 
 ## 주요 타입
+
+### DailyAttendanceRecord (대시보드용)
+
+```typescript
+interface DailyAttendanceRecord {
+  employeeId: string;            // UUID
+  name: string;
+  phone: string;
+  checkinTime: string | null;    // "HH:mm" (KST) 또는 null
+  checkoutTime: string | null;   // "HH:mm" (KST) 또는 null
+  status: 'checkin' | 'checkout' | 'absent' | 'pending';
+  workContent: string | null;    // 퇴근 시 입력한 업무 내용
+}
+```
+
+### DailyAttendanceStats
+
+```typescript
+interface DailyAttendanceStats {
+  total: number;           // 활성 근로자 수
+  checkedIn: number;       // 출근 상태 인원
+  checkedOut: number;      // 퇴근 완료 인원
+  attendanceRate: number;  // 출근율 (%)
+}
+```
+
+### CompanyDailyResponse
+
+```typescript
+interface CompanyDailyResponse {
+  date: string;                     // "YYYY-MM-DD"
+  stats: DailyAttendanceStats;
+  records: DailyAttendanceRecord[];
+}
+```
 
 ### CompanyEmployee
 

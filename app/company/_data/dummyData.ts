@@ -1,5 +1,4 @@
 import type {
-  DailyAttendanceRecord,
   CompanyEmployee,
   ScheduleEntry,
   SentNotice,
@@ -170,36 +169,3 @@ export const INITIAL_ADD_WORKER_FORM: AddWorkerForm = {
   workerId: '',
 };
 
-export function getDailyAttendance(date: Date): DailyAttendanceRecord[] {
-  if (date.getDate() === 28 && date.getMonth() === 0 && date.getFullYear() === 2026) {
-    return [
-      { id: 1, name: '김민수', phone: '010-1234-5678', checkinTime: '09:00', checkoutTime: '-', status: 'checkin', workDone: '' },
-      { id: 2, name: '이영희', phone: '010-2345-6789', checkinTime: '09:15', checkoutTime: '-', status: 'checkin', workDone: '' },
-      { id: 3, name: '박철수', phone: '010-3456-7890', checkinTime: '09:00', checkoutTime: '-', status: 'checkin', workDone: '' },
-      { id: 4, name: '정미라', phone: '010-4567-8901', checkinTime: '08:45', checkoutTime: '-', status: 'checkin', workDone: '' },
-      { id: 5, name: '최동욱', phone: '010-5678-9012', checkinTime: '-', checkoutTime: '-', status: 'pending', workDone: '' },
-    ];
-  } else if (date.getDate() === 27 && date.getMonth() === 0 && date.getFullYear() === 2026) {
-    return [
-      { id: 1, name: '김민수', phone: '010-1234-5678', checkinTime: '09:05', checkoutTime: '18:10', status: 'checkout', workDone: '제품 검수 및 정리' },
-      { id: 2, name: '이영희', phone: '010-2345-6789', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '포장 작업' },
-      { id: 3, name: '박철수', phone: '010-3456-7890', checkinTime: '09:00', checkoutTime: '18:05', status: 'checkout', workDone: '조립 라인 관리' },
-      { id: 4, name: '정미라', phone: '010-4567-8901', checkinTime: '08:50', checkoutTime: '18:00', status: 'checkout', workDone: '품질 검사 및 보고서 작성' },
-      { id: 5, name: '최동욱', phone: '010-5678-9012', checkinTime: null, checkoutTime: null, status: 'absent', workDone: '' },
-    ];
-  } else if (date.getDate() === 26 && date.getMonth() === 0 && date.getFullYear() === 2026) {
-    return [
-      { id: 1, name: '김민수', phone: '010-1234-5678', checkinTime: '09:00', checkoutTime: '17:55', status: 'checkout', workDone: '재고 정리' },
-      { id: 2, name: '이영희', phone: '010-2345-6789', checkinTime: '09:10', checkoutTime: '18:00', status: 'checkout', workDone: '배송 준비' },
-      { id: 3, name: '박철수', phone: '010-3456-7890', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '기계 점검' },
-      { id: 4, name: '정미라', phone: '010-4567-8901', checkinTime: '09:00', checkoutTime: '18:10', status: 'checkout', workDone: '최종 검수' },
-      { id: 5, name: '최동욱', phone: '010-5678-9012', checkinTime: '09:15', checkoutTime: '18:05', status: 'checkout', workDone: '포장 작업' },
-    ];
-  } else {
-    return [
-      { id: 1, name: '김민수', phone: '010-1234-5678', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '일반 업무' },
-      { id: 2, name: '이영희', phone: '010-2345-6789', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '일반 업무' },
-      { id: 3, name: '박철수', phone: '010-3456-7890', checkinTime: '09:00', checkoutTime: '18:00', status: 'checkout', workDone: '일반 업무' },
-    ];
-  }
-}

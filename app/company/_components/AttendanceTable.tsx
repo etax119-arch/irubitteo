@@ -89,7 +89,7 @@ export function AttendanceTable({
           </thead>
           <tbody className="divide-y divide-gray-200">
             {dailyAttendance.map((record) => (
-              <tr key={record.id} className="hover:bg-gray-50">
+              <tr key={record.employeeId} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <Avatar name={record.name} size="sm" className="text-xs font-bold" />
@@ -101,7 +101,7 @@ export function AttendanceTable({
                 <td className="px-6 py-4 text-gray-900">{record.checkoutTime || '-'}</td>
                 <td className="px-6 py-4">{getStatusBadge(record.status)}</td>
                 <td className="px-6 py-4 text-gray-600 text-sm max-w-xs truncate">
-                  {record.workDone || '-'}
+                  {record.workContent || '-'}
                 </td>
               </tr>
             ))}
