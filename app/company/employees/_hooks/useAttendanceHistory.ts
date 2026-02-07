@@ -1,0 +1,129 @@
+import { useState, useEffect } from 'react';
+import { attendanceApi } from '@/lib/api/attendance';
+import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
+import type { AttendanceWithEmployee } from '@/types/attendance';
+
+export interface AttendanceRecord {
+  id: string;
+  date: string;
+  checkin: string;
+  checkout: string;
+  status: string;
+  workDone: string;
+}
+
+function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
+  const date = att.date.split('T')[0];
+
+  if (!att.clockIn) {
+    return { id: att.id, date, checkin: '결근', checkout: '-', status: '결근', workDone: '-' };
+  }
+
+  return {
+    id: att.id,
+    date,
+    checkin: formatUtcTimestampAsKST(att.clockIn),
+    checkout: att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-',
+    status: att.isLate ? '지각' : '정상',
+    workDone: att.workContent || '-',
+  };
+}
+
+export function getStatusColor(status: string) {
+  switch (status) {
+    case '정상':
+      return 'bg-green-100 text-green-700';
+    case '지각':
+      return 'bg-yellow-100 text-yellow-700';
+    case '휴가':
+      return 'bg-blue-100 text-blue-700';
+    case '결근':
+      return 'bg-red-100 text-red-700';
+    default:
+      return 'bg-gray-100 text-gray-700';
+  }
+}
+
+export function useAttendanceHistory(employeeId: string) {
+  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
+  const [isLoadingAttendance, setIsLoadingAttendance] = useState(true);
+
+  const [showWorkDoneModal, setShowWorkDoneModal] = useState(false);
+  const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string } | null>(null);
+
+  const [isEditingWorkTime, setIsEditingWorkTime] = useState(false);
+  const [editedWorkTime, setEditedWorkTime] = useState({
+    date: '',
+    checkin: '09:00',
+    checkout: '18:00',
+    workDone: '',
+  });
+
+  useEffect(() => {
+    async function fetchAttendance() {
+      try {
+        setIsLoadingAttendance(true);
+        const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
+        setAttendanceHistory(response.data.map(toAttendanceRecord));
+      } catch {
+        // 조용히 실패 — 빈 테이블 표시
+      } finally {
+        setIsLoadingAttendance(false);
+      }
+    }
+    fetchAttendance();
+  }, [employeeId]);
+
+  const openWorkDoneModal = (date: string, workDone: string) => {
+    setSelectedWorkDone({ date, workDone });
+    setShowWorkDoneModal(true);
+  };
+
+  const closeWorkDoneModal = () => {
+    setShowWorkDoneModal(false);
+    setSelectedWorkDone(null);
+  };
+
+  const handleEditWorkTime = (record: AttendanceRecord) => {
+    setEditedWorkTime({
+      date: record.date,
+      checkin: record.checkin === '결근' || record.checkin === '-' ? '09:00' : record.checkin,
+      checkout: record.checkout === '-' ? '18:00' : record.checkout,
+      workDone: record.workDone === '-' ? '' : record.workDone,
+    });
+    setIsEditingWorkTime(true);
+  };
+
+  const handleSaveWorkTime = async () => {
+    const record = attendanceHistory.find((r) => r.date === editedWorkTime.date);
+    if (!record) return;
+
+    try {
+      await attendanceApi.updateAttendance(record.id, {
+        clockIn: buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin),
+        clockOut: buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout),
+        workContent: editedWorkTime.workDone,
+      });
+      const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
+      setAttendanceHistory(response.data.map(toAttendanceRecord));
+      setIsEditingWorkTime(false);
+    } catch {
+      alert('출퇴근 기록 수정에 실패했습니다.');
+    }
+  };
+
+  return {
+    attendanceHistory,
+    isLoadingAttendance,
+    isEditingWorkTime,
+    editedWorkTime,
+    setEditedWorkTime,
+    handleEditWorkTime,
+    handleSaveWorkTime,
+    setIsEditingWorkTime,
+    showWorkDoneModal,
+    selectedWorkDone,
+    openWorkDoneModal,
+    closeWorkDoneModal,
+  };
+}

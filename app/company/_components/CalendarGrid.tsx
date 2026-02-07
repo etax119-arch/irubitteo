@@ -35,7 +35,8 @@ export function CalendarGrid({
     for (let date = 1; date <= lastDate; date++) {
       const dayOfWeek = new Date(year, month, date).getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const isToday = date === 28 && month === 0 && year === 2026;
+      const now = new Date();
+      const isToday = date === now.getDate() && month === now.getMonth() && year === now.getFullYear();
       const schedule = schedules[date.toString()];
 
       cells.push(

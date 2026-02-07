@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Camera, ImagePlus } from 'lucide-react';
 import type { AttendanceWithEmployee, DisplayPhoto } from '@/types/attendance';
+import { formatUtcTimestampAsKSTDate, formatUtcTimestampAsKST } from '@/lib/kst';
 import { HeicImage } from './HeicImage';
 
 interface WorkRecordCardProps {
@@ -15,8 +16,6 @@ export function WorkRecordCard({
   onPhotoClick,
   onAddPhoto,
 }: WorkRecordCardProps) {
-  const clockOutDate = record.clockOut ? new Date(record.clockOut) : null;
-
   return (
     <div className="bg-white rounded-xl p-5 border border-duru-orange-100 hover:border-duru-orange-300 hover:shadow-md transition-all">
       {/* 날짜 헤더 */}
@@ -25,22 +24,13 @@ export function WorkRecordCard({
           <CheckCircle2 className="w-4 h-4 text-duru-orange-600" />
           <span className="text-sm font-bold text-duru-orange-700">퇴근</span>
         </div>
-        {clockOutDate && (
+        {record.clockOut && (
           <>
             <span className="text-sm font-semibold text-gray-700">
-              {clockOutDate.toLocaleDateString('ko-KR', {
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'Asia/Seoul',
-              })}
+              {formatUtcTimestampAsKSTDate(record.clockOut)}
             </span>
             <span className="text-xs text-gray-400">
-              {clockOutDate.toLocaleTimeString('ko-KR', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-                timeZone: 'Asia/Seoul',
-              })}
+              {formatUtcTimestampAsKST(record.clockOut)}
             </span>
           </>
         )}
