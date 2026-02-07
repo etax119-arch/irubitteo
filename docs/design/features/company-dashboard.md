@@ -204,10 +204,14 @@
 - 수정 모드: 요일 토글 + time input
 - API: `PATCH /v1/employees/:id` (`workDays`, `workStartTime`)
 
-**문서 관리** (더미 데이터)
-- 문서 목록 (파일명, 타입, 업로드일, 크기)
-- 미리보기/다운로드 버튼
-- 파일 업로드 모달 (PDF, JPG, PNG, 최대 10MB)
+**문서 관리** (API 연동 완료)
+- 문서 목록: 문서종류 배지, 파일명, 크기, 업로드일 표시
+- 파일 클릭 시 새 탭에서 미리보기/다운로드
+- 삭제 버튼 (확인 후 Supabase Storage + DB 삭제)
+- 빈 상태 / 로딩 상태 UI
+- 파일 업로드 모달: 문서 종류 선택 (근로계약서, 동의서, 건강검진, 자격증, 장애인등록증, 이력서, 기타) + 파일 선택 (PDF, JPG, PNG, 최대 10MB)
+- API: `GET/POST /v1/employees/:id/files`, `DELETE /v1/employees/:id/files/:fileId`
+- Supabase Storage 버킷: `employee-files`
 
 ---
 

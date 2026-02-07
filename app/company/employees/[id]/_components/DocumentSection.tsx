@@ -1,19 +1,28 @@
-import { FileText, Upload, Eye, Download } from 'lucide-react';
-
-export interface Document {
-  id: number;
-  name: string;
-  type: string;
-  uploadDate: string;
-  size: string;
-}
+import { FileText, Upload, Trash2 } from 'lucide-react';
+import type { EmployeeFile } from '@/types/employee';
+import { Badge } from '@/components/ui/Badge';
 
 interface DocumentSectionProps {
-  documents: Document[];
+  files: EmployeeFile[];
+  isLoading: boolean;
   onOpenUploadModal: () => void;
+  onDelete: (fileId: string) => void;
 }
 
-export function DocumentSection({ documents, onOpenUploadModal }: DocumentSectionProps) {
+function formatFileSize(bytes: number | null): string {
+  if (bytes === null || bytes === 0) return '-';
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+export function DocumentSection({ files, isLoading, onOpenUploadModal, onDelete }: DocumentSectionProps) {
+  const handleDelete = (fileId: string) => {
+    if (window.confirm('이 파일을 삭제하시겠습니까?')) {
+      onDelete(fileId);
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <div className="flex items-center justify-between mb-6">
@@ -30,40 +39,52 @@ export function DocumentSection({ documents, onOpenUploadModal }: DocumentSectio
         </button>
       </div>
 
-      <div className="space-y-3">
-        {documents.map((doc) => (
-          <div
-            key={doc.id}
-            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-red-600" />
+      {isLoading ? (
+        <div className="text-center py-8">
+          <p className="text-gray-500">파일 목록을 불러오는 중...</p>
+        </div>
+      ) : files.length === 0 ? (
+        <div className="text-center py-8">
+          <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-500">등록된 문서가 없습니다.</p>
+          <p className="text-sm text-gray-400 mt-1">파일 업로드 버튼을 눌러 문서를 등록하세요.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {files.map((file) => (
+            <div
+              key={file.id}
+              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              onClick={() => window.open(file.filePath, '_blank')}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">{file.fileName}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="default" size="sm">{file.documentType}</Badge>
+                    <span className="text-xs text-gray-500">
+                      {formatFileSize(file.fileSize)} · {file.createdAt.slice(0, 10)}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold text-gray-900">{doc.name}</p>
-                <p className="text-xs text-gray-600">
-                  {doc.type} · {doc.uploadDate} · {doc.size}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
               <button
-                className="p-2 hover:bg-white rounded-lg transition-colors"
-                title="미리보기"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(file.id);
+                }}
+                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                title="삭제"
               >
-                <Eye className="w-4 h-4 text-gray-600" />
-              </button>
-              <button
-                className="p-2 hover:bg-white rounded-lg transition-colors"
-                title="다운로드"
-              >
-                <Download className="w-4 h-4 text-gray-600" />
+                <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
               </button>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

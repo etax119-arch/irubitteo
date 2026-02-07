@@ -6,13 +6,14 @@ import { X } from 'lucide-react';
 import { useEmployeeDetail } from '../_hooks/useEmployeeDetail';
 import { useAttendanceHistory } from '../_hooks/useAttendanceHistory';
 import { useResign } from '../_hooks/useResign';
+import { useEmployeeFiles } from '../_hooks/useEmployeeFiles';
 import { ProfileCard } from './_components/ProfileCard';
 import { DisabilityInfoSection } from './_components/DisabilityInfoSection';
 import { NotesSection } from './_components/NotesSection';
 import { ResignSection } from './_components/ResignSection';
 import { AttendanceTable } from './_components/AttendanceTable';
 import { WorkInfoSection } from './_components/WorkInfoSection';
-import { DocumentSection, type Document } from './_components/DocumentSection';
+import { DocumentSection } from './_components/DocumentSection';
 import { UploadModal } from './_components/UploadModal';
 import { WorkTimeEditModal } from './_components/WorkTimeEditModal';
 import { WorkDoneModal } from './_components/WorkDoneModal';
@@ -26,14 +27,7 @@ export default function CompanyEmployeeDetailPage() {
   const detail = useEmployeeDetail(employeeId);
   const attendance = useAttendanceHistory(employeeId);
   const resign = useResign();
-
-  const [documents] = useState<Document[]>([
-    { id: 1, name: '근로계약서.pdf', type: '계약서', uploadDate: '2025-12-01', size: '1.2MB' },
-    { id: 2, name: '개인정보동의서.pdf', type: '동의서', uploadDate: '2025-12-01', size: '0.8MB' },
-    { id: 3, name: '건강검진결과.pdf', type: '건강검진', uploadDate: '2026-01-15', size: '2.1MB' },
-    { id: 4, name: '장애인등록증.pdf', type: '신분증', uploadDate: '2025-12-01', size: '0.5MB' },
-    { id: 5, name: '이력서.pdf', type: '이력서', uploadDate: '2025-11-28', size: '0.9MB' },
-  ]);
+  const employeeFiles = useEmployeeFiles(employeeId);
 
   const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -119,13 +113,23 @@ export default function CompanyEmployeeDetailPage() {
               onSave={detail.handleSaveWorkInfo}
               onCancel={detail.handleCancelEditWorkInfo}
             />
-            <DocumentSection documents={documents} onOpenUploadModal={() => setShowUploadModal(true)} />
+            <DocumentSection
+              files={employeeFiles.files}
+              isLoading={employeeFiles.isLoading}
+              onOpenUploadModal={() => setShowUploadModal(true)}
+              onDelete={employeeFiles.remove}
+            />
           </div>
         </div>
       </div>
 
       {/* Modals */}
-      <UploadModal isOpen={showUploadModal} onClose={() => setShowUploadModal(false)} />
+      <UploadModal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onUpload={employeeFiles.upload}
+        isUploading={employeeFiles.isUploading}
+      />
       <WorkTimeEditModal
         isOpen={attendance.isEditingWorkTime}
         onClose={() => attendance.setIsEditingWorkTime(false)}

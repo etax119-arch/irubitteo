@@ -81,15 +81,19 @@ export type EmployeeUpdateInput = Partial<Omit<EmployeeCreateInput, 'ssn' | 'hir
   adminNote?: string;
 };
 
+/** 문서 종류 */
+export type DocumentType = '근로계약서' | '동의서' | '건강검진' | '자격증' | '장애인등록증' | '이력서' | '기타';
+
 /** 직원 첨부파일 */
 export type EmployeeFile = {
   id: string;
   employeeId: string;
+  documentType: DocumentType;
   fileName: string;
   filePath: string;
   fileSize: number | null;
   mimeType: string | null;
-  createdAt: Date;
+  createdAt: string;
 };
 
 /** 직원 목록 조회용 (간략 정보) */
