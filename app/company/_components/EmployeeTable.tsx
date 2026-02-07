@@ -3,6 +3,7 @@ import type { CompanyEmployee } from '@/types/companyDashboard';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../employees/_utils/employeeStatus';
 
 interface EmployeeTableProps {
   employees: CompanyEmployee[];
@@ -22,7 +23,8 @@ export function EmployeeTable({
   const filteredEmployees = employees.filter(
     (emp) =>
       emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.phone.includes(searchQuery)
+      emp.phone.includes(searchQuery) ||
+      (emp.disabilityType ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -74,10 +76,9 @@ export function EmployeeTable({
                   <td className="px-6 py-4 text-gray-900">{emp.contractEndDate ?? '-'}</td>
                   <td className="px-6 py-4">
                     <Badge
-                      variant={emp.status === 'absent' || emp.status === 'resigned' ? 'danger' : 'success'}
-                      className="px-3 py-1 font-semibold"
+                      className={`px-3 py-1 font-semibold ${getEmployeeStatusStyle(emp.status, emp.isActive)}`}
                     >
-                      {emp.status === 'absent' ? '결근' : emp.status === 'resigned' ? '퇴사' : '근무중'}
+                      {getEmployeeStatusLabel(emp.status, emp.isActive)}
                     </Badge>
                   </td>
                   <td className="px-6 py-4">

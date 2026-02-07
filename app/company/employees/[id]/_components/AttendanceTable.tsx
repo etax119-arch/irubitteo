@@ -4,11 +4,13 @@ import { getStatusColor, type AttendanceRecord } from '../../_hooks/useAttendanc
 
 interface AttendanceTableProps {
   records: AttendanceRecord[];
+  isLoading?: boolean;
+  error?: string | null;
   onEditWorkTime: (record: AttendanceRecord) => void;
   onOpenWorkDone: (date: string, workDone: string) => void;
 }
 
-export function AttendanceTable({ records, onEditWorkTime, onOpenWorkDone }: AttendanceTableProps) {
+export function AttendanceTable({ records, isLoading, error, onEditWorkTime, onOpenWorkDone }: AttendanceTableProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
@@ -16,6 +18,13 @@ export function AttendanceTable({ records, onEditWorkTime, onOpenWorkDone }: Att
         최근 출퇴근 기록
       </h3>
 
+      {isLoading ? (
+        <p className="text-center text-gray-500 py-8">출퇴근 기록을 불러오는 중...</p>
+      ) : error ? (
+        <p className="text-center text-red-500 py-8">{error}</p>
+      ) : records.length === 0 ? (
+        <p className="text-center text-gray-400 py-8">출퇴근 기록이 없습니다.</p>
+      ) : (
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
@@ -77,6 +86,7 @@ export function AttendanceTable({ records, onEditWorkTime, onOpenWorkDone }: Att
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

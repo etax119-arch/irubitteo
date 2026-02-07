@@ -35,7 +35,7 @@ export interface Worker {
   name: string;
   company: string;
   department: string;
-  disability: string;
+  disabilityType: string;
   status: 'working' | 'resigned';
   phone: string;
   contractEnd: string;

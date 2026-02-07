@@ -24,7 +24,7 @@ export function WorkerSelector({
     (worker) =>
       worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       worker.phone.includes(searchQuery) ||
-      (worker.disability ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+      (worker.disabilityType ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -75,7 +75,7 @@ export function WorkerSelector({
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 truncate">{worker.name}</p>
               <p className="text-sm text-gray-600 truncate">
-                {worker.disability ?? '-'} · {worker.phone}
+                {worker.disabilityType ?? '-'} · {worker.phone}
               </p>
             </div>
             <div className="flex-shrink-0">

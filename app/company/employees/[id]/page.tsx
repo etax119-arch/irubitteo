@@ -100,6 +100,8 @@ export default function CompanyEmployeeDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             <AttendanceTable
               records={attendance.attendanceHistory}
+              isLoading={attendance.isLoadingAttendance}
+              error={attendance.attendanceError}
               onEditWorkTime={attendance.handleEditWorkTime}
               onOpenWorkDone={attendance.openWorkDoneModal}
             />

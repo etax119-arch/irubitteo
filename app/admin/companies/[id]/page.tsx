@@ -45,7 +45,7 @@ interface Worker {
   phone: string;
   hireDate: string;
   workerId: string;
-  disability: string;
+  disabilityType: string;
 }
 
 interface UploadedFile {
@@ -83,10 +83,10 @@ export default function CompanyDetailPage() {
   });
 
   const workers: Worker[] = [
-    { id: 1, name: '김민수', phone: '010-1234-5678', hireDate: '2025-06-15', workerId: 'ms0315', disability: '지체장애' },
-    { id: 2, name: '이영희', phone: '010-2345-6789', hireDate: '2025-07-01', workerId: 'yh0520', disability: '청각장애' },
-    { id: 3, name: '박철수', phone: '010-3456-7890', hireDate: '2025-08-10', workerId: 'cs1108', disability: '시각장애' },
-    { id: 4, name: '정수진', phone: '010-4567-8901', hireDate: '2025-09-01', workerId: 'sj0723', disability: '지적장애' },
+    { id: 1, name: '김민수', phone: '010-1234-5678', hireDate: '2025-06-15', workerId: 'ms0315', disabilityType: '지체장애' },
+    { id: 2, name: '이영희', phone: '010-2345-6789', hireDate: '2025-07-01', workerId: 'yh0520', disabilityType: '청각장애' },
+    { id: 3, name: '박철수', phone: '010-3456-7890', hireDate: '2025-08-10', workerId: 'cs1108', disabilityType: '시각장애' },
+    { id: 4, name: '정수진', phone: '010-4567-8901', hireDate: '2025-09-01', workerId: 'sj0723', disabilityType: '지적장애' },
   ];
 
   const uploadedFiles: UploadedFile[] = [
@@ -401,7 +401,7 @@ export default function CompanyDetailPage() {
                         <td className="px-4 py-3 text-gray-900 font-medium">{worker.name}</td>
                         <td className="px-4 py-3 text-gray-600">{worker.phone}</td>
                         <td className="px-4 py-3 text-gray-600">{worker.hireDate}</td>
-                        <td className="px-4 py-3 text-gray-600">{worker.disability}</td>
+                        <td className="px-4 py-3 text-gray-600">{worker.disabilityType}</td>
                         <td className="px-4 py-3">
                           <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 font-mono">
                             {worker.workerId}

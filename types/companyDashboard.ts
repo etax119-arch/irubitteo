@@ -12,7 +12,6 @@ export interface CompanyEmployee {
   id: string;
   name: string;
   phone: string;
-  disability: string | null;
   hireDate: string;
   contractEndDate: string | null;
   status: 'checkin' | 'checkout' | 'absent' | 'resigned';

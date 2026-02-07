@@ -1,5 +1,6 @@
 import { Save } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 
 interface EditedWorkTime {
   date: string;
@@ -69,20 +70,12 @@ export function WorkTimeEditModal({
         </div>
 
         <div className="flex gap-3 pt-4">
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-          >
+          <Button variant="outline" onClick={onClose} fullWidth>
             취소
-          </button>
-          <button
-            onClick={onSave}
-            disabled={isSaving}
-            className="flex-1 py-3 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Save className="w-4 h-4" />
+          </Button>
+          <Button variant="primary" onClick={onSave} disabled={isSaving} leftIcon={<Save className="w-4 h-4" />} fullWidth>
             {isSaving ? '저장 중...' : '저장'}
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

@@ -1,5 +1,6 @@
 import { AlertTriangle, Calendar as CalendarIcon, UserX } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 import type { ResignForm } from '../../_hooks/useResign';
 
 interface ResignModalProps {
@@ -64,20 +65,18 @@ export function ResignModal({
         </div>
 
         <div className="flex gap-3 pt-4">
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-          >
+          <Button variant="outline" onClick={onClose} fullWidth>
             취소
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onSubmit}
             disabled={!resignForm.date}
-            className="flex-1 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            leftIcon={<UserX className="w-4 h-4" />}
+            className="flex-1 bg-red-500 text-white hover:bg-red-600"
+            fullWidth
           >
-            <UserX className="w-4 h-4" />
             퇴사 등록
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

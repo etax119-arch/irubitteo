@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useToast } from '@/components/ui/Toast';
 
 export interface ResignForm {
   date: string;
@@ -6,6 +7,7 @@ export interface ResignForm {
 }
 
 export function useResign() {
+  const toast = useToast();
   const [showResignModal, setShowResignModal] = useState(false);
   const [resignForm, setResignForm] = useState<ResignForm>({
     date: new Date().toISOString().split('T')[0],
@@ -27,7 +29,7 @@ export function useResign() {
 
   const handleSubmitResign = () => {
     if (!resignForm.date) return;
-    alert('퇴사 등록이 완료되었습니다.');
+    toast.success('퇴사 등록이 완료되었습니다.');
     closeResignModal();
   };
 

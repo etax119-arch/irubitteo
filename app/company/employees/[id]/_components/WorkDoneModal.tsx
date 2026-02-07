@@ -1,4 +1,5 @@
 import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 
 interface WorkDoneModalProps {
   isOpen: boolean;
@@ -17,12 +18,9 @@ export function WorkDoneModal({ isOpen, onClose, selectedWorkDone }: WorkDoneMod
           <p className="text-gray-700 whitespace-pre-wrap">{selectedWorkDone.workDone}</p>
         </div>
       </div>
-      <button
-        onClick={onClose}
-        className="w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
-      >
+      <Button variant="outline" onClick={onClose} fullWidth>
         닫기
-      </button>
+      </Button>
     </Modal>
   );
 }
