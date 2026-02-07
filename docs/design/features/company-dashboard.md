@@ -338,7 +338,9 @@
 
 ## 주요 타입
 
-### DailyAttendanceRecord (대시보드용)
+> 출퇴근 관련 타입은 `@/types/attendance.ts`, 직원 타입은 `@/types/employee.ts`에 정의
+
+### DailyAttendanceRecord (대시보드용) — `@/types/attendance.ts`
 
 ```typescript
 interface DailyAttendanceRecord {
@@ -352,10 +354,10 @@ interface DailyAttendanceRecord {
 }
 ```
 
-### DailyAttendanceStats
+### CompanyDailyStats — `@/types/attendance.ts`
 
 ```typescript
-interface DailyAttendanceStats {
+interface CompanyDailyStats {
   total: number;           // 활성 근로자 수
   checkedIn: number;       // 출근 상태 인원
   checkedOut: number;      // 퇴근 완료 인원
@@ -363,20 +365,20 @@ interface DailyAttendanceStats {
 }
 ```
 
-### CompanyDailyResponse
+### CompanyDailyResponse — `@/types/attendance.ts`
 
 ```typescript
 interface CompanyDailyResponse {
   date: string;                     // "YYYY-MM-DD"
-  stats: DailyAttendanceStats;
+  stats: CompanyDailyStats;
   records: DailyAttendanceRecord[];
 }
 ```
 
-### CompanyEmployee
+### Employee — `@/types/employee.ts`
 
 ```typescript
-interface CompanyEmployee {
+type Employee = {
   id: string;                          // UUID
   name: string;
   phone: string;
@@ -396,7 +398,7 @@ interface CompanyEmployee {
   disabilityType: string | null;
   disabilitySeverity: string | null;   // "중증" | "경증"
   disabilityRecognitionDate: string | null; // "YYYY-MM-DD"
-}
+};
 ```
 
 ---

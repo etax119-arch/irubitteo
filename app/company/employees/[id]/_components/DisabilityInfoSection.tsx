@@ -1,9 +1,9 @@
 import { Shield, Edit2, Check } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import type { CompanyEmployee } from '@/types/companyDashboard';
+import type { Employee } from '@/types/employee';
 
 interface DisabilityInfoSectionProps {
-  employee: CompanyEmployee;
+  employee: Employee;
   isEditing: boolean;
   isSaving: boolean;
   tempSeverity: string;

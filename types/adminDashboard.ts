@@ -1,4 +1,8 @@
-// Admin Dashboard Types
+/**
+ * @todo 관리자 API 구현 후 서버 응답에 맞게 재정의 필요 — 현재는 디자인 목업 기준
+ * - 모든 id가 number (실제는 string UUID)
+ * - 서버에 없는 필드 다수 포함 (industry, location, revenue, department 등)
+ */
 
 export interface AdminStats {
   totalCompanies: number;

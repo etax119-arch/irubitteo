@@ -1,47 +1,4 @@
-export interface DailyAttendanceRecord {
-  employeeId: string;
-  name: string;
-  phone: string;
-  checkinTime: string | null;
-  checkoutTime: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'pending';
-  workContent: string | null;
-}
-
-export interface DailyAttendanceStats {
-  total: number;
-  checkedIn: number;
-  checkedOut: number;
-  attendanceRate: number;
-}
-
-export interface CompanyDailyResponse {
-  date: string;
-  stats: DailyAttendanceStats;
-  records: DailyAttendanceRecord[];
-}
-
-export interface CompanyEmployee {
-  id: string;
-  name: string;
-  phone: string;
-  hireDate: string;
-  contractEndDate: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'resigned';
-  checkinTime: string | null;
-  checkoutTime: string | null;
-  uniqueCode: string;
-  companyNote: string | null;
-  isActive: boolean;
-  resignDate: string | null;
-  resignReason: string | null;
-  workDays: number[];
-  workStartTime: string | null;
-  disabilityType: string | null;
-  disabilitySeverity: string | null;
-  disabilityRecognitionDate: string | null;
-}
-
+/** @todo 서버 일정 API 구현 후 재정의 — 현재는 디자인 목업 기준 */
 export interface ScheduleEntry {
   workType: string;
   startTime: string;
@@ -50,6 +7,7 @@ export interface ScheduleEntry {
   color: string;
 }
 
+/** @todo 서버 공지 API 구현 후 재정의 — 현재는 디자인 목업 기준 */
 export interface SentNotice {
   id: number;
   date: string;
@@ -75,8 +33,10 @@ export interface AddWorkerForm {
   workerId: string;
 }
 
+/** @todo 서버 일정 API 구현 후 재정의 */
 export interface ScheduleForm {
   workType: string;
 }
 
+/** @todo 서버 API 구현 후 재정의 */
 export type TabId = 'dashboard' | 'employees' | 'attendance' | 'notices';

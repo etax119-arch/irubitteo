@@ -1,8 +1,8 @@
 import { UserX } from 'lucide-react';
-import type { CompanyEmployee } from '@/types/companyDashboard';
+import type { Employee } from '@/types/employee';
 
 interface ResignSectionProps {
-  employee: CompanyEmployee;
+  employee: Employee;
   onOpenResignModal: () => void;
 }
 

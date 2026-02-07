@@ -2,32 +2,13 @@ import apiClient from './client';
 import type {
   Attendance,
   AttendanceWithEmployee,
+  AttendanceQueryParams,
   ClockInInput,
   ClockOutInput,
   AttendanceUpdateInput,
+  CompanyDailyResponse,
 } from '@/types/attendance';
-import type { CompanyDailyResponse } from '@/types/companyDashboard';
-
-export interface PaginatedResponse<T> {
-  success: boolean;
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-export interface AttendanceQueryParams {
-  employeeId?: string;
-  companyId?: string;
-  startDate?: string;
-  endDate?: string;
-  status?: 'present' | 'absent';
-  page?: number;
-  limit?: number;
-}
+import type { PaginatedResponse } from '@/types/api';
 
 export const attendanceApi = {
   /**

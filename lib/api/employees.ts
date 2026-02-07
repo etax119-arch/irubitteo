@@ -1,28 +1,11 @@
 import apiClient from './client';
-import type { CompanyEmployee } from '@/types/companyDashboard';
-
-export interface EmployeeQueryParams {
-  search?: string;
-  isActive?: boolean;
-  page?: number;
-  limit?: number;
-}
-
-export interface PaginatedEmployeesResponse {
-  success: boolean;
-  data: CompanyEmployee[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+import type { PaginatedResponse } from '@/types/api';
+import type { Employee, EmployeeQueryParams, EmployeeCreateInput, EmployeeUpdateInput } from '@/types/employee';
 
 export async function getEmployees(
   params?: EmployeeQueryParams
-): Promise<PaginatedEmployeesResponse> {
-  const response = await apiClient.get<PaginatedEmployeesResponse>(
+): Promise<PaginatedResponse<Employee>> {
+  const response = await apiClient.get<PaginatedResponse<Employee>>(
     '/employees',
     { params }
   );
@@ -31,56 +14,28 @@ export async function getEmployees(
 
 export async function getEmployee(
   id: string
-): Promise<{ success: boolean; data: CompanyEmployee }> {
-  const response = await apiClient.get<{ success: boolean; data: CompanyEmployee }>(
+): Promise<{ success: boolean; data: Employee }> {
+  const response = await apiClient.get<{ success: boolean; data: Employee }>(
     `/employees/${id}`
   );
   return response.data;
 }
 
-export interface CreateEmployeeInput {
-  name: string;
-  ssn: string;
-  phone: string;
-  gender: string;
-  uniqueCode: string;
-  hireDate: string;
-  workDays: number[];
-  workStartTime: string;
-  disabilityType: string;
-  disabilitySeverity: string;
-  disabilityRecognitionDate: string;
-  emergencyContactName: string;
-  emergencyContactRelation: string;
-  emergencyContactPhone: string;
-}
-
 export async function createEmployee(
-  data: CreateEmployeeInput
-): Promise<{ success: boolean; data: CompanyEmployee }> {
-  const response = await apiClient.post<{ success: boolean; data: CompanyEmployee }>(
+  data: EmployeeCreateInput
+): Promise<{ success: boolean; data: Employee }> {
+  const response = await apiClient.post<{ success: boolean; data: Employee }>(
     '/employees',
     data
   );
   return response.data;
 }
 
-export interface UpdateEmployeeInput {
-  workDays?: number[];
-  workStartTime?: string;
-  disabilitySeverity?: string | null;
-  disabilityRecognitionDate?: string | null;
-  companyNote?: string | null;
-  isActive?: boolean;
-  resignDate?: string | null;
-  resignReason?: string | null;
-}
-
 export async function updateEmployee(
   id: string,
-  data: UpdateEmployeeInput
-): Promise<{ success: boolean; data: CompanyEmployee }> {
-  const response = await apiClient.patch<{ success: boolean; data: CompanyEmployee }>(
+  data: EmployeeUpdateInput
+): Promise<{ success: boolean; data: Employee }> {
+  const response = await apiClient.patch<{ success: boolean; data: Employee }>(
     `/employees/${id}`,
     data
   );

@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
-import type { DailyAttendanceRecord } from '@/types/companyDashboard';
+import type { DailyAttendanceRecord } from '@/types/attendance';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import type { BadgeVariant } from '@/components/ui/Badge';

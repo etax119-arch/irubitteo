@@ -1,16 +1,16 @@
 import { Search } from 'lucide-react';
-import type { CompanyEmployee } from '@/types/companyDashboard';
+import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../employees/_utils/employeeStatus';
 
 interface EmployeeTableProps {
-  employees: CompanyEmployee[];
+  employees: Employee[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onAddWorker: () => void;
-  onEmployeeClick: (employee: CompanyEmployee) => void;
+  onEmployeeClick: (employee: Employee) => void;
 }
 
 export function EmployeeTable({

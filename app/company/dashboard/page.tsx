@@ -5,7 +5,7 @@ import { Users, UserCheck, Clock, TrendingUp } from 'lucide-react';
 import { StatCard } from '../_components/StatCard';
 import { AttendanceTable } from '../_components/AttendanceTable';
 import { attendanceApi } from '@/lib/api/attendance';
-import type { DailyAttendanceStats, DailyAttendanceRecord } from '@/types/companyDashboard';
+import type { CompanyDailyStats, DailyAttendanceRecord } from '@/types/attendance';
 
 function formatDateParam(date: Date): string {
   const y = date.getFullYear();
@@ -16,7 +16,7 @@ function formatDateParam(date: Date): string {
 
 export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [stats, setStats] = useState<DailyAttendanceStats>({ total: 0, checkedIn: 0, checkedOut: 0, attendanceRate: 0 });
+  const [stats, setStats] = useState<CompanyDailyStats>({ total: 0, checkedIn: 0, checkedOut: 0, attendanceRate: 0 });
   const [records, setRecords] = useState<DailyAttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

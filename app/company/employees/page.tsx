@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
-import type { CompanyEmployee, AddWorkerForm } from '@/types/companyDashboard';
+import type { Employee } from '@/types/employee';
+import type { AddWorkerForm } from '@/types/companyDashboard';
 import { EmployeeTable } from '../_components/EmployeeTable';
 import { AddWorkerModal } from '../_components/AddWorkerModal';
 import { INITIAL_ADD_WORKER_FORM } from '../_data/dummyData';
@@ -26,7 +27,7 @@ function generateWorkerId(ssn: string, phone: string): string | null {
 export default function EmployeesPage() {
   const router = useRouter();
   const toast = useToast();
-  const [employees, setEmployees] = useState<CompanyEmployee[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -152,7 +153,7 @@ export default function EmployeesPage() {
     }
   };
 
-  const handleEmployeeClick = (emp: CompanyEmployee) => {
+  const handleEmployeeClick = (emp: Employee) => {
     router.push(`/company/employees/${emp.id}`);
   };
 

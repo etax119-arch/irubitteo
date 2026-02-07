@@ -1,5 +1,5 @@
 /** 출퇴근 상태 */
-export type AttendanceStatus = 'present' | 'absent';
+export type AttendanceStatus = 'present' | 'absent' | 'leave' | 'holiday';
 
 /** 출퇴근 기록 */
 export type Attendance = {
@@ -72,3 +72,40 @@ export type UploadPhoto = {
   url: string;
   file: File;
 };
+
+/** 출퇴근 기록 조회 파라미터 */
+export type AttendanceQueryParams = {
+  employeeId?: string;
+  companyId?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: AttendanceStatus;
+  page?: number;
+  limit?: number;
+};
+
+/** 기업 대시보드 일별 출퇴근 기록 (개별 직원) */
+export interface DailyAttendanceRecord {
+  employeeId: string;
+  name: string;
+  phone: string;
+  checkinTime: string | null;
+  checkoutTime: string | null;
+  status: 'checkin' | 'checkout' | 'absent' | 'pending';
+  workContent: string | null;
+}
+
+/** 기업 대시보드 일별 출퇴근 통계 */
+export interface CompanyDailyStats {
+  total: number;
+  checkedIn: number;
+  checkedOut: number;
+  attendanceRate: number;
+}
+
+/** 기업 대시보드 일별 출퇴근 응답 */
+export interface CompanyDailyResponse {
+  date: string;
+  stats: CompanyDailyStats;
+  records: DailyAttendanceRecord[];
+}

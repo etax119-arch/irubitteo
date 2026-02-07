@@ -1,10 +1,10 @@
 import { Search, Users } from 'lucide-react';
-import type { CompanyEmployee } from '@/types/companyDashboard';
+import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 
 interface WorkerSelectorProps {
-  employees: CompanyEmployee[];
+  employees: Employee[];
   selectedWorkers: string[];
   searchQuery: string;
   onSearchChange: (query: string) => void;

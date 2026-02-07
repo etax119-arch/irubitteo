@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getEmployee, updateEmployee } from '@/lib/api/employees';
 import { useToast } from '@/components/ui/Toast';
-import type { CompanyEmployee } from '@/types/companyDashboard';
+import type { Employee } from '@/types/employee';
 
 const DAY_NUM_TO_LABEL: Record<number, string> = {
   1: '월', 2: '화', 3: '수', 4: '목', 5: '금', 6: '토', 7: '일',
@@ -13,7 +13,7 @@ const LABEL_TO_DAY_NUM: Record<string, number> = {
 
 export function useEmployeeDetail(employeeId: string) {
   const toast = useToast();
-  const [employee, setEmployee] = useState<CompanyEmployee | null>(null);
+  const [employee, setEmployee] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
