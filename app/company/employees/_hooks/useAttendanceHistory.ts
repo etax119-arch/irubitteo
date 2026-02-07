@@ -47,6 +47,7 @@ export function getStatusColor(status: string) {
 export function useAttendanceHistory(employeeId: string) {
   const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
   const [isLoadingAttendance, setIsLoadingAttendance] = useState(true);
+  const [attendanceError, setAttendanceError] = useState<string | null>(null);
 
   const [showWorkDoneModal, setShowWorkDoneModal] = useState(false);
   const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string } | null>(null);
@@ -66,7 +67,7 @@ export function useAttendanceHistory(employeeId: string) {
         const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
         setAttendanceHistory(response.data.map(toAttendanceRecord));
       } catch {
-        // 조용히 실패 — 빈 테이블 표시
+        setAttendanceError('출퇴근 기록을 불러오는데 실패했습니다.');
       } finally {
         setIsLoadingAttendance(false);
       }
@@ -115,6 +116,7 @@ export function useAttendanceHistory(employeeId: string) {
   return {
     attendanceHistory,
     isLoadingAttendance,
+    attendanceError,
     isEditingWorkTime,
     editedWorkTime,
     setEditedWorkTime,

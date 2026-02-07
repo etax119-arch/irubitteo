@@ -12,19 +12,11 @@ import { NotesSection } from './_components/NotesSection';
 import { ResignSection } from './_components/ResignSection';
 import { AttendanceTable } from './_components/AttendanceTable';
 import { WorkInfoSection } from './_components/WorkInfoSection';
-import { DocumentSection } from './_components/DocumentSection';
+import { DocumentSection, type Document } from './_components/DocumentSection';
 import { UploadModal } from './_components/UploadModal';
 import { WorkTimeEditModal } from './_components/WorkTimeEditModal';
 import { WorkDoneModal } from './_components/WorkDoneModal';
 import { ResignModal } from './_components/ResignModal';
-
-interface Document {
-  id: number;
-  name: string;
-  type: string;
-  uploadDate: string;
-  size: string;
-}
 
 export default function CompanyEmployeeDetailPage() {
   const router = useRouter();

@@ -1,6 +1,6 @@
 import { Phone, Briefcase, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../../_hooks/useEmployeeDetail';
+import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../../_utils/employeeStatus';
 import type { CompanyEmployee } from '@/types/companyDashboard';
 
 interface ProfileCardProps {

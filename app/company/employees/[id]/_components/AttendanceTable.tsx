@@ -29,8 +29,8 @@ export function AttendanceTable({ records, onEditWorkTime, onOpenWorkDone }: Att
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {records.slice(0, 7).map((record, idx) => (
-              <tr key={idx} className="hover:bg-gray-50">
+            {records.slice(0, 7).map((record) => (
+              <tr key={record.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 text-gray-900">{record.date}</td>
                 <td
                   className={cn(

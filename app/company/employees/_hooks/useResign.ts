@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-interface ResignForm {
+export interface ResignForm {
   date: string;
   reason: string;
 }

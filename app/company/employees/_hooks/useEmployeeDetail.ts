@@ -10,34 +10,6 @@ const LABEL_TO_DAY_NUM: Record<string, number> = {
   '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 7,
 };
 
-export function getEmployeeStatusLabel(status: string, isActive: boolean) {
-  if (!isActive) return '퇴사';
-  switch (status) {
-    case 'checkin':
-      return '근무중';
-    case 'checkout':
-      return '퇴근';
-    case 'absent':
-      return '결근';
-    default:
-      return status;
-  }
-}
-
-export function getEmployeeStatusStyle(status: string, isActive: boolean) {
-  if (!isActive) return 'bg-gray-200 text-gray-600';
-  switch (status) {
-    case 'checkin':
-      return 'bg-green-100 text-green-700';
-    case 'checkout':
-      return 'bg-blue-100 text-blue-700';
-    case 'absent':
-      return 'bg-red-100 text-red-700';
-    default:
-      return 'bg-gray-200 text-gray-700';
-  }
-}
-
 export function useEmployeeDetail(employeeId: string) {
   const [employee, setEmployee] = useState<CompanyEmployee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,9 +90,13 @@ export function useEmployeeDetail(employeeId: string) {
         workDays: workDayNums,
         workStartTime: tempWorkStartTime,
       });
-      setWorkDays(tempWorkDays);
-      setWorkStartTime(tempWorkStartTime);
       setEmployee(result.data);
+      if (result.data.workDays) {
+        setWorkDays(result.data.workDays.map((n: number) => DAY_NUM_TO_LABEL[n] ?? ''));
+      }
+      if (result.data.workStartTime) {
+        setWorkStartTime(result.data.workStartTime);
+      }
       setIsEditingWorkInfo(false);
     } catch {
       alert('근무 정보 수정에 실패했습니다.');

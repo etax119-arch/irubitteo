@@ -1,6 +1,6 @@
 import { FileText, Upload, Eye, Download } from 'lucide-react';
 
-interface Document {
+export interface Document {
   id: number;
   name: string;
   type: string;

@@ -1,10 +1,6 @@
 import { AlertTriangle, Calendar as CalendarIcon, UserX } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
-
-interface ResignForm {
-  date: string;
-  reason: string;
-}
+import type { ResignForm } from '../../_hooks/useResign';
 
 interface ResignModalProps {
   isOpen: boolean;
