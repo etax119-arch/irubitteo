@@ -63,13 +63,9 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading }: UploadMo
 
   const handleSubmit = async () => {
     if (!selectedFile) return;
-    try {
-      await onUpload(selectedFile, documentType);
-      resetForm();
-      onClose();
-    } catch {
-      alert('파일 업로드에 실패했습니다.');
-    }
+    await onUpload(selectedFile, documentType);
+    resetForm();
+    onClose();
   };
 
   return (

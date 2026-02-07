@@ -7,6 +7,7 @@ interface WorkInfoSectionProps {
   workDays: string[];
   workStartTime: string;
   isEditing: boolean;
+  isSaving: boolean;
   tempWorkDays: string[];
   tempWorkStartTime: string;
   setTempWorkStartTime: (v: string) => void;
@@ -20,6 +21,7 @@ export function WorkInfoSection({
   workDays,
   workStartTime,
   isEditing,
+  isSaving,
   tempWorkDays,
   tempWorkStartTime,
   setTempWorkStartTime,
@@ -53,10 +55,11 @@ export function WorkInfoSection({
             </button>
             <button
               onClick={onSave}
-              className="px-3 py-1.5 bg-duru-orange-500 text-white rounded-lg text-sm font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1.5"
+              disabled={isSaving}
+              className="px-3 py-1.5 bg-duru-orange-500 text-white rounded-lg text-sm font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-3.5 h-3.5" />
-              저장
+              {isSaving ? '저장 중...' : '저장'}
             </button>
           </div>
         )}

@@ -24,9 +24,8 @@ export default function EmployeesPage() {
       setError(null);
       const response = await getEmployees();
       setEmployees(response.data);
-    } catch (err) {
+    } catch {
       setError('근로자 목록을 불러오는데 실패했습니다.');
-      console.error('Failed to fetch employees:', err);
     } finally {
       setIsLoading(false);
     }

@@ -74,6 +74,7 @@ export default function CompanyEmployeeDetailPage() {
             <DisabilityInfoSection
               employee={employee}
               isEditing={detail.isEditingDisability}
+              isSaving={detail.isSaving}
               tempSeverity={detail.tempDisabilitySeverity}
               setTempSeverity={detail.setTempDisabilitySeverity}
               tempRecognitionDate={detail.tempDisabilityRecognitionDate}
@@ -85,6 +86,7 @@ export default function CompanyEmployeeDetailPage() {
             <NotesSection
               notes={detail.notes}
               isEditing={detail.isEditingNotes}
+              isSaving={detail.isSaving}
               tempNotes={detail.tempNotes}
               setTempNotes={detail.setTempNotes}
               onEdit={detail.handleEditNotes}
@@ -105,6 +107,7 @@ export default function CompanyEmployeeDetailPage() {
               workDays={detail.workDays}
               workStartTime={detail.workStartTime}
               isEditing={detail.isEditingWorkInfo}
+              isSaving={detail.isSaving}
               tempWorkDays={detail.tempWorkDays}
               tempWorkStartTime={detail.tempWorkStartTime}
               setTempWorkStartTime={detail.setTempWorkStartTime}
@@ -136,6 +139,7 @@ export default function CompanyEmployeeDetailPage() {
         editedWorkTime={attendance.editedWorkTime}
         setEditedWorkTime={attendance.setEditedWorkTime}
         onSave={attendance.handleSaveWorkTime}
+        isSaving={attendance.isSaving}
       />
       <WorkDoneModal
         isOpen={attendance.showWorkDoneModal}

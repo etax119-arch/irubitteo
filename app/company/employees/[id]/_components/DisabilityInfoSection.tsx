@@ -5,6 +5,7 @@ import type { CompanyEmployee } from '@/types/companyDashboard';
 interface DisabilityInfoSectionProps {
   employee: CompanyEmployee;
   isEditing: boolean;
+  isSaving: boolean;
   tempSeverity: string;
   setTempSeverity: (v: string) => void;
   tempRecognitionDate: string;
@@ -17,6 +18,7 @@ interface DisabilityInfoSectionProps {
 export function DisabilityInfoSection({
   employee,
   isEditing,
+  isSaving,
   tempSeverity,
   setTempSeverity,
   tempRecognitionDate,
@@ -50,10 +52,11 @@ export function DisabilityInfoSection({
             </button>
             <button
               onClick={onSave}
-              className="px-2 py-1 bg-duru-orange-500 text-white rounded text-xs font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1"
+              disabled={isSaving}
+              className="px-2 py-1 bg-duru-orange-500 text-white rounded text-xs font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-3 h-3" />
-              저장
+              {isSaving ? '저장 중...' : '저장'}
             </button>
           </div>
         )}

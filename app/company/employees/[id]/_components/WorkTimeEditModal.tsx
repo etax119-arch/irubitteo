@@ -14,6 +14,7 @@ interface WorkTimeEditModalProps {
   editedWorkTime: EditedWorkTime;
   setEditedWorkTime: (v: EditedWorkTime) => void;
   onSave: () => void;
+  isSaving: boolean;
 }
 
 export function WorkTimeEditModal({
@@ -22,6 +23,7 @@ export function WorkTimeEditModal({
   editedWorkTime,
   setEditedWorkTime,
   onSave,
+  isSaving,
 }: WorkTimeEditModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="근무시간 수정">
@@ -75,10 +77,11 @@ export function WorkTimeEditModal({
           </button>
           <button
             onClick={onSave}
-            className="flex-1 py-3 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center justify-center gap-2"
+            disabled={isSaving}
+            className="flex-1 py-3 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
-            저장
+            {isSaving ? '저장 중...' : '저장'}
           </button>
         </div>
       </div>

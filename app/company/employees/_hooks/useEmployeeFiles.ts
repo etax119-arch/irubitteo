@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getEmployeeFiles, uploadEmployeeFile, deleteEmployeeFile } from '@/lib/api/employeeFiles';
+import { useToast } from '@/components/ui/Toast';
 import type { EmployeeFile } from '@/types/employee';
 
 export function useEmployeeFiles(employeeId: string) {
+  const toast = useToast();
   const [files, setFiles] = useState<EmployeeFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +32,9 @@ export function useEmployeeFiles(employeeId: string) {
     try {
       const newFile = await uploadEmployeeFile(employeeId, file, documentType);
       setFiles((prev) => [newFile, ...prev]);
+      toast.success('파일이 업로드되었습니다.');
     } catch {
-      throw new Error('파일 업로드에 실패했습니다.');
+      toast.error('파일 업로드에 실패했습니다.');
     } finally {
       setIsUploading(false);
     }
@@ -41,8 +44,9 @@ export function useEmployeeFiles(employeeId: string) {
     try {
       await deleteEmployeeFile(employeeId, fileId);
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
+      toast.success('파일이 삭제되었습니다.');
     } catch {
-      alert('파일 삭제에 실패했습니다.');
+      toast.error('파일 삭제에 실패했습니다.');
     }
   };
 

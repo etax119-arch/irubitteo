@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getEmployee, updateEmployee } from '@/lib/api/employees';
+import { useToast } from '@/components/ui/Toast';
 import type { CompanyEmployee } from '@/types/companyDashboard';
 
 const DAY_NUM_TO_LABEL: Record<number, string> = {
@@ -11,9 +12,11 @@ const LABEL_TO_DAY_NUM: Record<string, number> = {
 };
 
 export function useEmployeeDetail(employeeId: string) {
+  const toast = useToast();
   const [employee, setEmployee] = useState<CompanyEmployee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Notes state
   const [notes, setNotes] = useState('');
@@ -61,13 +64,17 @@ export function useEmployeeDetail(employeeId: string) {
   };
 
   const handleSaveNotes = async () => {
+    setIsSaving(true);
     try {
       const result = await updateEmployee(employeeId, { companyNote: tempNotes });
       setNotes(result.data.companyNote || '');
       setEmployee(result.data);
       setIsEditingNotes(false);
+      toast.success('비고란이 수정되었습니다.');
     } catch {
-      alert('비고란 수정에 실패했습니다.');
+      toast.error('비고란 수정에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -84,6 +91,7 @@ export function useEmployeeDetail(employeeId: string) {
   };
 
   const handleSaveWorkInfo = async () => {
+    setIsSaving(true);
     try {
       const workDayNums = tempWorkDays.map((d) => LABEL_TO_DAY_NUM[d]).filter(Boolean);
       const result = await updateEmployee(employeeId, {
@@ -98,8 +106,11 @@ export function useEmployeeDetail(employeeId: string) {
         setWorkStartTime(result.data.workStartTime);
       }
       setIsEditingWorkInfo(false);
+      toast.success('근무 정보가 수정되었습니다.');
     } catch {
-      alert('근무 정보 수정에 실패했습니다.');
+      toast.error('근무 정보 수정에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -125,6 +136,7 @@ export function useEmployeeDetail(employeeId: string) {
   };
 
   const handleSaveDisability = async () => {
+    setIsSaving(true);
     try {
       const result = await updateEmployee(employeeId, {
         disabilitySeverity: tempDisabilitySeverity || null,
@@ -132,8 +144,11 @@ export function useEmployeeDetail(employeeId: string) {
       });
       setEmployee(result.data);
       setIsEditingDisability(false);
+      toast.success('장애 정보가 수정되었습니다.');
     } catch {
-      alert('장애 정보 수정에 실패했습니다.');
+      toast.error('장애 정보 수정에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -145,6 +160,7 @@ export function useEmployeeDetail(employeeId: string) {
     employee,
     isLoading,
     error,
+    isSaving,
     notes,
     isEditingNotes,
     tempNotes,

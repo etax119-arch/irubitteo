@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { attendanceApi } from '@/lib/api/attendance';
+import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
 import type { AttendanceWithEmployee } from '@/types/attendance';
 
@@ -45,9 +46,11 @@ export function getStatusColor(status: string) {
 }
 
 export function useAttendanceHistory(employeeId: string) {
+  const toast = useToast();
   const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
   const [isLoadingAttendance, setIsLoadingAttendance] = useState(true);
   const [attendanceError, setAttendanceError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [showWorkDoneModal, setShowWorkDoneModal] = useState(false);
   const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string } | null>(null);
@@ -99,6 +102,7 @@ export function useAttendanceHistory(employeeId: string) {
     const record = attendanceHistory.find((r) => r.date === editedWorkTime.date);
     if (!record) return;
 
+    setIsSaving(true);
     try {
       await attendanceApi.updateAttendance(record.id, {
         clockIn: buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin),
@@ -108,8 +112,11 @@ export function useAttendanceHistory(employeeId: string) {
       const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
       setAttendanceHistory(response.data.map(toAttendanceRecord));
       setIsEditingWorkTime(false);
+      toast.success('출퇴근 기록이 수정되었습니다.');
     } catch {
-      alert('출퇴근 기록 수정에 실패했습니다.');
+      toast.error('출퇴근 기록 수정에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -117,6 +124,7 @@ export function useAttendanceHistory(employeeId: string) {
     attendanceHistory,
     isLoadingAttendance,
     attendanceError,
+    isSaving,
     isEditingWorkTime,
     editedWorkTime,
     setEditedWorkTime,
