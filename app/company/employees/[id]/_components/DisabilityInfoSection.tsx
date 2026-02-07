@@ -62,7 +62,7 @@ export function DisabilityInfoSection({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-600">유형</span>
-            <span className="font-bold text-gray-900">{employee.disability ?? '-'}</span>
+            <span className="font-bold text-gray-900">{employee.disabilityType ?? '-'}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-600">중증/경증</span>
@@ -82,7 +82,7 @@ export function DisabilityInfoSection({
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-600">유형</span>
-            <span className="font-bold text-gray-900">{employee.disability ?? '-'}</span>
+            <span className="font-bold text-gray-900">{employee.disabilityType ?? '-'}</span>
           </div>
           <div>
             <label className="block text-xs text-gray-600 mb-1">중증/경증</label>

@@ -70,7 +70,7 @@ export function EmployeeTable({
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-900">{emp.phone}</td>
-                  <td className="px-6 py-4 text-gray-600">{emp.disability ?? '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{emp.disabilityType ?? '-'}</td>
                   <td className="px-6 py-4 text-gray-900">{emp.contractEndDate ?? '-'}</td>
                   <td className="px-6 py-4">
                     <Badge
