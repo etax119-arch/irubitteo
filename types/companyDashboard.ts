@@ -1,13 +1,3 @@
-/** @todo 서버 일정 API 구현 후 재정의 — 현재는 디자인 목업 기준 */
-export interface ScheduleEntry {
-  workType: string;
-  startTime: string;
-  endTime: string;
-  workers: number;
-  color: string;
-}
-
-/** @todo 서버 공지 API 구현 후 재정의 — 현재는 디자인 목업 기준 */
 export interface SentNotice {
   id: number;
   date: string;
@@ -33,10 +23,4 @@ export interface AddWorkerForm {
   workerId: string;
 }
 
-/** @todo 서버 일정 API 구현 후 재정의 */
-export interface ScheduleForm {
-  workType: string;
-}
-
-/** @todo 서버 API 구현 후 재정의 */
 export type TabId = 'dashboard' | 'employees' | 'attendance' | 'notices';

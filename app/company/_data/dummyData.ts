@@ -1,6 +1,5 @@
 import type { Employee } from '@/types/employee';
 import type {
-  ScheduleEntry,
   SentNotice,
   AddWorkerForm,
 } from '@/types/companyDashboard';
@@ -146,32 +145,6 @@ export const initialNotices: SentNotice[] = [
   },
 ];
 
-export const schedules: Record<string, ScheduleEntry> = {
-  '2': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-blue-50 border-blue-300' },
-  '3': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 6, color: 'bg-sky-50 border-sky-300' },
-  '5': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-blue-50 border-blue-300' },
-  '6': { workType: '업무 지시서', startTime: '10:00', endTime: '16:00', workers: 5, color: 'bg-cyan-50 border-cyan-300' },
-  '7': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-blue-50 border-blue-300' },
-  '8': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-sky-50 border-sky-300' },
-  '9': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 4, color: 'bg-cyan-50 border-cyan-300' },
-  '10': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 6, color: 'bg-blue-50 border-blue-300' },
-  '12': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-sky-50 border-sky-300' },
-  '13': { workType: '업무 지시서', startTime: '10:00', endTime: '16:00', workers: 5, color: 'bg-cyan-50 border-cyan-300' },
-  '14': { workType: '업무 지시서', startTime: '13:00', endTime: '17:00', workers: 3, color: 'bg-blue-50 border-blue-300' },
-  '15': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-sky-50 border-sky-300' },
-  '16': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-cyan-50 border-cyan-300' },
-  '17': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 6, color: 'bg-blue-50 border-blue-300' },
-  '19': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-sky-50 border-sky-300' },
-  '20': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-cyan-50 border-cyan-300' },
-  '21': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 5, color: 'bg-blue-50 border-blue-300' },
-  '22': { workType: '업무 지시서', startTime: '10:00', endTime: '16:00', workers: 4, color: 'bg-sky-50 border-sky-300' },
-  '23': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-cyan-50 border-cyan-300' },
-  '24': { workType: '업무 지시서', startTime: '09:00', endTime: '17:00', workers: 6, color: 'bg-blue-50 border-blue-300' },
-  '26': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-sky-50 border-sky-300' },
-  '27': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 8, color: 'bg-cyan-50 border-cyan-300' },
-  '28': { workType: '업무 지시서', startTime: '09:00', endTime: '18:00', workers: 7, color: 'bg-blue-50 border-blue-300' },
-};
-
 export const INITIAL_ADD_WORKER_FORM: AddWorkerForm = {
   name: '',
   ssn: '',
@@ -188,4 +161,3 @@ export const INITIAL_ADD_WORKER_FORM: AddWorkerForm = {
   workStartTime: '',
   workerId: '',
 };
-

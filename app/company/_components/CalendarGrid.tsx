@@ -1,13 +1,12 @@
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import type { ScheduleEntry } from '@/types/companyDashboard';
+import type { Schedule } from '@/types/schedule';
 
 interface CalendarGridProps {
   currentMonth: Date;
-  schedules: Record<string, ScheduleEntry>;
+  schedules: Schedule[];
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onDateClick: (date: Date) => void;
-  getActiveWorkersCount: (year: number, month: number, day: number) => number;
 }
 
 export function CalendarGrid({
@@ -16,12 +15,19 @@ export function CalendarGrid({
   onPrevMonth,
   onNextMonth,
   onDateClick,
-  getActiveWorkersCount,
 }: CalendarGridProps) {
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
   const lastDate = new Date(year, month + 1, 0).getDate();
+
+  // Build date-to-schedule map
+  const scheduleMap = new Map<number, Schedule>();
+  for (const s of schedules) {
+    const dateStr = s.date.toString().slice(0, 10); // "YYYY-MM-DD"
+    const day = parseInt(dateStr.split('-')[2], 10);
+    scheduleMap.set(day, s);
+  }
 
   const renderCells = () => {
     const cells = [];
@@ -37,7 +43,7 @@ export function CalendarGrid({
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
       const now = new Date();
       const isToday = date === now.getDate() && month === now.getMonth() && year === now.getFullYear();
-      const schedule = schedules[date.toString()];
+      const schedule = scheduleMap.get(date);
 
       cells.push(
         <div
@@ -49,7 +55,7 @@ export function CalendarGrid({
             isWeekend
               ? 'bg-gray-50 border-gray-200'
               : schedule
-              ? schedule.color
+              ? 'bg-blue-50 border-blue-300'
               : 'bg-white border-gray-200 hover:border-duru-orange-300'
           }`}
         >
@@ -66,17 +72,12 @@ export function CalendarGrid({
               >
                 {date}
               </span>
-              {!isWeekend && (
-                <span className="text-xs bg-white px-2 py-0.5 rounded-full font-semibold text-gray-700 border">
-                  {getActiveWorkersCount(year, month, date)}명
-                </span>
-              )}
             </div>
 
             {schedule && (
               <div className="flex-1 flex flex-col gap-1">
                 <p className="text-sm font-bold text-gray-900 line-clamp-2">
-                  {schedule.workType}
+                  {schedule.content}
                 </p>
               </div>
             )}
