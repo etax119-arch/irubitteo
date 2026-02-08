@@ -31,7 +31,8 @@
 │   ├── HeicImage.tsx           # HEIC 이미지 지원
 │   └── SuccessModal.tsx        # 출퇴근 완료 모달
 └── _hooks/
-    └── useWorkRecords.ts       # 활동 기록 상태 관리
+    ├── useWorkRecords.ts       # 활동 기록 상태 관리
+    └── useEmployeeNotice.ts    # 직원 공지사항 상태 관리
 ```
 
 ### URL 구조
@@ -97,6 +98,7 @@
     - 설명: "오늘 한 일을 기록하세요"
 
 **긴급 공지 섹션**:
+**API 연동**: ✅ 완료 (`GET /v1/notices/my`, `PATCH /v1/notices/:id/read`)
 - **금일 긴급 공지** (강조 영역)
   - 주황색 배경, 큰 알림 아이콘
   - 공지 날짜, 내용, 전송자 표시
@@ -202,6 +204,20 @@
 - 명확한 색상 대비 (주황/흰색)
 - 간단한 흐름 (최소한의 단계)
 - 체크박스와 레이블 연결
+
+---
+
+## API 연동 현황
+
+| 기능 | API | 상태 |
+|------|-----|------|
+| 출근 처리 | `POST /v1/attendances/clock-in` | ✅ 완료 |
+| 퇴근 처리 | `POST /v1/attendances/clock-out` | ✅ 완료 |
+| 오늘 출퇴근 기록 | `GET /v1/attendances/today` | ✅ 완료 |
+| 활동 기록 조회 | `GET /v1/attendances` | ✅ 완료 |
+| 오늘의 작업 내용 | `GET /v1/schedules/today` | ✅ 완료 |
+| 긴급 공지 조회 | `GET /v1/notices/my` | ✅ 완료 |
+| 공지 읽음 처리 | `PATCH /v1/notices/:id/read` | ✅ 완료 |
 
 ---
 

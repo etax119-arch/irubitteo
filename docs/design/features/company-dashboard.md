@@ -273,6 +273,7 @@
 ### 4. 공지사항 탭
 
 **목적**: 근로자에게 긴급 공지 발송 및 발송 기록 관리
+**API 연동**: ✅ 완료 (`POST /v1/notices`, `GET /v1/notices`)
 
 #### 새 공지사항 발송 섹션
 
@@ -338,7 +339,7 @@
 | 대시보드 일별 현황 | `GET /v1/attendances/company-daily` | ✅ 완료 |
 | 근로자 등록 | `POST /v1/employees` | ✅ 완료 |
 | 근무일정 관리 | `GET /v1/schedules/monthly`, `POST /v1/schedules`, `PATCH /v1/schedules/:id`, `DELETE /v1/schedules/:id` | ✅ 완료 |
-| 공지사항 발송 | - | 📋 더미 데이터 |
+| 공지사항 발송 | `POST /v1/notices`, `GET /v1/notices` | ✅ 완료 |
 
 ## 주요 타입
 

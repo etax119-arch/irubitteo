@@ -1,16 +1,31 @@
 import { FileText, MessageSquare } from 'lucide-react';
-import type { SentNotice } from '@/types/companyDashboard';
+import type { NoticeResponse } from '@/types/notice';
 
 interface NoticeHistoryProps {
-  notices: SentNotice[];
-  expandedNotices: Set<number>;
-  onToggleExpand: (noticeId: number) => void;
+  notices: NoticeResponse[];
+  expandedNotices: Set<string>;
+  onToggleExpand: (noticeId: string) => void;
+  isLoading?: boolean;
+}
+
+function formatCreatedAt(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Seoul',
+  });
 }
 
 export function NoticeHistory({
   notices,
   expandedNotices,
   onToggleExpand,
+  isLoading,
 }: NoticeHistoryProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200">
@@ -22,7 +37,11 @@ export function NoticeHistory({
       </div>
 
       <div className="divide-y divide-gray-200">
-        {notices.length === 0 ? (
+        {isLoading ? (
+          <div className="px-6 py-12 flex justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-duru-orange-500" />
+          </div>
+        ) : notices.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-400">발송한 공지사항이 없습니다</p>
@@ -30,9 +49,10 @@ export function NoticeHistory({
         ) : (
           notices.map((notice) => {
             const isExpanded = expandedNotices.has(notice.id);
+            const recipientNames = notice.recipients.map((r) => r.name);
             const displayedWorkers = isExpanded
-              ? notice.workers
-              : notice.workers.slice(0, 3);
+              ? recipientNames
+              : recipientNames.slice(0, 3);
 
             return (
               <div
@@ -43,10 +63,10 @@ export function NoticeHistory({
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="text-sm font-semibold text-duru-orange-600">
-                        {notice.date}
+                        {formatCreatedAt(notice.createdAt)}
                       </span>
                       <span className="text-sm text-gray-500">
-                        발송자: {notice.sender}
+                        발송자: {notice.senderName ?? '관리자'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap mb-3">
@@ -61,12 +81,12 @@ export function NoticeHistory({
                           {worker}
                         </span>
                       ))}
-                      {notice.workers.length > 3 && (
+                      {recipientNames.length > 3 && (
                         <button
                           onClick={() => onToggleExpand(notice.id)}
                           className="inline-flex items-center px-2.5 py-1 bg-duru-orange-100 text-duru-orange-700 rounded-md text-sm font-semibold hover:bg-duru-orange-200 transition-colors"
                         >
-                          {isExpanded ? '접기' : `+${notice.workers.length - 3}명 더보기`}
+                          {isExpanded ? '접기' : `+${recipientNames.length - 3}명 더보기`}
                         </button>
                       )}
                     </div>

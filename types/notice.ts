@@ -30,3 +30,32 @@ export type NoticeWithRecipients = Notice & {
     readAt: Date | null;
   }[];
 };
+
+/** API 응답용 공지 (날짜가 string) */
+export type NoticeResponse = {
+  id: string;
+  companyId: string;
+  content: string;
+  senderName: string | null;
+  createdAt: string; // ISO string
+  recipients: {
+    id: string;
+    name: string;
+    readAt: string | null;
+  }[];
+};
+
+/** 직원용 공지 */
+export type EmployeeNotice = {
+  id: string;
+  content: string;
+  senderName: string | null;
+  createdAt: string;
+  readAt: string | null;
+};
+
+/** 직원 공지 응답 */
+export type EmployeeNoticesResponse = {
+  today: EmployeeNotice[];
+  past: EmployeeNotice[];
+};

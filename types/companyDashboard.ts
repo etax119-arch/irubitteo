@@ -1,11 +1,3 @@
-export interface SentNotice {
-  id: number;
-  date: string;
-  workers: string[];
-  content: string;
-  sender: string;
-}
-
 export interface AddWorkerForm {
   name: string;
   ssn: string;
