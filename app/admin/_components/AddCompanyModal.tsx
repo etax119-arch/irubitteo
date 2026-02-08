@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Building2, User, Phone, Mail, MapPin, Calendar, Lock, CheckCircle2, Check } from 'lucide-react';
 import type { CompanyCreateInput } from '@/types/company';
 
@@ -49,6 +49,14 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: Add
   const [form, setForm] = useState<AddCompanyForm>(initialForm);
   const [pmInfo, setPmInfo] = useState<PMInfo>(initialPmInfo);
   const [complete, setComplete] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (isOpen) {
+      setForm(initialForm);
+      setPmInfo(initialPmInfo);
+      setComplete({});
+    }
+  }, [isOpen]);
 
   const updateForm = (field: keyof AddCompanyForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));

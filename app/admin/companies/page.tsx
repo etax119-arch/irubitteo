@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Loader2 } from 'lucide-react';
+import { AxiosError } from 'axios';
 import { CompanyCard } from '../_components/CompanyCard';
 import { AddCompanyModal } from '../_components/AddCompanyModal';
 import { getCompanies, createCompany } from '@/lib/api/companies';
@@ -47,8 +48,12 @@ export default function AdminCompaniesPage() {
       toast.success('회원사가 추가되었습니다.');
       setShowAddModal(false);
       fetchCompanies();
-    } catch {
-      toast.error('회원사 추가에 실패했습니다.');
+    } catch (err) {
+      const message =
+        err instanceof AxiosError
+          ? err.response?.data?.message ?? '회원사 추가에 실패했습니다.'
+          : '회원사 추가에 실패했습니다.';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
