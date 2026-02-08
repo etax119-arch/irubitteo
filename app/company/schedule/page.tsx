@@ -23,9 +23,9 @@ export default function SchedulePage() {
   const getActiveWorkersCount = (year: number, month: number, day: number) => {
     const targetDate = new Date(year, month, day);
     return initialEmployees.filter((emp) => {
+      if (!emp.isActive) return false;
       const hireDate = new Date(emp.hireDate);
-      const endDate = emp.contractEndDate ? new Date(emp.contractEndDate) : new Date('9999-12-31');
-      return hireDate <= targetDate && targetDate <= endDate;
+      return hireDate <= targetDate;
     }).length;
   };
 

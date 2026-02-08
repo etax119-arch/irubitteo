@@ -26,7 +26,10 @@ export type Employee = {
   phone: string;
   disability: string | null;
   hireDate: string;
-  contractEndDate: string | null;
+  gender: string | null;
+  emergencyContactName: string | null;
+  emergencyContactRelation: string | null;
+  emergencyContactPhone: string | null;
   status: 'checkin' | 'checkout' | 'absent' | 'resigned';
   checkinTime: string | null;
   checkoutTime: string | null;

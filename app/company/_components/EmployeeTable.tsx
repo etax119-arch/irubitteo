@@ -58,7 +58,6 @@ export function EmployeeTable({
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">이름</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">장애유형</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">계약만료</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">상태</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">관리</th>
               </tr>
@@ -66,7 +65,7 @@ export function EmployeeTable({
             <tbody className="divide-y divide-gray-200">
               {filteredEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     {searchQuery ? '검색 결과가 없습니다.' : '등록된 근로자가 없습니다.'}
                   </td>
                 </tr>
@@ -81,7 +80,6 @@ export function EmployeeTable({
                     </td>
                     <td className="px-6 py-4 text-gray-900">{emp.phone}</td>
                     <td className="px-6 py-4 text-gray-600">{emp.disabilityType ?? '-'}</td>
-                    <td className="px-6 py-4 text-gray-900">{emp.contractEndDate ?? '-'}</td>
                     <td className="px-6 py-4">
                       <Badge
                         className={`px-3 py-1 font-semibold ${getEmployeeStatusStyle(emp.status, emp.isActive)}`}

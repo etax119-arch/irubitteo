@@ -1,4 +1,4 @@
-import { Phone, Briefcase, Calendar as CalendarIcon } from 'lucide-react';
+import { Phone, Heart, User, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../../../_utils/employeeStatus';
 import type { Employee } from '@/types/employee';
@@ -8,6 +8,11 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ employee }: ProfileCardProps) {
+  const emergencyContact =
+    employee.emergencyContactName && employee.emergencyContactPhone
+      ? `${employee.emergencyContactName} (${employee.emergencyContactRelation ?? '-'}) ${employee.emergencyContactPhone}`
+      : '-';
+
   return (
     <>
       <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -33,14 +38,19 @@ export function ProfileCard({ employee }: ProfileCardProps) {
             <span className="font-semibold text-gray-900">{employee.phone}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
+            <Heart className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-600">비상연락처:</span>
+            <span className="font-semibold text-gray-900">{emergencyContact}</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <User className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-600">성별:</span>
+            <span className="font-semibold text-gray-900">{employee.gender ?? '-'}</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
             <Briefcase className="w-4 h-4 text-gray-400" />
             <span className="text-gray-600">입사일:</span>
             <span className="font-semibold text-gray-900">{employee.hireDate}</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <CalendarIcon className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-600">계약 만료일:</span>
-            <span className="font-semibold text-gray-900">{employee.contractEndDate ?? '-'}</span>
           </div>
         </div>
       </div>
