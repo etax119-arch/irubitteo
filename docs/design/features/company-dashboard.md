@@ -337,7 +337,7 @@
 | 출퇴근 기록 수정 | `PATCH /v1/attendances/:id` | ✅ 완료 |
 | 대시보드 일별 현황 | `GET /v1/attendances/company-daily` | ✅ 완료 |
 | 근로자 등록 | `POST /v1/employees` | ✅ 완료 |
-| 근무일정 관리 | - | 📋 더미 데이터 |
+| 근무일정 관리 | `GET /v1/schedules/monthly`, `POST /v1/schedules`, `PATCH /v1/schedules/:id`, `DELETE /v1/schedules/:id` | ✅ 완료 |
 | 공지사항 발송 | - | 📋 더미 데이터 |
 
 ## 주요 타입
