@@ -41,8 +41,13 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
     return <div className="min-h-screen flex items-center justify-center text-gray-500">로딩 중...</div>;
   }
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login/company');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
   if (!isAuthenticated) {
-    router.push('/login/company');
     return null;
   }
 
