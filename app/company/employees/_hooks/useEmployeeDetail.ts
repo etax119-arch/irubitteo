@@ -2,14 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getEmployee, updateEmployee } from '@/lib/api/employees';
 import { useToast } from '@/components/ui/Toast';
 import type { Employee } from '@/types/employee';
-
-const DAY_NUM_TO_LABEL: Record<number, string> = {
-  1: '월', 2: '화', 3: '수', 4: '목', 5: '금', 6: '토', 7: '일',
-};
-
-const LABEL_TO_DAY_NUM: Record<string, number> = {
-  '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 7,
-};
+import { NUM_TO_LABEL, LABEL_TO_NUM } from '../../_utils/workDays';
 
 export function useEmployeeDetail(employeeId: string) {
   const toast = useToast();
@@ -42,7 +35,7 @@ export function useEmployeeDetail(employeeId: string) {
       setEmployee(response.data);
       setNotes(response.data.companyNote || '');
       if (response.data.workDays) {
-        setWorkDays(response.data.workDays.map((n: number) => DAY_NUM_TO_LABEL[n] ?? ''));
+        setWorkDays(response.data.workDays.map((n: number) => NUM_TO_LABEL[n] ?? ''));
       }
       if (response.data.workStartTime) {
         setWorkStartTime(response.data.workStartTime);
@@ -94,14 +87,14 @@ export function useEmployeeDetail(employeeId: string) {
   const handleSaveWorkInfo = async () => {
     setIsSaving(true);
     try {
-      const workDayNums = tempWorkDays.map((d) => LABEL_TO_DAY_NUM[d]).filter(Boolean);
+      const workDayNums = tempWorkDays.map((d) => LABEL_TO_NUM[d]).filter(Boolean);
       const result = await updateEmployee(employeeId, {
         workDays: workDayNums,
         workStartTime: tempWorkStartTime,
       });
       setEmployee(result.data);
       if (result.data.workDays) {
-        setWorkDays(result.data.workDays.map((n: number) => DAY_NUM_TO_LABEL[n] ?? ''));
+        setWorkDays(result.data.workDays.map((n: number) => NUM_TO_LABEL[n] ?? ''));
       }
       if (result.data.workStartTime) {
         setWorkStartTime(result.data.workStartTime);

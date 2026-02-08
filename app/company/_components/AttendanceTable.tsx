@@ -3,6 +3,7 @@ import type { DailyAttendanceRecord } from '@/types/attendance';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import type { BadgeVariant } from '@/components/ui/Badge';
+import { cn } from '@/lib/cn';
 
 interface AttendanceTableProps {
   selectedDate: Date;
@@ -29,7 +30,7 @@ function getStatusBadge(status: DailyAttendanceRecord['status']) {
   return (
     <Badge
       variant={variantMap[status]}
-      className={`px-3 py-1 font-semibold${status === 'checkout' ? ' bg-gray-200' : ''}`}
+      className={cn('px-3 py-1 font-semibold', status === 'checkout' && 'bg-gray-200')}
     >
       {labels[status]}
     </Badge>
@@ -54,6 +55,7 @@ export function AttendanceTable({
             <button
               onClick={onPrevDay}
               className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="이전 날"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
@@ -68,6 +70,7 @@ export function AttendanceTable({
             <button
               onClick={onNextDay}
               className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="다음 날"
             >
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>

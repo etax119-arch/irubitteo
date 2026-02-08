@@ -11,7 +11,7 @@ import { ProfileCard } from './_components/ProfileCard';
 import { DisabilityInfoSection } from './_components/DisabilityInfoSection';
 import { NotesSection } from './_components/NotesSection';
 import { ResignSection } from './_components/ResignSection';
-import { AttendanceTable } from './_components/AttendanceTable';
+import { AttendanceHistoryTable } from './_components/AttendanceHistoryTable';
 import { WorkInfoSection } from './_components/WorkInfoSection';
 import { DocumentSection } from './_components/DocumentSection';
 import { UploadModal } from './_components/UploadModal';
@@ -98,7 +98,7 @@ export default function CompanyEmployeeDetailPage() {
 
           {/* 오른쪽: 상세 정보 */}
           <div className="lg:col-span-2 space-y-6">
-            <AttendanceTable
+            <AttendanceHistoryTable
               records={attendance.attendanceHistory}
               isLoading={attendance.isLoadingAttendance}
               error={attendance.attendanceError}

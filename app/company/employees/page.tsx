@@ -10,10 +10,7 @@ import { AddWorkerModal } from '../_components/AddWorkerModal';
 import { INITIAL_ADD_WORKER_FORM } from '../_data/dummyData';
 import { getEmployees, createEmployee } from '@/lib/api/employees';
 import { useToast } from '@/components/ui/Toast';
-
-const WORK_DAY_MAP: Record<string, number> = {
-  '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 7,
-};
+import { LABEL_TO_NUM } from '../_utils/workDays';
 
 function generateWorkerId(ssn: string, phone: string): string | null {
   const ssnDigits = ssn.replace(/\D/g, '');
@@ -126,7 +123,7 @@ export default function EmployeesPage() {
         gender: addWorkerForm.gender,
         uniqueCode: addWorkerForm.workerId,
         hireDate: addWorkerForm.hireDate,
-        workDays: addWorkerForm.workDays.map((day) => WORK_DAY_MAP[day]),
+        workDays: addWorkerForm.workDays.map((day) => LABEL_TO_NUM[day]),
         workStartTime: addWorkerForm.workStartTime,
         disabilityType: addWorkerForm.disabilityType,
         disabilitySeverity: addWorkerForm.disabilitySeverity,

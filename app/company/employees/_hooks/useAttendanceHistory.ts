@@ -4,12 +4,14 @@ import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
 import type { AttendanceWithEmployee } from '@/types/attendance';
 
+export type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
+
 export interface AttendanceRecord {
   id: string;
   date: string;
   checkin: string;
   checkout: string;
-  status: string;
+  status: DisplayStatus;
   workDone: string;
 }
 
@@ -17,7 +19,7 @@ function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   const date = att.date.split('T')[0];
 
   if (!att.clockIn) {
-    return { id: att.id, date, checkin: '결근', checkout: '-', status: '결근', workDone: '-' };
+    return { id: att.id, date, checkin: '결근', checkout: '-', status: '결근' as const, workDone: '-' };
   }
 
   return {
@@ -25,12 +27,12 @@ function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
     date,
     checkin: formatUtcTimestampAsKST(att.clockIn),
     checkout: att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-',
-    status: att.isLate ? '지각' : '정상',
+    status: att.isLate ? '지각' as const : '정상' as const,
     workDone: att.workContent || '-',
   };
 }
 
-export function getStatusColor(status: string) {
+export function getStatusColor(status: DisplayStatus) {
   switch (status) {
     case '정상':
       return 'bg-green-100 text-green-700';

@@ -2,6 +2,7 @@ import { Search, Users } from 'lucide-react';
 import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/cn';
 
 interface WorkerSelectorProps {
   employees: Employee[];
@@ -87,7 +88,7 @@ export function WorkerSelector({
                     ? 'default'
                     : 'danger'
                 }
-                className={`py-1 font-semibold${worker.status === 'checkout' ? ' bg-gray-200' : ''}`}
+                className={cn('py-1 font-semibold', worker.status === 'checkout' && 'bg-gray-200')}
               >
                 {worker.status === 'checkin'
                   ? '근무중'

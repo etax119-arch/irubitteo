@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, TrendingUp, Users, Clock, MessageSquare, LogOut } from 'lucide-react';
@@ -16,7 +17,16 @@ const tabs = [
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+
+  const [today, setToday] = useState('');
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }));
+  }, []);
 
   const getActiveTab = () => {
     if (pathname.startsWith('/company/employees')) return 'employees';
@@ -42,11 +52,11 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
               </button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">기업 관리자</h1>
-                <p className="text-sm text-gray-600">(주)두루빛 제조</p>
+                <p className="text-sm text-gray-600">{user?.name ?? ''}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">2026년 1월 28일</span>
+              <span className="text-sm text-gray-600">{today}</span>
               <Button
                 variant="ghost"
                 size="sm"

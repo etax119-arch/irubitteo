@@ -15,6 +15,7 @@ interface ModalProps {
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
   className?: string;
+  contentClassName?: string;
 }
 
 const sizeStyles: Record<ModalSize, string> = {
@@ -32,6 +33,7 @@ function Modal({
   showCloseButton = true,
   closeOnOverlayClick = true,
   className,
+  contentClassName,
 }: ModalProps) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -95,7 +97,7 @@ function Modal({
             )}
           </div>
         )}
-        <div className="p-6">
+        <div className={cn("p-6", contentClassName)}>
           {children}
         </div>
       </div>

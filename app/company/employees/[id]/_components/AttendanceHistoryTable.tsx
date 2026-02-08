@@ -2,7 +2,7 @@ import { Clock, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getStatusColor, type AttendanceRecord } from '../../_hooks/useAttendanceHistory';
 
-interface AttendanceTableProps {
+interface AttendanceHistoryTableProps {
   records: AttendanceRecord[];
   isLoading?: boolean;
   error?: string | null;
@@ -10,7 +10,7 @@ interface AttendanceTableProps {
   onOpenWorkDone: (date: string, workDone: string) => void;
 }
 
-export function AttendanceTable({ records, isLoading, error, onEditWorkTime, onOpenWorkDone }: AttendanceTableProps) {
+export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTime, onOpenWorkDone }: AttendanceHistoryTableProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">

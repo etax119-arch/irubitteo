@@ -18,6 +18,7 @@ import {
 import type { AddWorkerForm } from '@/types/companyDashboard';
 import { IconButton } from '@/components/ui/IconButton';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 
 interface AddWorkerModalProps {
   isOpen: boolean;
@@ -84,8 +85,6 @@ export function AddWorkerModal({
   onManualWorkerIdEdit,
   onSubmit,
 }: AddWorkerModalProps) {
-  if (!isOpen) return null;
-
   const isFormValid = REQUIRED_FIELDS.every((field) => {
     if (field === 'workDays') {
       return form[field] && Array.isArray(form[field]) && form[field].length > 0;
@@ -102,23 +101,28 @@ export function AddWorkerModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto shadow-xl">
-        {/* 모달 헤더 */}
-        <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-200 px-6 py-5 flex items-center justify-between z-10">
-          <div>
-            <h2 className="text-lg font-bold text-gray-900">근로자 추가</h2>
-            <p className="text-xs text-gray-500 mt-0.5">근로자 기본 정보를 입력해주세요</p>
-          </div>
-          <IconButton
-            variant="ghost"
-            icon={<X className="w-5 h-5" />}
-            label="닫기"
-            onClick={onClose}
-            className="text-gray-400"
-          />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="lg"
+      showCloseButton={false}
+      className="max-h-[90vh] overflow-hidden flex flex-col"
+      contentClassName="!p-0 flex flex-col overflow-y-auto"
+    >
+      {/* 모달 헤더 */}
+      <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-200 px-6 py-5 flex items-center justify-between z-10">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">근로자 추가</h2>
+          <p className="text-xs text-gray-500 mt-0.5">근로자 기본 정보를 입력해주세요</p>
         </div>
+        <IconButton
+          variant="ghost"
+          icon={<X className="w-5 h-5" />}
+          label="닫기"
+          onClick={onClose}
+          className="text-gray-400"
+        />
+      </div>
 
         <div className="px-6 py-5 space-y-5">
           {/* 섹션 1: 기본 인적 정보 */}
@@ -467,7 +471,6 @@ export function AddWorkerModal({
             {isSubmitting ? '추가 중...' : '근로자 추가 완료'}
           </Button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
