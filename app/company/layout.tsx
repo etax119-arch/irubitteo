@@ -37,15 +37,15 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
 
   const activeTab = getActiveTab();
 
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500">로딩 중...</div>;
-  }
-
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/login/company');
     }
   }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">로딩 중...</div>;
+  }
 
   if (!isAuthenticated) {
     return null;
