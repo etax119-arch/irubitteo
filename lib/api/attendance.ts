@@ -62,6 +62,18 @@ export const attendanceApi = {
   },
 
   /**
+   * 활동 사진 삭제
+   * DELETE /v1/attendances/:id/photos
+   */
+  async deletePhoto(attendanceId: string, photoUrl: string): Promise<AttendanceWithEmployee> {
+    const response = await apiClient.delete<{ success: boolean; data: AttendanceWithEmployee }>(
+      `/attendances/${attendanceId}/photos`,
+      { data: { photoUrl } }
+    );
+    return response.data.data;
+  },
+
+  /**
    * 오늘의 출퇴근 기록 조회
    * GET /v1/attendances/today
    */

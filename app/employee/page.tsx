@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { HeaderCard } from './_components/HeaderCard';
 import { AttendanceButtons } from './_components/AttendanceButtons';
@@ -9,6 +9,7 @@ import { WorkRecordsSection } from './_components/WorkRecordsSection';
 import { PhotoLightbox } from './_components/PhotoLightbox';
 import { useAuth } from '@/hooks/useAuth';
 import { useWorkRecords } from './_hooks/useWorkRecords';
+import { useToast } from '@/components/ui/Toast';
 import type { DisplayPhoto } from '@/types/attendance';
 
 interface Notice {
@@ -46,6 +47,7 @@ const pastNotices: Notice[] = [
 export default function EmployeeDashboard() {
   const router = useRouter();
   const { user, logout, isLoading } = useAuth();
+  const toast = useToast();
   const [showPastNotices, setShowPastNotices] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<DisplayPhoto | null>(null);
 
@@ -59,11 +61,41 @@ export default function EmployeeDashboard() {
     handleYearChange,
     handleMonthChange,
     addPhotoToRecord,
+    deletePhotoFromRecord,
   } = useWorkRecords();
 
   const handleLogout = async () => {
     await logout();
   };
+
+  const handleSavePhoto = useCallback(async (url: string, fileName: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      toast.success('사진이 저장되었습니다.');
+    } catch {
+      toast.error('사진 저장에 실패했습니다.');
+    }
+  }, [toast]);
+
+  const handleDeletePhoto = useCallback(async (recordId: string, photoUrl: string) => {
+    if (!window.confirm('이 사진을 삭제하시겠습니까?')) return;
+
+    const success = await deletePhotoFromRecord(recordId, photoUrl);
+    if (success) {
+      toast.success('사진이 삭제되었습니다.');
+    } else {
+      toast.error('사진 삭제에 실패했습니다.');
+    }
+  }, [deletePhotoFromRecord, toast]);
 
   const handleCheckIn = () => {
     router.push('/employee/checkin');
@@ -109,6 +141,8 @@ export default function EmployeeDashboard() {
           onMonthChange={handleMonthChange}
           onPhotoClick={setSelectedPhoto}
           onAddPhoto={addPhotoToRecord}
+          onSavePhoto={handleSavePhoto}
+          onDeletePhoto={handleDeletePhoto}
           isLoading={recordsLoading}
         />
 
