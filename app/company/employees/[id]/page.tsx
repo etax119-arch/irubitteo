@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { X } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { useEmployeeDetail } from '../_hooks/useEmployeeDetail';
 import { useAttendanceHistory } from '../_hooks/useAttendanceHistory';
 import { useResign } from '../_hooks/useResign';
@@ -41,14 +42,15 @@ export default function CompanyEmployeeDetailPage() {
 
   if (detail.error || !detail.employee) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20" role="alert">
         <p className="text-gray-500">{detail.error || '근로자 정보를 찾을 수 없습니다.'}</p>
-        <button
+        <Button
+          variant="ghost"
+          className="mt-4"
           onClick={() => router.push('/company/employees')}
-          className="mt-4 text-duru-orange-600 hover:text-duru-orange-700 font-semibold"
         >
           목록으로 돌아가기
-        </button>
+        </Button>
       </div>
     );
   }
@@ -56,7 +58,7 @@ export default function CompanyEmployeeDetailPage() {
   const { employee } = detail;
 
   return (
-    <div className="min-h-screen bg-duru-ivory -mx-4 sm:-mx-6 lg:-mx-8 -my-8 px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       <div className="max-w-7xl mx-auto pb-8">
         <div className="flex justify-end mb-2">
           <button
@@ -74,7 +76,7 @@ export default function CompanyEmployeeDetailPage() {
             <DisabilityInfoSection
               employee={employee}
               isEditing={detail.isEditingDisability}
-              isSaving={detail.isSaving}
+              isSaving={detail.isSavingDisability}
               tempSeverity={detail.tempDisabilitySeverity}
               setTempSeverity={detail.setTempDisabilitySeverity}
               tempRecognitionDate={detail.tempDisabilityRecognitionDate}
@@ -86,7 +88,7 @@ export default function CompanyEmployeeDetailPage() {
             <NotesSection
               notes={detail.notes}
               isEditing={detail.isEditingNotes}
-              isSaving={detail.isSaving}
+              isSaving={detail.isSavingNotes}
               tempNotes={detail.tempNotes}
               setTempNotes={detail.setTempNotes}
               onEdit={detail.handleEditNotes}
@@ -109,7 +111,7 @@ export default function CompanyEmployeeDetailPage() {
               workDays={detail.workDays}
               workStartTime={detail.workStartTime}
               isEditing={detail.isEditingWorkInfo}
-              isSaving={detail.isSaving}
+              isSaving={detail.isSavingWorkInfo}
               tempWorkDays={detail.tempWorkDays}
               tempWorkStartTime={detail.tempWorkStartTime}
               setTempWorkStartTime={detail.setTempWorkStartTime}

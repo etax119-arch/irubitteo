@@ -27,14 +27,16 @@ export function useEmployeeFiles(employeeId: string) {
     fetchFiles();
   }, [fetchFiles]);
 
-  const upload = async (file: File, documentType: string) => {
+  const upload = async (file: File, documentType: string): Promise<boolean> => {
     setIsUploading(true);
     try {
       const newFile = await uploadEmployeeFile(employeeId, file, documentType);
       setFiles((prev) => [newFile, ...prev]);
       toast.success('파일이 업로드되었습니다.');
+      return true;
     } catch {
       toast.error('파일 업로드에 실패했습니다.');
+      return false;
     } finally {
       setIsUploading(false);
     }

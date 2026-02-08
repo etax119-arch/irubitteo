@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getEmployee, updateEmployee } from '@/lib/api/employees';
 import { useToast } from '@/components/ui/Toast';
-import type { Employee } from '@/types/employee';
+import type { Employee, WorkDay } from '@/types/employee';
 import { NUM_TO_LABEL, LABEL_TO_NUM } from '../../_utils/workDays';
 
 export function useEmployeeDetail(employeeId: string) {
@@ -9,7 +9,9 @@ export function useEmployeeDetail(employeeId: string) {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const [isSavingWorkInfo, setIsSavingWorkInfo] = useState(false);
+  const [isSavingDisability, setIsSavingDisability] = useState(false);
 
   // Notes state
   const [notes, setNotes] = useState('');
@@ -58,7 +60,7 @@ export function useEmployeeDetail(employeeId: string) {
   };
 
   const handleSaveNotes = async () => {
-    setIsSaving(true);
+    setIsSavingNotes(true);
     try {
       const result = await updateEmployee(employeeId, { companyNote: tempNotes });
       setNotes(result.data.companyNote || '');
@@ -68,7 +70,7 @@ export function useEmployeeDetail(employeeId: string) {
     } catch {
       toast.error('비고란 수정에 실패했습니다.');
     } finally {
-      setIsSaving(false);
+      setIsSavingNotes(false);
     }
   };
 
@@ -85,9 +87,9 @@ export function useEmployeeDetail(employeeId: string) {
   };
 
   const handleSaveWorkInfo = async () => {
-    setIsSaving(true);
+    setIsSavingWorkInfo(true);
     try {
-      const workDayNums = tempWorkDays.map((d) => LABEL_TO_NUM[d]).filter(Boolean);
+      const workDayNums = tempWorkDays.map((d) => LABEL_TO_NUM[d]).filter((n): n is WorkDay => n !== undefined);
       const result = await updateEmployee(employeeId, {
         workDays: workDayNums,
         workStartTime: tempWorkStartTime,
@@ -104,7 +106,7 @@ export function useEmployeeDetail(employeeId: string) {
     } catch {
       toast.error('근무 정보 수정에 실패했습니다.');
     } finally {
-      setIsSaving(false);
+      setIsSavingWorkInfo(false);
     }
   };
 
@@ -115,11 +117,9 @@ export function useEmployeeDetail(employeeId: string) {
   };
 
   const toggleTempWorkDay = (day: string) => {
-    if (tempWorkDays.includes(day)) {
-      setTempWorkDays(tempWorkDays.filter((d) => d !== day));
-    } else {
-      setTempWorkDays([...tempWorkDays, day]);
-    }
+    setTempWorkDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
   };
 
   // --- Disability edit handlers ---
@@ -130,10 +130,10 @@ export function useEmployeeDetail(employeeId: string) {
   };
 
   const handleSaveDisability = async () => {
-    setIsSaving(true);
+    setIsSavingDisability(true);
     try {
       const result = await updateEmployee(employeeId, {
-        disabilitySeverity: tempDisabilitySeverity || null,
+        disabilitySeverity: (tempDisabilitySeverity as '중증' | '경증') || null,
         disabilityRecognitionDate: tempDisabilityRecognitionDate || null,
       });
       setEmployee(result.data);
@@ -142,19 +142,23 @@ export function useEmployeeDetail(employeeId: string) {
     } catch {
       toast.error('장애 정보 수정에 실패했습니다.');
     } finally {
-      setIsSaving(false);
+      setIsSavingDisability(false);
     }
   };
 
   const handleCancelDisability = () => {
     setIsEditingDisability(false);
+    setTempDisabilitySeverity('');
+    setTempDisabilityRecognitionDate('');
   };
 
   return {
     employee,
     isLoading,
     error,
-    isSaving,
+    isSavingNotes,
+    isSavingWorkInfo,
+    isSavingDisability,
     fetchEmployee,
     notes,
     isEditingNotes,

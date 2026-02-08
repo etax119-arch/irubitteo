@@ -17,7 +17,7 @@ const tabs = [
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   const [today, setToday] = useState('');
   useEffect(() => {
@@ -37,6 +37,15 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
 
   const activeTab = getActiveTab();
 
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">로딩 중...</div>;
+  }
+
+  if (!isAuthenticated) {
+    router.push('/login/company');
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-duru-ivory">
       {/* 헤더 */}
@@ -44,12 +53,13 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push('/')}
+              <Link
+                href="/"
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="홈으로 이동"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </button>
+              </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">기업 관리자</h1>
                 <p className="text-sm text-gray-600">{user?.name ?? ''}</p>
@@ -81,6 +91,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
               <Link
                 key={tab.id}
                 href={tab.href}
+                aria-current={activeTab === tab.id ? 'page' : undefined}
                 className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors ${
                   activeTab === tab.id
                     ? 'border-duru-orange-500 text-duru-orange-600'

@@ -13,7 +13,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (file: File, documentType: string) => Promise<void>;
+  onUpload: (file: File, documentType: string) => Promise<boolean>;
   isUploading: boolean;
 }
 
@@ -63,9 +63,11 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading }: UploadMo
 
   const handleSubmit = async () => {
     if (!selectedFile) return;
-    await onUpload(selectedFile, documentType);
-    resetForm();
-    onClose();
+    const success = await onUpload(selectedFile, documentType);
+    if (success) {
+      resetForm();
+      onClose();
+    }
   };
 
   return (

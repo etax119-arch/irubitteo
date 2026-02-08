@@ -2,17 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Users, UserCheck, Clock, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { StatCard } from '../_components/StatCard';
 import { AttendanceTable } from '../_components/AttendanceTable';
 import { attendanceApi } from '@/lib/api/attendance';
+import { formatDateAsKST } from '@/lib/kst';
 import type { CompanyDailyStats, DailyAttendanceRecord } from '@/types/attendance';
 
-function formatDateParam(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
 
 export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -25,7 +21,7 @@ export default function DashboardPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await attendanceApi.getCompanyDaily(formatDateParam(date));
+      const data = await attendanceApi.getCompanyDaily(formatDateAsKST(date));
       setStats(data.stats);
       setRecords(data.records);
     } catch {
@@ -65,14 +61,15 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20" role="alert">
         <p className="text-red-500 mb-4">{error}</p>
-        <button
+        <Button
+          variant="ghost"
           onClick={() => fetchData(selectedDate)}
-          className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold"
+          disabled={isLoading}
         >
           다시 시도
-        </button>
+        </Button>
       </div>
     );
   }

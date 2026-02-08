@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FileText, Upload, Trash2 } from 'lucide-react';
 import type { EmployeeFile } from '@/types/employee';
 import { Badge } from '@/components/ui/Badge';
@@ -17,11 +18,7 @@ function formatFileSize(bytes: number | null): string {
 }
 
 export function DocumentSection({ files, isLoading, onOpenUploadModal, onDelete }: DocumentSectionProps) {
-  const handleDelete = (fileId: string) => {
-    if (window.confirm('이 파일을 삭제하시겠습니까?')) {
-      onDelete(fileId);
-    }
-  };
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -55,7 +52,16 @@ export function DocumentSection({ files, isLoading, onOpenUploadModal, onDelete 
             <div
               key={file.id}
               className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-              onClick={() => window.open(file.filePath, '_blank')}
+              onClick={() => {
+                try {
+                  const url = new URL(file.filePath, window.location.origin);
+                  if (url.protocol === 'http:' || url.protocol === 'https:') {
+                    window.open(url.href, '_blank', 'noopener,noreferrer');
+                  }
+                } catch {
+                  // 잘못된 URL은 무시
+                }
+              }}
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
@@ -71,16 +77,33 @@ export function DocumentSection({ files, isLoading, onOpenUploadModal, onDelete 
                   </div>
                 </div>
               </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(file.id);
-                }}
-                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                title="삭제"
-              >
-                <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
-              </button>
+              {confirmDeleteId === file.id ? (
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => { onDelete(file.id); setConfirmDeleteId(null); }}
+                    className="px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 rounded transition-colors"
+                  >
+                    삭제
+                  </button>
+                  <button
+                    onClick={() => setConfirmDeleteId(null)}
+                    className="px-2 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                  >
+                    취소
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmDeleteId(file.id);
+                  }}
+                  className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                  title="삭제"
+                >
+                  <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                </button>
+              )}
             </div>
           ))}
         </div>

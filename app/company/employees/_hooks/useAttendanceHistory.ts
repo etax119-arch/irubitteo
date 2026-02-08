@@ -66,18 +66,28 @@ export function useAttendanceHistory(employeeId: string) {
   });
 
   useEffect(() => {
+    let ignore = false;
     async function fetchAttendance() {
       try {
         setIsLoadingAttendance(true);
+        setAttendanceHistory([]);
+        setAttendanceError(null);
         const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
-        setAttendanceHistory(response.data.map(toAttendanceRecord));
+        if (!ignore) {
+          setAttendanceHistory(response.data.map(toAttendanceRecord));
+        }
       } catch {
-        setAttendanceError('출퇴근 기록을 불러오는데 실패했습니다.');
+        if (!ignore) {
+          setAttendanceError('출퇴근 기록을 불러오는데 실패했습니다.');
+        }
       } finally {
-        setIsLoadingAttendance(false);
+        if (!ignore) {
+          setIsLoadingAttendance(false);
+        }
       }
     }
     fetchAttendance();
+    return () => { ignore = true; };
   }, [employeeId]);
 
   const openWorkDoneModal = (date: string, workDone: string) => {
@@ -102,7 +112,10 @@ export function useAttendanceHistory(employeeId: string) {
 
   const handleSaveWorkTime = async () => {
     const record = attendanceHistory.find((r) => r.date === editedWorkTime.date);
-    if (!record) return;
+    if (!record) {
+      toast.error('해당 출퇴근 기록을 찾을 수 없습니다.');
+      return;
+    }
 
     setIsSaving(true);
     try {

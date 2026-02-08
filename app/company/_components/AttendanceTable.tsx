@@ -91,23 +91,31 @@ export function AttendanceTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {dailyAttendance.map((record) => (
-              <tr key={record.employeeId} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar name={record.name} size="sm" className="text-xs font-bold" />
-                    <span className="font-semibold text-gray-900">{record.name}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-gray-600">{record.phone}</td>
-                <td className="px-6 py-4 text-gray-900">{record.checkinTime || '-'}</td>
-                <td className="px-6 py-4 text-gray-900">{record.checkoutTime || '-'}</td>
-                <td className="px-6 py-4">{getStatusBadge(record.status)}</td>
-                <td className="px-6 py-4 text-gray-600 text-sm max-w-xs truncate">
-                  {record.workContent || '-'}
+            {dailyAttendance.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                  출퇴근 기록이 없습니다.
                 </td>
               </tr>
-            ))}
+            ) : (
+              dailyAttendance.map((record) => (
+                <tr key={record.employeeId} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={record.name} size="sm" className="text-xs font-bold" />
+                      <span className="font-semibold text-gray-900">{record.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-gray-600">{record.phone}</td>
+                  <td className="px-6 py-4 text-gray-900">{record.checkinTime || '-'}</td>
+                  <td className="px-6 py-4 text-gray-900">{record.checkoutTime || '-'}</td>
+                  <td className="px-6 py-4">{getStatusBadge(record.status)}</td>
+                  <td className="px-6 py-4 text-gray-600 text-sm max-w-xs truncate">
+                    {record.workContent || '-'}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

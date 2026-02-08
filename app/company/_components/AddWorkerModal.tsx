@@ -19,6 +19,7 @@ import type { AddWorkerForm } from '@/types/companyDashboard';
 import { IconButton } from '@/components/ui/IconButton';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { DAY_LABELS } from '../_utils/workDays';
 
 interface AddWorkerModalProps {
   isOpen: boolean;
@@ -37,6 +38,12 @@ function formatPhoneNumber(value: string): string {
   if (digits.length <= 3) return digits;
   if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
   return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+}
+
+function formatSSN(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 13);
+  if (digits.length <= 6) return digits;
+  return `${digits.slice(0, 6)}-${digits.slice(6)}`;
 }
 
 const DISABILITY_TYPES = [
@@ -161,7 +168,7 @@ export function AddWorkerModal({
                       type="text"
                       placeholder="000000-0000000"
                       value={form.ssn}
-                      onChange={(e) => onUpdateForm('ssn', e.target.value)}
+                      onChange={(e) => onUpdateForm('ssn', formatSSN(e.target.value))}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 bg-white"
                     />
                     {complete.ssn && (
@@ -372,7 +379,7 @@ export function AddWorkerModal({
                   근무 요일 <span className="text-duru-orange-500">*</span>
                 </label>
                 <div className="grid grid-cols-7 gap-2 mb-3">
-                  {['월', '화', '수', '목', '금', '토', '일'].map((day) => {
+                  {DAY_LABELS.map((day) => {
                     const isSelected = form.workDays.includes(day);
                     return (
                       <button

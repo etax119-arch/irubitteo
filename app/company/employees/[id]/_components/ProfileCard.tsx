@@ -13,7 +13,7 @@ export function ProfileCard({ employee }: ProfileCardProps) {
       <div className="bg-white rounded-xl p-6 border border-gray-200">
         <div className="text-center mb-6">
           <div className="w-24 h-24 bg-duru-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl font-bold text-duru-orange-600">{employee.name[0]}</span>
+            <span className="text-3xl font-bold text-duru-orange-600">{employee.name?.[0] ?? '?'}</span>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-1">{employee.name}</h2>
           <span

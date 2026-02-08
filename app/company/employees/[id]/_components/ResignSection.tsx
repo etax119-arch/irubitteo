@@ -28,7 +28,7 @@ export function ResignSection({ employee, onOpenResignModal }: ResignSectionProp
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="text-gray-600">퇴사일</span>
-          <span className="font-bold text-gray-700">{employee.resignDate}</span>
+          <span className="font-bold text-gray-700">{employee.resignDate ?? '-'}</span>
         </div>
         {employee.resignReason && (
           <div className="text-xs">

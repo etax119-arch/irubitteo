@@ -45,6 +45,7 @@ export function EmployeeTable({
               placeholder="이름, 전화번호로 검색..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
+              aria-label="근로자 검색"
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
             />
           </div>
@@ -63,34 +64,42 @@ export function EmployeeTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredEmployees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar name={emp.name} size="md" className="text-sm font-bold" />
-                      <span className="font-semibold text-gray-900">{emp.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-900">{emp.phone}</td>
-                  <td className="px-6 py-4 text-gray-600">{emp.disabilityType ?? '-'}</td>
-                  <td className="px-6 py-4 text-gray-900">{emp.contractEndDate ?? '-'}</td>
-                  <td className="px-6 py-4">
-                    <Badge
-                      className={`px-3 py-1 font-semibold ${getEmployeeStatusStyle(emp.status, emp.isActive)}`}
-                    >
-                      {getEmployeeStatusLabel(emp.status, emp.isActive)}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => onEmployeeClick(emp)}
-                      className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm"
-                    >
-                      상세보기
-                    </button>
+              {filteredEmployees.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                    {searchQuery ? '검색 결과가 없습니다.' : '등록된 근로자가 없습니다.'}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredEmployees.map((emp) => (
+                  <tr key={emp.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar name={emp.name} size="md" className="text-sm font-bold" />
+                        <span className="font-semibold text-gray-900">{emp.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-900">{emp.phone}</td>
+                    <td className="px-6 py-4 text-gray-600">{emp.disabilityType ?? '-'}</td>
+                    <td className="px-6 py-4 text-gray-900">{emp.contractEndDate ?? '-'}</td>
+                    <td className="px-6 py-4">
+                      <Badge
+                        className={`px-3 py-1 font-semibold ${getEmployeeStatusStyle(emp.status, emp.isActive)}`}
+                      >
+                        {getEmployeeStatusLabel(emp.status, emp.isActive)}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => onEmployeeClick(emp)}
+                        className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm"
+                      >
+                        상세보기
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

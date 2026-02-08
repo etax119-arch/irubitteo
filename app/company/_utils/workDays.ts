@@ -1,6 +1,8 @@
+import type { WorkDay } from '@/types/employee';
+
 export const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'] as const;
 
-export const LABEL_TO_NUM: Record<string, number> = {
+export const LABEL_TO_NUM: Record<string, WorkDay> = {
   '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 7,
 };
 

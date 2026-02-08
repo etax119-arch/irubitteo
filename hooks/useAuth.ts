@@ -49,9 +49,8 @@ export function useAuth() {
 
         // 역할별 대시보드로 리다이렉트
         router.push(REDIRECT_PATHS[response.user.role]);
-      } catch (error) {
+      } finally {
         setLoading(false);
-        throw error;
       }
     },
     [router, setUser, setLoading]
@@ -106,5 +105,3 @@ export function useAuth() {
     checkAuth,
   };
 }
-
-export default useAuth;

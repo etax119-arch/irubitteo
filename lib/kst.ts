@@ -29,5 +29,18 @@ export function formatUtcTimestampAsKSTDate(isoString: string): string {
  * 출퇴근 시간 수정 API 전송용
  */
 export function buildKSTTimestamp(date: string, time: string): string {
-  return `${date}T${time}:00+09:00`;
+  const hhmm = time.slice(0, 5);
+  return `${date}T${hhmm}:00+09:00`;
+}
+
+/**
+ * Date 객체 → KST "YYYY-MM-DD" 문자열
+ * UTC 기준이 아닌 KST 기준 날짜 반환
+ */
+export function formatDateAsKST(date: Date): string {
+  const kst = new Date(date.getTime() + KST_OFFSET_MS);
+  const y = kst.getUTCFullYear();
+  const m = String(kst.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(kst.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }

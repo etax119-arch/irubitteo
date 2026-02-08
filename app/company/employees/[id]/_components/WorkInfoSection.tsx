@@ -1,7 +1,6 @@
 import { Briefcase, Clock, Edit2, Check } from 'lucide-react';
 import { cn } from '@/lib/cn';
-
-const ALL_DAYS = ['월', '화', '수', '목', '금', '토', '일'];
+import { DAY_LABELS } from '../../../_utils/workDays';
 
 interface WorkInfoSectionProps {
   workDays: string[];
@@ -70,7 +69,7 @@ export function WorkInfoSection({
           <div className="flex-1">
             <label className="block text-xs font-semibold text-gray-700 mb-2">근무 요일</label>
             <div className="flex gap-1">
-              {ALL_DAYS.map((day) => (
+              {DAY_LABELS.map((day) => (
                 <div
                   key={day}
                   className={cn(
@@ -98,7 +97,7 @@ export function WorkInfoSection({
           <div className="flex-1">
             <label className="block text-xs font-semibold text-gray-700 mb-2">근무 요일</label>
             <div className="grid grid-cols-7 gap-1">
-              {ALL_DAYS.map((day) => {
+              {DAY_LABELS.map((day) => {
                 const isSelected = tempWorkDays.includes(day);
                 return (
                   <button

@@ -1,12 +1,6 @@
 /** 출근 요일 (1=월, 2=화, ..., 7=일) */
 export type WorkDay = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
-/** 성별 */
-export type Gender = 'male' | 'female';
-
-/** 장애 중증도 */
-export type DisabilitySeverity = 'severe' | 'mild';
-
 /** 장애 유형 */
 export type DisabilityType =
   | '지체장애'
@@ -41,10 +35,10 @@ export type Employee = {
   isActive: boolean;
   resignDate: string | null;
   resignReason: string | null;
-  workDays: number[];
+  workDays: WorkDay[];
   workStartTime: string | null;
-  disabilityType: string | null;
-  disabilitySeverity: string | null;
+  disabilityType: DisabilityType | null;
+  disabilitySeverity: '중증' | '경증' | null;
   disabilityRecognitionDate: string | null;
 };
 
@@ -56,7 +50,7 @@ export type EmployeeCreateInput = {
   gender: string;
   uniqueCode: string;
   hireDate: string;
-  workDays: number[];
+  workDays: WorkDay[];
   workStartTime: string;
   disabilityType: string;
   disabilitySeverity: string;
@@ -68,9 +62,9 @@ export type EmployeeCreateInput = {
 
 /** 직원 수정 입력 (서버 UpdateEmployeeDto 기준) */
 export type EmployeeUpdateInput = {
-  workDays?: number[];
+  workDays?: WorkDay[];
   workStartTime?: string;
-  disabilitySeverity?: string | null;
+  disabilitySeverity?: '중증' | '경증' | null;
   disabilityRecognitionDate?: string | null;
   companyNote?: string | null;
   isActive?: boolean;

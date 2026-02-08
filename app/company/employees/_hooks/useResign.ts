@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import { updateEmployee } from '@/lib/api/employees';
+import { formatDateAsKST } from '@/lib/kst';
 
 export interface ResignForm {
   date: string;
@@ -17,17 +18,18 @@ export function useResign({ employeeId, onSuccess }: UseResignOptions) {
   const [showResignModal, setShowResignModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resignForm, setResignForm] = useState<ResignForm>({
-    date: new Date().toISOString().split('T')[0],
+    date: formatDateAsKST(new Date()),
     reason: '',
   });
 
   const openResignModal = () => {
+    setResignForm({ date: formatDateAsKST(new Date()), reason: '' });
     setShowResignModal(true);
   };
 
   const closeResignModal = () => {
     setShowResignModal(false);
-    setResignForm({ date: new Date().toISOString().split('T')[0], reason: '' });
+    setResignForm({ date: formatDateAsKST(new Date()), reason: '' });
   };
 
   const updateResignForm = (patch: Partial<ResignForm>) => {

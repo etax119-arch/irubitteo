@@ -108,7 +108,7 @@ export const initialEmployees: Employee[] = [
     resignReason: '개인 사유로 인한 자진 퇴사',
     workDays: [1, 2, 3, 4, 5],
     workStartTime: '09:00',
-    disabilityType: '발달장애',
+    disabilityType: '지적장애',
     disabilitySeverity: '경증',
     disabilityRecognitionDate: '2022-01-08',
   },
