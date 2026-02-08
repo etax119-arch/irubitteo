@@ -8,10 +8,12 @@ export type Company = {
   address: string | null;
   businessNumber: string | null;
   contractStartDate: string | null;
-  contractEndDate: string | null;
   hrContactName: string | null;
   hrContactPhone: string | null;
   hrContactEmail: string | null;
+  pmContactName: string | null;
+  pmContactPhone: string | null;
+  pmContactEmail: string | null;
   isActive: boolean;
   resignDate: string | null;
   resignReason: string | null;
@@ -33,14 +35,24 @@ export type CompanyCreateInput = {
   address?: string;
   businessNumber?: string;
   contractStartDate?: string;
-  contractEndDate?: string;
   hrContactName?: string;
   hrContactPhone?: string;
   hrContactEmail?: string;
+  pmContactName?: string;
+  pmContactPhone?: string;
+  pmContactEmail?: string;
 };
 
 /** 기업 수정 입력 */
-export type CompanyUpdateInput = Partial<Omit<CompanyCreateInput, 'code'>>;
+export type CompanyUpdateInput = Partial<CompanyCreateInput>;
+
+/** 기업 조회 파라미터 */
+export type CompanyQueryParams = {
+  search?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+};
 
 /** 기업 첨부파일 */
 export type CompanyFile = {

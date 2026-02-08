@@ -2,12 +2,30 @@
 
 import { useState } from 'react';
 import { X, Building2, User, Phone, Mail, MapPin, Calendar, Lock, CheckCircle2, Check } from 'lucide-react';
-import type { AddCompanyForm, PMInfo } from '@/types/adminDashboard';
+import type { CompanyCreateInput } from '@/types/company';
+
+type AddCompanyForm = {
+  companyName: string;
+  businessNumber: string;
+  address: string;
+  contractStartDate: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
+  companyCode: string;
+};
+
+type PMInfo = {
+  name: string;
+  phone: string;
+  email: string;
+};
 
 interface AddCompanyModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (form: AddCompanyForm, pmInfo: PMInfo) => void;
+  onSubmit: (data: CompanyCreateInput) => void;
+  isSubmitting?: boolean;
 }
 
 const initialForm: AddCompanyForm = {
@@ -18,7 +36,7 @@ const initialForm: AddCompanyForm = {
   contactName: '',
   contactPhone: '',
   contactEmail: '',
-  adminId: '',
+  companyCode: '',
 };
 
 const initialPmInfo: PMInfo = {
@@ -27,7 +45,7 @@ const initialPmInfo: PMInfo = {
   email: '',
 };
 
-export function AddCompanyModal({ isOpen, onClose, onSubmit }: AddCompanyModalProps) {
+export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: AddCompanyModalProps) {
   const [form, setForm] = useState<AddCompanyForm>(initialForm);
   const [pmInfo, setPmInfo] = useState<PMInfo>(initialPmInfo);
   const [complete, setComplete] = useState<Record<string, boolean>>({});
@@ -58,19 +76,32 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit }: AddCompanyModalPr
       'contractStartDate',
       'contactName',
       'contactPhone',
-      'adminId',
+      'companyCode',
     ];
     const allFilled = required.every((f) => form[f].trim());
     const pmValid = pmInfo.name.trim() && pmInfo.phone.trim() && pmInfo.email.trim();
 
     if (!allFilled || !pmValid) return;
 
-    onSubmit(form, pmInfo);
-    handleClose();
+    const data: CompanyCreateInput = {
+      code: form.companyCode,
+      name: form.companyName,
+      businessNumber: form.businessNumber || undefined,
+      address: form.address || undefined,
+      contractStartDate: form.contractStartDate || undefined,
+      hrContactName: form.contactName || undefined,
+      hrContactPhone: form.contactPhone || undefined,
+      hrContactEmail: form.contactEmail || undefined,
+      pmContactName: pmInfo.name || undefined,
+      pmContactPhone: pmInfo.phone || undefined,
+      pmContactEmail: pmInfo.email || undefined,
+    };
+
+    onSubmit(data);
   };
 
-  const isSubmitDisabled = !(
-    ['companyName', 'businessNumber', 'contractStartDate', 'contactName', 'contactPhone', 'adminId'].every(
+  const isSubmitDisabled = isSubmitting || !(
+    ['companyName', 'businessNumber', 'contractStartDate', 'contactName', 'contactPhone', 'companyCode'].every(
       (f) => form[f as keyof AddCompanyForm].trim()
     ) &&
     pmInfo.name.trim() &&
@@ -295,17 +326,17 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit }: AddCompanyModalPr
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  관리자 아이디 <span className="text-duru-orange-500">*</span>
+                  기업 고유번호 <span className="text-duru-orange-500">*</span>
                 </label>
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="로그인에 사용할 아이디"
-                    value={form.adminId}
-                    onChange={(e) => updateForm('adminId', e.target.value)}
+                    placeholder="예: C001"
+                    value={form.companyCode}
+                    onChange={(e) => updateForm('companyCode', e.target.value)}
                     className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
                   />
-                  {complete.adminId && (
+                  {complete.companyCode && (
                     <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
                   )}
                 </div>
@@ -332,7 +363,7 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit }: AddCompanyModalPr
             className="flex-[2] py-3 bg-duru-orange-500 text-white rounded-xl font-semibold hover:bg-duru-orange-600 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Check className="w-4 h-4" />
-            회원사 추가 완료
+            {isSubmitting ? '추가 중...' : '회원사 추가 완료'}
           </button>
         </div>
       </div>
