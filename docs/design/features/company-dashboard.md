@@ -16,14 +16,18 @@
 
 ```
 /app/company/
-├── layout.tsx              # 헤더 + 4개 탭 네비게이션 (Link 기반)
+├── layout.tsx              # 헤더 + 4개 탭 네비게이션 (Link 기반, aria-current 지원)
 ├── page.tsx                # → /company/dashboard 리다이렉트
 ├── _components/            # 공용 컴포넌트
 ├── _data/                  # 더미 데이터
+├── _utils/                 # 유틸리티 (workDays 매핑 등)
 ├── dashboard/page.tsx      # 대시보드 탭
 ├── employees/
 │   ├── page.tsx            # 근로자 관리 탭 (목록)
-│   └── [id]/page.tsx       # 근로자 상세 페이지
+│   ├── _hooks/             # 근로자 관련 커스텀 훅
+│   └── [id]/
+│       ├── page.tsx        # 근로자 상세 페이지
+│       └── _components/    # 상세 페이지 전용 컴포넌트
 ├── schedule/page.tsx       # 근무일정 탭
 └── notices/page.tsx        # 공지사항 탭
 ```
@@ -92,7 +96,7 @@
 
 **로딩/에러 상태**:
 - 로딩 중: "로딩 중..." 표시
-- 에러 시: 에러 메시지 + "다시 시도" 버튼
+- 에러 시: 에러 메시지 + `<Button variant="ghost">` 재시도 버튼, `role="alert"` 적용
 
 ---
 
@@ -227,7 +231,7 @@
 
 **문서 관리** (API 연동 완료)
 - 문서 목록: 문서종류 배지, 파일명, 크기, 업로드일 표시
-- 파일 클릭 시 새 탭에서 미리보기/다운로드
+- 파일 클릭 시 새 탭에서 미리보기/다운로드 (URL 프로토콜 검증: http/https만 허용)
 - 삭제 버튼 (확인 후 Supabase Storage + DB 삭제)
 - 빈 상태 / 로딩 상태 UI
 - 파일 업로드 모달: 문서 종류 선택 (근로계약서, 동의서, 건강검진, 자격증, 장애인등록증, 이력서, 기타) + 파일 선택 (PDF, JPG, PNG, 최대 10MB)
@@ -378,6 +382,13 @@ interface CompanyDailyResponse {
 ### Employee — `@/types/employee.ts`
 
 ```typescript
+type WorkDay = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+type DisabilityType =
+  | '지체장애' | '뇌병변장애' | '시각장애' | '청각장애' | '언어장애'
+  | '지적장애' | '정신장애' | '자폐성장애' | '신장장애' | '심장장애'
+  | '호흡기장애' | '간장애' | '안면장애' | '장루·요루장애' | '간질장애';
+
 type Employee = {
   id: string;                          // UUID
   name: string;
@@ -393,13 +404,24 @@ type Employee = {
   isActive: boolean;
   resignDate: string | null;
   resignReason: string | null;
-  workDays: number[];                  // [1,2,3,4,5] (1=월 ~ 7=일)
+  workDays: WorkDay[];                 // [1,2,3,4,5] (1=월 ~ 7=일)
   workStartTime: string | null;        // "HH:mm"
-  disabilityType: string | null;
-  disabilitySeverity: string | null;   // "중증" | "경증"
+  disabilityType: DisabilityType | null;
+  disabilitySeverity: '중증' | '경증' | null;
   disabilityRecognitionDate: string | null; // "YYYY-MM-DD"
 };
 ```
+
+---
+
+## 접근성(Accessibility)
+
+| 항목 | 구현 |
+|------|------|
+| 탭 네비게이션 | 활성 탭에 `aria-current="page"` 적용 |
+| 에러 상태 | `role="alert"`로 스크린 리더 자동 공지 |
+| 에러 재시도 버튼 | `<Button variant="ghost">` 공용 컴포넌트 사용 |
+| 문서 열기 | URL 프로토콜 검증 (XSS 방지) + `noopener,noreferrer` |
 
 ---
 
