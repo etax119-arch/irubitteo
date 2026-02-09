@@ -11,12 +11,14 @@ interface UseNoticeState {
   pagination: Pagination | null;
   isLoading: boolean;
   isSending: boolean;
+  isDeleting: boolean;
   error: string | null;
 }
 
 interface UseNoticeReturn extends UseNoticeState {
   fetchNotices: (page?: number, limit?: number) => Promise<void>;
   sendNotice: (input: NoticeCreateInput) => Promise<NoticeResponse | null>;
+  deleteNotice: (id: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -26,6 +28,7 @@ export function useNotice(): UseNoticeReturn {
     pagination: null,
     isLoading: false,
     isSending: false,
+    isDeleting: false,
     error: null,
   });
 
@@ -75,5 +78,21 @@ export function useNotice(): UseNoticeReturn {
     }
   }, [handleError]);
 
-  return { ...state, fetchNotices, sendNotice, clearError };
+  const deleteNotice = useCallback(async (id: string) => {
+    setState((prev) => ({ ...prev, isDeleting: true, error: null }));
+    try {
+      await noticeApi.delete(id);
+      setState((prev) => ({
+        ...prev,
+        notices: prev.notices.filter((n) => n.id !== id),
+      }));
+    } catch (err) {
+      handleError(err);
+      throw err;
+    } finally {
+      setState((prev) => ({ ...prev, isDeleting: false }));
+    }
+  }, [handleError]);
+
+  return { ...state, fetchNotices, sendNotice, deleteNotice, clearError };
 }

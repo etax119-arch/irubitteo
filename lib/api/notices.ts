@@ -18,4 +18,8 @@ export const noticeApi = {
     );
     return { data: response.data.data, pagination: response.data.pagination };
   },
+
+  async delete(id: string): Promise<void> {
+    await apiClient.delete(`/notices/${id}`);
+  },
 };

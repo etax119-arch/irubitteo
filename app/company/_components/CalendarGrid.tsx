@@ -77,7 +77,7 @@ export function CalendarGrid({
             {schedule && (
               <div className="flex-1 flex flex-col gap-1">
                 <p className="text-sm font-bold text-gray-900 line-clamp-2">
-                  {schedule.content}
+                  업무 지시서
                 </p>
               </div>
             )}

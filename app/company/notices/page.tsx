@@ -13,7 +13,7 @@ import type { Employee } from '@/types/employee';
 export default function NoticesPage() {
   const user = useAuthStore((state) => state.user);
   const toast = useToast();
-  const { notices, isLoading, isSending, fetchNotices, sendNotice } = useNotice();
+  const { notices, isLoading, isSending, isDeleting, fetchNotices, sendNotice, deleteNotice } = useNotice();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employeesLoading, setEmployeesLoading] = useState(true);
   const [selectedWorkersForNotice, setSelectedWorkersForNotice] = useState<string[]>([]);
@@ -64,6 +64,15 @@ export default function NoticesPage() {
       }
       return newSet;
     });
+  };
+
+  const handleDeleteNotice = async (id: string) => {
+    try {
+      await deleteNotice(id);
+      toast.success('공지사항이 삭제되었습니다.');
+    } catch {
+      toast.error('공지사항 삭제에 실패했습니다.');
+    }
   };
 
   const handleSendNotice = async () => {
@@ -159,6 +168,8 @@ export default function NoticesPage() {
         expandedNotices={expandedNotices}
         onToggleExpand={toggleNoticeExpand}
         isLoading={isLoading}
+        onDelete={handleDeleteNotice}
+        isDeleting={isDeleting}
       />
     </div>
   );

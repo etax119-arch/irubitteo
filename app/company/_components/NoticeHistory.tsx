@@ -1,4 +1,4 @@
-import { FileText, MessageSquare } from 'lucide-react';
+import { FileText, MessageSquare, Trash2 } from 'lucide-react';
 import type { NoticeResponse } from '@/types/notice';
 
 interface NoticeHistoryProps {
@@ -6,6 +6,8 @@ interface NoticeHistoryProps {
   expandedNotices: Set<string>;
   onToggleExpand: (noticeId: string) => void;
   isLoading?: boolean;
+  onDelete?: (id: string) => void;
+  isDeleting?: boolean;
 }
 
 function formatCreatedAt(isoString: string): string {
@@ -26,6 +28,8 @@ export function NoticeHistory({
   expandedNotices,
   onToggleExpand,
   isLoading,
+  onDelete,
+  isDeleting,
 }: NoticeHistoryProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200">
@@ -91,6 +95,20 @@ export function NoticeHistory({
                       )}
                     </div>
                   </div>
+                  {onDelete && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm('공지사항을 삭제하시겠습니까?')) {
+                          onDelete(notice.id);
+                        }
+                      }}
+                      disabled={isDeleting}
+                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      title="삭제"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                   <p className="text-gray-900 whitespace-pre-line leading-relaxed">
