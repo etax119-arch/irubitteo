@@ -8,6 +8,7 @@ import type {
   DailyAttendanceData,
   MonthlyWorkStats,
 } from '@/types/adminDashboard';
+import type { NoteUpdateAlert } from '../_components/NoteUpdateAlertList';
 
 export const adminStats: AdminStats = {
   totalCompanies: 24,
@@ -245,7 +246,7 @@ export const inquiryList: Inquiry[] = [
     email: 'park@lg.com',
     summary: '고용 장려금 컨설팅 요청합니다.',
     content:
-      '장애인 고용 장려금 신청 절차와 두루빛터 서비스 연계 방안에 대해 상세히 알고 싶습니다.',
+      '장애인 고용 장려금 신청 절차와 이루빛터 서비스 연계 방안에 대해 상세히 알고 싶습니다.',
   },
   {
     id: 4,
@@ -345,3 +346,27 @@ export const monthlyWorkStats: MonthlyWorkStats = {
     { id: 10, name: '강태민', department: '재배', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
   ],
 };
+
+export const noteUpdateAlerts: NoteUpdateAlert[] = [
+  {
+    id: 1,
+    workerName: '김민수',
+    companyName: '(주)두루빛 제조',
+    noteContent: '최근 컨디션이 좋지 않아 보임. 점심시간 이후 피로감 호소. 휴식 시간 추가 배려 필요. 담당 의사와 상담 예정.',
+    updatedAt: '2026-01-28 14:30',
+  },
+  {
+    id: 2,
+    workerName: '이영희',
+    companyName: '세종식품',
+    noteContent: '업무 적응도 우수. 포장 작업 속도 향상됨. 다음 주부터 새로운 작업 라인 배치 검토 중.',
+    updatedAt: '2026-01-28 11:15',
+  },
+  {
+    id: 3,
+    workerName: '박철수',
+    companyName: '한빛포장',
+    noteContent: '가족 상황으로 인해 근무 시간 조정 요청. 오전 근무만 희망. 인사팀과 협의 필요.',
+    updatedAt: '2026-01-27 16:45',
+  },
+];

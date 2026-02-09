@@ -53,7 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">두루빛터 관리자</h1>
+                <h1 className="text-2xl font-bold text-gray-900">이루빛터 관리자</h1>
                 <p className="text-sm text-gray-600">통합 관리 시스템</p>
               </div>
             </div>
