@@ -1,4 +1,4 @@
-import { Phone, Heart, User, Briefcase } from 'lucide-react';
+import { Phone, Heart, User, Briefcase, MapPin } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../../../_utils/employeeStatus';
 import type { Employee } from '@/types/employee';
@@ -12,6 +12,15 @@ export function ProfileCard({ employee }: ProfileCardProps) {
     employee.emergencyContactName && employee.emergencyContactPhone
       ? `${employee.emergencyContactName} (${employee.emergencyContactRelation ?? '-'}) ${employee.emergencyContactPhone}`
       : '-';
+
+  // 주소 표시 문자열 생성
+  const addressDisplay = [
+    employee.addressCity,
+    employee.addressDistrict,
+    employee.addressDetail,
+  ]
+    .filter(Boolean)
+    .join(' ') || '-';
 
   return (
     <>
@@ -46,6 +55,11 @@ export function ProfileCard({ employee }: ProfileCardProps) {
             <User className="w-4 h-4 text-gray-400" />
             <span className="text-gray-600">성별:</span>
             <span className="font-semibold text-gray-900">{employee.gender ?? '-'}</span>
+          </div>
+          <div className="flex items-start gap-3 text-sm">
+            <MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+            <span className="text-gray-600 shrink-0">주소:</span>
+            <span className="font-semibold text-gray-900 leading-relaxed">{addressDisplay}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Briefcase className="w-4 h-4 text-gray-400" />

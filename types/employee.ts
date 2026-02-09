@@ -27,6 +27,9 @@ export type Employee = {
   disability: string | null;
   hireDate: string;
   gender: string | null;
+  addressCity: string | null;
+  addressDistrict: string | null;
+  addressDetail: string | null;
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
