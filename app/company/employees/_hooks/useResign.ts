@@ -6,6 +6,7 @@ import { formatDateAsKST } from '@/lib/kst';
 export interface ResignForm {
   date: string;
   reason: string;
+  includeInWaitlist: boolean;
 }
 
 interface UseResignOptions {
@@ -20,16 +21,17 @@ export function useResign({ employeeId, onSuccess }: UseResignOptions) {
   const [resignForm, setResignForm] = useState<ResignForm>({
     date: formatDateAsKST(new Date()),
     reason: '',
+    includeInWaitlist: false,
   });
 
   const openResignModal = () => {
-    setResignForm({ date: formatDateAsKST(new Date()), reason: '' });
+    setResignForm({ date: formatDateAsKST(new Date()), reason: '', includeInWaitlist: false });
     setShowResignModal(true);
   };
 
   const closeResignModal = () => {
     setShowResignModal(false);
-    setResignForm({ date: formatDateAsKST(new Date()), reason: '' });
+    setResignForm({ date: formatDateAsKST(new Date()), reason: '', includeInWaitlist: false });
   };
 
   const updateResignForm = (patch: Partial<ResignForm>) => {
