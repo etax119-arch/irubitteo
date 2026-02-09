@@ -14,6 +14,7 @@ import {
   ChevronDown,
   Check,
   CheckCircle2,
+  MapPin,
 } from 'lucide-react';
 import type { AddWorkerForm } from '@/types/companyDashboard';
 import { IconButton } from '@/components/ui/IconButton';
@@ -214,6 +215,68 @@ export function AddWorkerModal({
                   {complete.phone && (
                     <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
                   )}
+                </div>
+              </div>
+
+              {/* 주소 입력 파트 */}
+              <div className="pt-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-gray-500" />
+                    주소
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mb-3">근로자의 거주 지역을 선택해주세요</p>
+
+                {/* 시 / 군·구 선택 (나란히 배치) */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  {/* 시 선택 */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      시 <span className="text-duru-orange-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={form.addressCity}
+                        onChange={(e) => onUpdateForm('addressCity', e.target.value)}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent appearance-none bg-white text-gray-700"
+                      >
+                        <option value="">시 선택</option>
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* 군/구 선택 */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      군/구 <span className="text-duru-orange-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={form.addressDistrict}
+                        onChange={(e) => onUpdateForm('addressDistrict', e.target.value)}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent appearance-none bg-white text-gray-700"
+                      >
+                        <option value="">군/구 선택</option>
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 상세 주소 입력 */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    상세 주소 <span className="text-gray-400">(선택)</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="예: ○○아파트 101동 1001호"
+                    value={form.addressDetail}
+                    onChange={(e) => onUpdateForm('addressDetail', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 bg-gray-50/50"
+                  />
                 </div>
               </div>
             </div>

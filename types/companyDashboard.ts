@@ -3,6 +3,9 @@ export interface AddWorkerForm {
   ssn: string;
   phone: string;
   gender: string;
+  addressCity: string;
+  addressDistrict: string;
+  addressDetail: string;
   emergencyName: string;
   emergencyRelation: string;
   emergencyPhone: string;
