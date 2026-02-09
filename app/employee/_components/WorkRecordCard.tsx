@@ -1,22 +1,25 @@
 'use client';
 
-import { CheckCircle2, Camera, ImagePlus } from 'lucide-react';
+import { CheckCircle2, Camera, ImagePlus, Save, Trash2 } from 'lucide-react';
 import type { AttendanceWithEmployee, DisplayPhoto } from '@/types/attendance';
+import { formatUtcTimestampAsKSTDate, formatUtcTimestampAsKST } from '@/lib/kst';
 import { HeicImage } from './HeicImage';
 
 interface WorkRecordCardProps {
   record: AttendanceWithEmployee;
   onPhotoClick: (photo: DisplayPhoto) => void;
   onAddPhoto: (recordId: string, e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSavePhoto: (url: string, fileName: string) => void;
+  onDeletePhoto: (recordId: string, photoUrl: string) => void;
 }
 
 export function WorkRecordCard({
   record,
   onPhotoClick,
   onAddPhoto,
+  onSavePhoto,
+  onDeletePhoto,
 }: WorkRecordCardProps) {
-  const clockOutDate = record.clockOut ? new Date(record.clockOut) : null;
-
   return (
     <div className="bg-white rounded-xl p-5 border border-duru-orange-100 hover:border-duru-orange-300 hover:shadow-md transition-all">
       {/* 날짜 헤더 */}
@@ -25,20 +28,13 @@ export function WorkRecordCard({
           <CheckCircle2 className="w-4 h-4 text-duru-orange-600" />
           <span className="text-sm font-bold text-duru-orange-700">퇴근</span>
         </div>
-        {clockOutDate && (
+        {record.clockOut && (
           <>
             <span className="text-sm font-semibold text-gray-700">
-              {clockOutDate.toLocaleDateString('ko-KR', {
-                month: 'long',
-                day: 'numeric',
-              })}
+              {formatUtcTimestampAsKSTDate(record.clockOut)}
             </span>
             <span className="text-xs text-gray-400">
-              {clockOutDate.toLocaleTimeString('ko-KR', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              })}
+              {formatUtcTimestampAsKST(record.clockOut)}
             </span>
           </>
         )}
@@ -66,18 +62,35 @@ export function WorkRecordCard({
                 name: `photo_${record.id}_${index + 1}.jpg`,
               };
               return (
-                <button
-                  key={index}
-                  onClick={() => onPhotoClick(photo)}
-                  className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-gray-200 hover:border-gray-300 transition-all hover:shadow-lg group"
-                >
-                  <HeicImage
-                    src={url}
-                    alt={photo.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
-                </button>
+                <div key={index} className="flex items-center gap-3">
+                  <button
+                    onClick={() => onPhotoClick(photo)}
+                    className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-gray-200 hover:border-gray-300 transition-all hover:shadow-lg group"
+                  >
+                    <HeicImage
+                      src={url}
+                      alt={photo.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
+                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => onSavePhoto(url, photo.name)}
+                      className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors flex items-center justify-center"
+                      title="저장"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onDeletePhoto(record.id, url)}
+                      className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
+                      title="삭제"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
               );
             })}
           </div>

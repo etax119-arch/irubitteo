@@ -1,19 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
 import { useAttendance } from '@/hooks/useAttendance';
-
-// 오늘의 작업 안내 (실제로는 서버에서 받아올 데이터)
-const taskDescription = '오늘은 제품 포장 작업과\n부품 조립 작업을 진행할 예정입니다.\n작업 후에는 작업장 정리정돈을 함께 해주세요.\n안전하게 천천히 진행하시면 됩니다.';
+import { scheduleApi } from '@/lib/api/schedules';
+import type { Schedule } from '@/types/schedule';
 
 export default function CheckInPage() {
   const router = useRouter();
   const [confirmedTasks, setConfirmedTasks] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const { clockIn, isLoading, error } = useAttendance();
+  const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
+
+  useEffect(() => {
+    scheduleApi.getToday()
+      .then(setTodaySchedule)
+      .catch(() => setTodaySchedule(null));
+  }, []);
 
   const handleBack = () => {
     router.back();
@@ -57,7 +63,11 @@ export default function CheckInPage() {
           <div className="mx-6 sm:mx-8 mb-6 bg-[#FFF4EC] rounded-2xl p-6 sm:p-8 border border-duru-orange-100">
             <h3 className="text-xl font-bold text-duru-orange-600 mb-5">오늘의 작업 내용</h3>
             <p className="text-xl font-medium text-gray-900 leading-loose whitespace-pre-line">
-              {taskDescription}
+              {todaySchedule === undefined
+                ? '불러오는 중...'
+                : todaySchedule === null
+                ? '등록된 작업 내용이 없습니다.'
+                : todaySchedule.content}
             </p>
           </div>
 

@@ -10,7 +10,7 @@ export type Schedule = {
 
 /** 근무일정 생성 입력 */
 export type ScheduleCreateInput = {
-  date: Date;
+  date: string; // "YYYY-MM-DD"
   content: string;
 };
 

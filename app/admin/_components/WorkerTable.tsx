@@ -103,7 +103,7 @@ export function WorkerTable({ workers, filter, onFilterChange, onViewDetail }: W
                   <td
                     className={cn('px-8 py-4', worker.isResigned ? 'text-gray-500' : 'text-gray-600')}
                   >
-                    {worker.disability}
+                    {worker.disabilityType}
                   </td>
                   <td
                     className={cn(

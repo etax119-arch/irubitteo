@@ -266,6 +266,7 @@ durubitteo_web/
 | `IconButton` | 아이콘 버튼 | `icon`, `variant`, `size`, `label` |
 | `Modal` | 모달 다이얼로그 | `isOpen`, `onClose`, `title`, `size` |
 | `Tabs` | 탭 UI | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
+| `Toast` | 토스트 알림 | `useToast()` 훅 사용 |
 
 **사용 예시:**
 ```tsx
@@ -277,6 +278,28 @@ import { Input } from '@/components/ui/Input';
   버튼 텍스트
 </Button>
 ```
+
+**Toast 사용법:**
+```tsx
+import { useToast } from '@/components/ui/Toast';
+
+function MyComponent() {
+  const toast = useToast();
+
+  const handleSave = async () => {
+    try {
+      await saveData();
+      toast.success('저장되었습니다.');
+    } catch {
+      toast.error('저장에 실패했습니다.');
+    }
+  };
+}
+```
+- Zustand 기반, `alert()` 대신 사용
+- variant: `success` (초록), `error` (빨강)
+- 우상단 표시, 3초 후 자동 닫힘
+- `<ToastContainer />`는 `app/layout.tsx`에 이미 추가됨
 
 **유틸리티:**
 - `cn()` - Tailwind 클래스 병합 (`@/lib/cn`)

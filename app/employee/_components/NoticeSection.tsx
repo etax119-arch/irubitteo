@@ -1,19 +1,28 @@
 'use client';
 
 import { AlertTriangle, Megaphone, ChevronDown, ChevronUp } from 'lucide-react';
-
-interface Notice {
-  id: number;
-  date: string;
-  content: string;
-  sender: string;
-}
+import type { EmployeeNotice } from '@/types/notice';
 
 interface NoticeSectionProps {
-  todayNotices: Notice[];
-  pastNotices: Notice[];
+  todayNotices: EmployeeNotice[];
+  pastNotices: EmployeeNotice[];
   showPastNotices: boolean;
   onTogglePastNotices: () => void;
+}
+
+function formatNoticeDate(isoString: string): string {
+  const date = new Date(isoString);
+  const formatter = new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: 'Asia/Seoul',
+  });
+  const parts = formatter.formatToParts(date);
+  const y = parts.find(p => p.type === 'year')?.value;
+  const m = parts.find(p => p.type === 'month')?.value;
+  const d = parts.find(p => p.type === 'day')?.value;
+  return `${y}.${m}.${d}`;
 }
 
 export function NoticeSection({
@@ -37,11 +46,11 @@ export function NoticeSection({
           <div className="space-y-6">
             {todayNotices.map((notice) => (
               <div key={notice.id} className="bg-white rounded-xl p-6 border border-duru-orange-100">
-                <p className="text-base font-bold text-duru-orange-600 mb-3">{notice.date}</p>
+                <p className="text-base font-bold text-duru-orange-600 mb-3">{formatNoticeDate(notice.createdAt)}</p>
                 <p className="text-xl sm:text-2xl font-semibold text-gray-900 leading-relaxed whitespace-pre-line mb-4">
                   {notice.content}
                 </p>
-                <p className="text-sm text-gray-400">전송자: {notice.sender}</p>
+                <p className="text-sm text-gray-400">전송자: {notice.senderName ?? '관리자'}</p>
               </div>
             ))}
           </div>
@@ -55,7 +64,6 @@ export function NoticeSection({
       {/* 지난 긴급 공지 (슬림 토글 카드) */}
       {pastNotices.length > 0 && (
         <div className="mt-6">
-          {/* 트리거 카드 */}
           <button
             onClick={onTogglePastNotices}
             className="w-full bg-gradient-to-b from-[#F7F7F8] to-[#F1F1F3] rounded-2xl px-5 py-3.5 border border-[#E2E2E6] shadow-[0_1px_2px_rgba(0,0,0,0.03)] flex items-center justify-between hover:from-[#F3F3F5] hover:to-[#EDEDEF] transition-colors"
@@ -75,16 +83,15 @@ export function NoticeSection({
             </span>
           </button>
 
-          {/* 펼쳐지는 공지 리스트 (아코디언) */}
           {showPastNotices && (
             <div className="mt-2 bg-gray-50 rounded-2xl px-5 py-4 border border-gray-100 space-y-2.5">
               {pastNotices.map((notice) => (
                 <div key={notice.id} className="bg-white/80 rounded-lg px-4 py-3">
-                  <p className="text-xs text-gray-500 mb-1">{notice.date}</p>
+                  <p className="text-xs text-gray-500 mb-1">{formatNoticeDate(notice.createdAt)}</p>
                   <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line mb-1">
                     {notice.content}
                   </p>
-                  <p className="text-xs text-gray-400">전송자: {notice.sender}</p>
+                  <p className="text-xs text-gray-400">전송자: {notice.senderName ?? '관리자'}</p>
                 </div>
               ))}
             </div>

@@ -1,5 +1,9 @@
 import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
-import type { DailyAttendanceRecord } from '@/types/companyDashboard';
+import type { DailyAttendanceRecord } from '@/types/attendance';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import type { BadgeVariant } from '@/components/ui/Badge';
+import { cn } from '@/lib/cn';
 
 interface AttendanceTableProps {
   selectedDate: Date;
@@ -9,11 +13,11 @@ interface AttendanceTableProps {
 }
 
 function getStatusBadge(status: DailyAttendanceRecord['status']) {
-  const styles = {
-    checkin: 'bg-duru-orange-100 text-duru-orange-700',
-    checkout: 'bg-gray-200 text-gray-700',
-    absent: 'bg-red-100 text-red-700',
-    pending: 'bg-yellow-100 text-yellow-700',
+  const variantMap: Record<DailyAttendanceRecord['status'], BadgeVariant> = {
+    checkin: 'orange',
+    checkout: 'default',
+    absent: 'danger',
+    pending: 'warning',
   };
 
   const labels = {
@@ -24,9 +28,12 @@ function getStatusBadge(status: DailyAttendanceRecord['status']) {
   };
 
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[status]}`}>
+    <Badge
+      variant={variantMap[status]}
+      className={cn('px-3 py-1 font-semibold', status === 'checkout' && 'bg-gray-200')}
+    >
       {labels[status]}
-    </span>
+    </Badge>
   );
 }
 
@@ -48,6 +55,7 @@ export function AttendanceTable({
             <button
               onClick={onPrevDay}
               className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="이전 날"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
@@ -62,6 +70,7 @@ export function AttendanceTable({
             <button
               onClick={onNextDay}
               className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="다음 날"
             >
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
@@ -82,27 +91,31 @@ export function AttendanceTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {dailyAttendance.map((record) => (
-              <tr key={record.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-duru-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-duru-orange-600">
-                        {record.name[0]}
-                      </span>
-                    </div>
-                    <span className="font-semibold text-gray-900">{record.name}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-gray-600">{record.phone}</td>
-                <td className="px-6 py-4 text-gray-900">{record.checkinTime || '-'}</td>
-                <td className="px-6 py-4 text-gray-900">{record.checkoutTime || '-'}</td>
-                <td className="px-6 py-4">{getStatusBadge(record.status)}</td>
-                <td className="px-6 py-4 text-gray-600 text-sm max-w-xs truncate">
-                  {record.workDone || '-'}
+            {dailyAttendance.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                  출퇴근 기록이 없습니다.
                 </td>
               </tr>
-            ))}
+            ) : (
+              dailyAttendance.map((record) => (
+                <tr key={record.employeeId} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={record.name} size="sm" className="text-xs font-bold" />
+                      <span className="font-semibold text-gray-900">{record.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-gray-600">{record.phone}</td>
+                  <td className="px-6 py-4 text-gray-900">{record.checkinTime || '-'}</td>
+                  <td className="px-6 py-4 text-gray-900">{record.checkoutTime || '-'}</td>
+                  <td className="px-6 py-4">{getStatusBadge(record.status)}</td>
+                  <td className="px-6 py-4 text-gray-600 text-sm max-w-xs truncate">
+                    {record.workContent || '-'}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -1,21 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageSquare, Bell, Edit } from 'lucide-react';
-import type { SentNotice } from '@/types/companyDashboard';
 import { WorkerSelector } from '../_components/WorkerSelector';
 import { NoticeHistory } from '../_components/NoticeHistory';
-import { initialEmployees, initialNotices } from '../_data/dummyData';
+import { useNotice } from '@/hooks/useNotice';
+import { useAuthStore } from '@/lib/auth/store';
+import { useToast } from '@/components/ui/Toast';
+import { getEmployees } from '@/lib/api/employees';
+import type { Employee } from '@/types/employee';
 
 export default function NoticesPage() {
-  const [employees] = useState(initialEmployees);
-  const [selectedWorkersForNotice, setSelectedWorkersForNotice] = useState<number[]>([]);
+  const user = useAuthStore((state) => state.user);
+  const toast = useToast();
+  const { notices, isLoading, isSending, isDeleting, fetchNotices, sendNotice, deleteNotice } = useNotice();
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employeesLoading, setEmployeesLoading] = useState(true);
+  const [selectedWorkersForNotice, setSelectedWorkersForNotice] = useState<string[]>([]);
   const [noticeContent, setNoticeContent] = useState('');
   const [workerSearchQuery, setWorkerSearchQuery] = useState('');
-  const [sentNotices, setSentNotices] = useState<SentNotice[]>(initialNotices);
-  const [expandedNotices, setExpandedNotices] = useState<Set<number>>(new Set());
+  const [expandedNotices, setExpandedNotices] = useState<Set<string>>(new Set());
 
-  const toggleWorkerForNotice = (workerId: number) => {
+  useEffect(() => {
+    fetchNotices();
+  }, [fetchNotices]);
+
+  useEffect(() => {
+    const loadEmployees = async () => {
+      try {
+        const result = await getEmployees({ isActive: true, limit: 100 });
+        setEmployees(result.data);
+      } catch {
+        toast.error('직원 목록을 불러오는데 실패했습니다.');
+      } finally {
+        setEmployeesLoading(false);
+      }
+    };
+    loadEmployees();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toggleWorkerForNotice = (workerId: string) => {
     setSelectedWorkersForNotice((prev) =>
       prev.includes(workerId) ? prev.filter((id) => id !== workerId) : [...prev, workerId]
     );
@@ -29,7 +54,7 @@ export default function NoticesPage() {
     }
   };
 
-  const toggleNoticeExpand = (noticeId: number) => {
+  const toggleNoticeExpand = (noticeId: string) => {
     setExpandedNotices((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(noticeId)) {
@@ -41,37 +66,41 @@ export default function NoticesPage() {
     });
   };
 
-  const handleSendNotice = () => {
+  const handleDeleteNotice = async (id: string) => {
+    try {
+      await deleteNotice(id);
+      toast.success('공지사항이 삭제되었습니다.');
+    } catch {
+      toast.error('공지사항 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleSendNotice = async () => {
     if (selectedWorkersForNotice.length === 0 || !noticeContent.trim()) return;
 
-    const selectedWorkerNames = employees
-      .filter((e) => selectedWorkersForNotice.includes(e.id))
-      .map((e) => e.name);
-
-    const newNotice: SentNotice = {
-      id: Date.now(),
-      date: new Date()
-        .toLocaleString('ko-KR', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        })
-        .replace(/\. /g, '-')
-        .replace('.', ''),
-      workers: selectedWorkerNames,
+    const result = await sendNotice({
       content: noticeContent,
-      sender: '관리자',
-    };
+      senderName: user?.name ?? '관리자',
+      recipientIds: selectedWorkersForNotice,
+    });
 
-    setSentNotices((prev) => [newNotice, ...prev]);
-    setSelectedWorkersForNotice([]);
-    setNoticeContent('');
-    setWorkerSearchQuery('');
-    alert('공지사항이 성공적으로 발송되었습니다!');
+    if (result) {
+      setSelectedWorkersForNotice([]);
+      setNoticeContent('');
+      setWorkerSearchQuery('');
+      toast.success('공지사항이 성공적으로 발송되었습니다!');
+    } else {
+      toast.error('공지사항 발송에 실패했습니다.');
+    }
   };
+
+  if (employeesLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-duru-orange-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -89,7 +118,6 @@ export default function NoticesPage() {
           새 공지사항 발송
         </h3>
 
-        {/* 근로자 선택 */}
         <WorkerSelector
           employees={employees}
           selectedWorkers={selectedWorkersForNotice}
@@ -99,7 +127,6 @@ export default function NoticesPage() {
           onToggleAll={toggleAllWorkersForNotice}
         />
 
-        {/* 공지사항 작성 */}
         <div className="mb-6">
           <h4 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
             <Edit className="w-5 h-5 text-duru-orange-600" />
@@ -114,7 +141,6 @@ export default function NoticesPage() {
           />
         </div>
 
-        {/* 발송 버튼 */}
         <div className="flex items-center justify-end gap-3">
           <button
             onClick={() => {
@@ -128,20 +154,22 @@ export default function NoticesPage() {
           </button>
           <button
             onClick={handleSendNotice}
-            disabled={selectedWorkersForNotice.length === 0 || !noticeContent.trim()}
+            disabled={selectedWorkersForNotice.length === 0 || !noticeContent.trim() || isSending}
             className="px-8 py-3 bg-duru-orange-500 text-white rounded-lg font-bold text-lg hover:bg-duru-orange-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Bell className="w-5 h-5" />
-            발송하기
+            {isSending ? '발송 중...' : '발송하기'}
           </button>
         </div>
       </div>
 
-      {/* 발송 기록 */}
       <NoticeHistory
-        notices={sentNotices}
+        notices={notices}
         expandedNotices={expandedNotices}
         onToggleExpand={toggleNoticeExpand}
+        isLoading={isLoading}
+        onDelete={handleDeleteNotice}
+        isDeleting={isDeleting}
       />
     </div>
   );

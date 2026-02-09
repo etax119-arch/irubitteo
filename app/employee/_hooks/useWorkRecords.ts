@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAttendance } from '@/hooks/useAttendance';
+import { attendanceApi } from '@/lib/api/attendance';
 import type { AttendanceWithEmployee } from '@/types/attendance';
 
 export function useWorkRecords() {
@@ -74,6 +75,24 @@ export function useWorkRecords() {
     []
   );
 
+  // 서버에서 사진 삭제 후 로컬 state 반영
+  const deletePhotoFromRecord = useCallback(
+    async (recordId: string, photoUrl: string): Promise<boolean> => {
+      try {
+        const updated = await attendanceApi.deletePhoto(recordId, photoUrl);
+        setWorkRecords((prev) =>
+          prev.map((record) =>
+            record.id === recordId ? updated : record
+          )
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    []
+  );
+
   return {
     isOpen,
     year,
@@ -84,5 +103,6 @@ export function useWorkRecords() {
     handleYearChange,
     handleMonthChange,
     addPhotoToRecord,
+    deletePhotoFromRecord,
   };
 }

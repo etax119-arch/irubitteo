@@ -1,12 +1,6 @@
 /** 출근 요일 (1=월, 2=화, ..., 7=일) */
 export type WorkDay = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
-/** 성별 */
-export type Gender = 'male' | 'female';
-
-/** 장애 중증도 */
-export type DisabilitySeverity = 'severe' | 'mild';
-
 /** 장애 유형 */
 export type DisabilityType =
   | '지체장애'
@@ -25,71 +19,75 @@ export type DisabilityType =
   | '장루·요루장애'
   | '간질장애';
 
-/** 직원 */
+/** 직원 (서버 toResponse() 기준 API 응답) */
 export type Employee = {
   id: string;
-  companyId: string;
-  uniqueCode: string;
   name: string;
   phone: string;
-  gender: Gender;
-  ssnEncrypted: string;
-  hireDate: Date;
-  resignDate: Date | null;
-  contractEndDate: Date | null;
-  workDays: WorkDay[];
-  workStartTime: string; // HH:mm 형식
-  workEndTime: string; // HH:mm 형식
-  profileImage: string | null;
-  disabilityType: DisabilityType | null;
-  disabilitySeverity: DisabilitySeverity | null;
-  disabilityRecognitionDate: Date | null;
+  disability: string | null;
+  hireDate: string;
+  gender: string | null;
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
+  status: 'checkin' | 'checkout' | 'absent' | 'resigned';
+  checkinTime: string | null;
+  checkoutTime: string | null;
+  uniqueCode: string;
   companyNote: string | null;
-  adminNote: string | null;
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  resignDate: string | null;
+  resignReason: string | null;
+  workDays: WorkDay[];
+  workStartTime: string | null;
+  disabilityType: DisabilityType | null;
+  disabilitySeverity: '중증' | '경증' | null;
+  disabilityRecognitionDate: string | null;
 };
 
-/** 직원 생성 입력 (companyId는 JWT에서 추출, uniqueCode는 서버에서 자동 생성) */
+/** 직원 생성 입력 (companyId는 JWT에서 추출) */
 export type EmployeeCreateInput = {
   name: string;
+  ssn: string;
   phone: string;
-  gender: Gender;
-  ssn: string; // 평문 주민번호 (서버에서 암호화)
-  hireDate: Date;
-  contractEndDate?: Date;
-  workDays?: WorkDay[];
-  workStartTime?: string;
-  workEndTime?: string;
-  profileImage?: string;
-  disabilityType?: DisabilityType;
-  disabilitySeverity?: DisabilitySeverity;
-  disabilityRecognitionDate?: Date;
-  emergencyContactName?: string;
-  emergencyContactRelation?: string;
-  emergencyContactPhone?: string;
+  gender: string;
+  uniqueCode: string;
+  hireDate: string;
+  workDays: WorkDay[];
+  workStartTime: string;
+  disabilityType: string;
+  disabilitySeverity: string;
+  disabilityRecognitionDate: string;
+  emergencyContactName: string;
+  emergencyContactRelation: string;
+  emergencyContactPhone: string;
 };
 
-/** 직원 수정 입력 (ssn, hireDate는 수정 불가) */
-export type EmployeeUpdateInput = Partial<Omit<EmployeeCreateInput, 'ssn' | 'hireDate'>> & {
-  resignDate?: Date;
-  companyNote?: string;
-  adminNote?: string;
+/** 직원 수정 입력 (서버 UpdateEmployeeDto 기준) */
+export type EmployeeUpdateInput = {
+  workDays?: WorkDay[];
+  workStartTime?: string;
+  disabilitySeverity?: '중증' | '경증' | null;
+  disabilityRecognitionDate?: string | null;
+  companyNote?: string | null;
+  isActive?: boolean;
+  resignDate?: string | null;
+  resignReason?: string | null;
 };
+
+/** 문서 종류 */
+export type DocumentType = '근로계약서' | '동의서' | '건강검진' | '자격증' | '장애인등록증' | '이력서' | '기타';
 
 /** 직원 첨부파일 */
 export type EmployeeFile = {
   id: string;
   employeeId: string;
+  documentType: DocumentType;
   fileName: string;
   filePath: string;
   fileSize: number | null;
   mimeType: string | null;
-  createdAt: Date;
+  createdAt: string;
 };
 
 /** 직원 목록 조회용 (간략 정보) */
@@ -97,3 +95,11 @@ export type EmployeeSummary = Pick<
   Employee,
   'id' | 'uniqueCode' | 'name' | 'phone' | 'isActive'
 >;
+
+/** 직원 목록 조회 파라미터 */
+export type EmployeeQueryParams = {
+  search?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+};

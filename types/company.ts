@@ -7,14 +7,18 @@ export type Company = {
   phone: string | null;
   address: string | null;
   businessNumber: string | null;
-  contractStartDate: Date | null;
-  contractEndDate: Date | null;
+  contractStartDate: string | null;
   hrContactName: string | null;
   hrContactPhone: string | null;
   hrContactEmail: string | null;
+  pmContactName: string | null;
+  pmContactPhone: string | null;
+  pmContactEmail: string | null;
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  resignDate: string | null;
+  resignReason: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 /** 기업 목록 조회 응답 (직원 수 포함) */
@@ -30,15 +34,25 @@ export type CompanyCreateInput = {
   phone?: string;
   address?: string;
   businessNumber?: string;
-  contractStartDate?: Date;
-  contractEndDate?: Date;
+  contractStartDate?: string;
   hrContactName?: string;
   hrContactPhone?: string;
   hrContactEmail?: string;
+  pmContactName?: string;
+  pmContactPhone?: string;
+  pmContactEmail?: string;
 };
 
 /** 기업 수정 입력 */
-export type CompanyUpdateInput = Partial<Omit<CompanyCreateInput, 'code'>>;
+export type CompanyUpdateInput = Partial<CompanyCreateInput>;
+
+/** 기업 조회 파라미터 */
+export type CompanyQueryParams = {
+  search?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+};
 
 /** 기업 첨부파일 */
 export type CompanyFile = {
@@ -48,5 +62,5 @@ export type CompanyFile = {
   filePath: string;
   fileSize: number | null;
   mimeType: string | null;
-  createdAt: Date;
+  createdAt: string;
 };

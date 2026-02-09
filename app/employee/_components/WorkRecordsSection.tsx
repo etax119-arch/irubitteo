@@ -20,6 +20,8 @@ interface WorkRecordsSectionProps {
   onMonthChange: (direction: 'prev' | 'next') => void;
   onPhotoClick: (photo: DisplayPhoto) => void;
   onAddPhoto: (recordId: string, e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSavePhoto: (url: string, fileName: string) => void;
+  onDeletePhoto: (recordId: string, photoUrl: string) => void;
   isLoading?: boolean;
 }
 
@@ -33,6 +35,8 @@ export function WorkRecordsSection({
   onMonthChange,
   onPhotoClick,
   onAddPhoto,
+  onSavePhoto,
+  onDeletePhoto,
   isLoading = false,
 }: WorkRecordsSectionProps) {
   // 퇴근 기록만 필터링 (clockOut이 있는 기록)
@@ -89,6 +93,8 @@ export function WorkRecordsSection({
                   record={record}
                   onPhotoClick={onPhotoClick}
                   onAddPhoto={onAddPhoto}
+                  onSavePhoto={onSavePhoto}
+                  onDeletePhoto={onDeletePhoto}
                 />
               ))}
             </div>

@@ -33,6 +33,7 @@ export type Pagination = {
 
 /** 페이지네이션 응답 */
 export type PaginatedResponse<T> = {
+  success: boolean;
   data: T[];
   pagination: Pagination;
 };

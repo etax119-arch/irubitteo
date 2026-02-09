@@ -280,7 +280,7 @@ export default function EmployeeDetailPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-600">유형</span>
-                  <span className="font-bold text-gray-900">{worker.disability}</span>
+                  <span className="font-bold text-gray-900">{worker.disabilityType}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-600">중증/경증</span>

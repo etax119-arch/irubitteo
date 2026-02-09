@@ -1,30 +1,46 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import type { ScheduleForm } from '@/types/companyDashboard';
+import type { Schedule } from '@/types/schedule';
+import { Modal } from '@/components/ui/Modal';
+import { Textarea } from '@/components/ui/Textarea';
+import { Button } from '@/components/ui/Button';
 
 interface ScheduleModalProps {
   isOpen: boolean;
   selectedDate: Date | null;
-  form: ScheduleForm;
+  existingSchedule: Schedule | null;
+  isSaving: boolean;
   onClose: () => void;
-  onFormChange: (form: ScheduleForm) => void;
-  onSave: () => void;
+  onSave: (content: string) => void;
+  onDelete: () => void;
 }
 
 export function ScheduleModal({
   isOpen,
   selectedDate,
-  form,
+  existingSchedule,
+  isSaving,
   onClose,
-  onFormChange,
   onSave,
+  onDelete,
 }: ScheduleModalProps) {
-  if (!isOpen) return null;
+  const [content, setContent] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setContent(existingSchedule?.content ?? '');
+    }
+  }, [isOpen, existingSchedule]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-8 max-w-lg w-full">
+    <Modal isOpen={isOpen} onClose={onClose} size="lg" showCloseButton={false}>
+      <div className="-m-6 p-8">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-gray-900">근무 일정 등록</h3>
+          <h3 className="text-2xl font-bold text-gray-900">
+            {existingSchedule ? '근무 일정 수정' : '근무 일정 등록'}
+          </h3>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -44,37 +60,39 @@ export function ScheduleModal({
           </p>
         )}
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              근무 내용
-            </label>
-            <textarea
-              value={form.workType}
-              onChange={(e) => onFormChange({ ...form, workType: e.target.value })}
-              placeholder="해당 날짜의 근무 내용을 입력하세요..."
-              rows={8}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 resize-none"
-            />
-          </div>
-        </div>
+        <Textarea
+          label="근무 내용"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="해당 날짜의 근무 내용을 입력하세요..."
+          rows={8}
+          className="border-gray-300 rounded-lg"
+        />
 
         <div className="flex gap-3 mt-8">
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-          >
+          {existingSchedule && (
+            <Button
+              variant="outline"
+              onClick={onDelete}
+              disabled={isSaving}
+              className="flex-1 py-3 text-red-600 border-red-300 hover:bg-red-50"
+            >
+              삭제
+            </Button>
+          )}
+          <Button variant="outline" onClick={onClose} className="flex-1 py-3">
             취소
-          </button>
-          <button
-            onClick={onSave}
-            disabled={!form.workType.trim()}
-            className="flex-1 py-3 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => onSave(content)}
+            disabled={!content.trim() || isSaving}
+            className="flex-1 py-3"
           >
             저장
-          </button>
+          </Button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

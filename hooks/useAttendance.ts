@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { attendanceApi, AttendanceQueryParams } from '@/lib/api/attendance';
+import { attendanceApi } from '@/lib/api/attendance';
 import type {
   Attendance,
   AttendanceWithEmployee,
+  AttendanceQueryParams,
   ClockInInput,
   ClockOutInput,
 } from '@/types/attendance';

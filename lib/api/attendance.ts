@@ -2,30 +2,13 @@ import apiClient from './client';
 import type {
   Attendance,
   AttendanceWithEmployee,
+  AttendanceQueryParams,
   ClockInInput,
   ClockOutInput,
+  AttendanceUpdateInput,
+  CompanyDailyResponse,
 } from '@/types/attendance';
-
-export interface PaginatedResponse<T> {
-  success: boolean;
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-export interface AttendanceQueryParams {
-  employeeId?: string;
-  companyId?: string;
-  startDate?: string;
-  endDate?: string;
-  status?: 'present' | 'absent';
-  page?: number;
-  limit?: number;
-}
+import type { PaginatedResponse } from '@/types/api';
 
 export const attendanceApi = {
   /**
@@ -67,6 +50,30 @@ export const attendanceApi = {
   },
 
   /**
+   * 출퇴근 기록 수정
+   * PATCH /v1/attendances/:id
+   */
+  async updateAttendance(id: string, input: AttendanceUpdateInput): Promise<AttendanceWithEmployee> {
+    const response = await apiClient.patch<{ success: boolean; data: AttendanceWithEmployee }>(
+      `/attendances/${id}`,
+      input
+    );
+    return response.data.data;
+  },
+
+  /**
+   * 활동 사진 삭제
+   * DELETE /v1/attendances/:id/photos
+   */
+  async deletePhoto(attendanceId: string, photoUrl: string): Promise<AttendanceWithEmployee> {
+    const response = await apiClient.delete<{ success: boolean; data: AttendanceWithEmployee }>(
+      `/attendances/${attendanceId}/photos`,
+      { data: { photoUrl } }
+    );
+    return response.data.data;
+  },
+
+  /**
    * 오늘의 출퇴근 기록 조회
    * GET /v1/attendances/today
    */
@@ -75,6 +82,18 @@ export const attendanceApi = {
       success: boolean;
       data: AttendanceWithEmployee | null;
     }>('/attendances/today');
+    return response.data.data;
+  },
+
+  /**
+   * 기업 대시보드용 일별 출퇴근 현황
+   * GET /v1/attendances/company-daily
+   */
+  async getCompanyDaily(date?: string): Promise<CompanyDailyResponse> {
+    const response = await apiClient.get<{ success: boolean; data: CompanyDailyResponse }>(
+      '/attendances/company-daily',
+      { params: date ? { date } : undefined }
+    );
     return response.data.data;
   },
 };

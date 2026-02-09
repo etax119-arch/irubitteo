@@ -1,44 +1,62 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
+import { AxiosError } from 'axios';
 import { CompanyCard } from '../_components/CompanyCard';
 import { AddCompanyModal } from '../_components/AddCompanyModal';
-import { companiesData as initialCompanies } from '../_data/dummyData';
-import type { Company, AddCompanyForm, PMInfo } from '@/types/adminDashboard';
+import { getCompanies, createCompany } from '@/lib/api/companies';
+import { useToast } from '@/components/ui/Toast';
+import type { CompanyWithEmployeeCount, CompanyCreateInput } from '@/types/company';
 
 export default function AdminCompaniesPage() {
   const router = useRouter();
-  const [companies, setCompanies] = useState<Company[]>(initialCompanies);
+  const toast = useToast();
+  const [companies, setCompanies] = useState<CompanyWithEmployeeCount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleViewDetail = (company: Company) => {
+  const fetchCompanies = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await getCompanies();
+      setCompanies(result.data);
+    } catch {
+      setError('회원사 목록을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCompanies();
+  }, [fetchCompanies]);
+
+  const handleViewDetail = (company: CompanyWithEmployeeCount) => {
     router.push(`/admin/companies/${company.id}`);
   };
 
-  const handleRevenueUpdate = (companyId: number, newRevenue: number) => {
-    setCompanies((prev) =>
-      prev.map((company) =>
-        company.id === companyId ? { ...company, revenue: newRevenue } : company
-      )
-    );
-  };
-
-  const handleAddCompany = (form: AddCompanyForm, pmInfo: PMInfo) => {
-    const newCompany: Company = {
-      id: companies.length + 1,
-      name: form.companyName,
-      industry: '미정',
-      location: form.address || '미정',
-      workers: 0,
-      contractEnd: form.contractStartDate,
-      status: 'active',
-      revenue: 0,
-      pm: pmInfo,
-    };
-    setCompanies([...companies, newCompany]);
+  const handleAddCompany = async (data: CompanyCreateInput) => {
+    try {
+      setIsSubmitting(true);
+      await createCompany(data);
+      toast.success('회원사가 추가되었습니다.');
+      setShowAddModal(false);
+      fetchCompanies();
+    } catch (err) {
+      const message =
+        err instanceof AxiosError
+          ? err.response?.data?.message ?? '회원사 추가에 실패했습니다.'
+          : '회원사 추가에 실패했습니다.';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const filteredCompanies = companies.filter((company) =>
@@ -69,21 +87,43 @@ export default function AdminCompaniesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {filteredCompanies.map((company) => (
-          <CompanyCard
-            key={company.id}
-            company={company}
-            onViewDetail={handleViewDetail}
-            onRevenueUpdate={handleRevenueUpdate}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
+        </div>
+      ) : error ? (
+        <div className="text-center py-20">
+          <p className="text-red-500 mb-4">{error}</p>
+          <button
+            onClick={fetchCompanies}
+            className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors"
+          >
+            다시 시도
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {filteredCompanies.length > 0 ? (
+            filteredCompanies.map((company) => (
+              <CompanyCard
+                key={company.id}
+                company={company}
+                onViewDetail={handleViewDetail}
+              />
+            ))
+          ) : (
+            <p className="text-center text-gray-500 py-10">
+              {searchQuery ? '검색 결과가 없습니다.' : '등록된 회원사가 없습니다.'}
+            </p>
+          )}
+        </div>
+      )}
 
       <AddCompanyModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSubmit={handleAddCompany}
+        isSubmitting={isSubmitting}
       />
     </div>
   );
