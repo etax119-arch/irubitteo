@@ -10,7 +10,7 @@ export default function HeroSection() {
           <div className="flex items-center gap-3 mb-2">
             <span className="w-12 h-[2px] bg-duru-orange-500"></span>
             <span className="text-duru-orange-500 font-bold tracking-[0.2em] text-sm uppercase">
-              DURUBITTEO : SHINING TOGETHER
+              IRUBITTEO : SHINING TOGETHER
             </span>
           </div>
 
@@ -20,7 +20,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-xl text-gray-600 leading-relaxed break-keep max-w-xl">
-            두루빛터는 장애인 근로자를 위한 맞춤형 일자리 매칭부터<br className="hidden sm:block"/>
+            이루빛터는 장애인 근로자를 위한 맞춤형 일자리 매칭부터<br className="hidden sm:block"/>
             편리한 출퇴근 관리까지, 든든한 다리가 되어드립니다.
           </p>
 

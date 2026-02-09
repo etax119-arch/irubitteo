@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle2, Loader2, Check } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
 import { useAttendance } from '@/hooks/useAttendance';
 import { scheduleApi } from '@/lib/api/schedules';
@@ -14,6 +14,11 @@ export default function CheckInPage() {
   const [showModal, setShowModal] = useState(false);
   const { clockIn, isLoading, error } = useAttendance();
   const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
+
+  // 출근 시간 설정 UI 상태
+  const [timePeriod, setTimePeriod] = useState<'AM' | 'PM'>('AM');
+  const [hourInput, setHourInput] = useState('');
+  const [minuteInput, setMinuteInput] = useState('');
 
   useEffect(() => {
     scheduleApi.getToday()
@@ -79,7 +84,7 @@ export default function CheckInPage() {
           )}
 
           {/* 확인 체크 영역 */}
-          <div className="mx-6 sm:mx-8 mb-6">
+          <div className="mx-6 sm:mx-8 mb-4">
             <label className="flex items-center gap-4 p-5 border-2 border-duru-orange-200 rounded-xl cursor-pointer hover:bg-duru-orange-50 transition-colors">
               <input
                 type="checkbox"
@@ -89,6 +94,82 @@ export default function CheckInPage() {
               />
               <span className="text-xl font-semibold text-gray-800">오늘 할 일을 확인했어요!</span>
             </label>
+          </div>
+
+          {/* 출근 시간 설정 섹션 */}
+          <div className="mx-6 sm:mx-8 mb-6 bg-[#FFFBF7] rounded-2xl p-5 sm:p-6 border border-duru-orange-100/60 shadow-sm">
+            {/* 섹션 헤더 */}
+            <div className="mb-5">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">출근 시간 설정</h3>
+              <p className="text-base text-gray-600">오늘 출근 시간을 직접 입력해주세요</p>
+            </div>
+
+            {/* 오전/오후 선택 */}
+            <div className="mb-5">
+              <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-gray-50">
+                <button
+                  type="button"
+                  onClick={() => setTimePeriod('AM')}
+                  className={`flex-1 py-3.5 px-6 text-lg font-medium transition-all flex items-center justify-center gap-2 ${
+                    timePeriod === 'AM'
+                      ? 'bg-duru-orange-500 text-white shadow-sm'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {timePeriod === 'AM' && <Check className="w-5 h-5" />}
+                  <span className={timePeriod === 'AM' ? 'font-bold' : ''}>오전</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTimePeriod('PM')}
+                  className={`flex-1 py-3.5 px-6 text-lg font-medium transition-all flex items-center justify-center gap-2 ${
+                    timePeriod === 'PM'
+                      ? 'bg-duru-orange-500 text-white shadow-sm'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {timePeriod === 'PM' && <Check className="w-5 h-5" />}
+                  <span className={timePeriod === 'PM' ? 'font-bold' : ''}>오후</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 시/분 입력 */}
+            <div className="flex items-end gap-3 mb-4">
+              {/* 시 입력 */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">시</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={hourInput}
+                  onChange={(e) => setHourInput(e.target.value)}
+                  placeholder="예: 9"
+                  className="w-full px-4 py-3.5 text-xl text-center font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-duru-orange-300 focus:border-duru-orange-400 transition-all"
+                />
+              </div>
+
+              {/* 구분자 콜론 */}
+              <div className="pb-3.5">
+                <span className="text-3xl font-bold text-gray-400">:</span>
+              </div>
+
+              {/* 분 입력 */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">분</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={minuteInput}
+                  onChange={(e) => setMinuteInput(e.target.value)}
+                  placeholder="예: 30"
+                  className="w-full px-4 py-3.5 text-xl text-center font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-duru-orange-300 focus:border-duru-orange-400 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* 안내 문구 */}
+            <p className="text-sm text-gray-500">예) 오전 9:30</p>
           </div>
 
           {/* 출근 완료 버튼 */}

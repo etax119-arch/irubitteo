@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-1 md:col-span-2">
-            <h5 className="text-white font-bold text-xl mb-4">두루빛터</h5>
+            <h5 className="text-white font-bold text-xl mb-4">이루빛터</h5>
             <p className="leading-relaxed mb-4 max-w-sm">
               장애인 근로자의 안정적인 일자리와<br/>
               효율적인 근태 관리를 지원하는 고용 플랫폼입니다.
@@ -29,7 +29,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>&copy; 2024 Duru-bit-teo. All rights reserved.</p>
+          <p>&copy; 2024 Iru-bit-teo. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-white">이용약관</a>
             <a href="#" className="hover:text-white">개인정보처리방침</a>
