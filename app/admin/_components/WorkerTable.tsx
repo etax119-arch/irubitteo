@@ -10,39 +10,16 @@ interface WorkerTableProps {
   onViewDetail: (worker: Worker) => void;
 }
 
-const filters: { id: WorkerFilter; label: string }[] = [
-  { id: 'current', label: '현재 근로자' },
-  { id: 'resigned', label: '퇴사자' },
-  { id: 'all', label: '전체' },
-];
-
-export function WorkerTable({ workers, filter, onFilterChange, onViewDetail }: WorkerTableProps) {
+export function WorkerTable({ workers, filter, onViewDetail }: WorkerTableProps) {
   const filteredWorkers = workers.filter((worker) => {
     if (filter === 'current') return !worker.isResigned;
     if (filter === 'resigned') return worker.isResigned;
+    if (filter === 'waiting') return worker.isWaiting;
     return true;
   });
 
   return (
-    <div className="space-y-6">
-      {/* 필터 버튼 그룹 */}
-      <div className="flex bg-gray-100 rounded-lg p-1 w-fit">
-        {filters.map((f) => (
-          <button
-            key={f.id}
-            onClick={() => onFilterChange(f.id)}
-            className={cn(
-              'px-4 py-2 rounded-lg text-sm font-semibold transition-colors',
-              filter === f.id
-                ? 'bg-white text-duru-orange-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
+    <div>
       {/* 테이블 */}
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="overflow-x-auto">
