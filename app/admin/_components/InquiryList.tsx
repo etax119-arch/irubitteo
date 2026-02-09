@@ -10,15 +10,17 @@ interface InquiryListProps {
 
 export function InquiryList({ inquiries, onViewDetail }: InquiryListProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200">
-      <div className="px-6 py-5 border-b border-gray-100">
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden h-[480px] flex flex-col">
+      {/* 상단 오렌지 포인트 라인 */}
+      <div className="h-1 bg-gradient-to-r from-duru-orange-400 to-duru-orange-500 shrink-0" />
+      <div className="px-6 py-5 border-b border-gray-100 shrink-0">
         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
           <FileText className="w-5 h-5 text-gray-400" />
           신규 기업 문의 알림
         </h3>
         <p className="text-sm text-gray-400 mt-1">홈페이지를 통해 접수된 신규 기업 문의입니다.</p>
       </div>
-      <div className="divide-y divide-gray-100">
+      <div className="flex-1 overflow-y-auto divide-y divide-gray-100 scrollbar-light">
         {inquiries.length > 0 ? (
           inquiries.map((inq) => (
             <div key={inq.id} className="px-6 py-3.5 flex items-center gap-4">

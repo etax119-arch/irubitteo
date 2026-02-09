@@ -215,9 +215,21 @@ export const notifications: Notification[] = [
 ];
 
 export const absenceAlerts: AbsenceAlert[] = [
-  { id: 1, name: '최동욱', company: '그린팜', date: '2026-01-26', status: '결근' },
-  { id: 3, name: '정미라', company: '한빛포장', date: '2026-01-31', status: '결근' },
-  { id: 5, name: '박철수', company: '세종식품', date: '2026-02-01', status: '결근' },
+  { id: 1, name: '최동욱', company: '그린팜', date: '2026-02-10', status: '결근' },
+  { id: 2, name: '정미라', company: '한빛포장', date: '2026-02-10', status: '결근' },
+  { id: 3, name: '박철수', company: '세종식품', date: '2026-02-10', status: '지각' },
+  { id: 4, name: '김수진', company: '(주)두루빛 제조', date: '2026-02-09', status: '결근' },
+  { id: 5, name: '이민호', company: '세종식품', date: '2026-02-09', status: '결근' },
+  { id: 6, name: '박지영', company: '한빛포장', date: '2026-02-09', status: '지각' },
+  { id: 7, name: '강태민', company: '그린팜', date: '2026-02-08', status: '결근' },
+  { id: 8, name: '윤서아', company: '그린팜', date: '2026-02-08', status: '결근' },
+  { id: 9, name: '이준호', company: '한빛포장', date: '2026-02-08', status: '지각' },
+  { id: 10, name: '김하은', company: '한빛포장', date: '2026-02-07', status: '결근' },
+  { id: 11, name: '박서준', company: '(주)두루빛 제조', date: '2026-02-07', status: '결근' },
+  { id: 12, name: '최민지', company: '세종식품', date: '2026-02-07', status: '지각' },
+  { id: 13, name: '정민아', company: '(주)두루빛 제조', date: '2026-02-06', status: '결근' },
+  { id: 14, name: '박영수', company: '(주)두루빛 제조', date: '2026-02-06', status: '결근' },
+  { id: 15, name: '최지현', company: '(주)두루빛 제조', date: '2026-02-05', status: '지각' },
 ];
 
 export const inquiryList: Inquiry[] = [

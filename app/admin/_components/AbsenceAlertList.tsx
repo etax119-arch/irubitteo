@@ -11,14 +11,17 @@ interface AbsenceAlertListProps {
 
 export function AbsenceAlertList({ alerts, onViewDetail }: AbsenceAlertListProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200">
-      <div className="px-6 py-5 border-b border-gray-100">
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden h-[480px] flex flex-col">
+      {/* 상단 오렌지 포인트 라인 */}
+      <div className="h-1 bg-gradient-to-r from-duru-orange-400 to-duru-orange-500 shrink-0" />
+      <div className="px-6 py-5 border-b border-gray-100 shrink-0">
         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-duru-orange-500" />
           장애인 근로자 결근 알림
         </h3>
+        <p className="text-sm text-gray-400 mt-1">현재 출근 하지 않은 근로자들에 대한 정보 입니다.</p>
       </div>
-      <div className="divide-y divide-gray-100">
+      <div className="flex-1 overflow-y-auto divide-y divide-gray-100 scrollbar-light">
         {alerts.length > 0 ? (
           alerts.map((alert) => (
             <div key={alert.id} className="px-6 py-3.5 flex items-center gap-4">
