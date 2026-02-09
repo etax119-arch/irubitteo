@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { attendanceApi } from '@/lib/api/attendance';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
-import type { AttendanceWithEmployee } from '@/types/attendance';
+import type { AttendanceWithEmployee, AttendanceUpdateInput } from '@/types/attendance';
 
 export type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 
@@ -64,6 +64,11 @@ export function useAttendanceHistory(employeeId: string) {
     checkout: '18:00',
     workDone: '',
   });
+  const [originalWorkTime, setOriginalWorkTime] = useState({
+    checkin: '',
+    checkout: '',
+    workDone: '',
+  });
 
   useEffect(() => {
     let ignore = false;
@@ -101,12 +106,11 @@ export function useAttendanceHistory(employeeId: string) {
   };
 
   const handleEditWorkTime = (record: AttendanceRecord) => {
-    setEditedWorkTime({
-      date: record.date,
-      checkin: record.checkin === '결근' || record.checkin === '-' ? '09:00' : record.checkin,
-      checkout: record.checkout === '-' ? '18:00' : record.checkout,
-      workDone: record.workDone === '-' ? '' : record.workDone,
-    });
+    const checkin = record.checkin === '결근' || record.checkin === '-' ? '09:00' : record.checkin;
+    const checkout = record.checkout === '-' ? '' : record.checkout;
+    const workDone = record.workDone === '-' ? '' : record.workDone;
+    setEditedWorkTime({ date: record.date, checkin, checkout, workDone });
+    setOriginalWorkTime({ checkin, checkout, workDone });
     setIsEditingWorkTime(true);
   };
 
@@ -117,13 +121,25 @@ export function useAttendanceHistory(employeeId: string) {
       return;
     }
 
+    const payload: AttendanceUpdateInput = {};
+    if (editedWorkTime.checkin !== originalWorkTime.checkin) {
+      payload.clockIn = buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin);
+    }
+    if (editedWorkTime.checkout !== originalWorkTime.checkout) {
+      payload.clockOut = buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout);
+    }
+    if (editedWorkTime.workDone !== originalWorkTime.workDone) {
+      payload.workContent = editedWorkTime.workDone;
+    }
+
+    if (Object.keys(payload).length === 0) {
+      setIsEditingWorkTime(false);
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await attendanceApi.updateAttendance(record.id, {
-        clockIn: buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin),
-        clockOut: buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout),
-        workContent: editedWorkTime.workDone,
-      });
+      await attendanceApi.updateAttendance(record.id, payload);
       const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
       setAttendanceHistory(response.data.map(toAttendanceRecord));
       setIsEditingWorkTime(false);
