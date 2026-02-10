@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   Building2,
@@ -23,80 +23,149 @@ import {
   Hash,
   MessageSquare,
   UserX,
+  Loader2,
+  Trash2,
+  CalendarOff,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { workersData } from '../../_data/dummyData';
+import { getEmployee, updateEmployee } from '@/lib/api/employees';
+import { attendanceApi } from '@/lib/api/attendance';
+import { getEmployeeFiles, uploadEmployeeFile, deleteEmployeeFile } from '@/lib/api/employeeFiles';
+import { useToast } from '@/components/ui/Toast';
+import { extractErrorMessage } from '@/lib/api/error';
+import { formatUtcTimestampAsKST, formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
+import type { Employee, EmployeeFile, DocumentType, WorkDay } from '@/types/employee';
+import type { AttendanceWithEmployee } from '@/types/attendance';
 
-interface AttendanceRecord {
-  date: string;
-  checkin: string;
-  checkout: string;
-  status: string;
-  workDone: string;
+const WORK_DAY_MAP: Record<number, string> = {
+  1: '월', 2: '화', 3: '수', 4: '목', 5: '금', 6: '토', 7: '일',
+};
+const DAY_NAME_TO_NUM: Record<string, number> = {
+  '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 7,
+};
+
+function formatFileSize(bytes: number | null): string {
+  if (!bytes) return '-';
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
-interface Document {
-  id: number;
-  name: string;
-  type: string;
-  uploadDate: string;
-  size: string;
+function getAttendanceDisplayStatus(record: AttendanceWithEmployee): string {
+  if (record.status === 'absent') return '결근';
+  if (record.status === 'leave') return '휴가';
+  if (record.status === 'holiday') return '휴일';
+  if (record.isLate) return '지각';
+  return '정상';
 }
 
 export default function EmployeeDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const employeeId = Number(params.id);
+  const employeeId = params.id as string;
+  const toast = useToast();
 
-  const worker = workersData.find((w) => w.id === employeeId);
+  const [worker, setWorker] = useState<Employee | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceWithEmployee[]>([]);
+  const [documents, setDocuments] = useState<EmployeeFile[]>([]);
 
-  const [notes, setNotes] = useState(worker?.notes || '');
+  // Notes editing state
+  const [notes, setNotes] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
 
-  const [workDays, setWorkDays] = useState(['월', '화', '수', '목', '금']);
+  // Work info editing state
+  const [workDays, setWorkDays] = useState<string[]>([]);
   const [workStartTime, setWorkStartTime] = useState('09:00');
   const [isEditingWorkInfo, setIsEditingWorkInfo] = useState(false);
   const [tempWorkDays, setTempWorkDays] = useState<string[]>([]);
   const [tempWorkStartTime, setTempWorkStartTime] = useState('');
+  const [savingWorkInfo, setSavingWorkInfo] = useState(false);
 
-  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([
-    { date: '2026-01-28', checkin: '결근', checkout: '-', status: '결근', workDone: '-' },
-    { date: '2026-01-27', checkin: '09:05', checkout: '18:10', status: '정상', workDone: '포장 작업' },
-    { date: '2026-01-26', checkin: '09:00', checkout: '17:55', status: '정상', workDone: '재고 정리' },
-    { date: '2026-01-25', checkin: '-', checkout: '-', status: '휴가', workDone: '-' },
-    { date: '2026-01-24', checkin: '09:10', checkout: '18:00', status: '지각', workDone: '품질 검사' },
-    { date: '2026-01-23', checkin: '09:00', checkout: '18:05', status: '정상', workDone: '설비 점검' },
-    { date: '2026-01-22', checkin: '09:00', checkout: '18:00', status: '정상', workDone: '제품 포장' },
-  ]);
-
-  const [documents] = useState<Document[]>([
-    { id: 1, name: '근로계약서.pdf', type: '계약서', uploadDate: '2025-12-01', size: '1.2MB' },
-    { id: 2, name: '개인정보동의서.pdf', type: '동의서', uploadDate: '2025-12-01', size: '0.8MB' },
-    { id: 3, name: '건강검진결과.pdf', type: '건강검진', uploadDate: '2026-01-15', size: '2.1MB' },
-    { id: 4, name: '장애인등록증.pdf', type: '신분증', uploadDate: '2025-12-01', size: '0.5MB' },
-    { id: 5, name: '이력서.pdf', type: '이력서', uploadDate: '2025-11-28', size: '0.9MB' },
-  ]);
-
+  // Modals
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showWorkDoneModal, setShowWorkDoneModal] = useState(false);
   const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string } | null>(null);
   const [isEditingWorkTime, setIsEditingWorkTime] = useState(false);
+  const [editingAttendanceId, setEditingAttendanceId] = useState<string | null>(null);
   const [editedWorkTime, setEditedWorkTime] = useState({
-    date: '2026-01-28',
+    date: '',
     checkin: '09:00',
     checkout: '18:00',
-    workDone: '제품 검수 완료',
+    workDone: '',
   });
+  const [savingWorkTime, setSavingWorkTime] = useState(false);
 
+  // Upload state
+  const [uploadDocType, setUploadDocType] = useState<DocumentType>('근로계약서');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const fetchEmployee = useCallback(async () => {
+    try {
+      const result = await getEmployee(employeeId);
+      const emp = result.data;
+      setWorker(emp);
+      setNotes(emp.adminNote || '');
+      const dayNames = (emp.workDays ?? []).map((d) => WORK_DAY_MAP[d]).filter(Boolean);
+      setWorkDays(dayNames);
+      setWorkStartTime(emp.workStartTime ? emp.workStartTime.slice(0, 5) : '09:00');
+    } catch (err) {
+      console.error('Failed to fetch employee:', err);
+      toast.error(extractErrorMessage(err));
+    }
+  }, [employeeId, toast]);
+
+  const fetchAttendance = useCallback(async () => {
+    try {
+      const result = await attendanceApi.getAttendances({
+        employeeId,
+        limit: 10,
+      });
+      setAttendanceHistory(result.data);
+    } catch (err) {
+      console.error('Failed to fetch attendance:', err);
+    }
+  }, [employeeId]);
+
+  const fetchFiles = useCallback(async () => {
+    try {
+      const files = await getEmployeeFiles(employeeId);
+      setDocuments(files);
+    } catch (err) {
+      console.error('Failed to fetch files:', err);
+    }
+  }, [employeeId]);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      await Promise.all([fetchEmployee(), fetchAttendance(), fetchFiles()]);
+      setLoading(false);
+    };
+    load();
+  }, [fetchEmployee, fetchAttendance, fetchFiles]);
+
+  // Notes handlers
   const handleEditNotes = () => {
     setTempNotes(notes);
     setIsEditingNotes(true);
   };
 
-  const handleSaveNotes = () => {
-    setNotes(tempNotes);
-    setIsEditingNotes(false);
+  const handleSaveNotes = async () => {
+    try {
+      setSavingNotes(true);
+      await updateEmployee(employeeId, { adminNote: tempNotes || null });
+      setNotes(tempNotes);
+      setIsEditingNotes(false);
+      toast.success('비고란이 저장되었습니다.');
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    } finally {
+      setSavingNotes(false);
+    }
   };
 
   const handleCancelNotes = () => {
@@ -104,16 +173,33 @@ export default function EmployeeDetailPage() {
     setTempNotes('');
   };
 
+  // Work info handlers
   const handleEditWorkInfo = () => {
     setTempWorkDays([...workDays]);
     setTempWorkStartTime(workStartTime);
     setIsEditingWorkInfo(true);
   };
 
-  const handleSaveWorkInfo = () => {
-    setWorkDays([...tempWorkDays]);
-    setWorkStartTime(tempWorkStartTime);
-    setIsEditingWorkInfo(false);
+  const handleSaveWorkInfo = async () => {
+    try {
+      setSavingWorkInfo(true);
+      const dayNums = tempWorkDays
+        .map((d) => DAY_NAME_TO_NUM[d])
+        .filter(Boolean)
+        .sort() as WorkDay[];
+      await updateEmployee(employeeId, {
+        workDays: dayNums,
+        workStartTime: tempWorkStartTime,
+      });
+      setWorkDays([...tempWorkDays]);
+      setWorkStartTime(tempWorkStartTime);
+      setIsEditingWorkInfo(false);
+      toast.success('근무 정보가 저장되었습니다.');
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    } finally {
+      setSavingWorkInfo(false);
+    }
   };
 
   const handleCancelEditWorkInfo = () => {
@@ -130,31 +216,82 @@ export default function EmployeeDetailPage() {
     }
   };
 
-  const handleEditWorkTime = (record: AttendanceRecord) => {
+  // Attendance edit handlers
+  const handleEditWorkTime = (record: AttendanceWithEmployee) => {
+    const dateStr = formatDateAsKST(new Date(record.date));
+    setEditingAttendanceId(record.id);
     setEditedWorkTime({
-      date: record.date,
-      checkin: record.checkin === '결근' || record.checkin === '-' ? '09:00' : record.checkin,
-      checkout: record.checkout === '-' ? '18:00' : record.checkout,
-      workDone: record.workDone === '-' ? '' : record.workDone,
+      date: dateStr,
+      checkin: record.clockIn ? formatUtcTimestampAsKST(record.clockIn) : '',
+      checkout: record.clockOut ? formatUtcTimestampAsKST(record.clockOut) : '',
+      workDone: record.workContent || '',
     });
     setIsEditingWorkTime(true);
   };
 
-  const handleSaveWorkTime = () => {
-    setAttendanceHistory((prev) =>
-      prev.map((record) =>
-        record.date === editedWorkTime.date
-          ? {
-              ...record,
-              checkin: editedWorkTime.checkin,
-              checkout: editedWorkTime.checkout,
-              workDone: editedWorkTime.workDone,
-              status: editedWorkTime.checkin > '09:00' ? '지각' : '정상',
-            }
-          : record
-      )
-    );
-    setIsEditingWorkTime(false);
+  const handleSaveWorkTime = async () => {
+    if (!editingAttendanceId) return;
+    try {
+      setSavingWorkTime(true);
+      await attendanceApi.updateAttendance(editingAttendanceId, {
+        clockIn: editedWorkTime.checkin ? buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin) : undefined,
+        clockOut: editedWorkTime.checkout ? buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout) : undefined,
+        workContent: editedWorkTime.workDone || undefined,
+      });
+      setIsEditingWorkTime(false);
+      toast.success('근무시간이 수정되었습니다.');
+      fetchAttendance();
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    } finally {
+      setSavingWorkTime(false);
+    }
+  };
+
+  const handleVacation = async () => {
+    if (!editingAttendanceId) return;
+    try {
+      setSavingWorkTime(true);
+      await attendanceApi.updateAttendance(editingAttendanceId, { status: 'leave' });
+      setIsEditingWorkTime(false);
+      toast.success('휴가 처리되었습니다.');
+      fetchAttendance();
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    } finally {
+      setSavingWorkTime(false);
+    }
+  };
+
+  // File handlers
+  const handleUpload = async () => {
+    if (!uploadFile) {
+      toast.error('파일을 선택해주세요.');
+      return;
+    }
+    try {
+      setUploading(true);
+      await uploadEmployeeFile(employeeId, uploadFile, uploadDocType);
+      setShowUploadModal(false);
+      setUploadFile(null);
+      toast.success('파일이 업로드되었습니다.');
+      fetchFiles();
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteFile = async (fileId: string) => {
+    if (!confirm('파일을 삭제하시겠습니까?')) return;
+    try {
+      await deleteEmployeeFile(employeeId, fileId);
+      toast.success('파일이 삭제되었습니다.');
+      fetchFiles();
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -164,6 +301,7 @@ export default function EmployeeDetailPage() {
       case '지각':
         return 'bg-yellow-100 text-yellow-700';
       case '휴가':
+      case '휴일':
         return 'bg-blue-100 text-blue-700';
       case '결근':
         return 'bg-red-100 text-red-700';
@@ -171,6 +309,14 @@ export default function EmployeeDetailPage() {
         return 'bg-gray-100 text-gray-700';
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
+      </div>
+    );
+  }
 
   if (!worker) {
     return (
@@ -185,6 +331,22 @@ export default function EmployeeDetailPage() {
       </div>
     );
   }
+
+  const statusLabel = worker.isActive
+    ? worker.status === 'checkin'
+      ? '근무중'
+      : worker.status === 'checkout'
+      ? '퇴근'
+      : worker.status === 'absent'
+      ? '결근'
+      : '대기'
+    : '퇴사';
+
+  const statusClass = !worker.isActive
+    ? 'bg-gray-200 text-gray-600'
+    : worker.status === 'checkin'
+    ? 'bg-green-100 text-green-700'
+    : 'bg-gray-200 text-gray-700';
 
   return (
     <div className="min-h-screen bg-duru-ivory -mx-4 sm:-mx-6 lg:-mx-8 -my-8 px-4 sm:px-6 lg:px-8 py-8">
@@ -209,18 +371,14 @@ export default function EmployeeDetailPage() {
                   <span className="text-3xl font-bold text-duru-orange-600">{worker.name[0]}</span>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-1">{worker.name}</h2>
-                <p className="text-gray-600">{worker.department}</p>
+                <p className="text-gray-600">{worker.disability ?? '-'}</p>
                 <span
                   className={cn(
                     'inline-block px-3 py-1 rounded-full text-xs font-semibold mt-2',
-                    worker.isResigned
-                      ? 'bg-gray-200 text-gray-600'
-                      : worker.status === 'working'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-200 text-gray-700'
+                    statusClass
                   )}
                 >
-                  {worker.isResigned ? '퇴사' : worker.status === 'working' ? '근무중' : worker.status}
+                  {statusLabel}
                 </span>
               </div>
 
@@ -228,12 +386,14 @@ export default function EmployeeDetailPage() {
                 <div className="flex items-center gap-3 text-sm">
                   <Building2 className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">소속 회사:</span>
-                  <span className="font-semibold text-gray-900">{worker.company}</span>
+                  <span className="font-semibold text-gray-900">
+                    {(worker as Employee & { companyName?: string }).companyName ?? '-'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <IdCard className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">주민번호:</span>
-                  <span className="font-semibold text-gray-900">123456-1234567</span>
+                  <span className="font-semibold text-gray-900">-</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <Phone className="w-4 h-4 text-gray-400" />
@@ -243,17 +403,21 @@ export default function EmployeeDetailPage() {
                 <div className="flex items-center gap-3 text-sm">
                   <Heart className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">비상연락처:</span>
-                  <span className="font-semibold text-gray-900">010-9876-5432 (부모)</span>
+                  <span className="font-semibold text-gray-900">
+                    {worker.emergencyContactPhone
+                      ? `${worker.emergencyContactPhone} (${worker.emergencyContactRelation ?? ''})`
+                      : '-'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <UserIcon className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">성별:</span>
-                  <span className="font-semibold text-gray-900">남</span>
+                  <span className="font-semibold text-gray-900">{worker.gender ?? '-'}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <Briefcase className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-600">입사일:</span>
-                  <span className="font-semibold text-gray-900">{worker.contractEnd.substring(0, 10)}</span>
+                  <span className="font-semibold text-gray-900">{worker.hireDate?.substring(0, 10) ?? '-'}</span>
                 </div>
               </div>
             </div>
@@ -266,7 +430,7 @@ export default function EmployeeDetailPage() {
               </h3>
               <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
                 <p className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider">
-                  {worker.workerId}
+                  {worker.uniqueCode}
                 </p>
               </div>
             </div>
@@ -280,20 +444,44 @@ export default function EmployeeDetailPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-600">유형</span>
-                  <span className="font-bold text-gray-900">{worker.disabilityType}</span>
+                  <span className="font-bold text-gray-900">{worker.disabilityType ?? worker.disability ?? '-'}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-600">중증/경증</span>
-                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
-                    경증
+                  <span className={cn(
+                    'inline-block px-2 py-0.5 rounded-full text-xs font-bold',
+                    worker.disabilitySeverity === '중증'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-blue-100 text-blue-700'
+                  )}>
+                    {worker.disabilitySeverity ?? '-'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-600">인정일</span>
-                  <span className="font-bold text-gray-900">2020-03-15</span>
+                  <span className="font-bold text-gray-900">
+                    {worker.disabilityRecognitionDate?.substring(0, 10) ?? '-'}
+                  </span>
                 </div>
               </div>
             </div>
+
+            {/* 기업 비고란 (읽기 전용) */}
+            {worker.companyNote && (
+              <div className="bg-white rounded-xl p-4 border border-blue-200">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-blue-600" />
+                    기업 비고란
+                  </h3>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3 min-h-[60px]">
+                  <p className="text-xs text-gray-700 whitespace-pre-wrap">
+                    {worker.companyNote}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* 비고란 */}
             <div className="bg-white rounded-xl p-4 border border-gray-200">
@@ -320,9 +508,10 @@ export default function EmployeeDetailPage() {
                     </button>
                     <button
                       onClick={handleSaveNotes}
-                      className="px-2 py-1 bg-duru-orange-500 text-white rounded text-xs font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1"
+                      disabled={savingNotes}
+                      className="px-2 py-1 bg-duru-orange-500 text-white rounded text-xs font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1 disabled:opacity-50"
                     >
-                      <Check className="w-3 h-3" />
+                      {savingNotes ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
                       저장
                     </button>
                   </div>
@@ -346,7 +535,7 @@ export default function EmployeeDetailPage() {
             </div>
 
             {/* 퇴사 정보 (퇴사자인 경우) */}
-            {worker.isResigned && (
+            {!worker.isActive && (
               <div className="bg-gray-100 rounded-xl p-4 border border-gray-300">
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                   <UserX className="w-4 h-4 text-gray-500" />
@@ -355,7 +544,7 @@ export default function EmployeeDetailPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-gray-600">퇴사일</span>
-                    <span className="font-bold text-gray-700">{worker.resignDate}</span>
+                    <span className="font-bold text-gray-700">{worker.resignDate?.substring(0, 10) ?? '-'}</span>
                   </div>
                   {worker.resignReason && (
                     <div className="text-xs">
@@ -392,54 +581,75 @@ export default function EmployeeDetailPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {attendanceHistory.slice(0, 7).map((record, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-gray-900">{record.date}</td>
-                        <td
-                          className={cn(
-                            'px-4 py-3',
-                            record.checkin === '결근' ? 'text-red-600 font-semibold' : 'text-gray-900'
-                          )}
-                        >
-                          {record.checkin}
-                        </td>
-                        <td className="px-4 py-3 text-gray-900">{record.checkout}</td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={cn(
-                              'px-2 py-1 rounded-full text-xs font-semibold',
-                              getStatusColor(record.status)
-                            )}
-                          >
-                            {record.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          {record.workDone !== '-' ? (
-                            <button
-                              onClick={() => {
-                                setSelectedWorkDone({ date: record.date, workDone: record.workDone });
-                                setShowWorkDoneModal(true);
-                              }}
-                              className="text-sm text-duru-orange-600 underline hover:text-duru-orange-700"
+                    {attendanceHistory.length > 0 ? (
+                      attendanceHistory.slice(0, 7).map((record) => {
+                        const displayStatus = getAttendanceDisplayStatus(record);
+                        const checkinDisplay = record.clockIn
+                          ? formatUtcTimestampAsKST(record.clockIn)
+                          : displayStatus === '결근'
+                          ? '결근'
+                          : '-';
+                        const checkoutDisplay = record.clockOut
+                          ? formatUtcTimestampAsKST(record.clockOut)
+                          : '-';
+                        const dateDisplay = formatDateAsKST(new Date(record.date));
+
+                        return (
+                          <tr key={record.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 text-gray-900">{dateDisplay}</td>
+                            <td
+                              className={cn(
+                                'px-4 py-3',
+                                checkinDisplay === '결근' ? 'text-red-600 font-semibold' : 'text-gray-900'
+                              )}
                             >
-                              확인하기
-                            </button>
-                          ) : (
-                            <span className="text-gray-400 text-sm">-</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <button
-                            onClick={() => handleEditWorkTime(record)}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="수정"
-                          >
-                            <Edit3 className="w-4 h-4 text-gray-600" />
-                          </button>
+                              {checkinDisplay}
+                            </td>
+                            <td className="px-4 py-3 text-gray-900">{checkoutDisplay}</td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={cn(
+                                  'px-2 py-1 rounded-full text-xs font-semibold',
+                                  getStatusColor(displayStatus)
+                                )}
+                              >
+                                {displayStatus}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              {record.workContent ? (
+                                <button
+                                  onClick={() => {
+                                    setSelectedWorkDone({ date: dateDisplay, workDone: record.workContent! });
+                                    setShowWorkDoneModal(true);
+                                  }}
+                                  className="text-sm text-duru-orange-600 underline hover:text-duru-orange-700"
+                                >
+                                  확인하기
+                                </button>
+                              ) : (
+                                <span className="text-gray-400 text-sm">-</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <button
+                                onClick={() => handleEditWorkTime(record)}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="수정"
+                              >
+                                <Edit3 className="w-4 h-4 text-gray-600" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                          출퇴근 기록이 없습니다.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -470,9 +680,10 @@ export default function EmployeeDetailPage() {
                     </button>
                     <button
                       onClick={handleSaveWorkInfo}
-                      className="px-3 py-1.5 bg-duru-orange-500 text-white rounded-lg text-sm font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1.5"
+                      disabled={savingWorkInfo}
+                      className="px-3 py-1.5 bg-duru-orange-500 text-white rounded-lg text-sm font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1.5 disabled:opacity-50"
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      {savingWorkInfo ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                       저장
                     </button>
                   </div>
@@ -565,38 +776,54 @@ export default function EmployeeDetailPage() {
               </div>
 
               <div className="space-y-3">
-                {documents.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-red-600" />
+                {documents.length > 0 ? (
+                  documents.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-red-600" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{doc.fileName}</p>
+                          <p className="text-xs text-gray-600">
+                            {doc.documentType} · {doc.createdAt?.substring(0, 10)} · {formatFileSize(doc.fileSize)}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{doc.name}</p>
-                        <p className="text-xs text-gray-600">
-                          {doc.type} · {doc.uploadDate} · {doc.size}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={doc.filePath}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 hover:bg-white rounded-lg transition-colors"
+                          title="미리보기"
+                        >
+                          <Eye className="w-4 h-4 text-gray-600" />
+                        </a>
+                        <a
+                          href={doc.filePath}
+                          download
+                          className="p-2 hover:bg-white rounded-lg transition-colors"
+                          title="다운로드"
+                        >
+                          <Download className="w-4 h-4 text-gray-600" />
+                        </a>
+                        <button
+                          onClick={() => handleDeleteFile(doc.id)}
+                          className="p-2 hover:bg-white rounded-lg transition-colors"
+                          title="삭제"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="p-2 hover:bg-white rounded-lg transition-colors"
-                        title="미리보기"
-                      >
-                        <Eye className="w-4 h-4 text-gray-600" />
-                      </button>
-                      <button
-                        className="p-2 hover:bg-white rounded-lg transition-colors"
-                        title="다운로드"
-                      >
-                        <Download className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-gray-400 py-8">등록된 문서가 없습니다.</p>
+                )}
               </div>
             </div>
           </div>
@@ -610,7 +837,7 @@ export default function EmployeeDetailPage() {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900">파일 업로드</h3>
               <button
-                onClick={() => setShowUploadModal(false)}
+                onClick={() => { setShowUploadModal(false); setUploadFile(null); }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5 text-gray-600" />
@@ -620,14 +847,18 @@ export default function EmployeeDetailPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">문서 종류</label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500">
-                  <option>근로계약서</option>
-                  <option>동의서</option>
-                  <option>건강검진</option>
-                  <option>자격증</option>
-                  <option>장애인등록증</option>
-                  <option>이력서</option>
-                  <option>기타</option>
+                <select
+                  value={uploadDocType}
+                  onChange={(e) => setUploadDocType(e.target.value as DocumentType)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+                >
+                  <option value="근로계약서">근로계약서</option>
+                  <option value="동의서">동의서</option>
+                  <option value="건강검진">건강검진</option>
+                  <option value="자격증">자격증</option>
+                  <option value="장애인등록증">장애인등록증</option>
+                  <option value="이력서">이력서</option>
+                  <option value="기타">기타</option>
                 </select>
               </div>
 
@@ -636,6 +867,7 @@ export default function EmployeeDetailPage() {
                 <input
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
                 />
                 <p className="text-xs text-gray-500 mt-2">PDF, JPG, PNG 파일만 업로드 가능 (최대 10MB)</p>
@@ -643,15 +875,17 @@ export default function EmployeeDetailPage() {
 
               <div className="flex gap-3 pt-4">
                 <button
-                  onClick={() => setShowUploadModal(false)}
+                  onClick={() => { setShowUploadModal(false); setUploadFile(null); }}
                   className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
                 >
                   취소
                 </button>
                 <button
-                  onClick={() => setShowUploadModal(false)}
-                  className="flex-1 py-3 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors"
+                  onClick={handleUpload}
+                  disabled={uploading || !uploadFile}
+                  className="flex-1 py-3 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
+                  {uploading && <Loader2 className="w-4 h-4 animate-spin" />}
                   업로드
                 </button>
               </div>
@@ -715,20 +949,32 @@ export default function EmployeeDetailPage() {
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex justify-between pt-4">
                 <button
                   onClick={() => setIsEditingWorkTime(false)}
-                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                  disabled={savingWorkTime}
+                  className="py-3 px-6 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   취소
                 </button>
-                <button
-                  onClick={handleSaveWorkTime}
-                  className="flex-1 py-3 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  저장
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleVacation}
+                    disabled={savingWorkTime}
+                    className="py-3 px-5 border border-duru-orange-300 bg-duru-orange-50/50 text-duru-orange-600 hover:bg-duru-orange-100 rounded-lg font-semibold transition-colors flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <CalendarOff className="w-4 h-4" />
+                    휴가
+                  </button>
+                  <button
+                    onClick={handleSaveWorkTime}
+                    disabled={savingWorkTime}
+                    className="py-3 px-6 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {savingWorkTime ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    저장
+                  </button>
+                </div>
               </div>
             </div>
           </div>

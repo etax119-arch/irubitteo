@@ -2,28 +2,32 @@
 
 import { useState } from 'react';
 import { X, Printer, FileDown, User, Phone, Mail, Copy, Check } from 'lucide-react';
-import type { WorkStatWorker, PMInfo } from '@/types/adminDashboard';
+import type { WorkStatEmployee } from '@/types/adminDashboard';
 
 interface PrintPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   companyName: string;
-  workers: WorkStatWorker[];
-  pm: PMInfo | null;
+  workers: WorkStatEmployee[];
+  pmContactName: string | null;
+  pmContactPhone: string | null;
+  pmContactEmail: string | null;
   selectedMonth: string;
 }
 
 const ALL_DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
-function copyWorkers(workers: WorkStatWorker[]): WorkStatWorker[] {
+function copyWorkers(workers: WorkStatEmployee[]): WorkStatEmployee[] {
   return workers.map(w => ({ ...w, scheduledWorkDays: [...w.scheduledWorkDays] }));
 }
 
 interface PrintPreviewContentProps {
   onClose: () => void;
   companyName: string;
-  workers: WorkStatWorker[];
-  pm: PMInfo | null;
+  workers: WorkStatEmployee[];
+  pmContactName: string | null;
+  pmContactPhone: string | null;
+  pmContactEmail: string | null;
   selectedMonth: string;
 }
 
@@ -31,13 +35,14 @@ function PrintPreviewContent({
   onClose,
   companyName,
   workers,
-  pm,
+  pmContactName,
+  pmContactPhone,
+  pmContactEmail,
   selectedMonth,
 }: PrintPreviewContentProps) {
   const [copiedEmail, setCopiedEmail] = useState(false);
-  // workers를 초기값으로 복사하여 로컬 상태로 관리
-  const [localWorkers, setLocalWorkers] = useState<WorkStatWorker[]>(() => copyWorkers(workers));
-  const [editingCell, setEditingCell] = useState<{ workerId: number; field: 'workDays' | 'totalHours' } | null>(null);
+  const [localWorkers, setLocalWorkers] = useState<WorkStatEmployee[]>(() => copyWorkers(workers));
+  const [editingCell, setEditingCell] = useState<{ workerId: string; field: 'workDays' | 'totalHours' } | null>(null);
 
   const avgWorkDays = localWorkers.length > 0
     ? (localWorkers.reduce((sum, w) => sum + w.workDays, 0) / localWorkers.length).toFixed(1)
@@ -46,7 +51,7 @@ function PrintPreviewContent({
     ? (localWorkers.reduce((sum, w) => sum + w.totalHours, 0) / localWorkers.length).toFixed(1)
     : '0';
 
-  const toggleWorkDay = (workerId: number, day: string) => {
+  const toggleWorkDay = (workerId: string, day: string) => {
     setLocalWorkers(prev => prev.map(w => {
       if (w.id !== workerId) return w;
       const days = w.scheduledWorkDays.includes(day)
@@ -56,7 +61,7 @@ function PrintPreviewContent({
     }));
   };
 
-  const updateNumericField = (workerId: number, field: 'workDays' | 'totalHours', value: string) => {
+  const updateNumericField = (workerId: string, field: 'workDays' | 'totalHours', value: string) => {
     const numValue = parseFloat(value) || 0;
     setLocalWorkers(prev => prev.map(w =>
       w.id === workerId ? { ...w, [field]: numValue } : w
@@ -66,6 +71,8 @@ function PrintPreviewContent({
   const handlePrint = () => {
     window.print();
   };
+
+  const hasPmInfo = pmContactName || pmContactPhone || pmContactEmail;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -93,36 +100,42 @@ function PrintPreviewContent({
               </button>
             </div>
           </div>
-          {pm && (
+          {hasPmInfo && (
             <div className="flex items-center gap-4 text-sm bg-duru-orange-50 rounded-lg px-4 py-2">
               <span className="font-semibold text-duru-orange-600">담당자</span>
-              <div className="flex items-center gap-1 text-gray-700">
-                <User className="w-4 h-4 text-gray-500" />
-                {pm.name}
-              </div>
-              <div className="flex items-center gap-1 text-gray-700">
-                <Phone className="w-4 h-4 text-gray-500" />
-                {pm.phone}
-              </div>
-              <div className="flex items-center gap-1 text-gray-700">
-                <Mail className="w-4 h-4 text-gray-500" />
-                <span>{pm.email}</span>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(pm.email);
-                    setCopiedEmail(true);
-                    setTimeout(() => setCopiedEmail(false), 2000);
-                  }}
-                  className="ml-1 p-1 hover:bg-duru-orange-100 rounded transition-colors"
-                  title="이메일 복사"
-                >
-                  {copiedEmail ? (
-                    <Check className="w-3 h-3 text-green-600" />
-                  ) : (
-                    <Copy className="w-3 h-3 text-gray-500" />
-                  )}
-                </button>
-              </div>
+              {pmContactName && (
+                <div className="flex items-center gap-1 text-gray-700">
+                  <User className="w-4 h-4 text-gray-500" />
+                  {pmContactName}
+                </div>
+              )}
+              {pmContactPhone && (
+                <div className="flex items-center gap-1 text-gray-700">
+                  <Phone className="w-4 h-4 text-gray-500" />
+                  {pmContactPhone}
+                </div>
+              )}
+              {pmContactEmail && (
+                <div className="flex items-center gap-1 text-gray-700">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                  <span>{pmContactEmail}</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(pmContactEmail);
+                      setCopiedEmail(true);
+                      setTimeout(() => setCopiedEmail(false), 2000);
+                    }}
+                    className="ml-1 p-1 hover:bg-duru-orange-100 rounded transition-colors"
+                    title="이메일 복사"
+                  >
+                    {copiedEmail ? (
+                      <Check className="w-3 h-3 text-green-600" />
+                    ) : (
+                      <Copy className="w-3 h-3 text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -271,10 +284,11 @@ export function PrintPreviewModal({
   onClose,
   companyName,
   workers,
-  pm,
+  pmContactName,
+  pmContactPhone,
+  pmContactEmail,
   selectedMonth,
 }: PrintPreviewModalProps) {
-  // isOpen이 true일 때만 내부 컴포넌트를 렌더링하여 상태를 매번 초기화
   if (!isOpen) return null;
 
   return (
@@ -282,7 +296,9 @@ export function PrintPreviewModal({
       onClose={onClose}
       companyName={companyName}
       workers={workers}
-      pm={pm}
+      pmContactName={pmContactName}
+      pmContactPhone={pmContactPhone}
+      pmContactEmail={pmContactEmail}
       selectedMonth={selectedMonth}
     />
   );

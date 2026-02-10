@@ -1,35 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Building2, Users, UserCheck, AlertCircle, Bell } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Building2, Users, UserCheck, AlertCircle, Bell, Loader2 } from 'lucide-react';
 import { AdminStatCard } from '../_components/AdminStatCard';
 import { CompanyAttendanceAccordion } from '../_components/CompanyAttendanceAccordion';
-import { adminStats, notifications, dailyAttendance as initialDailyAttendance } from '../_data/dummyData';
-import type { DailyAttendanceData, DailyAttendanceWorker } from '@/types/adminDashboard';
+import { getAdminStats, getAdminDailyAttendance, getAbsenceAlerts, dismissAbsenceAlert } from '@/lib/api/admin';
+import { extractErrorMessage } from '@/lib/api/error';
+import { useToast } from '@/components/ui/Toast';
+import type { AdminStats, AdminDailyCompany, AbsenceAlert } from '@/types/adminDashboard';
 
 export default function AdminDashboardPage() {
-  const [dailyAttendance, setDailyAttendance] = useState<DailyAttendanceData>(initialDailyAttendance);
+  const router = useRouter();
+  const toast = useToast();
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [dailyAttendance, setDailyAttendance] = useState<AdminDailyCompany[]>([]);
+  const [urgentAlerts, setUrgentAlerts] = useState<AbsenceAlert[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAttendanceUpdate = (
-    companyName: string,
-    workerId: number,
-    field: keyof DailyAttendanceWorker,
-    value: string,
-    timeSlot: 'morning' | 'afternoon'
-  ) => {
-    setDailyAttendance((prev) => ({
-      ...prev,
-      [companyName]: {
-        ...prev[companyName],
-        [timeSlot]: prev[companyName][timeSlot].map((worker) =>
-          worker.id === workerId ? { ...worker, [field]: value, needsAttention: false } : worker
-        ),
-      },
-    }));
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [statsRes, attendanceRes, alertsRes] = await Promise.all([
+        getAdminStats(),
+        getAdminDailyAttendance(),
+        getAbsenceAlerts(3, 1, 5),
+      ]);
+      setStats(statsRes);
+      setDailyAttendance(attendanceRes);
+      setUrgentAlerts(alertsRes.data);
+    } catch (err) {
+      console.error('Failed to fetch dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleDismissAlert = async (alertId: string, employeeId: string) => {
+    try {
+      await dismissAbsenceAlert(alertId);
+      setUrgentAlerts((prev) => prev.filter((a) => a.id !== alertId));
+      toast.success('알림을 확인했습니다.');
+      router.push(`/admin/employees/${employeeId}`);
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    }
   };
 
-  const highPriorityNotifications = notifications.filter((n) => n.priority === 'high');
+  if (loading || !stats) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -40,20 +69,16 @@ export default function AdminDashboardPage() {
           iconBgColor="bg-blue-100"
           iconColor="text-blue-600"
           label="전체 회원사"
-          value={adminStats.totalCompanies}
+          value={stats.totalCompanies}
           unit="개"
-          badge="+3 이번달"
-          badgeColor="text-green-600"
         />
         <AdminStatCard
           icon={Users}
           iconBgColor="bg-duru-orange-100"
           iconColor="text-duru-orange-600"
           label="전체 근로자"
-          value={adminStats.totalWorkers}
+          value={stats.totalWorkers}
           unit="명"
-          badge="+12 이번달"
-          badgeColor="text-green-600"
           cardBorderColor="border-duru-orange-200"
           cardBgColor="bg-duru-orange-50"
           valueColor="text-duru-orange-600"
@@ -63,7 +88,7 @@ export default function AdminDashboardPage() {
           iconBgColor="bg-green-100"
           iconColor="text-green-600"
           label="근무 중"
-          value={adminStats.activeWorkers}
+          value={stats.activeWorkers}
           unit="명"
           cardBorderColor="border-green-200"
           cardBgColor="bg-green-50"
@@ -74,7 +99,7 @@ export default function AdminDashboardPage() {
           iconBgColor="bg-red-100"
           iconColor="text-red-600"
           label="긴급 알림"
-          value={adminStats.pendingIssues}
+          value={stats.pendingIssues}
           unit="건"
           cardBorderColor="border-red-200"
           cardBgColor="bg-red-50"
@@ -82,48 +107,55 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* 최근 알림 */}
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Bell className="w-5 h-5 text-duru-orange-600" />
-            긴급 알림
-          </h2>
-          <Link
-            href="/admin/notifications"
-            className="text-sm text-duru-orange-600 hover:text-duru-orange-700 font-semibold"
-          >
-            전체보기 →
-          </Link>
-        </div>
-        <div className="space-y-3">
-          {highPriorityNotifications.map((notif) => (
-            <div
-              key={notif.id}
-              className="flex items-start gap-4 p-4 bg-red-50 border border-red-200 rounded-lg"
+      {/* 긴급 알림 (결근) */}
+      {urgentAlerts.length > 0 && (
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Bell className="w-5 h-5 text-duru-orange-600" />
+              긴급 알림
+            </h2>
+            <Link
+              href="/admin/notifications"
+              className="text-sm text-duru-orange-600 hover:text-duru-orange-700 font-semibold"
             >
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <AlertCircle className="w-5 h-5 text-red-600" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-gray-900">{notif.title}</span>
-                  <span className="text-xs text-gray-500">{notif.date}</span>
+              전체보기 →
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {urgentAlerts.map((alert) => (
+              <div
+                key={alert.id}
+                className="flex items-start gap-4 p-4 bg-red-50 border border-red-200 rounded-lg"
+              >
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
                 </div>
-                <p className="text-sm text-gray-600">{notif.message}</p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-gray-900">{alert.name} - {alert.status}</span>
+                    <span className="text-xs text-gray-500">{alert.date}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">{alert.companyName}</p>
+                </div>
+                <button
+                  onClick={() => handleDismissAlert(alert.id, alert.employeeId)}
+                  className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm whitespace-nowrap"
+                >
+                  확인하기
+                </button>
               </div>
-              <button className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm whitespace-nowrap">
-                처리하기
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 회사별 출퇴근 현황 */}
       <CompanyAttendanceAccordion
         dailyAttendance={dailyAttendance}
-        onAttendanceUpdate={handleAttendanceUpdate}
+        onDateChange={(date) => {
+          getAdminDailyAttendance(date).then(setDailyAttendance);
+        }}
       />
     </div>
   );

@@ -12,7 +12,10 @@ import {
   Building2,
   MessageSquare,
   ShieldCheck,
+  Loader2,
 } from 'lucide-react';
+import { createInquiry } from '@/lib/api/inquiries';
+import { extractErrorMessage } from '@/lib/api/error';
 
 interface FormData {
   companyName: string;
@@ -59,6 +62,8 @@ export default function InquiryPage() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<TouchedFields>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -79,11 +84,6 @@ export default function InquiryPage() {
     let error = '';
     if (!value.trim()) {
       error = `${fieldLabels[name]}을(를) 입력해주세요.`;
-    } else if (name === 'phone') {
-      const phoneRegex = /^(0[2-9]\d?)-?(\d{3,4})-?(\d{4})$/;
-      if (!phoneRegex.test(value.replace(/\s/g, ''))) {
-        error = '올바른 전화번호 형식을 입력해주세요.';
-      }
     } else if (name === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
@@ -103,7 +103,7 @@ export default function InquiryPage() {
 
   const isSubmitEnabled = isAllFilled && agreePrivacy;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fields: (keyof FormData)[] = [
       'companyName',
@@ -123,7 +123,22 @@ export default function InquiryPage() {
     setTouched(newTouched);
 
     if (!hasError && agreePrivacy) {
-      setShowCompleteModal(true);
+      try {
+        setSubmitting(true);
+        setSubmitError('');
+        await createInquiry({
+          companyName: formData.companyName,
+          representativeName: formData.ceoName,
+          phone: formData.phone,
+          email: formData.email,
+          content: formData.message,
+        });
+        setShowCompleteModal(true);
+      } catch (err) {
+        setSubmitError(extractErrorMessage(err));
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -323,17 +338,23 @@ export default function InquiryPage() {
                 </label>
               </div>
 
+              {/* 에러 메시지 */}
+              {submitError && (
+                <p className="text-center text-sm text-red-500">{submitError}</p>
+              )}
+
               {/* CTA 버튼 */}
               <button
                 type="submit"
-                disabled={!isSubmitEnabled}
-                className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                  isSubmitEnabled
+                disabled={!isSubmitEnabled || submitting}
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+                  isSubmitEnabled && !submitting
                     ? 'bg-duru-orange-500 text-white hover:bg-duru-orange-600 active:scale-[0.99]'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >
-                두루빛터 상담 신청하기
+                {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
+                {submitting ? '신청 중...' : '두루빛터 상담 신청하기'}
               </button>
 
               {/* 개인정보 안내 */}

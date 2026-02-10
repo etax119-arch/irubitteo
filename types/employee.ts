@@ -37,11 +37,12 @@ export type Employee = {
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'resigned';
+  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'resigned' | 'pending' | 'dayoff';
   checkinTime: string | null;
   checkoutTime: string | null;
   uniqueCode: string;
   companyNote: string | null;
+  adminNote: string | null;
   isActive: boolean;
   standby: boolean;
   resignDate: string | null;
@@ -81,6 +82,7 @@ export type EmployeeUpdateInput = {
   disabilitySeverity?: '중증' | '경증' | null;
   disabilityRecognitionDate?: string | null;
   companyNote?: string | null;
+  adminNote?: string | null;
   isActive?: boolean;
   standby?: boolean;
   resignDate?: string | null;
@@ -115,6 +117,13 @@ export type EmployeeSummary = Pick<
 export type EmployeeQueryParams = {
   search?: string;
   isActive?: boolean;
+  companyId?: string;
+  standby?: boolean;
   page?: number;
   limit?: number;
+};
+
+/** 직원 (회사명 포함, 관리자 조회용) */
+export type EmployeeWithCompany = Employee & {
+  companyName: string;
 };

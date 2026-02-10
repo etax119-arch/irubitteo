@@ -2,18 +2,16 @@
 
 import { useState } from 'react';
 import { Building2, ChevronDown, ChevronRight, Eye, Edit, Check, X } from 'lucide-react';
-import type { MonthlyWorkStats, WorkStatWorker, Company } from '@/types/adminDashboard';
+import type { MonthlyWorkStatsCompany, WorkStatEmployee } from '@/types/adminDashboard';
 
 interface WorkStatsTableProps {
-  monthlyWorkStats: MonthlyWorkStats;
-  companies: Company[];
+  companies: MonthlyWorkStatsCompany[];
   selectedMonth: string;
-  onPrintPreview: (companyName: string, workers: WorkStatWorker[], pm: Company['pm'] | null) => void;
-  onWorkStatsUpdate?: (companyName: string, workerId: number, field: 'workDays' | 'totalHours', value: number) => void;
+  onPrintPreview: (company: MonthlyWorkStatsCompany) => void;
+  onWorkStatsUpdate?: (companyId: string, employeeId: string, field: 'workDays' | 'totalHours', value: number) => void;
 }
 
 export function WorkStatsTable({
-  monthlyWorkStats,
   companies,
   selectedMonth,
   onPrintPreview,
@@ -21,21 +19,21 @@ export function WorkStatsTable({
 }: WorkStatsTableProps) {
   const [expandedCompanies, setExpandedCompanies] = useState<Record<string, boolean>>({});
   const [editingCell, setEditingCell] = useState<{
-    companyName: string;
-    workerId: number;
+    companyId: string;
+    employeeId: string;
     field: 'workDays' | 'totalHours';
   } | null>(null);
   const [editValue, setEditValue] = useState('');
 
-  const toggleCompany = (companyName: string) => {
+  const toggleCompany = (companyId: string) => {
     setExpandedCompanies((prev) => ({
       ...prev,
-      [companyName]: !prev[companyName],
+      [companyId]: !prev[companyId],
     }));
   };
 
-  const startEdit = (companyName: string, workerId: number, field: 'workDays' | 'totalHours', currentValue: number) => {
-    setEditingCell({ companyName, workerId, field });
+  const startEdit = (companyId: string, employeeId: string, field: 'workDays' | 'totalHours', currentValue: number) => {
+    setEditingCell({ companyId, employeeId, field });
     setEditValue(currentValue.toString());
   };
 
@@ -43,7 +41,7 @@ export function WorkStatsTable({
     if (!editingCell) return;
     const value = Number(editValue);
     if (!isNaN(value) && value >= 0) {
-      onWorkStatsUpdate?.(editingCell.companyName, editingCell.workerId, editingCell.field, value);
+      onWorkStatsUpdate?.(editingCell.companyId, editingCell.employeeId, editingCell.field, value);
     }
     setEditingCell(null);
     setEditValue('');
@@ -56,26 +54,29 @@ export function WorkStatsTable({
 
   return (
     <div className="space-y-4">
-      {Object.entries(monthlyWorkStats).map(([companyName, companyWorkers]) => {
-        const totalEmployees = companyWorkers.length;
-        const avgWorkHours = (companyWorkers.reduce((sum, w) => sum + w.totalHours, 0) / totalEmployees).toFixed(1);
-        const avgWorkDays = (companyWorkers.reduce((sum, w) => sum + w.workDays, 0) / totalEmployees).toFixed(1);
-        const isExpanded = expandedCompanies[companyName];
-        const company = companies.find((c) => c.name === companyName);
+      {companies.map((company) => {
+        const totalEmployees = company.employees.length;
+        const avgWorkHours = totalEmployees > 0
+          ? (company.employees.reduce((sum, w) => sum + w.totalHours, 0) / totalEmployees).toFixed(1)
+          : '0';
+        const avgWorkDays = totalEmployees > 0
+          ? (company.employees.reduce((sum, w) => sum + w.workDays, 0) / totalEmployees).toFixed(1)
+          : '0';
+        const isExpanded = expandedCompanies[company.companyId];
 
         return (
           <div
-            key={companyName}
+            key={company.companyId}
             className="bg-white rounded-xl border border-gray-200 overflow-hidden print:break-inside-avoid"
           >
             <div
               role="button"
               tabIndex={0}
-              onClick={() => toggleCompany(companyName)}
+              onClick={() => toggleCompany(company.companyId)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  toggleCompany(companyName);
+                  toggleCompany(company.companyId);
                 }
               }}
               className="w-full bg-gradient-to-r from-duru-orange-50 to-white px-6 py-5 border-b border-gray-200 hover:from-duru-orange-100 hover:to-duru-orange-50 transition-all cursor-pointer"
@@ -92,7 +93,7 @@ export function WorkStatsTable({
                   <div className="text-left">
                     <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-1">
                       <Building2 className="w-5 h-5 text-duru-orange-600" />
-                      {companyName}
+                      {company.companyName}
                     </h3>
                     <p className="text-sm text-gray-600">전체 {totalEmployees}명</p>
                   </div>
@@ -101,7 +102,7 @@ export function WorkStatsTable({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      onPrintPreview(companyName, companyWorkers, company?.pm || null);
+                      onPrintPreview(company);
                     }}
                     className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
                   >
@@ -115,7 +116,7 @@ export function WorkStatsTable({
             {isExpanded && (
               <div className="p-6">
                 <div className="mb-6 print:block hidden">
-                  <h2 className="text-2xl font-bold text-center mb-2">{companyName} 월 근무 통계</h2>
+                  <h2 className="text-2xl font-bold text-center mb-2">{company.companyName} 월 근무 통계</h2>
                   <p className="text-center text-gray-600">
                     {selectedMonth.split('-')[0]}년 {selectedMonth.split('-')[1]}월
                   </p>
@@ -139,14 +140,14 @@ export function WorkStatsTable({
                       </tr>
                     </thead>
                     <tbody>
-                      {companyWorkers.map((worker, index) => (
-                        <tr key={worker.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      {company.employees.map((employee, index) => (
+                        <tr key={employee.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                           <td className="px-4 py-3 font-semibold text-gray-900 border border-gray-300">
-                            {worker.name}
+                            {employee.name}
                           </td>
                           <td className="px-4 py-3 text-gray-700 border border-gray-300">
                             <div className="flex gap-1 flex-wrap">
-                              {worker.scheduledWorkDays.map((day) => (
+                              {employee.scheduledWorkDays.map((day) => (
                                 <span
                                   key={day}
                                   className="px-2 py-0.5 bg-duru-orange-100 text-duru-orange-700 text-xs font-medium rounded"
@@ -157,14 +158,19 @@ export function WorkStatsTable({
                             </div>
                           </td>
                           <td className="px-4 py-3 text-center text-gray-900 border border-gray-300">
-                            {editingCell?.companyName === companyName &&
-                            editingCell?.workerId === worker.id &&
+                            {editingCell?.companyId === company.companyId &&
+                            editingCell?.employeeId === employee.id &&
                             editingCell?.field === 'workDays' ? (
                               <div className="flex items-center justify-center gap-2">
                                 <input
                                   type="number"
                                   value={editValue}
                                   onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') saveEdit();
+                                    if (e.key === 'Escape') cancelEdit();
+                                  }}
+                                  min="0"
                                   className="w-20 px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500 text-center"
                                   autoFocus
                                 />
@@ -177,23 +183,29 @@ export function WorkStatsTable({
                               </div>
                             ) : (
                               <div
-                                onClick={() => startEdit(companyName, worker.id, 'workDays', worker.workDays)}
+                                onClick={() => startEdit(company.companyId, employee.id, 'workDays', employee.workDays)}
                                 className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded inline-flex items-center gap-1"
                               >
-                                <span>{worker.workDays}일</span>
+                                <span>{employee.workDays}일</span>
                                 <Edit className="w-3 h-3 text-gray-400" />
                               </div>
                             )}
                           </td>
                           <td className="px-4 py-3 text-center font-bold text-blue-600 border border-gray-300">
-                            {editingCell?.companyName === companyName &&
-                            editingCell?.workerId === worker.id &&
+                            {editingCell?.companyId === company.companyId &&
+                            editingCell?.employeeId === employee.id &&
                             editingCell?.field === 'totalHours' ? (
                               <div className="flex items-center justify-center gap-2">
                                 <input
                                   type="number"
                                   value={editValue}
                                   onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') saveEdit();
+                                    if (e.key === 'Escape') cancelEdit();
+                                  }}
+                                  min="0"
+                                  step="0.5"
                                   className="w-20 px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500 text-center"
                                   autoFocus
                                 />
@@ -206,10 +218,10 @@ export function WorkStatsTable({
                               </div>
                             ) : (
                               <div
-                                onClick={() => startEdit(companyName, worker.id, 'totalHours', worker.totalHours)}
+                                onClick={() => startEdit(company.companyId, employee.id, 'totalHours', employee.totalHours)}
                                 className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded inline-flex items-center gap-1"
                               >
-                                <span>{worker.totalHours}h</span>
+                                <span>{employee.totalHours}h</span>
                                 <Edit className="w-3 h-3 text-gray-400" />
                               </div>
                             )}

@@ -1,21 +1,14 @@
 'use client';
 
 import { FileText } from 'lucide-react';
-
-export interface NoteUpdateAlert {
-  id: number;
-  workerName: string;
-  companyName: string;
-  noteContent: string;
-  updatedAt: string;
-}
+import type { NoteUpdateAlert } from '@/types/adminDashboard';
 
 interface NoteUpdateAlertListProps {
   alerts: NoteUpdateAlert[];
-  onViewDetail: (workerId: number) => void;
+  onDismiss: (employeeId: string) => void;
 }
 
-export function NoteUpdateAlertList({ alerts, onViewDetail }: NoteUpdateAlertListProps) {
+export function NoteUpdateAlertList({ alerts, onDismiss }: NoteUpdateAlertListProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* 상단 오렌지 포인트 라인 */}
@@ -52,7 +45,7 @@ export function NoteUpdateAlertList({ alerts, onViewDetail }: NoteUpdateAlertLis
 
                 {/* 확인하기 버튼 */}
                 <button
-                  onClick={() => onViewDetail(alert.id)}
+                  onClick={() => onDismiss(alert.employeeId)}
                   className="px-4 py-2 rounded-lg border border-duru-orange-300 bg-duru-orange-50 text-duru-orange-600 hover:bg-duru-orange-100 text-sm font-semibold whitespace-nowrap transition-colors shrink-0"
                 >
                   확인하기

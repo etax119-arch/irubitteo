@@ -1,12 +1,12 @@
 'use client';
 
 import { X } from 'lucide-react';
-import type { Inquiry } from '@/types/adminDashboard';
+import type { Inquiry } from '@/types/inquiry';
 
 interface InquiryDetailModalProps {
   inquiry: Inquiry | null;
   onClose: () => void;
-  onComplete: (inquiryId: number) => void;
+  onComplete: (inquiryId: string) => void;
 }
 
 export function InquiryDetailModal({ inquiry, onClose, onComplete }: InquiryDetailModalProps) {
@@ -37,11 +37,11 @@ export function InquiryDetailModal({ inquiry, onClose, onComplete }: InquiryDeta
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-xs text-gray-400 mb-1">기업명</p>
-              <p className="text-base font-bold text-gray-900">{inquiry.company}</p>
+              <p className="text-base font-bold text-gray-900">{inquiry.companyName}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-1">대표자</p>
-              <p className="text-base text-gray-900">{inquiry.ceo}</p>
+              <p className="text-base text-gray-900">{inquiry.representativeName}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-1">전화번호</p>
@@ -49,7 +49,7 @@ export function InquiryDetailModal({ inquiry, onClose, onComplete }: InquiryDeta
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-1">이메일</p>
-              <p className="text-base text-gray-900">{inquiry.email}</p>
+              <p className="text-base text-gray-900">{inquiry.email ?? '-'}</p>
             </div>
           </div>
           <div className="border-t border-gray-100 pt-5">
@@ -57,7 +57,7 @@ export function InquiryDetailModal({ inquiry, onClose, onComplete }: InquiryDeta
             <p className="text-base text-gray-800 leading-relaxed whitespace-pre-line">
               {inquiry.content}
             </p>
-            <p className="text-xs text-gray-400 mt-3">접수일: {inquiry.date}</p>
+            <p className="text-xs text-gray-400 mt-3">접수일: {new Date(inquiry.createdAt).toLocaleDateString('ko-KR')}</p>
           </div>
         </div>
         <div className="px-6 py-5 border-t border-gray-100 space-y-2">

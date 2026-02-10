@@ -137,13 +137,13 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     매일 자정 배치 작업                           │
+│                     매 10분 크론잡 (결근 자동 처리)                 │
 │                                                                  │
-│   1. 전날 요일 확인 (월=1, 화=2, ..., 일=7)                       │
-│   2. 해당 요일이 출근일로 등록된 직원 조회                          │
-│      (employees.work_days 배열에 해당 요일 포함)                  │
-│   3. 출근 기록이 없는 직원 필터링                                   │
-│   4. 결근 기록 자동 생성                                          │
+│   1. 오늘 요일 확인 (KST, 월=1 ~ 일=7)                           │
+│   2. 해당 요일이 출근일로 등록된 활성 직원 조회                      │
+│   3. 출근시간 + 30분 경과 여부 확인                                │
+│   4. 미출근 직원에게 absent 레코드 upsert                         │
+│   5. 이미 출근한 직원은 스킵 (upsert update: {})                  │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -201,7 +201,10 @@ app/
     │   └── [id]/page.tsx        # 직원 상세 (AdminWorkerDetail.jsx)
     ├── workstats/page.tsx       # 근무 통계
     ├── notifications/page.tsx   # 알림센터 (결근 알림 + 문의 관리)
-    └── reports/page.tsx         # 리포트
+    └── reports/                 # 리포트 (파일 저장소)
+        ├── page.tsx
+        ├── _hooks/              # useAdminFiles
+        └── _components/         # FileSection, FileListItem, FileUploadModal
 ```
 
 ### 디자인 파일 매핑
@@ -232,38 +235,31 @@ app/
 ```
 src/
 ├── auth/                        # 인증 모듈
-│   ├── strategies/             # JWT, Local 전략
-│   ├── guards/                 # 인증 가드
-│   └── decorators/             # 커스텀 데코레이터
-│
-├── users/                       # 사용자 모듈
-│   ├── admin/                  # 관리자
-│   └── company/                # 기업
+│   ├── strategies/             # JWT 전략
+│   ├── guards/                 # 인증 가드 (JWT, Roles)
+│   └── decorators/             # 커스텀 데코레이터 (CurrentUser, Roles, Public)
 │
 ├── employees/                   # 직원 모듈
+├── employee-files/              # 직원 문서 모듈
 │
-├── attendance/                  # 출퇴근 모듈
+├── companies/                   # 기업 모듈
+├── company-files/               # 기업 문서 모듈
 │
+├── attendance/                  # 출퇴근 모듈 (크론잡 포함)
 ├── schedules/                   # 근무일정 모듈
-│
 ├── notices/                     # 공지사항 모듈
+├── inquiries/                   # 기업 문의 모듈
 │
-├── notifications/               # 알림 모듈 (결근+문의 조회)
+├── admin/                       # 관리자 전용 모듈 (통계, 알림)
+├── admin-files/                 # 관리자 파일 모듈 (문서 템플릿/리포트)
 │
-├── inquiries/                   # 문의 모듈
-│
-├── templates/                   # 문서 템플릿 모듈
-│
-├── files/                       # 파일 관리 모듈
-│   ├── company-files/          # 기업 첨부파일
-│   └── employee-files/         # 직원 첨부파일
-│
-├── audit/                       # 감사 로그 모듈
+├── files/                       # 파일 스토리지 (Global)
+│   └── storage/                # Supabase Storage 서비스
 │
 ├── common/                      # 공통 모듈
-│   ├── filters/                # 예외 필터
-│   ├── interceptors/           # 인터셉터
-│   └── decorators/             # 공통 데코레이터
+│   ├── filters/                # Global Exception Filter
+│   ├── interceptors/           # Response Interceptor
+│   └── utils/                  # KST 시간대 유틸리티
 │
 └── prisma/                      # Prisma 설정
 ```

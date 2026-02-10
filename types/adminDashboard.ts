@@ -1,124 +1,76 @@
-/**
- * @todo 관리자 API 구현 후 서버 응답에 맞게 재정의 필요 — 현재는 디자인 목업 기준
- * - 모든 id가 number (실제는 string UUID)
- * - 서버에 없는 필드 다수 포함 (industry, location, revenue, department 등)
- */
+import type { Employee } from './employee';
 
+/** 관리자 대시보드 통계 */
 export interface AdminStats {
   totalCompanies: number;
   totalWorkers: number;
   activeWorkers: number;
   attendanceRate: number;
-  expiringContracts: number;
   pendingIssues: number;
-  monthlyRevenue: number;
-  newInquiries: number;
-  pendingConsultations: number;
 }
 
-export interface PMInfo {
+/** 관리자 일일 출퇴근 - 직원 기록 */
+export interface AdminDailyEmployee {
+  employeeId: string;
   name: string;
   phone: string;
-  email: string;
+  clockIn: string | null;
+  clockOut: string | null;
+  workContent: string | null;
+  isLate: boolean;
+  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'pending' | 'dayoff';
 }
 
-export interface Company {
-  id: number;
-  name: string;
-  industry: string;
-  location: string;
-  workers: number;
-  contractEnd: string;
-  status: 'active' | 'expiring';
-  revenue: number;
-  pm: PMInfo;
+/** 관리자 일일 출퇴근 - 회사별 */
+export interface AdminDailyCompany {
+  companyId: string;
+  companyName: string;
+  employees: AdminDailyEmployee[];
 }
 
-export interface Worker {
-  id: number;
-  name: string;
-  company: string;
-  department: string;
-  disabilityType: string;
-  status: 'working' | 'resigned';
-  phone: string;
-  contractEnd: string;
-  workerId: string;
-  notes: string;
-  isResigned: boolean;
-  isWaiting: boolean;
-  resignDate: string | null;
-  resignReason: string | null;
-}
-
-export interface Notification {
-  id: number;
-  type: 'contract' | 'document' | 'attendance' | 'payment';
-  title: string;
-  message: string;
-  priority: 'high' | 'medium' | 'low';
-  date: string;
-}
-
+/** 결근 알림 */
 export interface AbsenceAlert {
-  id: number;
+  id: string;
+  employeeId: string;
   name: string;
-  company: string;
+  companyName: string;
   date: string;
-  status: string;
+  status: '결근';
 }
 
-export interface Inquiry {
-  id: number;
-  company: string;
-  ceo: string;
-  date: string;
-  phone: string;
-  email: string;
-  summary: string;
-  content: string;
+/** 비고 업데이트 알림 */
+export interface NoteUpdateAlert {
+  id: string;
+  employeeId: string;
+  workerName: string;
+  companyName: string;
+  noteContent: string;
+  updatedAt: string;
 }
 
-export interface DailyAttendanceWorker {
-  id: number;
+/** 월간 근무 통계 - 직원별 */
+export interface WorkStatEmployee {
+  id: string;
   name: string;
-  department: string;
-  checkin: string;
-  checkout: string;
-  workContent: string;
-  needsAttention: boolean;
-  phone?: string;
-}
-
-export interface CompanyAttendance {
-  morning: DailyAttendanceWorker[];
-  afternoon: DailyAttendanceWorker[];
-}
-
-export type DailyAttendanceData = Record<string, CompanyAttendance>;
-
-export interface WorkStatWorker {
-  id: number;
-  name: string;
-  department: string;
-  totalHours: number;
-  avgHours: number;
   workDays: number;
-  lateDays: number;
+  totalHours: number;
   scheduledWorkDays: string[];
 }
 
-export type MonthlyWorkStats = Record<string, WorkStatWorker[]>;
-
-export interface AddCompanyForm {
+/** 월간 근무 통계 - 회사별 */
+export interface MonthlyWorkStatsCompany {
+  companyId: string;
   companyName: string;
-  businessNumber: string;
-  address: string;
-  contractStartDate: string;
-  contactName: string;
-  contactPhone: string;
-  contactEmail: string;
-  adminId: string;
+  pmContactName: string | null;
+  pmContactPhone: string | null;
+  pmContactEmail: string | null;
+  employees: WorkStatEmployee[];
 }
 
+/** 관리자 직원 (회사명 포함) */
+export type EmployeeWithCompany = Employee & {
+  companyName: string;
+};
+
+/** 근로자 필터 */
 export type WorkerFilter = 'current' | 'resigned' | 'waiting' | 'all';

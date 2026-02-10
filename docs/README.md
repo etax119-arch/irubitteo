@@ -38,7 +38,8 @@ docs/
 │   └── features/                      # 기능 명세
 │       ├── admin-dashboard.md         # 관리자 대시보드
 │       ├── company-dashboard.md       # 기업 대시보드
-│       └── employee-app.md            # 직원 앱
+│       ├── employee-app.md            # 직원 앱
+│       └── attendance-status.md       # 출퇴근 Status 체계
 ```
 
 ---
@@ -73,6 +74,7 @@ docs/
 | [관리자 대시보드](design/features/admin-dashboard.md) | 플랫폼 관리자 대시보드 기능 명세 |
 | [기업 대시보드](design/features/company-dashboard.md) | 기업 관리자 대시보드 기능 명세 |
 | [직원 앱](design/features/employee-app.md) | 직원 출퇴근 앱 기능 명세 |
+| [출퇴근 Status 체계](design/features/attendance-status.md) | 출퇴근 상태 DB 저장 방식, 크론잡, UI 표시 |
 
 ---
 
@@ -117,7 +119,7 @@ durubitteo_web (프론트엔드) ←→ durubitteo_server (백엔드)
 - [x] 기업 대시보드 UI (라우트 기반 탭 구조)
 - [x] 직원 대시보드 UI (출퇴근 앱)
 - [x] 관리자 대시보드 UI (6개 탭 전체 구현)
-- [ ] 백엔드 API 연동
+- [x] 백엔드 API 연동
   - [x] 근로자 관리 (목록 조회, 상세, 수정)
   - [x] 출퇴근 기록 조회/수정
   - [x] 대시보드 통계
@@ -125,7 +127,11 @@ durubitteo_web (프론트엔드) ←→ durubitteo_server (백엔드)
   - [x] 공지사항 발송
   - [x] 근무시간 수정 + 휴가 처리
   - [x] 근로자 주소 입력/표시
-- [ ] 보고서 기능
+  - [x] 회원사 CRUD + 파일 관리
+  - [x] 기업 문의 조회/처리
+  - [x] 결근/비고 알림
+  - [x] 월간 근무 통계 (조회/재계산/수정)
+- [x] 리포트 탭 (파일 저장소: 문서 템플릿 + 통계 리포트)
 
 ### 배포 단계
 - [ ] Supabase 프로덕션 설정

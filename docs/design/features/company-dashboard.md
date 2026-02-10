@@ -111,14 +111,17 @@
 | 전화번호 | 연락처 |
 | 출근 | 출근 시간 (미출근 시 "-") |
 | 퇴근 | 퇴근 시간 (미퇴근 시 "-") |
-| 상태 | 출근 완료 / 퇴근 완료 / 결근 / 출근 전 |
+| 상태 | 출근 완료 / 퇴근 완료 / 결근 / 휴가 / 휴일 / 출근 전 / 휴무 |
 | 업무 내용 | 퇴근 시 입력한 내용 |
 
 **상태 배지 색상**:
 - 출근 완료: 주황색 배경
 - 퇴근 완료: 회색 배경
 - 결근: 빨간색 배경
+- 휴가: 파란색 배경
+- 휴일: 보라색 배경 (기본)
 - 출근 전: 노란색 배경
+- 휴무: 회색 배경
 
 **로딩/에러 상태**:
 - 로딩 중: "로딩 중..." 표시
@@ -258,6 +261,7 @@
 - 업무내용: "확인하기" 링크 → 모달로 전체 내용 표시
 - 수정: 각 행에 수정 아이콘 → 근무시간 수정 모달
   - 출근시간, 퇴근시간, 업무내용 편집
+  - clockIn/clockOut이 없는 레코드: 시간 필드를 빈 값으로 표시 (기본값 채우지 않음)
   - 미퇴근 직원: 퇴근시간 필드가 빈 상태("--:--")로 표시, 시간 입력 시에만 퇴근 처리
   - 휴가 버튼: 오렌지 아웃라인 스타일, 클릭 시 해당 기록의 status를 `'leave'`로 변경
   - 변경된 필드만 API로 전송 (partial update)
@@ -399,7 +403,7 @@ interface DailyAttendanceRecord {
   phone: string;
   checkinTime: string | null;    // "HH:mm" (KST) 또는 null
   checkoutTime: string | null;   // "HH:mm" (KST) 또는 null
-  status: 'checkin' | 'checkout' | 'absent' | 'pending';
+  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'pending' | 'dayoff';
   workContent: string | null;    // 퇴근 시 입력한 업무 내용
 }
 ```
@@ -448,7 +452,7 @@ type Employee = {
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'resigned';  // 실시간 추론
+  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'resigned' | 'pending' | 'dayoff';
   checkinTime: string | null;          // "HH:mm" (KST)
   checkoutTime: string | null;         // "HH:mm" (KST)
   uniqueCode: string;

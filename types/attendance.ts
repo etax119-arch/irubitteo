@@ -1,8 +1,8 @@
 /** 출퇴근 상태 */
-export type AttendanceStatus = 'present' | 'absent' | 'leave' | 'holiday';
+export type AttendanceStatus = 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday';
 
 /** 출퇴근 표시 상태 (기업 대시보드용) */
-export type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
+export type DisplayStatus = '정상' | '지각' | '결근' | '휴가' | '휴일';
 
 /** 출퇴근 기록 */
 export type Attendance = {
@@ -95,7 +95,7 @@ export interface DailyAttendanceRecord {
   phone: string;
   checkinTime: string | null;
   checkoutTime: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'pending';
+  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'pending' | 'dayoff';
   workContent: string | null;
 }
 

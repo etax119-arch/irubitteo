@@ -1,95 +1,76 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, ChevronDown, ChevronRight, AlertCircle, Edit, Check, X, Calendar, Search, Clock } from 'lucide-react';
+import { Building2, ChevronDown, ChevronRight, AlertCircle, Calendar, Search, Clock } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import type { DailyAttendanceData, DailyAttendanceWorker } from '@/types/adminDashboard';
+import type { AdminDailyCompany, AdminDailyEmployee } from '@/types/adminDashboard';
 
 interface CompanyAttendanceAccordionProps {
-  dailyAttendance: DailyAttendanceData;
-  onAttendanceUpdate?: (
-    companyName: string,
-    workerId: number,
-    field: keyof DailyAttendanceWorker,
-    value: string,
-    timeSlot: 'morning' | 'afternoon'
-  ) => void;
+  dailyAttendance: AdminDailyCompany[];
+  onDateChange?: (date: string) => void;
 }
 
-function getAttendanceStatus(worker: DailyAttendanceWorker) {
-  if (worker.checkin === '-') return '출근 전';
-  if (worker.checkout === '-') return '출근 중';
-  if (worker.checkin > '09:00') return '지각';
-  return '출근 완료';
-}
-
-function getStatusColor(status: string) {
+function getDisplayStatus(status: AdminDailyEmployee['status']) {
   switch (status) {
-    case '출근 완료':
-      return 'bg-green-100 text-green-700';
-    case '출근 중':
-      return 'bg-blue-100 text-blue-700';
-    case '지각':
-      return 'bg-yellow-100 text-yellow-700';
-    case '출근 전':
-      return 'bg-red-100 text-red-700';
-    default:
-      return 'bg-gray-100 text-gray-700';
+    case 'checkout': return '퇴근';
+    case 'checkin': return '출근 중';
+    case 'absent': return '결근';
+    case 'leave': return '휴가';
+    case 'holiday': return '휴일';
+    case 'dayoff': return '휴무';
+    case 'pending': return '출근 전';
+    default: return status;
+  }
+}
+
+function getStatusColor(status: AdminDailyEmployee['status']) {
+  switch (status) {
+    case 'checkout': return 'bg-green-100 text-green-700';
+    case 'checkin': return 'bg-blue-100 text-blue-700';
+    case 'absent': return 'bg-red-100 text-red-700';
+    case 'leave': return 'bg-blue-100 text-blue-700';
+    case 'holiday': return 'bg-purple-100 text-purple-700';
+    case 'dayoff': return 'bg-gray-100 text-gray-600';
+    case 'pending': return 'bg-gray-100 text-gray-700';
+    default: return 'bg-gray-100 text-gray-700';
   }
 }
 
 export function CompanyAttendanceAccordion({
   dailyAttendance,
-  onAttendanceUpdate,
+  onDateChange,
 }: CompanyAttendanceAccordionProps) {
   const [expandedCompanies, setExpandedCompanies] = useState<Record<string, boolean>>({});
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<Record<string, 'morning' | 'afternoon'>>({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDate, setSelectedDate] = useState(new Date(2026, 0, 28));
-  const [editingCell, setEditingCell] = useState<{
-    companyName: string;
-    workerId: number;
-    field: keyof DailyAttendanceWorker;
-  } | null>(null);
-  const [editValue, setEditValue] = useState('');
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const now = new Date();
+    // KST date
+    const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    return kst.toISOString().split('T')[0];
+  });
 
-  const toggleCompany = (companyName: string) => {
+  const toggleCompany = (companyId: string) => {
     setExpandedCompanies((prev) => ({
       ...prev,
-      [companyName]: !prev[companyName],
+      [companyId]: !prev[companyId],
     }));
   };
 
   const changeDate = (offset: number) => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + offset);
+    const date = new Date(selectedDate + 'T00:00:00');
+    date.setDate(date.getDate() + offset);
+    const newDate = date.toISOString().split('T')[0];
     setSelectedDate(newDate);
+    onDateChange?.(newDate);
   };
 
-  const startEdit = (
-    companyName: string,
-    workerId: number,
-    field: keyof DailyAttendanceWorker,
-    currentValue: string
-  ) => {
-    setEditingCell({ companyName, workerId, field });
-    setEditValue(currentValue);
+  const handleDateChange = (dateStr: string) => {
+    setSelectedDate(dateStr);
+    onDateChange?.(dateStr);
   };
 
-  const saveEdit = (companyName: string, workerId: number, field: keyof DailyAttendanceWorker) => {
-    const timeSlot = selectedTimeSlot[companyName] || 'morning';
-    onAttendanceUpdate?.(companyName, workerId, field, editValue, timeSlot);
-    setEditingCell(null);
-    setEditValue('');
-  };
-
-  const cancelEdit = () => {
-    setEditingCell(null);
-    setEditValue('');
-  };
-
-  const filteredCompanies = Object.entries(dailyAttendance).filter(([companyName]) =>
-    companyName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCompanies = dailyAttendance.filter((company) =>
+    company.companyName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -113,8 +94,8 @@ export function CompanyAttendanceAccordion({
               <Calendar className="w-5 h-5 text-duru-orange-600" />
               <input
                 type="date"
-                value={selectedDate.toISOString().split('T')[0]}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                value={selectedDate}
+                onChange={(e) => handleDateChange(e.target.value)}
                 className="px-4 py-2 border-2 border-duru-orange-500 rounded-lg bg-duru-orange-50 text-duru-orange-600 font-bold focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
               />
             </div>
@@ -142,35 +123,34 @@ export function CompanyAttendanceAccordion({
       </div>
 
       {/* 회사별 아코디언 */}
-      {filteredCompanies.map(([companyName, companyData]) => {
-        const currentTimeSlot = selectedTimeSlot[companyName] || 'morning';
-        const companyWorkers = companyData[currentTimeSlot];
+      {filteredCompanies.map((company) => {
+        const employees = company.employees;
 
-        const statusCounts = companyWorkers.reduce(
-          (acc, w) => {
-            const status = getAttendanceStatus(w);
-            acc[status] = (acc[status] || 0) + 1;
+        const statusCounts = employees.reduce(
+          (acc, emp) => {
+            const label = getDisplayStatus(emp.status);
+            acc[label] = (acc[label] || 0) + 1;
             return acc;
           },
           {} as Record<string, number>
         );
 
-        const isExpanded = expandedCompanies[companyName];
-        const totalWorkers = companyData.morning.length + companyData.afternoon.length;
-        const totalCheckedIn = [...companyData.morning, ...companyData.afternoon].filter(
-          (w) => w.checkin !== '-'
+        const isExpanded = expandedCompanies[company.companyId];
+        const totalEmployees = employees.length;
+        const checkedInCount = employees.filter(
+          (emp) => emp.status === 'checkin' || emp.status === 'checkout'
         ).length;
 
         return (
-          <div key={companyName} className="bg-white rounded-xl border border-gray-200">
+          <div key={company.companyId} className="bg-white rounded-xl border border-gray-200">
             <div
               role="button"
               tabIndex={0}
-              onClick={() => toggleCompany(companyName)}
+              onClick={() => toggleCompany(company.companyId)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  toggleCompany(companyName);
+                  toggleCompany(company.companyId);
                 }
               }}
               className="w-full bg-gray-50 px-6 py-4 border-b border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
@@ -186,53 +166,30 @@ export function CompanyAttendanceAccordion({
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <Building2 className="w-5 h-5 text-duru-orange-600" />
-                    {companyName}
+                    {company.companyName}
                     <span className="text-sm font-normal text-gray-600 ml-2">
-                      ({totalCheckedIn}/{totalWorkers}명 출근)
+                      ({checkedInCount}/{totalEmployees}명 출근)
                     </span>
                   </h3>
-                  {/* 오전/오후 토글 버튼 */}
-                  <div
-                    className="flex items-center bg-white border-2 border-duru-orange-200 rounded-lg overflow-hidden ml-3"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      onClick={() =>
-                        setSelectedTimeSlot((prev) => ({ ...prev, [companyName]: 'morning' }))
-                      }
-                      className={cn(
-                        'px-4 py-1.5 text-sm font-semibold transition-all',
-                        currentTimeSlot === 'morning'
-                          ? 'bg-duru-orange-500 text-white'
-                          : 'bg-white text-gray-600 hover:bg-duru-orange-50'
-                      )}
-                    >
-                      오전 ({companyData.morning.length}명)
-                    </button>
-                    <button
-                      onClick={() =>
-                        setSelectedTimeSlot((prev) => ({ ...prev, [companyName]: 'afternoon' }))
-                      }
-                      className={cn(
-                        'px-4 py-1.5 text-sm font-semibold transition-all',
-                        currentTimeSlot === 'afternoon'
-                          ? 'bg-duru-orange-500 text-white'
-                          : 'bg-white text-gray-600 hover:bg-duru-orange-50'
-                      )}
-                    >
-                      오후 ({companyData.afternoon.length}명)
-                    </button>
-                  </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {Object.entries(statusCounts).map(([status, count]) => (
-                    <span
-                      key={status}
-                      className={cn('px-3 py-1 rounded-full text-xs font-semibold', getStatusColor(status))}
-                    >
-                      {status}: {count}명
-                    </span>
-                  ))}
+                  {Object.entries(statusCounts).map(([label, count]) => {
+                    const statusKey = label === '퇴근' ? 'checkout'
+                      : label === '출근 중' ? 'checkin'
+                      : label === '결근' ? 'absent'
+                      : label === '휴가' ? 'leave'
+                      : label === '휴일' ? 'holiday'
+                      : label === '휴무' ? 'dayoff'
+                      : 'pending';
+                    return (
+                      <span
+                        key={label}
+                        className={cn('px-3 py-1 rounded-full text-xs font-semibold', getStatusColor(statusKey as AdminDailyEmployee['status']))}
+                      >
+                        {label}: {count}명
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -251,143 +208,52 @@ export function CompanyAttendanceAccordion({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {companyWorkers.map((worker) => {
-                      const status = getAttendanceStatus(worker);
+                    {employees.map((employee) => {
+                      const needsAttention = employee.status === 'absent' || employee.isLate;
                       return (
                         <tr
-                          key={worker.id}
-                          className={cn('hover:bg-gray-50', worker.needsAttention && 'bg-yellow-50')}
+                          key={employee.employeeId}
+                          className={cn('hover:bg-gray-50', needsAttention && 'bg-yellow-50')}
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              <span className="font-semibold text-gray-900">{worker.name}</span>
-                              {worker.needsAttention && (
-                                <span title="관리자 확인 필요">
+                              <span className="font-semibold text-gray-900">{employee.name}</span>
+                              {needsAttention && (
+                                <span title={employee.isLate ? '지각' : '결근'}>
                                   <AlertCircle className="w-4 h-4 text-yellow-600" />
                                 </span>
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-gray-700">{worker.phone || '-'}</td>
+                          <td className="px-6 py-4 text-gray-700">{employee.phone || '-'}</td>
                           <td className="px-6 py-4">
                             <span
                               className={cn(
                                 'px-3 py-1 rounded-full text-xs font-semibold',
-                                getStatusColor(status)
+                                getStatusColor(employee.status)
                               )}
                             >
-                              {status}
+                              {getDisplayStatus(employee.status)}
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            {editingCell?.companyName === companyName &&
-                            editingCell?.workerId === worker.id &&
-                            editingCell?.field === 'checkin' ? (
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="time"
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  className="px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-                                  autoFocus
-                                />
-                                <button
-                                  onClick={() => saveEdit(companyName, worker.id, 'checkin')}
-                                  className="p-1 hover:bg-green-100 rounded"
-                                >
-                                  <Check className="w-4 h-4 text-green-600" />
-                                </button>
-                                <button onClick={cancelEdit} className="p-1 hover:bg-red-100 rounded">
-                                  <X className="w-4 h-4 text-red-600" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div
-                                onClick={() => startEdit(companyName, worker.id, 'checkin', worker.checkin)}
-                                className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded inline-flex items-center gap-1"
-                              >
-                                <span
-                                  className={
-                                    worker.checkin === '-' ? 'text-red-600 font-semibold' : 'text-gray-900'
-                                  }
-                                >
-                                  {worker.checkin}
-                                </span>
-                                <Edit className="w-3 h-3 text-gray-400" />
-                              </div>
-                            )}
+                            <span
+                              className={
+                                !employee.clockIn ? 'text-red-600 font-semibold' : 'text-gray-900'
+                              }
+                            >
+                              {employee.clockIn ?? '-'}
+                            </span>
                           </td>
                           <td className="px-6 py-4">
-                            {editingCell?.companyName === companyName &&
-                            editingCell?.workerId === worker.id &&
-                            editingCell?.field === 'checkout' ? (
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="time"
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  className="px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-                                  autoFocus
-                                />
-                                <button
-                                  onClick={() => saveEdit(companyName, worker.id, 'checkout')}
-                                  className="p-1 hover:bg-green-100 rounded"
-                                >
-                                  <Check className="w-4 h-4 text-green-600" />
-                                </button>
-                                <button onClick={cancelEdit} className="p-1 hover:bg-red-100 rounded">
-                                  <X className="w-4 h-4 text-red-600" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div
-                                onClick={() => startEdit(companyName, worker.id, 'checkout', worker.checkout)}
-                                className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded inline-flex items-center gap-1"
-                              >
-                                <span className="text-gray-900">{worker.checkout}</span>
-                                <Edit className="w-3 h-3 text-gray-400" />
-                              </div>
-                            )}
+                            <span className="text-gray-900">
+                              {employee.clockOut ?? '-'}
+                            </span>
                           </td>
                           <td className="px-6 py-4">
-                            {editingCell?.companyName === companyName &&
-                            editingCell?.workerId === worker.id &&
-                            editingCell?.field === 'workContent' ? (
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="text"
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  placeholder="업무 내용 입력..."
-                                  className="px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500 w-full"
-                                  autoFocus
-                                />
-                                <button
-                                  onClick={() => saveEdit(companyName, worker.id, 'workContent')}
-                                  className="p-1 hover:bg-green-100 rounded flex-shrink-0"
-                                >
-                                  <Check className="w-4 h-4 text-green-600" />
-                                </button>
-                                <button
-                                  onClick={cancelEdit}
-                                  className="p-1 hover:bg-red-100 rounded flex-shrink-0"
-                                >
-                                  <X className="w-4 h-4 text-red-600" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div
-                                onClick={() =>
-                                  startEdit(companyName, worker.id, 'workContent', worker.workContent)
-                                }
-                                className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded inline-flex items-center gap-1 min-w-[200px]"
-                              >
-                                <span className={cn('text-gray-600', !worker.workContent && 'italic')}>
-                                  {worker.workContent || '업무 내용 없음'}
-                                </span>
-                                <Edit className="w-3 h-3 text-gray-400" />
-                              </div>
-                            )}
+                            <span className={cn('text-gray-600', !employee.workContent && 'italic')}>
+                              {employee.workContent || '업무 내용 없음'}
+                            </span>
                           </td>
                         </tr>
                       );

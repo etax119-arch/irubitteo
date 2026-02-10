@@ -17,20 +17,30 @@ function getStatusBadge(status: DailyAttendanceRecord['status']) {
     checkin: 'orange',
     checkout: 'default',
     absent: 'danger',
+    leave: 'info',
+    holiday: 'default',
     pending: 'warning',
+    dayoff: 'default',
   };
 
-  const labels = {
+  const labels: Record<DailyAttendanceRecord['status'], string> = {
     checkin: '출근 완료',
     checkout: '퇴근 완료',
     absent: '결근',
+    leave: '휴가',
+    holiday: '휴일',
     pending: '출근 전',
+    dayoff: '휴무',
   };
 
   return (
     <Badge
       variant={variantMap[status]}
-      className={cn('px-3 py-1 font-semibold', status === 'checkout' && 'bg-gray-200')}
+      className={cn(
+        'px-3 py-1 font-semibold',
+        status === 'checkout' && 'bg-gray-200',
+        status === 'dayoff' && 'bg-gray-100 text-gray-600',
+      )}
     >
       {labels[status]}
     </Badge>

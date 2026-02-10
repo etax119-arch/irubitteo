@@ -18,27 +18,26 @@ export interface AttendanceRecord {
 function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   const date = att.date.split('T')[0];
 
-  if (att.status === 'leave') {
-    return {
-      id: att.id,
-      date,
-      checkin: att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '-',
-      checkout: att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-',
-      status: '휴가' as const,
-      workDone: att.workContent || '-',
-    };
-  }
-
-  if (!att.clockIn) {
-    return { id: att.id, date, checkin: '결근', checkout: '-', status: '결근' as const, workDone: '-' };
-  }
+  const displayStatus = ((): DisplayStatus => {
+    switch (att.status) {
+      case 'leave': return '휴가';
+      case 'holiday': return '휴일';
+      case 'absent': return '결근';
+      case 'checkin':
+      case 'checkout':
+        return att.isLate ? '지각' : '정상';
+      default: return '정상';
+    }
+  })();
 
   return {
     id: att.id,
     date,
-    checkin: formatUtcTimestampAsKST(att.clockIn),
+    checkin: att.status === 'absent' && !att.clockIn
+      ? '결근'
+      : att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '-',
     checkout: att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-',
-    status: att.isLate ? '지각' as const : '정상' as const,
+    status: displayStatus,
     workDone: att.workContent || '-',
   };
 }
@@ -104,7 +103,7 @@ export function useAttendanceHistory(employeeId: string) {
   };
 
   const handleEditWorkTime = (record: AttendanceRecord) => {
-    const checkin = record.checkin === '결근' || record.checkin === '-' ? '09:00' : record.checkin;
+    const checkin = record.checkin === '결근' || record.checkin === '-' ? '' : record.checkin;
     const checkout = record.checkout === '-' ? '' : record.checkout;
     const workDone = record.workDone === '-' ? '' : record.workDone;
     setEditedWorkTime({ date: record.date, checkin, checkout, workDone });

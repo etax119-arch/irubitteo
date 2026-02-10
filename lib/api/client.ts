@@ -1,5 +1,16 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
+// 커스텀 요청 설정 속성 (인터셉터에서 사용)
+declare module 'axios' {
+  interface InternalAxiosRequestConfig {
+    _retry?: boolean;
+    _skipAuthRetry?: boolean;
+  }
+  interface AxiosRequestConfig {
+    _skipAuthRetry?: boolean;
+  }
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/v1';
 
 // axios 인스턴스 생성
@@ -30,18 +41,25 @@ const processQueue = (error: unknown) => {
   failedQueue = [];
 };
 
+// 요청 인터셉터: FormData 전송 시 Content-Type 제거 (브라우저가 boundary 포함하여 자동 설정)
+apiClient.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  return config;
+});
+
 // 응답 인터셉터: 401 에러 시 토큰 갱신 시도
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
+    const originalRequest = error.config as InternalAxiosRequestConfig;
 
     // 401 에러이고, 재시도하지 않은 요청이며, refresh 요청이 아닌 경우
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
+      !originalRequest._skipAuthRetry &&
       !originalRequest.url?.includes('/auth/refresh')
     ) {
       if (isRefreshing) {

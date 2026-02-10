@@ -1,15 +1,14 @@
 'use client';
 
 import { AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/cn';
 import type { AbsenceAlert } from '@/types/adminDashboard';
 
 interface AbsenceAlertListProps {
   alerts: AbsenceAlert[];
-  onViewDetail: (name: string) => void;
+  onDismiss: (alertId: string, employeeId: string) => void;
 }
 
-export function AbsenceAlertList({ alerts, onViewDetail }: AbsenceAlertListProps) {
+export function AbsenceAlertList({ alerts, onDismiss }: AbsenceAlertListProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden h-[480px] flex flex-col">
       {/* 상단 오렌지 포인트 라인 */}
@@ -28,21 +27,16 @@ export function AbsenceAlertList({ alerts, onViewDetail }: AbsenceAlertListProps
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-bold text-gray-900">{alert.name}</span>
-                  <span
-                    className={cn(
-                      'px-2 py-0.5 rounded text-xs font-semibold',
-                      alert.status === '결근' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
-                    )}
-                  >
-                    {alert.status}
+                  <span className="px-2 py-0.5 rounded text-xs font-semibold bg-red-50 text-red-600">
+                    결근
                   </span>
                 </div>
                 <p className="text-sm text-gray-500">
-                  {alert.company} · {alert.date}
+                  {alert.companyName} · {alert.date}
                 </p>
               </div>
               <button
-                onClick={() => onViewDetail(alert.name)}
+                onClick={() => onDismiss(alert.id, alert.employeeId)}
                 className="px-4 py-2 rounded-lg border border-duru-orange-300 bg-duru-orange-50 text-duru-orange-600 hover:bg-duru-orange-100 text-sm font-semibold whitespace-nowrap transition-colors"
               >
                 확인하기

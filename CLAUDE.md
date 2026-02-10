@@ -213,7 +213,14 @@ durubitteo_web/
 │       ├── employees/        # 근로자 관리 탭 + [id] 상세
 │       ├── workstats/        # 근무 통계 탭
 │       ├── notifications/    # 알림센터 탭
-│       └── reports/          # 리포트 탭
+│       └── reports/          # 리포트 탭 (파일 저장소)
+│           ├── page.tsx
+│           ├── _hooks/
+│           │   └── useAdminFiles.ts    # 파일 CRUD 상태 관리
+│           └── _components/
+│               ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
+│               ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
+│               └── FileUploadModal.tsx # 업로드 모달
 │
 ├── components/               # 공용 컴포넌트 (app 외부)
 │   └── ui/                   # 전역 UI 프리미티브 (Button, Input, Modal 등)
@@ -228,6 +235,7 @@ durubitteo_web/
 │   ├── api.ts                # API 공통 타입 (ApiResponse, Pagination 등)
 │   ├── auth.ts               # 인증 관련 타입
 │   ├── adminDashboard.ts     # 관리자 대시보드 타입 (디자인 목업 기준)
+│   ├── adminFile.ts          # 관리자 파일 타입 (AdminFile, AdminFileCategory)
 │   ├── company.ts            # 기업 타입
 │   ├── companyDashboard.ts   # 기업 대시보드 타입
 │   ├── employee.ts           # 직원 타입 + DISABILITY_TYPES 상수
@@ -246,13 +254,16 @@ durubitteo_web/
         ├── client.ts         # Axios 인스턴스
         ├── error.ts          # 에러 메시지 추출 유틸
         ├── auth.ts           # 인증 API
+        ├── admin.ts          # 관리자 API (통계, 출퇴근, 월간 통계, 알림, 파일)
         ├── attendance.ts     # 출퇴근 API
         ├── employees.ts      # 직원 API
         ├── employeeFiles.ts  # 직원 파일 API
         ├── employeeNotices.ts # 직원 공지 API
         ├── notices.ts        # 공지사항 API
         ├── schedules.ts      # 근무일정 API
-        └── companies.ts      # 기업 API
+        ├── companies.ts      # 기업 API
+        ├── companyFiles.ts   # 기업 파일 API
+        └── inquiries.ts      # 기업 문의 API
 ```
 
 #### Component & Hook Placement

@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { create } from 'zustand';
 import { cn } from '@/lib/cn';
 import { CheckCircle2, XCircle, X } from 'lucide-react';
@@ -34,10 +35,10 @@ const useToastStore = create<ToastState>((set) => ({
 
 export function useToast() {
   const addToast = useToastStore((s) => s.addToast);
-  return {
+  return useMemo(() => ({
     success: (message: string) => addToast(message, 'success'),
     error: (message: string) => addToast(message, 'error'),
-  };
+  }), [addToast]);
 }
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {

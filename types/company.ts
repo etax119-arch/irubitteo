@@ -3,8 +3,6 @@ export type Company = {
   id: string;
   code: string;
   name: string;
-  email: string | null;
-  phone: string | null;
   address: string | null;
   businessNumber: string | null;
   contractStartDate: string | null;
@@ -30,8 +28,6 @@ export type CompanyWithEmployeeCount = Company & {
 export type CompanyCreateInput = {
   code: string;
   name: string;
-  email?: string;
-  phone?: string;
   address?: string;
   businessNumber?: string;
   contractStartDate?: string;
@@ -44,7 +40,9 @@ export type CompanyCreateInput = {
 };
 
 /** 기업 수정 입력 */
-export type CompanyUpdateInput = Partial<CompanyCreateInput>;
+export type CompanyUpdateInput = {
+  [K in keyof CompanyCreateInput]?: CompanyCreateInput[K] | null;
+};
 
 /** 기업 조회 파라미터 */
 export type CompanyQueryParams = {

@@ -1,7 +1,7 @@
 'use client';
 
 import { FileText } from 'lucide-react';
-import type { Inquiry } from '@/types/adminDashboard';
+import type { Inquiry } from '@/types/inquiry';
 
 interface InquiryListProps {
   inquiries: Inquiry[];
@@ -26,15 +26,15 @@ export function InquiryList({ inquiries, onViewDetail }: InquiryListProps) {
             <div key={inq.id} className="px-6 py-3.5 flex items-center gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-gray-900">{inq.company}</span>
+                  <span className="font-bold text-gray-900">{inq.companyName}</span>
                   <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">
                     신규 문의
                   </span>
                 </div>
                 <p className="text-sm text-gray-500">
-                  대표: {inq.ceo} · {inq.date}
+                  대표: {inq.representativeName} · {new Date(inq.createdAt).toLocaleDateString('ko-KR')}
                 </p>
-                <p className="text-sm text-gray-400 mt-0.5 truncate">{inq.summary}</p>
+                <p className="text-sm text-gray-400 mt-0.5 truncate">{inq.content}</p>
               </div>
               <button
                 onClick={() => onViewDetail(inq)}
