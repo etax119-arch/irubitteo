@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { noticeApi } from '@/lib/api/notices';
 import type { NoticeResponse, NoticeCreateInput } from '@/types/notice';
 import type { Pagination } from '@/types/api';
-import { AxiosError } from 'axios';
+import { extractErrorMessage } from '@/lib/api/error';
 
 interface UseNoticeState {
   notices: NoticeResponse[];
@@ -18,7 +18,7 @@ interface UseNoticeState {
 interface UseNoticeReturn extends UseNoticeState {
   fetchNotices: (page?: number, limit?: number) => Promise<void>;
   sendNotice: (input: NoticeCreateInput) => Promise<NoticeResponse | null>;
-  deleteNotice: (id: string) => Promise<void>;
+  deleteNotice: (id: string) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -33,17 +33,7 @@ export function useNotice(): UseNoticeReturn {
   });
 
   const handleError = useCallback((err: unknown): string => {
-    let message = '알 수 없는 오류가 발생했습니다.';
-    if (err instanceof AxiosError) {
-      const responseMessage = err.response?.data?.message;
-      if (typeof responseMessage === 'string') {
-        message = responseMessage;
-      } else if (err.message) {
-        message = err.message;
-      }
-    } else if (err instanceof Error) {
-      message = err.message;
-    }
+    const message = extractErrorMessage(err);
     setState((prev) => ({ ...prev, error: message }));
     return message;
   }, []);
@@ -78,7 +68,7 @@ export function useNotice(): UseNoticeReturn {
     }
   }, [handleError]);
 
-  const deleteNotice = useCallback(async (id: string) => {
+  const deleteNotice = useCallback(async (id: string): Promise<boolean> => {
     setState((prev) => ({ ...prev, isDeleting: true, error: null }));
     try {
       await noticeApi.delete(id);
@@ -86,9 +76,10 @@ export function useNotice(): UseNoticeReturn {
         ...prev,
         notices: prev.notices.filter((n) => n.id !== id),
       }));
+      return true;
     } catch (err) {
       handleError(err);
-      throw err;
+      return false;
     } finally {
       setState((prev) => ({ ...prev, isDeleting: false }));
     }

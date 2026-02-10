@@ -7,7 +7,8 @@ import { AttendanceButtons } from './_components/AttendanceButtons';
 import { NoticeSection } from './_components/NoticeSection';
 import { WorkRecordsSection } from './_components/WorkRecordsSection';
 import { PhotoLightbox } from './_components/PhotoLightbox';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/lib/auth/store';
+import { authApi } from '@/lib/api/auth';
 import { useWorkRecords } from './_hooks/useWorkRecords';
 import { useEmployeeNotice } from './_hooks/useEmployeeNotice';
 import { useToast } from '@/components/ui/Toast';
@@ -15,7 +16,8 @@ import type { DisplayPhoto } from '@/types/attendance';
 
 export default function EmployeeDashboard() {
   const router = useRouter();
-  const { user, logout, isLoading } = useAuth();
+  const user = useAuthStore((s) => s.user);
+  const clearUser = useAuthStore((s) => s.clearUser);
   const toast = useToast();
   const [showPastNotices, setShowPastNotices] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<DisplayPhoto | null>(null);
@@ -45,7 +47,14 @@ export default function EmployeeDashboard() {
   }, [fetchNotices]);
 
   const handleLogout = async () => {
-    await logout();
+    try {
+      await authApi.logout();
+    } catch {
+      // 로그아웃 API 실패해도 클라이언트 상태는 정리
+    } finally {
+      clearUser();
+      router.push('/');
+    }
   };
 
   const handleSavePhoto = useCallback(async (url: string, fileName: string) => {
@@ -84,14 +93,6 @@ export default function EmployeeDashboard() {
   const handleCheckOut = () => {
     router.push('/employee/checkout');
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-duru-ivory flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-duru-orange-500" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-duru-ivory">

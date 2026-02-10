@@ -44,12 +44,20 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
                 <td
                   className={cn(
                     'px-4 py-3',
-                    record.checkin === '결근' ? 'text-red-600 font-semibold' : 'text-gray-900'
+                    record.checkin === '결근' ? 'text-red-600 font-semibold' : 'text-gray-900',
+                    record.status === '휴가' && 'text-gray-400 line-through'
                   )}
                 >
                   {record.checkin}
                 </td>
-                <td className="px-4 py-3 text-gray-900">{record.checkout}</td>
+                <td
+                  className={cn(
+                    'px-4 py-3 text-gray-900',
+                    record.status === '휴가' && 'text-gray-400 line-through'
+                  )}
+                >
+                  {record.checkout}
+                </td>
                 <td className="px-4 py-3">
                   <span
                     className={cn(
@@ -77,6 +85,7 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
                     onClick={() => onEditWorkTime(record)}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                     title="수정"
+                    aria-label="수정"
                   >
                     <Edit3 className="w-4 h-4 text-gray-600" />
                   </button>

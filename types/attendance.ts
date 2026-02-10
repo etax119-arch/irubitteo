@@ -1,6 +1,9 @@
 /** 출퇴근 상태 */
 export type AttendanceStatus = 'present' | 'absent' | 'leave' | 'holiday';
 
+/** 출퇴근 표시 상태 (기업 대시보드용) */
+export type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
+
 /** 출퇴근 기록 */
 export type Attendance = {
   id: string;
@@ -21,6 +24,7 @@ export type Attendance = {
 /** 출근 처리 입력 (employeeId는 JWT에서 추출) */
 export type ClockInInput = {
   note?: string;
+  clockIn?: string;
 };
 
 /** 퇴근 처리 입력 (attendanceId는 JWT + 오늘 날짜로 조회) */
@@ -36,7 +40,7 @@ export type AttendanceUpdateInput = {
   clockOut?: string;
   workContent?: string;
   note?: string;
-  // status, isLate, isEarlyLeave는 clockIn/clockOut 기준 자동 계산
+  status?: AttendanceStatus;
 };
 
 /** 출퇴근 현황 조회용 (직원 정보 포함) */
@@ -67,7 +71,7 @@ export type DisplayPhoto = {
 
 /** 사진 업로드용 (퇴근 사진 첨부) */
 export type UploadPhoto = {
-  id: number;
+  id: string;
   name: string;
   url: string;
   file: File;

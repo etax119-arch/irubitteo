@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, ImagePlus, X, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
+import { Textarea } from '@/components/ui/Textarea';
 import { useAttendance } from '@/hooks/useAttendance';
+import { useToast } from '@/components/ui/Toast';
 import { filesToBase64, isHeicFile, isHeicFileByContent, convertHeicToJpeg } from '@/lib/file';
 import type { UploadPhoto } from '@/types/attendance';
+
+const MAX_PHOTO_COUNT = 10;
+const MAX_FILE_SIZE_MB = 10;
 
 export default function CheckOutPage() {
   const router = useRouter();
@@ -14,13 +19,18 @@ export default function CheckOutPage() {
   const [photos, setPhotos] = useState<UploadPhoto[]>([]);
   const [showModal, setShowModal] = useState(false);
   const { clockOut, isLoading, error } = useAttendance();
+  const toast = useToast();
 
   // 메모리 누수 방지: 페이지 언마운트 시 blob URL cleanup
+  const photosRef = useRef(photos);
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
   useEffect(() => {
     return () => {
-      photos.forEach((photo) => URL.revokeObjectURL(photo.url));
+      photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.url));
     };
-  }, [photos]);
+  }, []);
 
   const handleBack = () => {
     router.back();
@@ -28,6 +38,19 @@ export default function CheckOutPage() {
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    if (photos.length + files.length > MAX_PHOTO_COUNT) {
+      toast.error(`사진은 최대 ${MAX_PHOTO_COUNT}장까지 첨부 가능합니다.`);
+      return;
+    }
+
+    const oversized = files.filter((f) => f.size > MAX_FILE_SIZE_MB * 1024 * 1024);
+    if (oversized.length > 0) {
+      toast.error(`파일 크기는 ${MAX_FILE_SIZE_MB}MB 이하만 가능합니다.`);
+      return;
+    }
+
     const newPhotos = await Promise.all(
       files.map(async (file) => {
         let previewUrl: string;
@@ -45,7 +68,7 @@ export default function CheckOutPage() {
           previewUrl = URL.createObjectURL(file);
         }
         return {
-          id: Date.now() + Math.random(),
+          id: crypto.randomUUID(),
           name: file.name,
           url: previewUrl,
           file, // 원본 파일 저장
@@ -55,7 +78,7 @@ export default function CheckOutPage() {
     setPhotos((prev) => [...prev, ...newPhotos]);
   };
 
-  const removePhoto = (id: number) => {
+  const removePhoto = (id: string) => {
     const photo = photos.find((p) => p.id === id);
     if (photo) {
       URL.revokeObjectURL(photo.url); // 메모리 해제
@@ -117,13 +140,13 @@ export default function CheckOutPage() {
 
           {/* 오늘의 업무 내용 */}
           <div className="mx-6 sm:mx-8 mb-6">
-            <label className="block text-xl font-bold text-gray-800 mb-3">오늘의 업무 내용</label>
-            <textarea
+            <Textarea
+              label="오늘의 업무 내용"
               value={workDone}
               onChange={(e) => setWorkDone(e.target.value)}
               placeholder="예) 제품 포장 작업, 부품 조립, 작업장 정리 등"
               rows={5}
-              className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent resize-none leading-relaxed"
+              className="px-5 py-4 border-2 text-lg"
             />
           </div>
 
@@ -134,10 +157,12 @@ export default function CheckOutPage() {
               <div className="flex flex-wrap gap-3 mb-3">
                 {photos.map((photo) => (
                   <div key={photo.id} className="relative w-20 h-20 rounded-lg overflow-hidden border border-duru-orange-100 bg-white">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- blob URL 미리보기는 next/image 미지원 */}
                     <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
                     <button
                       onClick={() => removePhoto(photo.id)}
                       className="absolute top-1 right-1 w-5 h-5 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
+                      aria-label="사진 삭제"
                     >
                       <X className="w-3 h-3 text-white" />
                     </button>

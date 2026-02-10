@@ -8,6 +8,8 @@ import { useNotice } from '@/hooks/useNotice';
 import { useAuthStore } from '@/lib/auth/store';
 import { useToast } from '@/components/ui/Toast';
 import { getEmployees } from '@/lib/api/employees';
+import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 import type { Employee } from '@/types/employee';
 
 export default function NoticesPage() {
@@ -26,18 +28,21 @@ export default function NoticesPage() {
   }, [fetchNotices]);
 
   useEffect(() => {
+    let ignore = false;
     const loadEmployees = async () => {
       try {
-        const result = await getEmployees({ isActive: true, limit: 100 });
-        setEmployees(result.data);
+        // 공지 대상 직원 목록 전체 조회 (합리적 상한)
+        const result = await getEmployees({ isActive: true, limit: 500 });
+        if (!ignore) setEmployees(result.data);
       } catch {
-        toast.error('직원 목록을 불러오는데 실패했습니다.');
+        if (!ignore) toast.error('직원 목록을 불러오는데 실패했습니다.');
       } finally {
-        setEmployeesLoading(false);
+        if (!ignore) setEmployeesLoading(false);
       }
     };
     loadEmployees();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { ignore = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- toast is a Zustand selector; stable in practice but creates new object ref each render
   }, []);
 
   const toggleWorkerForNotice = (workerId: string) => {
@@ -67,10 +72,10 @@ export default function NoticesPage() {
   };
 
   const handleDeleteNotice = async (id: string) => {
-    try {
-      await deleteNotice(id);
+    const success = await deleteNotice(id);
+    if (success) {
       toast.success('공지사항이 삭제되었습니다.');
-    } catch {
+    } else {
       toast.error('공지사항 삭제에 실패했습니다.');
     }
   };
@@ -96,8 +101,9 @@ export default function NoticesPage() {
 
   if (employeesLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-20" role="status">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-duru-orange-500" />
+        <span className="sr-only">로딩 중</span>
       </div>
     );
   }
@@ -132,34 +138,35 @@ export default function NoticesPage() {
             <Edit className="w-5 h-5 text-duru-orange-600" />
             공지사항 내용
           </h4>
-          <textarea
+          <Textarea
             value={noticeContent}
             onChange={(e) => setNoticeContent(e.target.value)}
             placeholder={`근로자들에게 전달할 공지사항을 작성해주세요.\n\n예)\n내일 오전 안전교육이 진행됩니다.\n필히 참석 부탁드립니다.`}
             rows={6}
-            className="w-full px-5 py-4 border-2 border-gray-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent resize-none placeholder:text-gray-400 leading-relaxed"
           />
         </div>
 
         <div className="flex items-center justify-end gap-3">
-          <button
+          <Button
+            variant="outline"
             onClick={() => {
               setSelectedWorkersForNotice([]);
               setNoticeContent('');
               setWorkerSearchQuery('');
             }}
-            className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+            className="px-6 py-3"
           >
             초기화
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleSendNotice}
             disabled={selectedWorkersForNotice.length === 0 || !noticeContent.trim() || isSending}
-            className="px-8 py-3 bg-duru-orange-500 text-white rounded-lg font-bold text-lg hover:bg-duru-orange-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            leftIcon={<Bell className="w-5 h-5" />}
+            className="px-8 py-3 text-lg"
           >
-            <Bell className="w-5 h-5" />
             {isSending ? '발송 중...' : '발송하기'}
-          </button>
+          </Button>
         </div>
       </div>
 

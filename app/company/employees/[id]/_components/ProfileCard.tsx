@@ -1,4 +1,4 @@
-import { Phone, Heart, User, Briefcase } from 'lucide-react';
+import { Phone, Heart, User, Briefcase, MapPin } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../../../_utils/employeeStatus';
 import type { Employee } from '@/types/employee';
@@ -36,6 +36,15 @@ export function ProfileCard({ employee }: ProfileCardProps) {
             <Phone className="w-4 h-4 text-gray-400" />
             <span className="text-gray-600">핸드폰번호:</span>
             <span className="font-semibold text-gray-900">{employee.phone}</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <MapPin className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-600">주소:</span>
+            <span className="font-semibold text-gray-900">
+              {employee.addressCity
+                ? `${employee.addressCity} ${employee.addressDistrict ?? ''}${employee.addressDetail ? ` ${employee.addressDetail}` : ''}`.trim()
+                : '-'}
+            </span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Heart className="w-4 h-4 text-gray-400" />

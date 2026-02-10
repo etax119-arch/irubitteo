@@ -1,4 +1,4 @@
-import { AlertTriangle, Calendar as CalendarIcon, UserX } from 'lucide-react';
+import { AlertTriangle, Calendar as CalendarIcon, Check, UserX } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import type { ResignForm } from '../../_hooks/useResign';
@@ -68,16 +68,31 @@ export function ResignModal({
           />
         </div>
 
+        <label
+          className="flex items-center gap-3 cursor-pointer select-none"
+          onClick={() => onUpdateForm({ includeInWaitlist: !resignForm.includeInWaitlist })}
+        >
+          <div
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+              resignForm.includeInWaitlist
+                ? 'bg-blue-500 border-blue-500'
+                : 'border-gray-300 bg-white'
+            }`}
+          >
+            {resignForm.includeInWaitlist && <Check className="w-3.5 h-3.5 text-white" />}
+          </div>
+          <span className="text-sm text-gray-700">대기자에 포함</span>
+        </label>
+
         <div className="flex gap-3 pt-4">
-          <Button variant="outline" onClick={onClose} fullWidth disabled={isSubmitting}>
+          <Button variant="outline" onClick={onClose} className="flex-1 py-3" disabled={isSubmitting}>
             취소
           </Button>
           <Button
             onClick={onSubmit}
             disabled={!resignForm.date || isSubmitting}
             leftIcon={<UserX className="w-4 h-4" />}
-            className="flex-1 bg-red-500 text-white hover:bg-red-600"
-            fullWidth
+            className="flex-1 py-3 bg-red-500 text-white hover:bg-red-600"
           >
             {isSubmitting ? '처리 중...' : '퇴사 등록'}
           </Button>

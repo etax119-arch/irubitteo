@@ -48,6 +48,7 @@ export function WorkRecordsSection({
       {/* 트리거 카드 */}
       <button
         onClick={onToggle}
+        aria-expanded={isOpen}
         className="w-full bg-gradient-to-b from-[#F7F7F8] to-[#F1F1F3] rounded-2xl px-5 py-3.5 border border-[#E2E2E6] shadow-[0_1px_2px_rgba(0,0,0,0.03)] flex items-center justify-between hover:from-[#F3F3F5] hover:to-[#EDEDEF] transition-colors"
       >
         <div className="flex items-center gap-2.5">
@@ -79,7 +80,7 @@ export function WorkRecordsSection({
 
           {/* 기록 카드들 */}
           {isLoading ? (
-            <div className="bg-white rounded-xl p-10 text-center border border-gray-100">
+            <div className="bg-white rounded-xl p-10 text-center border border-gray-100" role="status">
               <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin mx-auto mb-4" />
               <p className="text-base font-medium text-gray-400">
                 활동 기록을 불러오는 중...

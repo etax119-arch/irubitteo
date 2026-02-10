@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { cn } from '@/lib/cn';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -33,13 +36,16 @@ function Avatar({
   size = 'md',
   className,
 }: AvatarProps) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const initials = name ? getInitials(name) : '?';
 
-  if (src) {
+  if (src && src !== failedSrc) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element -- 외부 동적 URL + onError 폴백 사용
       <img
         src={src}
         alt={alt || name || 'Avatar'}
+        onError={() => setFailedSrc(src)}
         className={cn(
           'rounded-full object-cover',
           sizeStyles[size],

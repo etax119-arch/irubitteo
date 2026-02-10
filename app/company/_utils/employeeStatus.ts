@@ -1,4 +1,6 @@
-export function getEmployeeStatusLabel(status: string, isActive: boolean) {
+import type { Employee } from '@/types/employee';
+
+export function getEmployeeStatusLabel(status: Employee['status'], isActive: boolean) {
   if (!isActive) return '퇴사';
   switch (status) {
     case 'checkin':
@@ -12,7 +14,7 @@ export function getEmployeeStatusLabel(status: string, isActive: boolean) {
   }
 }
 
-export function getEmployeeStatusStyle(status: string, isActive: boolean) {
+export function getEmployeeStatusStyle(status: Employee['status'], isActive: boolean) {
   if (!isActive) return 'bg-gray-200 text-gray-600';
   switch (status) {
     case 'checkin':

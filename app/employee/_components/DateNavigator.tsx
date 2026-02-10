@@ -22,6 +22,7 @@ export function DateNavigator({
         <button
           onClick={() => onYearChange('prev')}
           className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="이전 연도"
         >
           <ChevronLeft className="w-4 h-4 text-gray-600" />
         </button>
@@ -32,6 +33,7 @@ export function DateNavigator({
         <button
           onClick={() => onYearChange('next')}
           className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="다음 연도"
         >
           <ChevronRight className="w-4 h-4 text-gray-600" />
         </button>
@@ -42,6 +44,7 @@ export function DateNavigator({
         <button
           onClick={() => onMonthChange('prev')}
           className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="이전 월"
         >
           <ChevronLeft className="w-4 h-4 text-gray-600" />
         </button>
@@ -49,6 +52,7 @@ export function DateNavigator({
         <button
           onClick={() => onMonthChange('next')}
           className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="다음 월"
         >
           <ChevronRight className="w-4 h-4 text-gray-600" />
         </button>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Users, UserCheck, Clock, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { StatCard } from '../_components/StatCard';
@@ -16,18 +16,22 @@ export default function DashboardPage() {
   const [records, setRecords] = useState<DailyAttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const fetchIdRef = useRef(0);
 
   const fetchData = useCallback(async (date: Date) => {
+    const id = ++fetchIdRef.current;
     try {
       setIsLoading(true);
       setError(null);
       const data = await attendanceApi.getCompanyDaily(formatDateAsKST(date));
+      if (id !== fetchIdRef.current) return;
       setStats(data.stats);
       setRecords(data.records);
     } catch {
+      if (id !== fetchIdRef.current) return;
       setError('출퇴근 현황을 불러오는데 실패했습니다.');
     } finally {
-      setIsLoading(false);
+      if (id === fetchIdRef.current) setIsLoading(false);
     }
   }, []);
 

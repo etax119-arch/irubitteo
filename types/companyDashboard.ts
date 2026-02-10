@@ -3,6 +3,9 @@ export interface AddWorkerForm {
   ssn: string;
   phone: string;
   gender: string;
+  addressCity: string;
+  addressDistrict: string;
+  addressDetail: string;
   emergencyName: string;
   emergencyRelation: string;
   emergencyPhone: string;
@@ -14,5 +17,3 @@ export interface AddWorkerForm {
   workStartTime: string;
   workerId: string;
 }
-
-export type TabId = 'dashboard' | 'employees' | 'attendance' | 'notices';

@@ -2,27 +2,13 @@
 
 import { AlertTriangle, Megaphone, ChevronDown, ChevronUp } from 'lucide-react';
 import type { EmployeeNotice } from '@/types/notice';
+import { formatKSTDate } from '@/lib/kst';
 
 interface NoticeSectionProps {
   todayNotices: EmployeeNotice[];
   pastNotices: EmployeeNotice[];
   showPastNotices: boolean;
   onTogglePastNotices: () => void;
-}
-
-function formatNoticeDate(isoString: string): string {
-  const date = new Date(isoString);
-  const formatter = new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    timeZone: 'Asia/Seoul',
-  });
-  const parts = formatter.formatToParts(date);
-  const y = parts.find(p => p.type === 'year')?.value;
-  const m = parts.find(p => p.type === 'month')?.value;
-  const d = parts.find(p => p.type === 'day')?.value;
-  return `${y}.${m}.${d}`;
 }
 
 export function NoticeSection({
@@ -46,7 +32,7 @@ export function NoticeSection({
           <div className="space-y-6">
             {todayNotices.map((notice) => (
               <div key={notice.id} className="bg-white rounded-xl p-6 border border-duru-orange-100">
-                <p className="text-base font-bold text-duru-orange-600 mb-3">{formatNoticeDate(notice.createdAt)}</p>
+                <p className="text-base font-bold text-duru-orange-600 mb-3">{formatKSTDate(notice.createdAt)}</p>
                 <p className="text-xl sm:text-2xl font-semibold text-gray-900 leading-relaxed whitespace-pre-line mb-4">
                   {notice.content}
                 </p>
@@ -66,6 +52,7 @@ export function NoticeSection({
         <div className="mt-6">
           <button
             onClick={onTogglePastNotices}
+            aria-expanded={showPastNotices}
             className="w-full bg-gradient-to-b from-[#F7F7F8] to-[#F1F1F3] rounded-2xl px-5 py-3.5 border border-[#E2E2E6] shadow-[0_1px_2px_rgba(0,0,0,0.03)] flex items-center justify-between hover:from-[#F3F3F5] hover:to-[#EDEDEF] transition-colors"
           >
             <div className="flex items-center gap-2.5">
@@ -87,7 +74,7 @@ export function NoticeSection({
             <div className="mt-2 bg-gray-50 rounded-2xl px-5 py-4 border border-gray-100 space-y-2.5">
               {pastNotices.map((notice) => (
                 <div key={notice.id} className="bg-white/80 rounded-lg px-4 py-3">
-                  <p className="text-xs text-gray-500 mb-1">{formatNoticeDate(notice.createdAt)}</p>
+                  <p className="text-xs text-gray-500 mb-1">{formatKSTDate(notice.createdAt)}</p>
                   <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line mb-1">
                     {notice.content}
                   </p>

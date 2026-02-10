@@ -46,6 +46,7 @@ export interface Worker {
   workerId: string;
   notes: string;
   isResigned: boolean;
+  isWaiting: boolean;
   resignDate: string | null;
   resignReason: string | null;
 }
@@ -120,4 +121,4 @@ export interface AddCompanyForm {
   adminId: string;
 }
 
-export type WorkerFilter = 'current' | 'resigned' | 'all';
+export type WorkerFilter = 'current' | 'resigned' | 'waiting' | 'all';

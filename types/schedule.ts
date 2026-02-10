@@ -1,11 +1,11 @@
-/** 근무일정 */
+/** 근무일정 (API 응답 기준 — 날짜는 ISO string) */
 export type Schedule = {
   id: string;
   companyId: string;
-  date: Date;
+  date: string;
   content: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };
 
 /** 근무일정 생성 입력 */

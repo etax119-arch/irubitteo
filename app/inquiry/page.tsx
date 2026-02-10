@@ -80,7 +80,7 @@ export default function InquiryPage() {
     if (!value.trim()) {
       error = `${fieldLabels[name]}을(를) 입력해주세요.`;
     } else if (name === 'phone') {
-      const phoneRegex = /^[\d]{2,4}-?[\d]{3,4}-?[\d]{4}$/;
+      const phoneRegex = /^(0[2-9]\d?)-?(\d{3,4})-?(\d{4})$/;
       if (!phoneRegex.test(value.replace(/\s/g, ''))) {
         error = '올바른 전화번호 형식을 입력해주세요.';
       }

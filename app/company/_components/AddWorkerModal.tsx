@@ -14,8 +14,11 @@ import {
   ChevronDown,
   Check,
   CheckCircle2,
+  MapPin,
 } from 'lucide-react';
 import type { AddWorkerForm } from '@/types/companyDashboard';
+import { DISABILITY_TYPES } from '@/types/employee';
+import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
 import { IconButton } from '@/components/ui/IconButton';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -46,24 +49,6 @@ function formatSSN(value: string): string {
   return `${digits.slice(0, 6)}-${digits.slice(6)}`;
 }
 
-const DISABILITY_TYPES = [
-  '지체장애',
-  '뇌병변장애',
-  '시각장애',
-  '청각장애',
-  '언어장애',
-  '지적장애',
-  '정신장애',
-  '자폐성장애',
-  '신장장애',
-  '심장장애',
-  '호흡기장애',
-  '간장애',
-  '안면장애',
-  '장루·요루장애',
-  '간질장애',
-];
-
 const REQUIRED_FIELDS: (keyof AddWorkerForm)[] = [
   'name',
   'ssn',
@@ -79,6 +64,8 @@ const REQUIRED_FIELDS: (keyof AddWorkerForm)[] = [
   'workDays',
   'workStartTime',
   'workerId',
+  'addressCity',
+  'addressDistrict',
 ];
 
 export function AddWorkerModal({
@@ -165,7 +152,9 @@ export function AddWorkerModal({
                   </label>
                   <div className="relative">
                     <input
-                      type="text"
+                      type="password"
+                      inputMode="numeric"
+                      autoComplete="off"
                       placeholder="000000-0000000"
                       value={form.ssn}
                       onChange={(e) => onUpdateForm('ssn', formatSSN(e.target.value))}
@@ -219,7 +208,73 @@ export function AddWorkerModal({
             </div>
           </div>
 
-          {/* 섹션 2: 비상 연락처 정보 */}
+          {/* 섹션 2: 주소 정보 */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 className="text-sm font-bold text-gray-900 mb-1 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-duru-orange-500" />
+              주소
+            </h3>
+            <p className="text-xs text-gray-500 mb-4">근로자의 거주지 정보를 입력해주세요</p>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    시/도 <span className="text-duru-orange-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={form.addressCity}
+                      onChange={(e) => onUpdateForm('addressCity', e.target.value)}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent appearance-none bg-white text-gray-700"
+                    >
+                      <option value="">시/도 선택</option>
+                      {CITY_OPTIONS.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    시/군/구 <span className="text-duru-orange-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={form.addressDistrict}
+                      onChange={(e) => onUpdateForm('addressDistrict', e.target.value)}
+                      disabled={!form.addressCity}
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent appearance-none bg-white text-gray-700 disabled:bg-gray-100 disabled:text-gray-400"
+                    >
+                      <option value="">{form.addressCity ? '시/군/구 선택' : '시/도를 먼저 선택'}</option>
+                      {getDistrictOptions(form.addressCity).map((district) => (
+                        <option key={district} value={district}>
+                          {district}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  상세주소
+                </label>
+                <input
+                  type="text"
+                  placeholder="상세주소 입력 (선택)"
+                  value={form.addressDetail ?? ''}
+                  onChange={(e) => onUpdateForm('addressDetail', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 bg-gray-50/50"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 섹션 3: 비상 연락처 정보 */}
           <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
             <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Heart className="w-4 h-4 text-duru-orange-500" />

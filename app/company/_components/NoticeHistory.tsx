@@ -1,5 +1,6 @@
 import { FileText, MessageSquare, Trash2 } from 'lucide-react';
 import type { NoticeResponse } from '@/types/notice';
+import { formatKSTDateTime } from '@/lib/kst';
 
 interface NoticeHistoryProps {
   notices: NoticeResponse[];
@@ -8,19 +9,6 @@ interface NoticeHistoryProps {
   isLoading?: boolean;
   onDelete?: (id: string) => void;
   isDeleting?: boolean;
-}
-
-function formatCreatedAt(isoString: string): string {
-  const date = new Date(isoString);
-  return date.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-    timeZone: 'Asia/Seoul',
-  });
 }
 
 export function NoticeHistory({
@@ -42,8 +30,9 @@ export function NoticeHistory({
 
       <div className="divide-y divide-gray-200">
         {isLoading ? (
-          <div className="px-6 py-12 flex justify-center">
+          <div className="px-6 py-12 flex justify-center" role="status">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-duru-orange-500" />
+            <span className="sr-only">로딩 중</span>
           </div>
         ) : notices.length === 0 ? (
           <div className="px-6 py-12 text-center">
@@ -53,10 +42,9 @@ export function NoticeHistory({
         ) : (
           notices.map((notice) => {
             const isExpanded = expandedNotices.has(notice.id);
-            const recipientNames = notice.recipients.map((r) => r.name);
-            const displayedWorkers = isExpanded
-              ? recipientNames
-              : recipientNames.slice(0, 3);
+            const displayedRecipients = isExpanded
+              ? notice.recipients
+              : notice.recipients.slice(0, 3);
 
             return (
               <div
@@ -67,7 +55,7 @@ export function NoticeHistory({
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="text-sm font-semibold text-duru-orange-600">
-                        {formatCreatedAt(notice.createdAt)}
+                        {formatKSTDateTime(notice.createdAt)}
                       </span>
                       <span className="text-sm text-gray-500">
                         발송자: {notice.senderName ?? '관리자'}
@@ -77,20 +65,20 @@ export function NoticeHistory({
                       <span className="text-sm font-semibold text-gray-700">
                         발송 대상:
                       </span>
-                      {displayedWorkers.map((worker, idx) => (
+                      {displayedRecipients.map((recipient) => (
                         <span
-                          key={idx}
+                          key={recipient.id}
                           className="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium"
                         >
-                          {worker}
+                          {recipient.name}
                         </span>
                       ))}
-                      {recipientNames.length > 3 && (
+                      {notice.recipients.length > 3 && (
                         <button
                           onClick={() => onToggleExpand(notice.id)}
                           className="inline-flex items-center px-2.5 py-1 bg-duru-orange-100 text-duru-orange-700 rounded-md text-sm font-semibold hover:bg-duru-orange-200 transition-colors"
                         >
-                          {isExpanded ? '접기' : `+${recipientNames.length - 3}명 더보기`}
+                          {isExpanded ? '접기' : `+${notice.recipients.length - 3}명 더보기`}
                         </button>
                       )}
                     </div>

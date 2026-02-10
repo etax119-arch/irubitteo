@@ -8,6 +8,7 @@ import type {
   DailyAttendanceData,
   MonthlyWorkStats,
 } from '@/types/adminDashboard';
+import type { NoteUpdateAlert } from '../_components/NoteUpdateAlertList';
 
 export const adminStats: AdminStats = {
   totalCompanies: 24,
@@ -92,6 +93,7 @@ export const workersData: Worker[] = [
     workerId: 'ms0315',
     notes: '성실하고 꼼꼼함. 품질 검수 업무에 적합',
     isResigned: false,
+    isWaiting: false,
     resignDate: null,
     resignReason: null,
   },
@@ -107,6 +109,7 @@ export const workersData: Worker[] = [
     workerId: 'yh0520',
     notes: '수화 가능. 포장 작업 숙련도 높음',
     isResigned: false,
+    isWaiting: false,
     resignDate: null,
     resignReason: null,
   },
@@ -122,6 +125,7 @@ export const workersData: Worker[] = [
     workerId: 'cs1108',
     notes: '보조기기 사용. 단순 조립 업무 담당',
     isResigned: false,
+    isWaiting: false,
     resignDate: null,
     resignReason: null,
   },
@@ -137,6 +141,7 @@ export const workersData: Worker[] = [
     workerId: 'mr0723',
     notes: '휠체어 사용. 사무 보조 업무 가능',
     isResigned: false,
+    isWaiting: false,
     resignDate: null,
     resignReason: null,
   },
@@ -152,6 +157,7 @@ export const workersData: Worker[] = [
     workerId: 'dw0412',
     notes: '반복 작업 능숙. 재배 작업 담당했음',
     isResigned: true,
+    isWaiting: false,
     resignDate: '2026-01-22',
     resignReason: '개인 사유로 인한 자진 퇴사',
   },
@@ -167,6 +173,7 @@ export const workersData: Worker[] = [
     workerId: 'jm0630',
     notes: '수화 의사소통. 꼼꼼한 성격',
     isResigned: true,
+    isWaiting: false,
     resignDate: '2026-01-15',
     resignReason: '건강 문제로 인한 퇴사',
   },
@@ -208,9 +215,21 @@ export const notifications: Notification[] = [
 ];
 
 export const absenceAlerts: AbsenceAlert[] = [
-  { id: 1, name: '최동욱', company: '그린팜', date: '2026-01-26', status: '결근' },
-  { id: 3, name: '정미라', company: '한빛포장', date: '2026-01-31', status: '결근' },
-  { id: 5, name: '박철수', company: '세종식품', date: '2026-02-01', status: '결근' },
+  { id: 1, name: '최동욱', company: '그린팜', date: '2026-02-10', status: '결근' },
+  { id: 2, name: '정미라', company: '한빛포장', date: '2026-02-10', status: '결근' },
+  { id: 3, name: '박철수', company: '세종식품', date: '2026-02-10', status: '지각' },
+  { id: 4, name: '김수진', company: '(주)두루빛 제조', date: '2026-02-09', status: '결근' },
+  { id: 5, name: '이민호', company: '세종식품', date: '2026-02-09', status: '결근' },
+  { id: 6, name: '박지영', company: '한빛포장', date: '2026-02-09', status: '지각' },
+  { id: 7, name: '강태민', company: '그린팜', date: '2026-02-08', status: '결근' },
+  { id: 8, name: '윤서아', company: '그린팜', date: '2026-02-08', status: '결근' },
+  { id: 9, name: '이준호', company: '한빛포장', date: '2026-02-08', status: '지각' },
+  { id: 10, name: '김하은', company: '한빛포장', date: '2026-02-07', status: '결근' },
+  { id: 11, name: '박서준', company: '(주)두루빛 제조', date: '2026-02-07', status: '결근' },
+  { id: 12, name: '최민지', company: '세종식품', date: '2026-02-07', status: '지각' },
+  { id: 13, name: '정민아', company: '(주)두루빛 제조', date: '2026-02-06', status: '결근' },
+  { id: 14, name: '박영수', company: '(주)두루빛 제조', date: '2026-02-06', status: '결근' },
+  { id: 15, name: '최지현', company: '(주)두루빛 제조', date: '2026-02-05', status: '지각' },
 ];
 
 export const inquiryList: Inquiry[] = [
@@ -245,7 +264,7 @@ export const inquiryList: Inquiry[] = [
     email: 'park@lg.com',
     summary: '고용 장려금 컨설팅 요청합니다.',
     content:
-      '장애인 고용 장려금 신청 절차와 두루빛터 서비스 연계 방안에 대해 상세히 알고 싶습니다.',
+      '장애인 고용 장려금 신청 절차와 이루빛터 서비스 연계 방안에 대해 상세히 알고 싶습니다.',
   },
   {
     id: 4,
@@ -345,3 +364,27 @@ export const monthlyWorkStats: MonthlyWorkStats = {
     { id: 10, name: '강태민', department: '재배', totalHours: 176, avgHours: 8.0, workDays: 22, lateDays: 0, scheduledWorkDays: ['월', '화', '수', '목', '금'] },
   ],
 };
+
+export const noteUpdateAlerts: NoteUpdateAlert[] = [
+  {
+    id: 1,
+    workerName: '김민수',
+    companyName: '(주)두루빛 제조',
+    noteContent: '최근 컨디션이 좋지 않아 보임. 점심시간 이후 피로감 호소. 휴식 시간 추가 배려 필요. 담당 의사와 상담 예정.',
+    updatedAt: '2026-01-28 14:30',
+  },
+  {
+    id: 2,
+    workerName: '이영희',
+    companyName: '세종식품',
+    noteContent: '업무 적응도 우수. 포장 작업 속도 향상됨. 다음 주부터 새로운 작업 라인 배치 검토 중.',
+    updatedAt: '2026-01-28 11:15',
+  },
+  {
+    id: 3,
+    workerName: '박철수',
+    companyName: '한빛포장',
+    noteContent: '가족 상황으로 인해 근무 시간 조정 요청. 오전 근무만 희망. 인사팀과 협의 필요.',
+    updatedAt: '2026-01-27 16:45',
+  },
+];

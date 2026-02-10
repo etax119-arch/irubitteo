@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
 import { useAttendance } from '@/hooks/useAttendance';
 import { scheduleApi } from '@/lib/api/schedules';
+import { formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
 import type { Schedule } from '@/types/schedule';
 
 export default function CheckInPage() {
@@ -14,6 +15,10 @@ export default function CheckInPage() {
   const [showModal, setShowModal] = useState(false);
   const { clockIn, isLoading, error } = useAttendance();
   const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
+
+  // 출근 시간 설정 UI 상태
+  const [hourInput, setHourInput] = useState('');
+  const [minuteInput, setMinuteInput] = useState('');
 
   useEffect(() => {
     scheduleApi.getToday()
@@ -26,9 +31,16 @@ export default function CheckInPage() {
   };
 
   const completeCheckIn = async () => {
-    const result = await clockIn();
-    if (result) {
-      setShowModal(true);
+    if (hourInput && minuteInput) {
+      const todayKST = formatDateAsKST(new Date());
+      const clockInTimestamp = buildKSTTimestamp(todayKST, `${hourInput}:${minuteInput}`);
+
+      const result = await clockIn({ clockIn: clockInTimestamp });
+      if (result) setShowModal(true);
+    } else {
+      // 시간 미선택 → 서버 현재 시간
+      const result = await clockIn();
+      if (result) setShowModal(true);
     }
   };
 
@@ -79,7 +91,7 @@ export default function CheckInPage() {
           )}
 
           {/* 확인 체크 영역 */}
-          <div className="mx-6 sm:mx-8 mb-6">
+          <div className="mx-6 sm:mx-8 mb-4">
             <label className="flex items-center gap-4 p-5 border-2 border-duru-orange-200 rounded-xl cursor-pointer hover:bg-duru-orange-50 transition-colors">
               <input
                 type="checkbox"
@@ -91,11 +103,62 @@ export default function CheckInPage() {
             </label>
           </div>
 
+          {/* 출근 시간 설정 섹션 */}
+          <div className="mx-6 sm:mx-8 mb-6 bg-[#FFFBF7] rounded-2xl p-5 sm:p-6 border border-duru-orange-100/60 shadow-sm">
+            {/* 섹션 헤더 */}
+            <div className="mb-5">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">출근 시간 설정</h3>
+              <p className="text-base text-gray-600">오늘 출근 시간을 선택해주세요</p>
+            </div>
+
+            {/* 시/분 드롭다운 */}
+            <div className="flex items-end gap-3">
+              {/* 시 선택 */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">시</label>
+                <select
+                  value={hourInput}
+                  onChange={(e) => setHourInput(e.target.value)}
+                  className="w-full px-4 py-3.5 text-xl text-center font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-duru-orange-300 focus:border-duru-orange-400 transition-all appearance-none"
+                >
+                  <option value="">--</option>
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={String(i).padStart(2, '0')}>
+                      {String(i).padStart(2, '0')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 구분자 콜론 */}
+              <div className="pb-3.5">
+                <span className="text-3xl font-bold text-gray-400">:</span>
+              </div>
+
+              {/* 분 선택 */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">분</label>
+                <select
+                  value={minuteInput}
+                  onChange={(e) => setMinuteInput(e.target.value)}
+                  className="w-full px-4 py-3.5 text-xl text-center font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-duru-orange-300 focus:border-duru-orange-400 transition-all appearance-none"
+                >
+                  <option value="">--</option>
+                  {Array.from({ length: 60 }, (_, i) => (
+                    <option key={i} value={String(i).padStart(2, '0')}>
+                      {String(i).padStart(2, '0')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           {/* 출근 완료 버튼 */}
           <div className="px-6 sm:px-8 pb-8">
             <button
               onClick={completeCheckIn}
-              disabled={!confirmedTasks || isLoading}
+              disabled={!confirmedTasks || !hourInput || !minuteInput || isLoading}
               className="w-full py-5 bg-duru-orange-500 text-white rounded-xl font-bold text-xl hover:bg-duru-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (

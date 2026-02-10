@@ -7,7 +7,7 @@ import type {
   ScheduleCreateInput,
   ScheduleUpdateInput,
 } from '@/types/schedule';
-import { AxiosError } from 'axios';
+import { extractErrorMessage } from '@/lib/api/error';
 
 interface UseScheduleState {
   schedules: Schedule[];
@@ -40,19 +40,7 @@ export function useSchedule(): UseScheduleReturn {
 
   const handleError = useCallback(
     (err: unknown): string => {
-      let message = '알 수 없는 오류가 발생했습니다.';
-
-      if (err instanceof AxiosError) {
-        const responseMessage = err.response?.data?.message;
-        if (typeof responseMessage === 'string') {
-          message = responseMessage;
-        } else if (err.message) {
-          message = err.message;
-        }
-      } else if (err instanceof Error) {
-        message = err.message;
-      }
-
+      const message = extractErrorMessage(err);
       setError(message);
       return message;
     },
@@ -89,6 +77,7 @@ export function useSchedule(): UseScheduleReturn {
 
       try {
         const schedule = await scheduleApi.create(input);
+        setState((prev) => ({ ...prev, schedules: [...prev.schedules, schedule] }));
         return schedule;
       } catch (err) {
         handleError(err);
@@ -107,6 +96,10 @@ export function useSchedule(): UseScheduleReturn {
 
       try {
         const schedule = await scheduleApi.update(id, input);
+        setState((prev) => ({
+          ...prev,
+          schedules: prev.schedules.map((s) => (s.id === id ? schedule : s)),
+        }));
         return schedule;
       } catch (err) {
         handleError(err);
@@ -125,6 +118,10 @@ export function useSchedule(): UseScheduleReturn {
 
       try {
         await scheduleApi.remove(id);
+        setState((prev) => ({
+          ...prev,
+          schedules: prev.schedules.filter((s) => s.id !== id),
+        }));
         return true;
       } catch (err) {
         handleError(err);
@@ -145,5 +142,3 @@ export function useSchedule(): UseScheduleReturn {
     clearError,
   };
 }
-
-export default useSchedule;

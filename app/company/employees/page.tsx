@@ -5,13 +5,32 @@ import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 import type { Employee, WorkDay } from '@/types/employee';
 import type { AddWorkerForm } from '@/types/companyDashboard';
-import { EmployeeTable } from '../_components/EmployeeTable';
-import { AddWorkerModal } from '../_components/AddWorkerModal';
-import { INITIAL_ADD_WORKER_FORM } from '../_data/dummyData';
 import { getEmployees, createEmployee } from '@/lib/api/employees';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
+import { EmployeeTable } from '../_components/EmployeeTable';
+import { AddWorkerModal } from '../_components/AddWorkerModal';
 import { LABEL_TO_NUM } from '../_utils/workDays';
+
+const INITIAL_ADD_WORKER_FORM: AddWorkerForm = {
+  name: '',
+  ssn: '',
+  phone: '',
+  gender: '',
+  addressCity: '',
+  addressDistrict: '',
+  addressDetail: '',
+  emergencyName: '',
+  emergencyRelation: '',
+  emergencyPhone: '',
+  disabilityType: '',
+  disabilitySeverity: '',
+  hireDate: '',
+  recognitionDate: '',
+  workDays: [],
+  workStartTime: '',
+  workerId: '',
+};
 
 function generateWorkerId(ssn: string, phone: string): string | null {
   const ssnDigits = ssn.replace(/\D/g, '');
@@ -58,6 +77,11 @@ export default function EmployeesPage() {
     setAddWorkerForm((prev) => {
       const updated = { ...prev, [field]: value };
 
+      // 시/도 변경 시 군/구 리셋
+      if (field === 'addressCity') {
+        updated.addressDistrict = '';
+      }
+
       // ssn 또는 phone 변경 시 workerId 자동 생성
       if ((field === 'ssn' || field === 'phone') && !workerIdManuallyEdited) {
         const ssn = field === 'ssn' ? (value as string) : prev.ssn;
@@ -74,6 +98,11 @@ export default function EmployeesPage() {
     // complete 상태 업데이트
     setAddWorkerComplete((prev) => {
       const newComplete = { ...prev };
+
+      // 시/도 변경 시 군/구 complete 상태도 삭제
+      if (field === 'addressCity') {
+        delete newComplete.addressDistrict;
+      }
 
       // 현재 필드 처리
       if (field === 'workDays') {
@@ -112,23 +141,41 @@ export default function EmployeesPage() {
   };
 
   const handleAddWorkerSubmit = async () => {
+    if (!addWorkerForm.name.trim() || !addWorkerForm.hireDate) {
+      toast.error('필수 항목을 모두 입력해주세요.');
+      return;
+    }
+    const gender = addWorkerForm.gender;
+    if (gender !== '남' && gender !== '여') {
+      toast.error('성별을 선택해주세요.');
+      return;
+    }
+    const severity = addWorkerForm.disabilitySeverity;
+    if (severity && severity !== '중증' && severity !== '경증') {
+      toast.error('장애 정도를 올바르게 선택해주세요.');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       await createEmployee({
         name: addWorkerForm.name,
         ssn: addWorkerForm.ssn,
         phone: addWorkerForm.phone,
-        gender: addWorkerForm.gender,
+        gender,
         uniqueCode: addWorkerForm.workerId,
         hireDate: addWorkerForm.hireDate,
         workDays: addWorkerForm.workDays.map((day) => LABEL_TO_NUM[day]).filter((n): n is WorkDay => n !== undefined),
         workStartTime: addWorkerForm.workStartTime,
         disabilityType: addWorkerForm.disabilityType,
-        disabilitySeverity: addWorkerForm.disabilitySeverity,
+        disabilitySeverity: severity === '중증' || severity === '경증' ? severity : '경증',
         disabilityRecognitionDate: addWorkerForm.recognitionDate,
         emergencyContactName: addWorkerForm.emergencyName,
         emergencyContactRelation: addWorkerForm.emergencyRelation,
         emergencyContactPhone: addWorkerForm.emergencyPhone,
+        addressCity: addWorkerForm.addressCity,
+        addressDistrict: addWorkerForm.addressDistrict,
+        addressDetail: addWorkerForm.addressDetail || undefined,
       });
 
       toast.success('근로자가 추가되었습니다.');
@@ -163,7 +210,7 @@ export default function EmployeesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-20">
+      <div className="flex justify-center items-center py-20" role="status">
         <div className="text-gray-500">로딩 중...</div>
       </div>
     );

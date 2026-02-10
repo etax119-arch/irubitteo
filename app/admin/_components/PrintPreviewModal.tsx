@@ -250,14 +250,14 @@ function PrintPreviewContent({
                 </div>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-2">두루빛터 (담당자)</p>
+                <p className="text-sm text-gray-600 mb-2">이루빛터 (담당자)</p>
                 <div className="border-2 border-gray-300 rounded-lg p-6 h-24 flex items-center justify-center">
                   <p className="text-gray-400">(서명/인)</p>
                 </div>
               </div>
             </div>
             <div className="flex justify-end text-sm text-gray-600 mt-4">
-              <div>두루빛터 중앙 통제 시스템</div>
+              <div>이루빛터 중앙 통제 시스템</div>
             </div>
           </div>
         </div>

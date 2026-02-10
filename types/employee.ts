@@ -1,23 +1,27 @@
 /** 출근 요일 (1=월, 2=화, ..., 7=일) */
 export type WorkDay = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
+/** 장애 유형 목록 */
+export const DISABILITY_TYPES = [
+  '지체장애',
+  '뇌병변장애',
+  '시각장애',
+  '청각장애',
+  '언어장애',
+  '지적장애',
+  '정신장애',
+  '자폐성장애',
+  '신장장애',
+  '심장장애',
+  '호흡기장애',
+  '간장애',
+  '안면장애',
+  '장루·요루장애',
+  '간질장애',
+] as const;
+
 /** 장애 유형 */
-export type DisabilityType =
-  | '지체장애'
-  | '뇌병변장애'
-  | '시각장애'
-  | '청각장애'
-  | '언어장애'
-  | '지적장애'
-  | '정신장애'
-  | '자폐성장애'
-  | '신장장애'
-  | '심장장애'
-  | '호흡기장애'
-  | '간장애'
-  | '안면장애'
-  | '장루·요루장애'
-  | '간질장애';
+export type DisabilityType = (typeof DISABILITY_TYPES)[number];
 
 /** 직원 (서버 toResponse() 기준 API 응답) */
 export type Employee = {
@@ -27,6 +31,9 @@ export type Employee = {
   disability: string | null;
   hireDate: string;
   gender: string | null;
+  addressCity: string | null;
+  addressDistrict: string | null;
+  addressDetail: string | null;
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
@@ -36,6 +43,7 @@ export type Employee = {
   uniqueCode: string;
   companyNote: string | null;
   isActive: boolean;
+  standby: boolean;
   resignDate: string | null;
   resignReason: string | null;
   workDays: WorkDay[];
@@ -50,17 +58,20 @@ export type EmployeeCreateInput = {
   name: string;
   ssn: string;
   phone: string;
-  gender: string;
+  gender: '남' | '여';
   uniqueCode: string;
   hireDate: string;
   workDays: WorkDay[];
   workStartTime: string;
   disabilityType: string;
-  disabilitySeverity: string;
+  disabilitySeverity: '중증' | '경증';
   disabilityRecognitionDate: string;
   emergencyContactName: string;
   emergencyContactRelation: string;
   emergencyContactPhone: string;
+  addressCity: string;
+  addressDistrict: string;
+  addressDetail?: string;
 };
 
 /** 직원 수정 입력 (서버 UpdateEmployeeDto 기준) */
@@ -71,8 +82,12 @@ export type EmployeeUpdateInput = {
   disabilityRecognitionDate?: string | null;
   companyNote?: string | null;
   isActive?: boolean;
+  standby?: boolean;
   resignDate?: string | null;
   resignReason?: string | null;
+  addressCity?: string | null;
+  addressDistrict?: string | null;
+  addressDetail?: string | null;
 };
 
 /** 문서 종류 */

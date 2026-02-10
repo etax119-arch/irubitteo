@@ -90,7 +90,7 @@ export default function CompanyDetailPage() {
   ];
 
   const uploadedFiles: UploadedFile[] = [
-    { id: 1, name: '두루빛터_위탁계약서_2025.pdf', uploadDate: '2025-06-01', size: '2.4 MB' },
+    { id: 1, name: '이루빛터_위탁계약서_2025.pdf', uploadDate: '2025-06-01', size: '2.4 MB' },
     { id: 2, name: '개인정보처리위탁_동의서.pdf', uploadDate: '2025-06-01', size: '1.1 MB' },
     { id: 3, name: '근로자_배치계획서_2026.pdf', uploadDate: '2026-01-10', size: '850 KB' },
   ];

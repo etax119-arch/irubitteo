@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { FileText, Upload, Trash2 } from 'lucide-react';
 import type { EmployeeFile } from '@/types/employee';
@@ -51,15 +53,22 @@ export function DocumentSection({ files, isLoading, onOpenUploadModal, onDelete 
           {files.map((file) => (
             <div
               key={file.id}
+              role="button"
+              tabIndex={0}
               className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
               onClick={() => {
                 try {
                   const url = new URL(file.filePath, window.location.origin);
-                  if (url.protocol === 'http:' || url.protocol === 'https:') {
-                    window.open(url.href, '_blank', 'noopener,noreferrer');
-                  }
+                  if (url.origin !== window.location.origin) return;
+                  window.open(url.href, '_blank', 'noopener,noreferrer');
                 } catch {
                   // 잘못된 URL은 무시
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.currentTarget.click();
                 }
               }}
             >

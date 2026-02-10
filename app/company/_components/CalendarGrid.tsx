@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import type { Schedule } from '@/types/schedule';
 
@@ -22,12 +25,15 @@ export function CalendarGrid({
   const lastDate = new Date(year, month + 1, 0).getDate();
 
   // Build date-to-schedule map
-  const scheduleMap = new Map<number, Schedule>();
-  for (const s of schedules) {
-    const dateStr = s.date.toString().slice(0, 10); // "YYYY-MM-DD"
-    const day = parseInt(dateStr.split('-')[2], 10);
-    scheduleMap.set(day, s);
-  }
+  const scheduleMap = useMemo(() => {
+    const map = new Map<number, Schedule>();
+    for (const s of schedules) {
+      const dateStr = s.date.slice(0, 10); // "YYYY-MM-DD"
+      const day = parseInt(dateStr.split('-')[2], 10);
+      map.set(day, s);
+    }
+    return map;
+  }, [schedules]);
 
   const renderCells = () => {
     const cells = [];
@@ -103,6 +109,7 @@ export function CalendarGrid({
           <button
             onClick={onPrevMonth}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="이전 달"
           >
             <ChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
@@ -112,6 +119,7 @@ export function CalendarGrid({
           <button
             onClick={onNextMonth}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="다음 달"
           >
             <ChevronRight className="w-5 h-5 text-gray-600" />
           </button>

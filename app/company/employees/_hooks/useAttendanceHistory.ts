@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { attendanceApi } from '@/lib/api/attendance';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
-import type { AttendanceWithEmployee, AttendanceUpdateInput } from '@/types/attendance';
+import type { AttendanceWithEmployee, AttendanceUpdateInput, DisplayStatus } from '@/types/attendance';
 
-export type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
+export type { DisplayStatus };
 
 export interface AttendanceRecord {
   id: string;
@@ -17,6 +17,17 @@ export interface AttendanceRecord {
 
 function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   const date = att.date.split('T')[0];
+
+  if (att.status === 'leave') {
+    return {
+      id: att.id,
+      date,
+      checkin: att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '-',
+      checkout: att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-',
+      status: '휴가' as const,
+      workDone: att.workContent || '-',
+    };
+  }
 
   if (!att.clockIn) {
     return { id: att.id, date, checkin: '결근', checkout: '-', status: '결근' as const, workDone: '-' };
@@ -32,20 +43,7 @@ function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   };
 }
 
-export function getStatusColor(status: DisplayStatus) {
-  switch (status) {
-    case '정상':
-      return 'bg-green-100 text-green-700';
-    case '지각':
-      return 'bg-yellow-100 text-yellow-700';
-    case '휴가':
-      return 'bg-blue-100 text-blue-700';
-    case '결근':
-      return 'bg-red-100 text-red-700';
-    default:
-      return 'bg-gray-100 text-gray-700';
-  }
-}
+export { getStatusColor } from '../../_utils/attendanceStatus';
 
 export function useAttendanceHistory(employeeId: string) {
   const toast = useToast();
@@ -122,10 +120,10 @@ export function useAttendanceHistory(employeeId: string) {
     }
 
     const payload: AttendanceUpdateInput = {};
-    if (editedWorkTime.checkin !== originalWorkTime.checkin) {
+    if (editedWorkTime.checkin !== originalWorkTime.checkin && editedWorkTime.checkin) {
       payload.clockIn = buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin);
     }
-    if (editedWorkTime.checkout !== originalWorkTime.checkout) {
+    if (editedWorkTime.checkout !== originalWorkTime.checkout && editedWorkTime.checkout) {
       payload.clockOut = buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout);
     }
     if (editedWorkTime.workDone !== originalWorkTime.workDone) {
@@ -151,6 +149,27 @@ export function useAttendanceHistory(employeeId: string) {
     }
   };
 
+  const handleVacation = async () => {
+    const record = attendanceHistory.find((r) => r.date === editedWorkTime.date);
+    if (!record) {
+      toast.error('해당 출퇴근 기록을 찾을 수 없습니다.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await attendanceApi.updateAttendance(record.id, { status: 'leave' });
+      const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
+      setAttendanceHistory(response.data.map(toAttendanceRecord));
+      setIsEditingWorkTime(false);
+      toast.success('휴가 처리되었습니다.');
+    } catch {
+      toast.error('휴가 처리에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return {
     attendanceHistory,
     isLoadingAttendance,
@@ -161,6 +180,7 @@ export function useAttendanceHistory(employeeId: string) {
     setEditedWorkTime,
     handleEditWorkTime,
     handleSaveWorkTime,
+    handleVacation,
     setIsEditingWorkTime,
     showWorkDoneModal,
     selectedWorkDone,

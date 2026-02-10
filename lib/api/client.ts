@@ -19,7 +19,7 @@ let failedQueue: Array<{
   reject: (reason?: unknown) => void;
 }> = [];
 
-const processQueue = (error: AxiosError | null) => {
+const processQueue = (error: unknown) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -60,7 +60,7 @@ apiClient.interceptors.response.use(
         processQueue(null);
         return apiClient(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError as AxiosError);
+        processQueue(refreshError);
         // 갱신 실패 시 로그아웃 처리 (쿠키 삭제는 서버에서 처리)
         // 클라이언트 상태는 store에서 처리
         if (typeof window !== 'undefined') {

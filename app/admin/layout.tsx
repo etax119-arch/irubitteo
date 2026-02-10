@@ -19,8 +19,18 @@ const tabs = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { isAuthenticated, isLoading, logout } = useAuth();
   const [hasNewNotification, setHasNewNotification] = useState(true);
+
+  const [today, setToday] = useState('');
+  useEffect(() => {
+    const formatted = new Date().toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    setToday(formatted); // eslint-disable-line react-hooks/set-state-in-effect -- hydration-safe: 클라이언트 전용 날짜
+  }, []);
 
   const getActiveTab = () => {
     if (pathname.startsWith('/admin/companies')) return 'companies';
@@ -33,11 +43,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const activeTab = getActiveTab();
 
+  const [prevActiveTab, setPrevActiveTab] = useState(activeTab);
+  if (activeTab === 'notifications' && prevActiveTab !== 'notifications') {
+    setHasNewNotification(false);
+    setPrevActiveTab(activeTab);
+  }
+  if (activeTab !== prevActiveTab) {
+    setPrevActiveTab(activeTab);
+  }
+
   useEffect(() => {
-    if (activeTab === 'notifications') {
-      setHasNewNotification(false);
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login/admin');
     }
-  }, [activeTab]);
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">로딩 중...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-duru-ivory">
@@ -46,19 +73,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push('/')}
+              <Link
+                href="/"
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="홈으로 이동"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </button>
+              </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">두루빛터 관리자</h1>
+                <h1 className="text-2xl font-bold text-gray-900">이루빛터 관리자</h1>
                 <p className="text-sm text-gray-600">통합 관리 시스템</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">2026년 1월 28일</span>
+              <span className="text-sm text-gray-600">{today}</span>
               <Button
                 variant="ghost"
                 size="sm"

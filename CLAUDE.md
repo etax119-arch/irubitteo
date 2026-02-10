@@ -149,18 +149,26 @@ durubitteo_web/
 │   │   └── page.tsx          # /playground
 │   │
 │   ├── employee/             # 직원 영역
-│   │   ├── layout.tsx
+│   │   ├── layout.tsx        # 인증 보호 (useAuth)
 │   │   ├── page.tsx          # 직원 메인
 │   │   ├── checkin/page.tsx  # 출근 페이지
 │   │   ├── checkout/page.tsx # 퇴근 페이지
-│   │   └── _components/
-│   │       ├── SuccessModal.tsx
-│   │       ├── PhotoLightbox.tsx
-│   │       ├── NoticeSection.tsx
-│   │       └── WorkRecordsSection.tsx
+│   │   ├── _components/
+│   │   │   ├── HeaderCard.tsx         # 사용자 인사 + 날짜 + 로그아웃
+│   │   │   ├── AttendanceButtons.tsx  # 출근/퇴근 버튼 그리드
+│   │   │   ├── NoticeSection.tsx      # 긴급 공지 섹션
+│   │   │   ├── WorkRecordsSection.tsx # 활동 기록 아코디언
+│   │   │   ├── DateNavigator.tsx      # 연도/월 네비게이션
+│   │   │   ├── WorkRecordCard.tsx     # 활동 기록 카드
+│   │   │   ├── PhotoLightbox.tsx      # 사진 확대 모달
+│   │   │   ├── HeicImage.tsx          # HEIC 이미지 지원
+│   │   │   └── SuccessModal.tsx       # 출퇴근 완료 모달
+│   │   └── _hooks/
+│   │       ├── useWorkRecords.ts      # 활동 기록 상태 관리
+│   │       └── useEmployeeNotice.ts   # 직원 공지사항 상태 관리
 │   │
 │   ├── company/              # 기업 영역 (라우트 기반 탭)
-│   │   ├── layout.tsx        # 공통 헤더 + 탭 네비게이션
+│   │   ├── layout.tsx        # 공통 헤더 + 탭 네비게이션 + 인증 보호
 │   │   ├── page.tsx          # → /company/dashboard 리다이렉트
 │   │   ├── _components/
 │   │   │   ├── StatCard.tsx
@@ -172,8 +180,16 @@ durubitteo_web/
 │   │   │   ├── ScheduleModal.tsx
 │   │   │   └── WorkerSelector.tsx
 │   │   ├── _data/            # 더미 데이터
+│   │   ├── _utils/           # 유틸리티
+│   │   │   ├── attendanceStatus.ts # 출퇴근 상태 색상 (getStatusColor)
+│   │   │   ├── employeeStatus.ts  # 상태 라벨/스타일
+│   │   │   ├── filterEmployees.ts # 직원 검색 필터
+│   │   │   └── workDays.ts        # 요일 매핑
 │   │   ├── dashboard/        # 대시보드 탭
-│   │   ├── employees/        # 근로자 관리 탭 + [id] 상세
+│   │   ├── employees/        # 근로자 관리 탭
+│   │   │   ├── page.tsx
+│   │   │   ├── _hooks/       # useEmployeeDetail, useAttendanceHistory, useResign, useEmployeeFiles
+│   │   │   └── [id]/         # 근로자 상세 + _components/ (11개)
 │   │   ├── schedule/         # 근무일정 탭
 │   │   └── notices/          # 공지사항 탭
 │   │
@@ -200,27 +216,43 @@ durubitteo_web/
 │       └── reports/          # 리포트 탭
 │
 ├── components/               # 공용 컴포넌트 (app 외부)
-│   ├── ui/                   # 전역 UI 프리미티브 (Button, Input, Modal 등)
-│   └── layout/               # 레이아웃 컴포넌트 (Header, Sidebar 등)
+│   └── ui/                   # 전역 UI 프리미티브 (Button, Input, Modal 등)
 │
 ├── hooks/                    # 공용 훅
-│   └── queries/              # 서버 상태 훅 (TanStack Query 등)
+│   ├── useAuth.ts            # 인증 훅 (login, logout, checkAuth)
+│   ├── useAttendance.ts      # 출퇴근 API 훅
+│   ├── useNotice.ts          # 공지사항 API 훅
+│   └── useSchedule.ts        # 근무일정 API 훅
 │
 ├── types/                    # 공용 타입 정의
 │   ├── api.ts                # API 공통 타입 (ApiResponse, Pagination 등)
 │   ├── auth.ts               # 인증 관련 타입
-│   ├── admin.ts              # 관리자 타입
-│   ├── adminDashboard.ts     # 관리자 대시보드 타입
+│   ├── adminDashboard.ts     # 관리자 대시보드 타입 (디자인 목업 기준)
 │   ├── company.ts            # 기업 타입
 │   ├── companyDashboard.ts   # 기업 대시보드 타입
-│   ├── employee.ts           # 직원 타입
+│   ├── employee.ts           # 직원 타입 + DISABILITY_TYPES 상수
 │   ├── attendance.ts         # 출퇴근 타입
 │   ├── schedule.ts           # 근무일정 타입
-│   ├── notice.ts             # 공지사항 타입
-│   ├── inquiry.ts            # 문의 타입
-│   └── template.ts           # 템플릿 타입
+│   └── notice.ts             # 공지사항 타입
 │
 └── lib/                      # 유틸리티 함수
+    ├── cn.ts                 # Tailwind 클래스 병합
+    ├── file.ts               # HEIC 파일 유틸리티
+    ├── kst.ts                # KST 시간 변환 (formatUtcTimestampAsKST, formatKSTDate 등)
+    ├── address.ts            # 한국 시/도 → 시/군/구 매핑 (CITY_OPTIONS, getDistrictOptions)
+    ├── auth/
+    │   └── store.ts          # Zustand 인증 스토어 (useAuthStore)
+    └── api/                  # API 클라이언트
+        ├── client.ts         # Axios 인스턴스
+        ├── error.ts          # 에러 메시지 추출 유틸
+        ├── auth.ts           # 인증 API
+        ├── attendance.ts     # 출퇴근 API
+        ├── employees.ts      # 직원 API
+        ├── employeeFiles.ts  # 직원 파일 API
+        ├── employeeNotices.ts # 직원 공지 API
+        ├── notices.ts        # 공지사항 API
+        ├── schedules.ts      # 근무일정 API
+        └── companies.ts      # 기업 API
 ```
 
 #### Component & Hook Placement
@@ -229,7 +261,6 @@ durubitteo_web/
 | 한 라우트 폴더에서만 사용 | `app/employee/_components/`, `app/admin/_hooks/` 등 |
 | 여러 라우트에서 재사용 | `@/components/`, `@/hooks/` |
 | 범용 UI 프리미티브 | `@/components/ui/` |
-| 서버 상태 훅 | `@/hooks/queries/` |
 
 #### Naming Rules
 - **Components**: `PascalCase.tsx` (e.g., `Button.tsx`, `HeroSlider.tsx`)

@@ -33,10 +33,11 @@ export function useEmployeeDetail(employeeId: string) {
   const fetchEmployee = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const response = await getEmployee(employeeId);
       setEmployee(response.data);
       setNotes(response.data.companyNote || '');
-      if (response.data.workDays) {
+      if (Array.isArray(response.data.workDays)) {
         setWorkDays(response.data.workDays.map((n: number) => NUM_TO_LABEL[n] ?? ''));
       }
       if (response.data.workStartTime) {
@@ -133,7 +134,8 @@ export function useEmployeeDetail(employeeId: string) {
     setIsSavingDisability(true);
     try {
       const result = await updateEmployee(employeeId, {
-        disabilitySeverity: (tempDisabilitySeverity as '중증' | '경증') || null,
+        disabilitySeverity: tempDisabilitySeverity === '중증' || tempDisabilitySeverity === '경증'
+          ? tempDisabilitySeverity : null,
         disabilityRecognitionDate: tempDisabilityRecognitionDate || null,
       });
       setEmployee(result.data);

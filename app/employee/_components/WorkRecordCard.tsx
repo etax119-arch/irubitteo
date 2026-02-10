@@ -62,7 +62,7 @@ export function WorkRecordCard({
                 name: `photo_${record.id}_${index + 1}.jpg`,
               };
               return (
-                <div key={index} className="flex items-center gap-3">
+                <div key={url} className="flex items-center gap-3">
                   <button
                     onClick={() => onPhotoClick(photo)}
                     className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-gray-200 hover:border-gray-300 transition-all hover:shadow-lg group"
@@ -79,6 +79,7 @@ export function WorkRecordCard({
                       onClick={() => onSavePhoto(url, photo.name)}
                       className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors flex items-center justify-center"
                       title="저장"
+                      aria-label="사진 저장"
                     >
                       <Save className="w-3.5 h-3.5" />
                     </button>
@@ -86,6 +87,7 @@ export function WorkRecordCard({
                       onClick={() => onDeletePhoto(record.id, url)}
                       className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
                       title="삭제"
+                      aria-label="사진 삭제"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

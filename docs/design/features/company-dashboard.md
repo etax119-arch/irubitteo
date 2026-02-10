@@ -16,18 +16,44 @@
 
 ```
 /app/company/
-├── layout.tsx              # 헤더 + 4개 탭 네비게이션 (Link 기반, aria-current 지원)
+├── layout.tsx              # 헤더 + 4개 탭 네비게이션 (Link 기반, aria-current 지원) + 인증 보호
 ├── page.tsx                # → /company/dashboard 리다이렉트
 ├── _components/            # 공용 컴포넌트
+│   ├── StatCard.tsx            # 통계 카드
+│   ├── EmployeeTable.tsx       # 근로자 목록 테이블
+│   ├── AttendanceTable.tsx     # 출퇴근 기록 테이블
+│   ├── CalendarGrid.tsx        # 캘린더 그리드
+│   ├── NoticeHistory.tsx       # 공지 발송 기록
+│   ├── AddWorkerModal.tsx      # 근로자 추가 모달
+│   ├── ScheduleModal.tsx       # 일정 등록/수정 모달
+│   └── WorkerSelector.tsx      # 공지 발송 대상 선택
 ├── _data/                  # 더미 데이터
-├── _utils/                 # 유틸리티 (workDays 매핑 등)
+├── _utils/                 # 유틸리티
+│   ├── employeeStatus.ts      # 상태 라벨/스타일 (getEmployeeStatusLabel, getEmployeeStatusStyle)
+│   ├── filterEmployees.ts     # 직원 검색 필터 (이름, 전화번호, 장애유형)
+│   └── workDays.ts            # 요일 매핑 (DAY_LABELS, LABEL_TO_NUM, NUM_TO_LABEL)
 ├── dashboard/page.tsx      # 대시보드 탭
 ├── employees/
 │   ├── page.tsx            # 근로자 관리 탭 (목록)
 │   ├── _hooks/             # 근로자 관련 커스텀 훅
+│   │   ├── useEmployeeDetail.ts    # 근로자 상세 정보 + 수정
+│   │   ├── useAttendanceHistory.ts # 출퇴근 기록 조회 + 수정
+│   │   ├── useResign.ts            # 퇴사 처리
+│   │   └── useEmployeeFiles.ts     # 문서 업로드/삭제
 │   └── [id]/
 │       ├── page.tsx        # 근로자 상세 페이지
-│       └── _components/    # 상세 페이지 전용 컴포넌트
+│       └── _components/    # 상세 페이지 전용 컴포넌트 (11개)
+│           ├── ProfileCard.tsx            # 프로필 카드
+│           ├── DisabilityInfoSection.tsx   # 장애 정보 (편집 가능)
+│           ├── NotesSection.tsx           # 비고란 (편집 가능)
+│           ├── ResignSection.tsx          # 퇴사 정보
+│           ├── ResignModal.tsx            # 퇴사 등록 모달
+│           ├── AttendanceHistoryTable.tsx  # 출퇴근 기록 테이블
+│           ├── WorkInfoSection.tsx        # 근무 정보 (편집 가능)
+│           ├── DocumentSection.tsx        # 문서 관리
+│           ├── UploadModal.tsx            # 파일 업로드 모달
+│           ├── WorkDoneModal.tsx          # 업무 내용 확인 모달
+│           └── WorkTimeEditModal.tsx      # 근무시간 수정 모달
 ├── schedule/page.tsx       # 근무일정 탭
 └── notices/page.tsx        # 공지사항 탭
 ```
@@ -51,7 +77,7 @@
 |-------|--------|--------|------|
 | dashboard | 대시보드 | TrendingUp | 통계 카드 및 출퇴근 기록 조회 |
 | employees | 근로자 관리 | Users | 근로자 목록 조회 및 등록 |
-| attendance | 근무일정관리 | Clock | 캘린더 기반 근무 내용 등록 |
+| schedule | 근무일정관리 | Clock | 캘린더 기반 근무 내용 등록 |
 | notices | 공지사항 | MessageSquare | 근로자에게 공지 발송 |
 
 ---
@@ -132,14 +158,23 @@
 | 성별 | 버튼 선택 | O | 남 / 여 |
 | 휴대폰 번호 | 전화번호 | O | 010-0000-0000 형식 (자동 하이픈 포맷팅, 하이픈 포함 저장) |
 
-**섹션 2: 비상 연락처 정보**
+**섹션 2: 주소 정보**
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| 시/도 | 드롭다운 | O | 17개 시/도 중 선택 |
+| 시/군/구 | 드롭다운 | O | 선택된 시/도에 따라 동적 변경, 시/도 미선택 시 비활성화 |
+| 상세주소 | 텍스트 | X | 자유 입력 (최대 200자) |
+
+**시/도 변경 시 동작**: 시/도 변경 → 시/군/구 초기화 + complete 상태 삭제
+
+**섹션 3: 비상 연락처 정보**
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | 비상 연락처 이름 | 텍스트 | O | 보호자/비상연락 대상자 |
 | 근로자와의 관계 | 텍스트 | O | 부모, 보호자 등 |
 | 비상 연락처 전화번호 | 전화번호 | O | 010-0000-0000 형식 (자동 하이픈 포맷팅, 하이픈 포함 저장) |
 
-**섹션 3: 장애 정보**
+**섹션 4: 장애 정보**
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | 장애 유형 | 드롭다운 | O | 15개 유형 중 선택 |
@@ -150,7 +185,7 @@
 - 지적장애, 정신장애, 자폐성장애, 신장장애, 심장장애
 - 호흡기장애, 간장애, 안면장애, 장루·요루장애, 간질장애
 
-**섹션 4: 근무 및 인정 정보**
+**섹션 5: 근무 및 인정 정보**
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | 입사일 | 날짜 | O | 근무 시작일 |
@@ -158,7 +193,7 @@
 | 근무 요일 | 다중 선택 | O | 월~일 중 선택 |
 | 출근 시간 | 시간 | O | 예: 09:00 |
 
-**섹션 5: 근로자 고유 번호 설정**
+**섹션 6: 근로자 고유 번호 설정**
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | 근로자 고유 번호 | 텍스트 | O | 출퇴근 앱 로그인용 코드 |
@@ -194,7 +229,7 @@
 **프로필 카드**
 - 이니셜 아바타 (이름 첫 글자)
 - 이름, 상태 배지 (근무중/퇴근/결근/퇴사)
-- 핸드폰번호, 입사일, 계약 만료일
+- 핸드폰번호, 주소, 비상연락처, 성별, 입사일
 
 **근로자 고유번호 카드**
 - 주황색 강조 카드로 고유번호 표시
@@ -211,19 +246,22 @@
 
 **퇴사 등록/퇴사 정보**
 - 활성 근로자: "퇴사 등록" 버튼 (퇴사일, 사유 입력 모달)
+- 퇴사 모달에 "대기자에 포함" 체크박스 (재취업 희망 근로자 표시, `standby` 필드)
 - 퇴사자: 퇴사일, 비고 표시
 
 #### 오른쪽: 상세 정보
 
 **최근 출퇴근 기록**
 - 최근 7건 조회 (`GET /v1/attendances?employeeId=...&limit=7`)
-- 테이블 컬럼: 날짜, 출근, 퇴근, 상태(정상/지각/결근), 업무내용, 수정
+- 테이블 컬럼: 날짜, 출근, 퇴근, 상태(정상/지각/결근/휴가), 업무내용, 수정
+- 휴가 상태: 파란색 "휴가" 뱃지, 출근/퇴근 시간에 `text-gray-400 line-through` 취소선 표시
 - 업무내용: "확인하기" 링크 → 모달로 전체 내용 표시
 - 수정: 각 행에 수정 아이콘 → 근무시간 수정 모달
   - 출근시간, 퇴근시간, 업무내용 편집
   - 미퇴근 직원: 퇴근시간 필드가 빈 상태("--:--")로 표시, 시간 입력 시에만 퇴근 처리
+  - 휴가 버튼: 오렌지 아웃라인 스타일, 클릭 시 해당 기록의 status를 `'leave'`로 변경
   - 변경된 필드만 API로 전송 (partial update)
-  - API: `PATCH /v1/attendances/:id` (`clockIn`, `clockOut`, `workContent`)
+  - API: `PATCH /v1/attendances/:id` (`clockIn`, `clockOut`, `workContent`, `status`)
 
 **근무 정보 (편집 가능)**
 - 근무 요일: 월~일 토글 버튼 (선택된 요일 주황색 표시)
@@ -275,7 +313,7 @@
 ### 4. 공지사항 탭
 
 **목적**: 근로자에게 긴급 공지 발송 및 발송 기록 관리
-**API 연동**: ✅ 완료 (`POST /v1/notices`, `GET /v1/notices`)
+**API 연동**: ✅ 완료 (`POST /v1/notices`, `GET /v1/notices`, `DELETE /v1/notices/:id`)
 
 #### 새 공지사항 발송 섹션
 
@@ -341,7 +379,12 @@
 | 대시보드 일별 현황 | `GET /v1/attendances/company-daily` | ✅ 완료 |
 | 근로자 등록 | `POST /v1/employees` | ✅ 완료 |
 | 근무일정 관리 | `GET /v1/schedules/monthly`, `POST /v1/schedules`, `PATCH /v1/schedules/:id`, `DELETE /v1/schedules/:id` | ✅ 완료 |
-| 공지사항 발송 | `POST /v1/notices`, `GET /v1/notices` | ✅ 완료 |
+| 공지사항 발송/삭제 | `POST /v1/notices`, `GET /v1/notices`, `DELETE /v1/notices/:id` | ✅ 완료 |
+| 출퇴근 사진 삭제 | `DELETE /v1/attendances/:id/photos` | ✅ 완료 |
+| 퇴사 처리 | `PATCH /v1/employees/:id` | ✅ 완료 |
+| 문서 목록 조회 | `GET /v1/employees/:id/files` | ✅ 완료 |
+| 문서 업로드 | `POST /v1/employees/:id/files` | ✅ 완료 |
+| 문서 삭제 | `DELETE /v1/employees/:id/files/:fileId` | ✅ 완료 |
 
 ## 주요 타입
 
@@ -398,13 +441,20 @@ type Employee = {
   phone: string;
   disability: string | null;           // "지체장애 중증" (타입+중증/경증 결합)
   hireDate: string;                    // "YYYY-MM-DD"
-  contractEndDate: string | null;
+  gender: string | null;               // "남" / "여"
+  addressCity: string | null;              // 주소 시/도
+  addressDistrict: string | null;          // 주소 시/군/구
+  addressDetail: string | null;            // 상세주소
+  emergencyContactName: string | null;
+  emergencyContactRelation: string | null;
+  emergencyContactPhone: string | null;
   status: 'checkin' | 'checkout' | 'absent' | 'resigned';  // 실시간 추론
   checkinTime: string | null;          // "HH:mm" (KST)
   checkoutTime: string | null;         // "HH:mm" (KST)
   uniqueCode: string;
   companyNote: string | null;
   isActive: boolean;
+  standby: boolean;
   resignDate: string | null;
   resignReason: string | null;
   workDays: WorkDay[];                 // [1,2,3,4,5] (1=월 ~ 7=일)

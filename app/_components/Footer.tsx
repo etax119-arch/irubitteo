@@ -29,7 +29,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>&copy; 2024 Duru-bit-teo. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Duru-bit-teo. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-white">이용약관</a>
             <a href="#" className="hover:text-white">개인정보처리방침</a>

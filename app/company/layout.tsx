@@ -17,15 +17,19 @@ const tabs = [
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  // ⚠ useAuth()는 checkAuth() 호출 → isLoading=true → children 언마운트 가능.
+  // 하위 페이지에서 user 정보만 필요하면 useAuthStore((s) => s.user) 직접 사용.
   const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   const [today, setToday] = useState('');
   useEffect(() => {
-    setToday(new Date().toLocaleDateString('ko-KR', {
+    const formatted = new Date().toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-    }));
+    });
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe: 서버에서 알 수 없는 클라이언트 날짜 설정
+    setToday(formatted);
   }, []);
 
   const getActiveTab = () => {

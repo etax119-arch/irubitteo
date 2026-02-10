@@ -30,6 +30,7 @@ export function ScheduleModal({
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 모달 열릴 때 기존 데이터로 폼 초기화
       setContent(existingSchedule?.content ?? '');
     }
   }, [isOpen, existingSchedule]);
@@ -44,6 +45,7 @@ export function ScheduleModal({
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="닫기"
           >
             <X className="w-5 h-5 text-gray-600" />
           </button>

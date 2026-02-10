@@ -14,7 +14,7 @@
 
 ### 토큰 정책
 
-- **Access Token**: 유효기간 1시간, HttpOnly Cookie
+- **Access Token**: 유효기간 15분 (900s), HttpOnly Cookie
 - **Refresh Token**: 유효기간 7일, HttpOnly Cookie
 - **저장 위치**: HttpOnly Cookie (서버에서 Set-Cookie 헤더로 설정)
 - **갱신 방식**: Cookie 자동 전송, 서버에서 검증 후 새 Cookie 발급
@@ -23,12 +23,14 @@
 
 | Cookie | HttpOnly | Secure | SameSite | Path | Max-Age |
 |--------|----------|--------|----------|------|---------|
-| accessToken | Yes | Yes | Strict | / | 3600 (1시간) |
-| refreshToken | Yes | Yes | Strict | /auth | 604800 (7일) |
+| accessToken | Yes | Yes | Strict | / | 900 (15분) |
+| refreshToken | Yes | Yes | Strict | /v1/auth | 604800 (7일) |
 | auth-status | No | Yes | Strict | / | 3600 |
 | user-role | No | Yes | Strict | / | 3600 |
 
 **참고**: `auth-status`와 `user-role`은 클라이언트(middleware.ts)에서 라우트 보호를 위해 읽을 수 있도록 HttpOnly가 아닙니다.
+
+> **Note**: 위 토큰 수명/경로 값은 `frontend.md` 기준입니다. 서버 구현 시 실제 값을 확인하세요.
 
 ---
 
@@ -37,11 +39,11 @@
 | 문서 | 설명 |
 |------|------|
 | [프론트엔드 구현](frontend.md) | Next.js 클라이언트 인증 구현 가이드 |
-| [백엔드 구현](backend.md) | NestJS 서버 인증 구현 가이드 |
+| ~~[백엔드 구현](backend.md)~~ (미작성) | NestJS 서버 인증 구현 가이드 |
 
 ---
 
 ## 관련 문서
 
 - [요구사항](../requirements.md) - 인증 방식 정의 (3. 인증 방식 섹션)
-- [API 설계 - 인증](../api/auth.md) - 인증 API 명세
+- ~~[API 설계 - 인증](../api/auth.md)~~ (미작성) - 인증 API 명세

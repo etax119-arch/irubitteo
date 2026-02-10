@@ -23,7 +23,7 @@ import { ResignModal } from './_components/ResignModal';
 export default function CompanyEmployeeDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const employeeId = params.id as string;
+  const employeeId = Array.isArray(params.id) ? params.id[0] : (params.id ?? '');
 
   const detail = useEmployeeDetail(employeeId);
   const attendance = useAttendanceHistory(employeeId);
@@ -65,6 +65,7 @@ export default function CompanyEmployeeDetailPage() {
             onClick={() => router.back()}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title="닫기"
+            aria-label="닫기"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -143,6 +144,7 @@ export default function CompanyEmployeeDetailPage() {
         editedWorkTime={attendance.editedWorkTime}
         setEditedWorkTime={attendance.setEditedWorkTime}
         onSave={attendance.handleSaveWorkTime}
+        onVacation={attendance.handleVacation}
         isSaving={attendance.isSaving}
       />
       <WorkDoneModal

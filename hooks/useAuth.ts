@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 import { useAuthStore } from '@/lib/auth/store';
 import { authApi, type LoginParams } from '@/lib/api/auth';
 import type { UserRole } from '@/types/auth';
@@ -15,6 +16,7 @@ const REDIRECT_PATHS: Record<UserRole, string> = {
 
 export function useAuth() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAuthenticated, isLoading, setUser, clearUser, setLoading } =
     useAuthStore();
 
@@ -79,8 +81,11 @@ export function useAuth() {
     try {
       const user = await authApi.getMe();
       setUser(user);
-    } catch {
-      clearUser();
+    } catch (err) {
+      if (err instanceof AxiosError && err.response?.status === 401) {
+        clearUser();
+      }
+      // 네트워크 에러 등은 이전 인증 상태 유지
     } finally {
       setLoading(false);
     }
@@ -89,12 +94,12 @@ export function useAuth() {
   // 컴포넌트 마운트 시 인증 상태 확인
   useEffect(() => {
     // 로그인 페이지에서는 인증 확인 스킵
-    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/login')) {
+    if (pathname.startsWith('/login')) {
       setLoading(false);
       return;
     }
     checkAuth();
-  }, [checkAuth, setLoading]);
+  }, [checkAuth, setLoading, pathname]);
 
   return {
     user,

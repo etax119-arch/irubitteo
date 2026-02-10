@@ -9,7 +9,7 @@ import type {
   ClockInInput,
   ClockOutInput,
 } from '@/types/attendance';
-import { AxiosError } from 'axios';
+import { extractErrorMessage } from '@/lib/api/error';
 
 interface UseAttendanceState {
   isLoading: boolean;
@@ -49,19 +49,7 @@ export function useAttendance(): UseAttendanceReturn {
 
   const handleError = useCallback(
     (err: unknown): string => {
-      let message = '알 수 없는 오류가 발생했습니다.';
-
-      if (err instanceof AxiosError) {
-        const responseMessage = err.response?.data?.message;
-        if (typeof responseMessage === 'string') {
-          message = responseMessage;
-        } else if (err.message) {
-          message = err.message;
-        }
-      } else if (err instanceof Error) {
-        message = err.message;
-      }
-
+      const message = extractErrorMessage(err);
       setError(message);
       return message;
     },
@@ -163,5 +151,3 @@ export function useAttendance(): UseAttendanceReturn {
     clearError,
   };
 }
-
-export default useAttendance;

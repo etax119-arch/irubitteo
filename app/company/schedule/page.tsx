@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { CalendarGrid } from '../_components/CalendarGrid';
 import { ScheduleModal } from '../_components/ScheduleModal';
 import { useSchedule } from '@/hooks/useSchedule';
+import { formatDateAsKST } from '@/lib/kst';
 import { useToast } from '@/components/ui/Toast';
 import type { Schedule } from '@/types/schedule';
 
@@ -32,8 +33,8 @@ export default function SchedulePage() {
   }, []);
 
   const handleDateClick = useCallback((date: Date) => {
-    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    const existing = schedules.find(s => s.date.toString().startsWith(dateStr));
+    const dateStr = formatDateAsKST(date);
+    const existing = schedules.find(s => s.date.slice(0, 10) === dateStr);
     setSelectedDate(date);
     setSelectedSchedule(existing || null);
     setShowModal(true);
@@ -43,11 +44,16 @@ export default function SchedulePage() {
     if (!selectedDate) return;
     setIsSaving(true);
     try {
+      let result: unknown;
       if (selectedSchedule) {
-        await updateSchedule(selectedSchedule.id, { content });
+        result = await updateSchedule(selectedSchedule.id, { content });
       } else {
-        const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
-        await createSchedule({ date: dateStr, content });
+        const dateStr = formatDateAsKST(selectedDate);
+        result = await createSchedule({ date: dateStr, content });
+      }
+      if (!result) {
+        toast.error('저장에 실패했습니다.');
+        return;
       }
       toast.success(selectedSchedule ? '일정이 수정되었습니다.' : '일정이 등록되었습니다.');
       setShowModal(false);
@@ -63,7 +69,11 @@ export default function SchedulePage() {
     if (!selectedSchedule) return;
     setIsSaving(true);
     try {
-      await deleteSchedule(selectedSchedule.id);
+      const success = await deleteSchedule(selectedSchedule.id);
+      if (!success) {
+        toast.error('삭제에 실패했습니다.');
+        return;
+      }
       toast.success('일정이 삭제되었습니다.');
       setShowModal(false);
       fetchMonthly(currentMonth.getFullYear(), currentMonth.getMonth() + 1);

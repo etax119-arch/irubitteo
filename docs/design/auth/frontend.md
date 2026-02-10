@@ -306,7 +306,7 @@ export function useAuth() {
 ## 참고 문서
 
 - [인증 개요](./README.md) - 인증 시스템 개요
-- [API 설계 - 인증](../api/auth.md) - 인증 API 명세
-- [서버 인증 구현](./backend.md) - NestJS 서버 인증 구현 가이드
+- ~~[API 설계 - 인증](../api/auth.md)~~ (미작성) - 인증 API 명세
+- ~~[서버 인증 구현](./backend.md)~~ (미작성) - NestJS 서버 인증 구현 가이드
 - [요구사항](../requirements.md) - 인증 방식 정의
 - [타입 정의](../../../types/auth.ts) - 인증 관련 TypeScript 타입

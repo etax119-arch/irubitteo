@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAttendance } from '@/hooks/useAttendance';
 import { attendanceApi } from '@/lib/api/attendance';
 import type { AttendanceWithEmployee } from '@/types/attendance';
@@ -8,13 +8,23 @@ import type { AttendanceWithEmployee } from '@/types/attendance';
 export function useWorkRecords() {
   const { fetchAttendances, isLoading } = useAttendance();
   const [isOpen, setIsOpen] = useState(false);
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [yearMonth, setYearMonth] = useState({ year: new Date().getFullYear(), month: new Date().getMonth() + 1 });
+  const { year, month } = yearMonth;
   const [workRecords, setWorkRecords] = useState<AttendanceWithEmployee[]>([]);
+  const localBlobUrls = useRef<string[]>([]);
+
+  useEffect(() => {
+    const urls = localBlobUrls.current;
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   // 아코디언 열릴 때 또는 연도/월 변경 시 fetch (lazy loading)
   useEffect(() => {
     if (!isOpen) return;
+
+    let ignore = false;
 
     const loadWorkRecords = async () => {
       const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
@@ -22,12 +32,13 @@ export function useWorkRecords() {
       const endDate = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
 
       const attendances = await fetchAttendances({ startDate, endDate });
-      if (attendances) {
+      if (attendances && !ignore) {
         setWorkRecords(attendances);
       }
     };
 
     loadWorkRecords();
+    return () => { ignore = true; };
   }, [isOpen, year, month, fetchAttendances]);
 
   const toggleOpen = useCallback(() => {
@@ -35,26 +46,24 @@ export function useWorkRecords() {
   }, []);
 
   const handleYearChange = useCallback((direction: 'prev' | 'next') => {
-    setYear((prev) => (direction === 'prev' ? prev - 1 : prev + 1));
+    setYearMonth((prev) => ({
+      ...prev,
+      year: direction === 'prev' ? prev.year - 1 : prev.year + 1,
+    }));
   }, []);
 
   const handleMonthChange = useCallback((direction: 'prev' | 'next') => {
-    if (direction === 'prev') {
-      if (month === 1) {
-        setMonth(12);
-        setYear((prev) => prev - 1);
-      } else {
-        setMonth((prev) => prev - 1);
+    setYearMonth((prev) => {
+      if (direction === 'prev') {
+        return prev.month === 1
+          ? { year: prev.year - 1, month: 12 }
+          : { ...prev, month: prev.month - 1 };
       }
-    } else {
-      if (month === 12) {
-        setMonth(1);
-        setYear((prev) => prev + 1);
-      } else {
-        setMonth((prev) => prev + 1);
-      }
-    }
-  }, [month]);
+      return prev.month === 12
+        ? { year: prev.year + 1, month: 1 }
+        : { ...prev, month: prev.month + 1 };
+    });
+  }, []);
 
   // 업무 기록에 사진 추가 (로컬 상태만 - 서버 반영 안됨)
   const addPhotoToRecord = useCallback(
@@ -63,6 +72,7 @@ export function useWorkRecords() {
       if (files.length === 0) return;
 
       const newPhotoUrls = files.map((file) => URL.createObjectURL(file));
+      localBlobUrls.current.push(...newPhotoUrls);
 
       setWorkRecords((prev) =>
         prev.map((record) =>

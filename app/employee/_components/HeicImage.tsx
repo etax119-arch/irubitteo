@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ImageIcon } from 'lucide-react';
 
 interface HeicImageProps {
@@ -19,9 +19,11 @@ export function HeicImage({ src, alt, className, onClick }: HeicImageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isConverted, setIsConverted] = useState(false);
+  const currentSrcRef = useRef(src);
 
   useEffect(() => {
     // src가 변경되면 상태 리셋
+    currentSrcRef.current = src;
     setImageSrc(src);
     setHasError(false);
     setIsConverted(false);
@@ -61,6 +63,11 @@ export function HeicImage({ src, alt, className, onClick }: HeicImageProps) {
       });
 
       const convertedUrl = URL.createObjectURL(jpegBlob);
+      // stale 변환 결과 무시
+      if (currentSrcRef.current !== src) {
+        URL.revokeObjectURL(convertedUrl);
+        return;
+      }
       setImageSrc(convertedUrl);
       setIsConverted(true);
     } catch {
@@ -88,6 +95,7 @@ export function HeicImage({ src, alt, className, onClick }: HeicImageProps) {
   }
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- blob URL(HEIC 변환)은 next/image 미지원
     <img
       src={imageSrc}
       alt={alt}

@@ -181,10 +181,10 @@ app/
 ├── company/                     # 기업 전용 (CompanyDashboard.jsx)
 │   ├── layout.tsx               # 기업 레이아웃
 │   ├── _components/             # 기업 전용 컴포넌트
-│   ├── _hooks/                  # 기업 전용 훅
 │   ├── dashboard/page.tsx       # 대시보드 (통계, 출퇴근 현황)
 │   ├── employees/               # 직원 관리
 │   │   ├── page.tsx             # 직원 목록
+│   │   ├── _hooks/              # 직원 관련 훅
 │   │   └── [id]/page.tsx        # 직원 상세 (EmployeeDetail.jsx)
 │   ├── schedule/page.tsx        # 근무 일정 관리 (캘린더)
 │   └── notices/page.tsx         # 공지사항
@@ -192,7 +192,6 @@ app/
 └── admin/                       # 관리자 전용 (AdminDashboard.jsx)
     ├── layout.tsx               # 관리자 레이아웃
     ├── _components/             # 관리자 전용 컴포넌트
-    ├── _hooks/                  # 관리자 전용 훅
     ├── dashboard/page.tsx       # 대시보드 (통계)
     ├── companies/               # 회사 관리
     │   ├── page.tsx             # 회사 목록
@@ -200,8 +199,8 @@ app/
     ├── employees/               # 직원 통계
     │   ├── page.tsx             # 직원 목록/통계
     │   └── [id]/page.tsx        # 직원 상세 (AdminWorkerDetail.jsx)
-    ├── attendance/page.tsx      # 근무 통계
-    ├── inquiries/page.tsx       # 신규 문의 관리
+    ├── workstats/page.tsx       # 근무 통계
+    ├── notifications/page.tsx   # 알림센터 (결근 알림 + 문의 관리)
     └── reports/page.tsx         # 리포트
 ```
 
@@ -222,8 +221,9 @@ app/
 | `/admin/companies/[id]` | CompanyDetail.jsx | 회사 상세 |
 | `/admin/employees` | AdminDashboard.jsx | 탭: workers (직원 통계) |
 | `/admin/employees/[id]` | AdminWorkerDetail.jsx | 직원 상세 |
-| `/admin/attendance` | AdminDashboard.jsx | 탭: workstats (근무 통계) |
-| `/admin/inquiries` | AdminDashboard.jsx | 탭: notifications (알림센터) |
+| `/admin/workstats` | AdminDashboard.jsx | 탭: 근무 통계 |
+| `/admin/notifications` | AdminDashboard.jsx | 탭: 알림센터 |
+| `/admin/reports` | AdminDashboard.jsx | 탭: 리포트 |
 
 ---
 

@@ -22,7 +22,6 @@ export async function uploadEmployeeFile(
   const response = await apiClient.post<{ success: boolean; data: EmployeeFile }>(
     `/employees/${employeeId}/files`,
     formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } }
   );
   return response.data.data;
 }

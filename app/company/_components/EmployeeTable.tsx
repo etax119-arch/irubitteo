@@ -4,6 +4,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../_utils/employeeStatus';
+import { filterEmployees } from '../_utils/filterEmployees';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -20,12 +21,7 @@ export function EmployeeTable({
   onAddWorker,
   onEmployeeClick,
 }: EmployeeTableProps) {
-  const filteredEmployees = employees.filter(
-    (emp) =>
-      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.phone.includes(searchQuery) ||
-      (emp.disabilityType ?? '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredEmployees = filterEmployees(employees, searchQuery);
 
   return (
     <div className="space-y-6">

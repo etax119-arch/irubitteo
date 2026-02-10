@@ -61,6 +61,8 @@ function ToastItem({ toast }: { toast: ToastItem }) {
 
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={cn(
         'flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg animate-slide-in-right',
         VARIANT_STYLES[toast.variant],
@@ -71,6 +73,7 @@ function ToastItem({ toast }: { toast: ToastItem }) {
       <button
         onClick={() => removeToast(toast.id)}
         className="p-0.5 hover:opacity-70 transition-opacity flex-shrink-0"
+        aria-label="닫기"
       >
         <X className="w-4 h-4" />
       </button>

@@ -1,4 +1,4 @@
-import { Save } from 'lucide-react';
+import { Save, CalendarOff } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 
@@ -15,6 +15,7 @@ interface WorkTimeEditModalProps {
   editedWorkTime: EditedWorkTime;
   setEditedWorkTime: (v: EditedWorkTime) => void;
   onSave: () => void;
+  onVacation?: () => void;
   isSaving: boolean;
 }
 
@@ -24,6 +25,7 @@ export function WorkTimeEditModal({
   editedWorkTime,
   setEditedWorkTime,
   onSave,
+  onVacation,
   isSaving,
 }: WorkTimeEditModalProps) {
   return (
@@ -72,13 +74,26 @@ export function WorkTimeEditModal({
           />
         </div>
 
-        <div className="flex gap-3 pt-4">
-          <Button variant="outline" onClick={onClose} fullWidth>
+        <div className="flex justify-between pt-4">
+          <Button variant="outline" onClick={onClose} disabled={isSaving}>
             취소
           </Button>
-          <Button variant="primary" onClick={onSave} disabled={isSaving} leftIcon={<Save className="w-4 h-4" />} fullWidth>
-            {isSaving ? '저장 중...' : '저장'}
-          </Button>
+          <div className="flex gap-3">
+            {onVacation && (
+              <Button
+                variant="outline"
+                onClick={onVacation}
+                disabled={isSaving}
+                leftIcon={<CalendarOff className="w-4 h-4" />}
+                className="border-duru-orange-300 bg-duru-orange-50/50 text-duru-orange-600 hover:bg-duru-orange-100"
+              >
+                휴가
+              </Button>
+            )}
+            <Button variant="primary" onClick={onSave} disabled={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+              {isSaving ? '저장 중...' : '저장'}
+            </Button>
+          </div>
         </div>
       </div>
     </Modal>

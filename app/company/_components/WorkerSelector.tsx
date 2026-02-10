@@ -3,6 +3,7 @@ import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/cn';
+import { filterEmployees } from '../_utils/filterEmployees';
 
 interface WorkerSelectorProps {
   employees: Employee[];
@@ -21,12 +22,7 @@ export function WorkerSelector({
   onToggleWorker,
   onToggleAll,
 }: WorkerSelectorProps) {
-  const filteredWorkers = employees.filter(
-    (worker) =>
-      worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      worker.phone.includes(searchQuery) ||
-      (worker.disabilityType ?? '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredWorkers = filterEmployees(employees, searchQuery);
 
   return (
     <div className="mb-6">
