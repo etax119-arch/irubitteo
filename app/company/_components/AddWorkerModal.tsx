@@ -22,7 +22,7 @@ import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
 import { IconButton } from '@/components/ui/IconButton';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { DAY_LABELS } from '../_utils/workDays';
+import { DAY_LABELS } from '@/lib/workDays';
 
 interface AddWorkerModalProps {
   isOpen: boolean;
@@ -152,7 +152,7 @@ export function AddWorkerModal({
                   </label>
                   <div className="relative">
                     <input
-                      type="password"
+                      type="text"
                       inputMode="numeric"
                       autoComplete="off"
                       placeholder="000000-0000000"

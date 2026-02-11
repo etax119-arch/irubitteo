@@ -27,11 +27,8 @@
 │   ├── AddWorkerModal.tsx      # 근로자 추가 모달
 │   ├── ScheduleModal.tsx       # 일정 등록/수정 모달
 │   └── WorkerSelector.tsx      # 공지 발송 대상 선택
-├── _data/                  # 더미 데이터
 ├── _utils/                 # 유틸리티
-│   ├── employeeStatus.ts      # 상태 라벨/스타일 (getEmployeeStatusLabel, getEmployeeStatusStyle)
-│   ├── filterEmployees.ts     # 직원 검색 필터 (이름, 전화번호, 장애유형)
-│   └── workDays.ts            # 요일 매핑 (DAY_LABELS, LABEL_TO_NUM, NUM_TO_LABEL)
+│   └── filterEmployees.ts     # 직원 검색 필터 (이름, 전화번호, 장애유형)
 ├── dashboard/page.tsx      # 대시보드 탭
 ├── employees/
 │   ├── page.tsx            # 근로자 관리 탭 (목록)
@@ -39,7 +36,10 @@
 │   │   ├── useEmployeeDetail.ts    # 근로자 상세 정보 + 수정
 │   │   ├── useAttendanceHistory.ts # 출퇴근 기록 조회 + 수정
 │   │   ├── useResign.ts            # 퇴사 처리
-│   │   └── useEmployeeFiles.ts     # 문서 업로드/삭제
+│   │   ├── useEmployeeFiles.ts     # 문서 업로드/삭제
+│   │   ├── useEmployeeNotes.ts     # 비고란 상태 관리
+│   │   ├── useEmployeeWorkInfo.ts  # 근무 정보 상태 관리
+│   │   └── useEmployeeDisability.ts # 장애 정보 상태 관리
 │   └── [id]/
 │       ├── page.tsx        # 근로자 상세 페이지
 │       └── _components/    # 상세 페이지 전용 컴포넌트 (11개)
@@ -87,6 +87,7 @@
 ### 1. 대시보드 탭
 
 **목적**: 오늘의 출퇴근 현황 한눈에 파악
+**데이터 관리**: TanStack Query 적용 (`useCompanyDaily`, staleTime: 60s + 리프레시 버튼)
 **API 연동**: ✅ 완료 (`GET /v1/attendances/company-daily`)
 
 #### 통계 카드 (4열)
@@ -111,17 +112,16 @@
 | 전화번호 | 연락처 |
 | 출근 | 출근 시간 (미출근 시 "-") |
 | 퇴근 | 퇴근 시간 (미퇴근 시 "-") |
-| 상태 | 출근 완료 / 퇴근 완료 / 결근 / 휴가 / 휴일 / 출근 전 / 휴무 |
+| 상태 | 근무중 / 퇴근 / 결근 / 휴가 / 출근 전 / 휴무 |
 | 업무 내용 | 퇴근 시 입력한 내용 |
 
-**상태 배지 색상**:
-- 출근 완료: 주황색 배경
-- 퇴근 완료: 회색 배경
-- 결근: 빨간색 배경
-- 휴가: 파란색 배경
-- 휴일: 보라색 배경 (기본)
-- 출근 전: 노란색 배경
-- 휴무: 회색 배경
+**상태 배지 색상** (`getEmployeeStatusStyle`):
+- 근무중: 초록색 (`bg-green-100 text-green-700`)
+- 퇴근: 파란색 (`bg-blue-100 text-blue-700`)
+- 결근: 빨간색 (`bg-red-100 text-red-700`)
+- 휴가: 청록색 (`bg-teal-100 text-teal-700`)
+- 출근 전: 노란색 (`bg-yellow-100 text-yellow-700`)
+- 휴무: 회색 (`bg-gray-100 text-gray-600`)
 
 **로딩/에러 상태**:
 - 로딩 중: "로딩 중..." 표시
@@ -132,11 +132,12 @@
 ### 2. 근로자 관리 탭
 
 **목적**: 소속 근로자 목록 조회 및 신규 등록
+**데이터 관리**: TanStack Query 적용 (`useActiveEmployees`, `useCreateEmployee`)
 **API 연동**: ✅ 완료 (`GET /v1/employees`)
 
 #### 상단 영역
 - "근로자 관리" 제목
-- 검색창 (이름, 전화번호 클라이언트 필터링)
+- 검색창 (이름, 전화번호, 장애유형 클라이언트 필터링)
 - "+ 근로자 추가" 버튼
 
 #### 근로자 목록 테이블
@@ -144,8 +145,7 @@
 |------|------|
 | 이름 | 아바타(이니셜) + 이름 |
 | 전화번호 | 연락처 |
-| 장애유형 | 예: "지체장애 중증" (타입+중증/경증 결합) |
-| 계약만료 | 계약 만료일 |
+| 장애유형 | `disabilityType` 단독 표시 (예: "지체장애") |
 | 상태 | 근무중 / 결근 / 퇴사 |
 | 관리 | "상세보기" 버튼 → `/company/employees/:id` |
 
@@ -157,7 +157,7 @@
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | 이름 | 텍스트 | O | 근로자 이름 |
-| 주민등록번호 | 텍스트 | O | 000000-0000000 형식 (서버에서 SHA-256 단방향 해시 저장) |
+| 주민등록번호 | 텍스트 | O | 000000-0000000 형식 (평문 저장, 입력 시 보임) |
 | 성별 | 버튼 선택 | O | 남 / 여 |
 | 휴대폰 번호 | 전화번호 | O | 010-0000-0000 형식 (자동 하이픈 포맷팅, 하이픈 포함 저장) |
 
@@ -229,18 +229,20 @@
 
 #### 왼쪽: 기본 정보
 
-**프로필 카드**
+**프로필 카드 (편집 가능)**
 - 이니셜 아바타 (이름 첫 글자)
 - 이름, 상태 배지 (근무중/퇴근/결근/퇴사)
-- 핸드폰번호, 주소, 비상연락처, 성별, 입사일
+- 읽기 모드: 주민번호, 핸드폰번호, 주소, 비상연락처, 성별, 입사일
+- 수정 버튼 클릭 시 인라인 편집 모드 (이름, 주민번호, 핸드폰번호, 성별, 입사일, 주소(시/도+시군구+상세), 비상연락처(이름+관계+전화))
+- API: `PATCH /v1/employees/:id` (`name`, `ssn`, `phone`, `gender`, `hireDate`, `addressCity/District/Detail`, `emergencyContactName/Relation/Phone`)
 
 **근로자 고유번호 카드**
 - 주황색 강조 카드로 고유번호 표시
 
 **장애 정보 (편집 가능)**
-- 유형 (읽기 전용), 중증/경증 (수정 가능), 인정일 (수정 가능)
+- 유형 (수정 가능 - DISABILITY_TYPES 드롭다운), 중증/경증 (수정 가능), 인정일 (수정 가능)
 - 수정 버튼 클릭 시 인라인 편집 모드
-- API: `PATCH /v1/employees/:id` (`disabilitySeverity`, `disabilityRecognitionDate`)
+- API: `PATCH /v1/employees/:id` (`disabilityType`, `disabilitySeverity`, `disabilityRecognitionDate`)
 
 **비고란 (편집 가능)**
 - 회사 메모 텍스트
@@ -261,9 +263,10 @@
 - 업무내용: "확인하기" 링크 → 모달로 전체 내용 표시
 - 수정: 각 행에 수정 아이콘 → 근무시간 수정 모달
   - 출근시간, 퇴근시간, 업무내용 편집
+  - 상태 드롭다운: 출근(`checkin`), 퇴근(`checkout`), 결근(`absent`), 휴가(`leave`) 선택 가능
   - clockIn/clockOut이 없는 레코드: 시간 필드를 빈 값으로 표시 (기본값 채우지 않음)
   - 미퇴근 직원: 퇴근시간 필드가 빈 상태("--:--")로 표시, 시간 입력 시에만 퇴근 처리
-  - 휴가 버튼: 오렌지 아웃라인 스타일, 클릭 시 해당 기록의 status를 `'leave'`로 변경
+  - 상태 변경 시 프로필 카드의 상태 배지도 자동 갱신 (직원 정보 refetch)
   - 변경된 필드만 API로 전송 (partial update)
   - API: `PATCH /v1/attendances/:id` (`clockIn`, `clockOut`, `workContent`, `status`)
 
@@ -287,6 +290,7 @@
 ### 3. 근무일정관리 탭
 
 **목적**: 캘린더에서 날짜별 근무 내용 등록 (직원 앱에서 출근 시 표시)
+**데이터 관리**: TanStack Query 적용 (`useMonthlySchedules`, `useCreateSchedule`, `useUpdateSchedule`, `useDeleteSchedule`)
 
 #### 캘린더 뷰
 - 월별 네비게이션 (이전/다음 월)
@@ -317,6 +321,7 @@
 ### 4. 공지사항 탭
 
 **목적**: 근로자에게 긴급 공지 발송 및 발송 기록 관리
+**데이터 관리**: TanStack Query 적용 (`useNotices`, `useActiveEmployees`, `useSendNotice`, `useDeleteNotice`)
 **API 연동**: ✅ 완료 (`POST /v1/notices`, `GET /v1/notices`, `DELETE /v1/notices/:id`)
 
 #### 새 공지사항 발송 섹션
@@ -392,7 +397,7 @@
 
 ## 주요 타입
 
-> 출퇴근 관련 타입은 `@/types/attendance.ts`, 직원 타입은 `@/types/employee.ts`에 정의
+> 출퇴근 관련 타입은 `@/types/attendance.ts`, 직원 타입은 `@/types/employee.ts`, 폼 타입은 `@/types/companyDashboard.ts`에 정의
 
 ### DailyAttendanceRecord (대시보드용) — `@/types/attendance.ts`
 
@@ -401,9 +406,9 @@ interface DailyAttendanceRecord {
   employeeId: string;            // UUID
   name: string;
   phone: string;
-  checkinTime: string | null;    // "HH:mm" (KST) 또는 null
-  checkoutTime: string | null;   // "HH:mm" (KST) 또는 null
-  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'pending' | 'dayoff';
+  clockIn: string | null;        // UTC ISO timestamp (표시 시 +9h KST 변환)
+  clockOut: string | null;       // UTC ISO timestamp (표시 시 +9h KST 변환)
+  status: EmployeeDailyStatus;   // Exclude<Employee['status'], 'resigned'>
   workContent: string | null;    // 퇴근 시 입력한 업무 내용
 }
 ```
@@ -452,11 +457,12 @@ type Employee = {
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'resigned' | 'pending' | 'dayoff';
-  checkinTime: string | null;          // "HH:mm" (KST)
-  checkoutTime: string | null;         // "HH:mm" (KST)
+  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'resigned' | 'pending' | 'dayoff';
+  clockIn: string | null;             // UTC ISO timestamp (표시 시 +9h KST 변환)
+  clockOut: string | null;            // UTC ISO timestamp (표시 시 +9h KST 변환)
   uniqueCode: string;
   companyNote: string | null;
+  adminNote: string | null;
   isActive: boolean;
   standby: boolean;
   resignDate: string | null;
@@ -468,6 +474,9 @@ type Employee = {
   disabilityRecognitionDate: string | null; // "YYYY-MM-DD"
 };
 ```
+
+> `@/types/employee.ts`에는 위 외에도 `EmployeeCreateInput`, `EmployeeUpdateInput`, `EmployeeSummary`, `EmployeeQueryParams`, `EmployeeWithCompany`, `EmployeeFile`, `DocumentType` 등의 타입이 정의되어 있음.
+> `@/types/companyDashboard.ts`에는 근로자 추가 모달용 `AddWorkerForm` 인터페이스가 정의되어 있음.
 
 ---
 

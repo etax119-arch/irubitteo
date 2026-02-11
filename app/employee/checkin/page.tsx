@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
@@ -16,9 +16,12 @@ export default function CheckInPage() {
   const { clockIn, isLoading, error } = useAttendance();
   const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
 
-  // 출근 시간 설정 UI 상태
-  const [hourInput, setHourInput] = useState('');
-  const [minuteInput, setMinuteInput] = useState('');
+  // 출근 시간 설정 UI 상태 - KST 현재 시간을 기본값으로
+  const now = new Date();
+  const kstHour = (now.getUTCHours() + 9) % 24;
+  const kstMinute = now.getUTCMinutes();
+  const [hourInput, setHourInput] = useState(String(kstHour).padStart(2, '0'));
+  const [minuteInput, setMinuteInput] = useState(String(kstMinute).padStart(2, '0'));
 
   useEffect(() => {
     scheduleApi.getToday()
@@ -30,17 +33,19 @@ export default function CheckInPage() {
     router.back();
   };
 
-  const completeCheckIn = async () => {
-    if (hourInput && minuteInput) {
-      const todayKST = formatDateAsKST(new Date());
-      const clockInTimestamp = buildKSTTimestamp(todayKST, `${hourInput}:${minuteInput}`);
+  const submittingRef = useRef(false);
 
-      const result = await clockIn({ clockIn: clockInTimestamp });
-      if (result) setShowModal(true);
-    } else {
-      // 시간 미선택 → 서버 현재 시간
-      const result = await clockIn();
-      if (result) setShowModal(true);
+  const completeCheckIn = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+    const todayKST = formatDateAsKST(new Date());
+    const clockInTimestamp = buildKSTTimestamp(todayKST, `${hourInput}:${minuteInput}`);
+
+    const result = await clockIn({ clockIn: clockInTimestamp });
+    if (result) setShowModal(true);
+    } finally {
+      submittingRef.current = false;
     }
   };
 
@@ -108,7 +113,7 @@ export default function CheckInPage() {
             {/* 섹션 헤더 */}
             <div className="mb-5">
               <h3 className="text-lg font-semibold text-gray-900 mb-1">출근 시간 설정</h3>
-              <p className="text-base text-gray-600">오늘 출근 시간을 선택해주세요</p>
+              <p className="text-base text-gray-600">시와 분을 모두 선택해주세요</p>
             </div>
 
             {/* 시/분 드롭다운 */}

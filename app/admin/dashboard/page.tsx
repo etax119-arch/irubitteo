@@ -1,58 +1,45 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Building2, Users, UserCheck, AlertCircle, Bell, Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Building2, Users, UserCheck, AlertCircle, Bell, Loader2, RefreshCw } from 'lucide-react';
 import { AdminStatCard } from '../_components/AdminStatCard';
 import { CompanyAttendanceAccordion } from '../_components/CompanyAttendanceAccordion';
-import { getAdminStats, getAdminDailyAttendance, getAbsenceAlerts, dismissAbsenceAlert } from '@/lib/api/admin';
 import { extractErrorMessage } from '@/lib/api/error';
+import { formatDateAsKST } from '@/lib/kst';
+import { adminKeys } from '@/lib/query/keys';
+import { useAdminStats, useAdminDailyAttendance, useAbsenceAlerts } from '@/hooks/useAdminDashboardQuery';
+import { useDismissAbsenceAlert } from '@/hooks/useAdminNotificationsQuery';
 import { useToast } from '@/components/ui/Toast';
-import type { AdminStats, AdminDailyCompany, AbsenceAlert } from '@/types/adminDashboard';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const toast = useToast();
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [dailyAttendance, setDailyAttendance] = useState<AdminDailyCompany[]>([]);
-  const [urgentAlerts, setUrgentAlerts] = useState<AbsenceAlert[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const [selectedDate, setSelectedDate] = useState(() => formatDateAsKST(new Date()));
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [statsRes, attendanceRes, alertsRes] = await Promise.all([
-        getAdminStats(),
-        getAdminDailyAttendance(),
-        getAbsenceAlerts(3, 1, 5),
-      ]);
-      setStats(statsRes);
-      setDailyAttendance(attendanceRes);
-      setUrgentAlerts(alertsRes.data);
-    } catch (err) {
-      console.error('Failed to fetch dashboard data:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const statsQuery = useAdminStats();
+  const attendanceQuery = useAdminDailyAttendance(selectedDate);
+  const alertsQuery = useAbsenceAlerts();
+  const dismissMutation = useDismissAbsenceAlert();
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const handleDismissAlert = async (alertId: string, employeeId: string) => {
-    try {
-      await dismissAbsenceAlert(alertId);
-      setUrgentAlerts((prev) => prev.filter((a) => a.id !== alertId));
-      toast.success('알림을 확인했습니다.');
-      router.push(`/admin/employees/${employeeId}`);
-    } catch (err) {
-      toast.error(extractErrorMessage(err));
-    }
+  const handleDismissAlert = (alertId: string, employeeId: string) => {
+    dismissMutation.mutate(alertId, {
+      onSuccess: () => {
+        toast.success('알림을 확인했습니다.');
+        router.push(`/admin/employees/${employeeId}`);
+      },
+      onError: (err) => toast.error(extractErrorMessage(err)),
+    });
   };
 
-  if (loading || !stats) {
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: adminKeys.all });
+  };
+
+  if (statsQuery.isLoading) {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
@@ -60,52 +47,84 @@ export default function AdminDashboardPage() {
     );
   }
 
+  if (statsQuery.isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <AlertCircle className="w-12 h-12 text-red-400" />
+        <p className="text-gray-600">대시보드 데이터를 불러오지 못했습니다.</p>
+        <button
+          onClick={handleRefresh}
+          className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg hover:bg-duru-orange-600 transition-colors"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
+  const stats = statsQuery.data;
+  const dailyAttendance = attendanceQuery.data ?? [];
+  const urgentAlerts = alertsQuery.data ?? [];
+
   return (
     <div className="space-y-6">
-      {/* 통계 카드 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AdminStatCard
-          icon={Building2}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
-          label="전체 회원사"
-          value={stats.totalCompanies}
-          unit="개"
-        />
-        <AdminStatCard
-          icon={Users}
-          iconBgColor="bg-duru-orange-100"
-          iconColor="text-duru-orange-600"
-          label="전체 근로자"
-          value={stats.totalWorkers}
-          unit="명"
-          cardBorderColor="border-duru-orange-200"
-          cardBgColor="bg-duru-orange-50"
-          valueColor="text-duru-orange-600"
-        />
-        <AdminStatCard
-          icon={UserCheck}
-          iconBgColor="bg-green-100"
-          iconColor="text-green-600"
-          label="근무 중"
-          value={stats.activeWorkers}
-          unit="명"
-          cardBorderColor="border-green-200"
-          cardBgColor="bg-green-50"
-          valueColor="text-green-600"
-        />
-        <AdminStatCard
-          icon={AlertCircle}
-          iconBgColor="bg-red-100"
-          iconColor="text-red-600"
-          label="긴급 알림"
-          value={stats.pendingIssues}
-          unit="건"
-          cardBorderColor="border-red-200"
-          cardBgColor="bg-red-50"
-          valueColor="text-red-600"
-        />
+      {/* 리프레시 버튼 */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleRefresh}
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-duru-orange-600 hover:bg-duru-orange-50 rounded-lg transition-colors"
+        >
+          <RefreshCw className={`w-4 h-4 ${statsQuery.isFetching ? 'animate-spin' : ''}`} />
+          새로고침
+        </button>
       </div>
+
+      {/* 통계 카드 */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <AdminStatCard
+            icon={Building2}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            label="전체 회원사"
+            value={stats.totalCompanies}
+            unit="개"
+          />
+          <AdminStatCard
+            icon={Users}
+            iconBgColor="bg-duru-orange-100"
+            iconColor="text-duru-orange-600"
+            label="전체 근로자"
+            value={stats.totalWorkers}
+            unit="명"
+            cardBorderColor="border-duru-orange-200"
+            cardBgColor="bg-duru-orange-50"
+            valueColor="text-duru-orange-600"
+          />
+          <AdminStatCard
+            icon={UserCheck}
+            iconBgColor="bg-green-100"
+            iconColor="text-green-600"
+            label="근무 중"
+            value={stats.activeWorkers}
+            unit="명"
+            cardBorderColor="border-green-200"
+            cardBgColor="bg-green-50"
+            valueColor="text-green-600"
+          />
+          <AdminStatCard
+            icon={AlertCircle}
+            iconBgColor="bg-red-100"
+            iconColor="text-red-600"
+            label="긴급 알림"
+            value={stats.pendingIssues}
+            unit="건"
+            cardBorderColor="border-red-200"
+            cardBgColor="bg-red-50"
+            valueColor="text-red-600"
+          />
+        </div>
+      )}
 
       {/* 긴급 알림 (결근) */}
       {urgentAlerts.length > 0 && (
@@ -153,9 +172,9 @@ export default function AdminDashboardPage() {
       {/* 회사별 출퇴근 현황 */}
       <CompanyAttendanceAccordion
         dailyAttendance={dailyAttendance}
-        onDateChange={(date) => {
-          getAdminDailyAttendance(date).then(setDailyAttendance);
-        }}
+        selectedDate={selectedDate}
+        onDateChange={setSelectedDate}
+        isFetching={attendanceQuery.isFetching}
       />
     </div>
   );

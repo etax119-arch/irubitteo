@@ -2,7 +2,7 @@ export interface AddWorkerForm {
   name: string;
   ssn: string;
   phone: string;
-  gender: string;
+  gender: '남' | '여' | '';
   addressCity: string;
   addressDistrict: string;
   addressDetail: string;
@@ -10,7 +10,7 @@ export interface AddWorkerForm {
   emergencyRelation: string;
   emergencyPhone: string;
   disabilityType: string;
-  disabilitySeverity: string;
+  disabilitySeverity: '중증' | '경증' | '';
   hireDate: string;
   recognitionDate: string;
   workDays: string[];

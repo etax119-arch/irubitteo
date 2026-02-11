@@ -1,11 +1,14 @@
 import { Shield, Edit2, Check } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import type { Employee } from '@/types/employee';
+import { DISABILITY_TYPES } from '@/types/employee';
 
 interface DisabilityInfoSectionProps {
   employee: Employee;
   isEditing: boolean;
   isSaving: boolean;
+  tempDisabilityType: string;
+  setTempDisabilityType: (v: string) => void;
   tempSeverity: string;
   setTempSeverity: (v: string) => void;
   tempRecognitionDate: string;
@@ -19,6 +22,8 @@ export function DisabilityInfoSection({
   employee,
   isEditing,
   isSaving,
+  tempDisabilityType,
+  setTempDisabilityType,
   tempSeverity,
   setTempSeverity,
   tempRecognitionDate,
@@ -87,9 +92,18 @@ export function DisabilityInfoSection({
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-600">유형</span>
-            <span className="font-bold text-gray-900">{employee.disabilityType ?? '-'}</span>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">유형</label>
+            <select
+              value={tempDisabilityType}
+              onChange={(e) => setTempDisabilityType(e.target.value)}
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+            >
+              <option value="">선택</option>
+              {DISABILITY_TYPES.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-xs text-gray-600 mb-1">중증/경증</label>

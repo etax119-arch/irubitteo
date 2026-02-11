@@ -1,9 +1,10 @@
-import { Search } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '../_utils/employeeStatus';
+import { IconButton } from '@/components/ui/IconButton';
+import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { filterEmployees } from '../_utils/filterEmployees';
 
 interface EmployeeTableProps {
@@ -12,6 +13,8 @@ interface EmployeeTableProps {
   onSearchChange: (query: string) => void;
   onAddWorker: () => void;
   onEmployeeClick: (employee: Employee) => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 export function EmployeeTable({
@@ -20,13 +23,26 @@ export function EmployeeTable({
   onSearchChange,
   onAddWorker,
   onEmployeeClick,
+  onRefresh,
+  isRefreshing,
 }: EmployeeTableProps) {
   const filteredEmployees = filterEmployees(employees, searchQuery);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">근로자 관리</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-gray-900">근로자 관리</h2>
+          {onRefresh && (
+            <IconButton
+              icon={<RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />}
+              variant="ghost"
+              size="sm"
+              label="새로고침"
+              onClick={onRefresh}
+            />
+          )}
+        </div>
         <Button variant="primary" onClick={onAddWorker} className="py-2">
           + 근로자 추가
         </Button>

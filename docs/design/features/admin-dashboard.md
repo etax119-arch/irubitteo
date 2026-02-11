@@ -33,10 +33,16 @@
 ├── dashboard/page.tsx      # 대시보드 탭
 ├── companies/
 │   ├── page.tsx            # 회원사 관리 탭
-│   └── [id]/page.tsx       # 회원사 상세
+│   └── [id]/
+│       ├── page.tsx        # 회원사 상세
+│       ├── _hooks/         # useCompanyDetail, useCompanyFiles
+│       └── _components/    # CompanyProfileCard, PMInfoCard, ResignSection, EmployeeListSection, FileSection, ResignModal
 ├── employees/
 │   ├── page.tsx            # 근로자 관리 탭
-│   └── [id]/page.tsx       # 근로자 상세
+│   └── [id]/
+│       ├── page.tsx        # 근로자 상세
+│       ├── _hooks/         # useAdminEmployeeDetail, useAdminAttendanceHistory, useAdminEmployeeFiles
+│       └── _components/    # ProfileCard, AdminNoteSection, CompanyNoteSection, ResignInfoSection, AttendanceHistoryTable, WorkInfoSection, DocumentSection, FileUploadModal, WorkTimeEditModal, WorkDoneModal
 ├── workstats/page.tsx      # 근무 통계 탭
 ├── notifications/page.tsx  # 알림센터 탭
 └── reports/page.tsx        # 리포트 탭
@@ -75,7 +81,7 @@
 |-------|--------|--------|------|
 | dashboard | 대시보드 | TrendingUp | 플랫폼 전체 현황 및 긴급 알림 |
 | companies | 회원사 관리 | Building2 | 회원사 목록 조회 및 등록 |
-| workers | 근로자 관리 | Users | 전체 근로자 목록 조회 |
+| employees | 근로자 관리 | Users | 전체 근로자 목록 조회 |
 | workstats | 근무 통계 | BarChart3 | 회사별 월간 근무 통계 |
 | notifications | 알림센터 | Bell | 결근 알림, 기업 문의 |
 | reports | 리포트 | FileText | 문서 템플릿 및 통계 리포트 |
@@ -114,25 +120,17 @@
 
 **회사별 아코디언**:
 - 회사명, 출근 인원 표시 (예: "3/5명 출근")
-- 오전/오후 토글 버튼
-- 상태별 집계 배지 (출근 전, 출근 중, 결근, 휴가, 휴일, 퇴근, 휴무)
+- 상태별 집계 배지 (출근 전, 근무중, 결근, 휴가, 퇴근, 휴무)
 
 **펼친 테이블 컬럼**:
 | 컬럼 | 설명 |
 |------|------|
 | 이름 | 근로자 이름 (주의 필요 시 경고 아이콘) |
 | 전화번호 | 연락처 |
-| 상태 | 출근 전 / 출근 중 / 결근 / 휴가 / 휴일 / 퇴근 / 휴무 |
-| 출근 시간 | 클릭하여 수정 가능 |
-| 퇴근 시간 | 클릭하여 수정 가능 |
-| 업무 내용 | 클릭하여 수정 가능 |
-
-**인라인 편집**:
-- 셀 클릭 시 입력 필드 + 저장/취소 버튼 표시
-- 시간 필드: time input
-- 업무 내용: text input
-- clockIn/clockOut이 없는 레코드: 시간 필드를 빈 값으로 표시 (기본값 채우지 않음)
-- 빈 시간 필드는 API에 전송하지 않음 (undefined)
+| 상태 | 출근 전 / 근무중 / 결근 / 휴가 / 퇴근 / 휴무 |
+| 출근 시간 | 읽기 전용 |
+| 퇴근 시간 | 읽기 전용 |
+| 업무 내용 | 읽기 전용 |
 
 ---
 
@@ -147,13 +145,14 @@
 
 #### 회원사 목록 (카드 형태)
 각 회원사 카드:
-- 회사명 + 상태 배지 (계약중/만료임박)
+- 회사명 + 상태 배지 (계약중/비활성)
 - 정보 그리드:
   | 항목 | 설명 |
   |------|------|
   | 위치 | 지역 |
   | 근로자 수 | N명 |
-  | 계약만료 | 만료일 |
+  | 계약시작일 | 계약 시작일 |
+  | 담당 PM | PM 담당자명 |
 - "상세보기" 버튼 → CompanyDetail 화면
 
 #### 회원사 추가 모달
@@ -173,10 +172,17 @@
 | 연락처 | 전화번호 | O | 010-0000-0000 |
 | 이메일 | 이메일 | - | email@company.com |
 
-**섹션 3: 기업 관리자 계정 설정**
+**섹션 3: 영업 담당자 (PM) 정보**
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
-| 관리자 아이디 | 텍스트 | O | 기업 대시보드 로그인용 |
+| 담당자 이름 | 텍스트 | O | PM 담당자 이름 |
+| 연락처 | 전화번호 | O | 010-0000-0000 |
+| 이메일 | 이메일 | O | email@company.com |
+
+**섹션 4: 기업 관리자 계정 설정**
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| 기업 고유번호 | 텍스트 | O | 기업 대시보드 로그인용 |
 
 - 초기 비밀번호는 자동 생성되어 담당자 이메일로 발송
 
@@ -194,12 +200,11 @@
 #### 근로자 목록 테이블
 | 컬럼 | 설명 |
 |------|------|
-| 이름 | 아바타 + 이름 + 전화번호 |
+| 이름 | 아바타 + 이름 |
 | 회사 | 소속 회사명 |
 | 전화번호 | 연락처 |
 | 장애유형 | 예: "지체장애 3급" |
-| 계약만료 | 계약 만료일 |
-| 상태 | 근무중 / 결근 |
+| 고유번호 | 근로자 고유번호 |
 | 관리 | "상세보기" → AdminWorkerDetail 화면 |
 
 ---
@@ -360,7 +365,6 @@ deleteAdminFile(fileId)                    → 파일 삭제
 | 항목 | 출처 | 설명 |
 |------|------|------|
 | 회원사 정보 | 모달 입력 | 신규 회원사 등록 |
-| 출퇴근 수정 | 인라인 편집 | 관리자 수정 |
 | 근무 통계 수정 | 인라인 편집 | 출근일수/근무시간 조정 |
 
 ### 출력 데이터
@@ -395,7 +399,7 @@ deleteAdminFile(fileId)                    → 파일 삭제
 ### UI 구현 완료
 - [x] 라우트 기반 탭 구조 (URL 북마크/공유 가능, 브라우저 히스토리 지원)
 - [x] 대시보드 탭: 통계 카드, 긴급 알림, 회사별 출퇴근 아코디언
-- [x] 회원사 관리 탭: 회원사 목록, 검색, 추가 모달, 월정산액 인라인 수정
+- [x] 회원사 관리 탭: 회원사 목록, 검색, 추가 모달
 - [x] 회원사 상세 페이지: 기본정보, PM정보, 소속 근로자, 첨부파일
 - [x] 근로자 관리 탭: 필터(현재/퇴사/대기자/전체), 검색, 테이블
 - [x] 근로자 상세 페이지: 프로필, 출퇴근 기록, 달력 뷰, 문서 관리
@@ -429,7 +433,7 @@ deleteAdminFile(fileId)                    → 파일 삭제
 
 ### 회원사 상세 페이지 (`/admin/companies/[id]`)
 
-> 파일: `app/admin/companies/[id]/page.tsx` (~730줄)
+> 파일: `app/admin/companies/[id]/page.tsx` + `_components/` (6개) + `_hooks/` (2개)
 
 #### 레이아웃
 
@@ -446,7 +450,7 @@ deleteAdminFile(fileId)                    → 파일 삭제
 | 인사담당자 정보 | 담당자명, 연락처, 이메일 | O (인라인) |
 | PM 담당자 정보 | 이름, 전화번호, 이메일 (복사 버튼) | O (인라인) |
 | 기업 탈퇴 | 탈퇴 처리 버튼 (조건부 표시) | O (모달) |
-| 소속 근로자 | 근로자 테이블 (이름, 입사일, 장애유형, 고유번호) | - |
+| 소속 근로자 | 근로자 테이블 (이름, 전화번호, 입사일, 장애유형, 고유번호) | - |
 | 첨부파일 | 문서 목록 + 드래그&드롭 업로드 | O (업로드/삭제) |
 
 #### 인라인 편집
@@ -480,7 +484,7 @@ deleteCompanyFile(id, fileId)     → 파일 삭제
 
 ### 근로자 상세 페이지 (`/admin/employees/[id]`)
 
-> 파일: `app/admin/employees/[id]/page.tsx` (~1020줄)
+> 파일: `app/admin/employees/[id]/page.tsx` + `_components/` (10개) + `_hooks/` (3개)
 
 #### 레이아웃
 
@@ -512,7 +516,7 @@ deleteCompanyFile(id, fileId)     → 파일 삭제
 
 | 모달 | 설명 |
 |------|------|
-| 근무시간 수정 | 출근/퇴근 시간 수정 + 업무내용 textarea + "휴가" 버튼 (status→leave) |
+| 근무시간 수정 | 출근/퇴근 시간 수정 + 업무내용 textarea + 상태 드롭다운 (출근/퇴근/결근/휴가) |
 | 업무내용 확인 | 특정 날짜 업무내용 읽기 전용 |
 | 파일 업로드 | 문서유형 드롭다운 (7종) + 파일 선택 (.pdf, .jpg, .jpeg, .png, 최대 10MB) |
 
@@ -523,7 +527,6 @@ deleteCompanyFile(id, fileId)     → 파일 삭제
 | checkout (정상) | 정상 | 초록 |
 | checkout (지각) | 지각 | 노랑 |
 | leave | 휴가 | 파랑 |
-| holiday | 휴일 | 파랑 |
 | absent | 결근 | 빨강 |
 | checkin | 근무중 | 초록 |
 | pending | 출근전 | 회색 |
@@ -545,4 +548,4 @@ deleteEmployeeFile(employeeId, fileId)          → 문서 삭제
 - **시간대 처리**: `formatUtcTimestampAsKST()`, `formatDateAsKST()`, `buildKSTTimestamp()` 사용
 - **근무요일 선택**: 읽기 모드에서 7일 행 표시, 편집 모드에서 토글 버튼
 - **문서 유형 분류**: 근로계약서, 동의서, 건강검진, 자격증, 장애인등록증, 이력서, 기타
-- **휴가 처리**: 근무시간 수정 모달에서 "휴가" 버튼 클릭 시 status를 'leave'로 변경
+- **상태 변경**: 근무시간 수정 모달에서 상태 드롭다운으로 출근/퇴근/결근/휴가 선택 가능, 변경 시 프로필 카드 상태 자동 갱신

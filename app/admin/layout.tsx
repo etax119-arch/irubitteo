@@ -43,14 +43,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const activeTab = getActiveTab();
 
-  const [prevActiveTab, setPrevActiveTab] = useState(activeTab);
-  if (activeTab === 'notifications' && prevActiveTab !== 'notifications') {
-    setHasNewNotification(false);
-    setPrevActiveTab(activeTab);
-  }
-  if (activeTab !== prevActiveTab) {
-    setPrevActiveTab(activeTab);
-  }
+  useEffect(() => {
+    if (activeTab === 'notifications') {
+      setHasNewNotification(false); // eslint-disable-line react-hooks/set-state-in-effect -- 탭 전환 시 알림 뱃지 제거
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

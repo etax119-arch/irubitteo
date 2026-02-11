@@ -92,7 +92,6 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 ├── layout.tsx      # 헤더 + 6개 탭 (Link 컴포넌트)
 ├── page.tsx        # redirect('/admin/dashboard')
 ├── _components/    # AdminStatCard, CompanyCard, WorkerTable 등
-├── _data/          # dummyData.ts
 ├── dashboard/page.tsx
 ├── companies/
 │   ├── page.tsx
@@ -179,16 +178,12 @@ durubitteo_web/
 │   │   │   ├── AddWorkerModal.tsx
 │   │   │   ├── ScheduleModal.tsx
 │   │   │   └── WorkerSelector.tsx
-│   │   ├── _data/            # 더미 데이터
 │   │   ├── _utils/           # 유틸리티
-│   │   │   ├── attendanceStatus.ts # 출퇴근 상태 색상 (getStatusColor)
-│   │   │   ├── employeeStatus.ts  # 상태 라벨/스타일
-│   │   │   ├── filterEmployees.ts # 직원 검색 필터
-│   │   │   └── workDays.ts        # 요일 매핑
+│   │   │   └── filterEmployees.ts # 직원 검색 필터
 │   │   ├── dashboard/        # 대시보드 탭
 │   │   ├── employees/        # 근로자 관리 탭
 │   │   │   ├── page.tsx
-│   │   │   ├── _hooks/       # useEmployeeDetail, useAttendanceHistory, useResign, useEmployeeFiles
+│   │   │   ├── _hooks/       # useEmployeeDetail, useEmployeeNotes, useEmployeeWorkInfo, useEmployeeDisability, useAttendanceHistory, useResign, useEmployeeFiles
 │   │   │   └── [id]/         # 근로자 상세 + _components/ (11개)
 │   │   ├── schedule/         # 근무일정 탭
 │   │   └── notices/          # 공지사항 탭
@@ -205,18 +200,26 @@ durubitteo_web/
 │       │   ├── AbsenceAlertList.tsx
 │       │   ├── InquiryList.tsx
 │       │   ├── InquiryDetailModal.tsx
+│       │   ├── NoteUpdateAlertList.tsx
 │       │   ├── AddCompanyModal.tsx
 │       │   └── PrintPreviewModal.tsx
-│       ├── _data/            # 더미 데이터
 │       ├── dashboard/        # 대시보드 탭
-│       ├── companies/        # 회원사 관리 탭 + [id] 상세
-│       ├── employees/        # 근로자 관리 탭 + [id] 상세
+│       ├── companies/        # 회원사 관리 탭
+│       │   ├── page.tsx
+│       │   └── [id]/         # 회원사 상세
+│       │       ├── page.tsx
+│       │       ├── _hooks/   # useCompanyDetail, useCompanyFiles
+│       │       └── _components/  # CompanyProfileCard, PMInfoCard, ResignSection, EmployeeListSection, FileSection, ResignModal
+│       ├── employees/        # 근로자 관리 탭
+│       │   ├── page.tsx
+│       │   └── [id]/         # 근로자 상세
+│       │       ├── page.tsx
+│       │       ├── _hooks/   # useAdminEmployeeDetail, useAdminAttendanceHistory, useAdminEmployeeFiles
+│       │       └── _components/  # ProfileCard, AdminNoteSection, CompanyNoteSection, ResignInfoSection, AttendanceHistoryTable, WorkInfoSection, DocumentSection, FileUploadModal, WorkTimeEditModal, WorkDoneModal
 │       ├── workstats/        # 근무 통계 탭
 │       ├── notifications/    # 알림센터 탭
 │       └── reports/          # 리포트 탭 (파일 저장소)
 │           ├── page.tsx
-│           ├── _hooks/
-│           │   └── useAdminFiles.ts    # 파일 CRUD 상태 관리
 │           └── _components/
 │               ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
 │               ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
@@ -228,8 +231,19 @@ durubitteo_web/
 ├── hooks/                    # 공용 훅
 │   ├── useAuth.ts            # 인증 훅 (login, logout, checkAuth)
 │   ├── useAttendance.ts      # 출퇴근 API 훅
-│   ├── useNotice.ts          # 공지사항 API 훅
-│   └── useSchedule.ts        # 근무일정 API 훅
+│   ├── useNoticeQuery.ts     # 공지사항 Query 훅 (TanStack Query)
+│   ├── useNoticeMutations.ts # 공지사항 Mutation 훅 (TanStack Query)
+│   ├── useEmployeeQuery.ts   # 근로자 Query 훅 (TanStack Query)
+│   ├── useEmployeeMutations.ts # 근로자 Mutation 훅 (TanStack Query)
+│   ├── useDashboardQuery.ts  # 대시보드 Query 훅 (TanStack Query)
+│   ├── useAdminDashboardQuery.ts # 관리자 대시보드 Query 훅 (TanStack Query)
+│   ├── useAdminWorkstatsQuery.ts # 관리자 근무통계 Query/Mutation 훅 (TanStack Query)
+│   ├── useAdminNotificationsQuery.ts # 관리자 알림센터 Query/Mutation 훅 (TanStack Query)
+│   ├── useAdminReportsQuery.ts # 관리자 리포트 파일 Query/Mutation 훅 (TanStack Query)
+│   ├── useScheduleQuery.ts   # 근무일정 Query 훅 (TanStack Query)
+│   ├── useScheduleMutations.ts # 근무일정 Mutation 훅 (TanStack Query)
+│   ├── useCompanyQuery.ts    # 회원사 Query 훅 (TanStack Query)
+│   └── useCompanyMutations.ts # 회원사 Mutation 훅 (TanStack Query)
 │
 ├── types/                    # 공용 타입 정의
 │   ├── api.ts                # API 공통 타입 (ApiResponse, Pagination 등)
@@ -241,15 +255,22 @@ durubitteo_web/
 │   ├── employee.ts           # 직원 타입 + DISABILITY_TYPES 상수
 │   ├── attendance.ts         # 출퇴근 타입
 │   ├── schedule.ts           # 근무일정 타입
-│   └── notice.ts             # 공지사항 타입
+│   ├── notice.ts             # 공지사항 타입
+│   └── inquiry.ts            # 기업 문의 타입
 │
 └── lib/                      # 유틸리티 함수
     ├── cn.ts                 # Tailwind 클래스 병합
-    ├── file.ts               # HEIC 파일 유틸리티
-    ├── kst.ts                # KST 시간 변환 (formatUtcTimestampAsKST, formatKSTDate 등)
+    ├── file.ts               # HEIC 파일 유틸리티 + formatFileSize
+    ├── kst.ts                # KST 시간 변환 (formatUtcTimestampAsKST, formatKSTDate, offsetDateString 등)
+    ├── workDays.ts           # 요일 매핑 (DAY_LABELS, LABEL_TO_NUM, NUM_TO_LABEL)
+    ├── status.ts             # 출퇴근 상태 표시 통합 (getEmployeeStatusLabel/Style, getDisplayStatusColor)
     ├── address.ts            # 한국 시/도 → 시/군/구 매핑 (CITY_OPTIONS, getDistrictOptions)
     ├── auth/
     │   └── store.ts          # Zustand 인증 스토어 (useAuthStore)
+    ├── query/                # TanStack Query 설정
+    │   ├── client.ts         # QueryClient (staleTime: Infinity, gcTime: 30분)
+    │   ├── QueryProvider.tsx  # 'use client' Provider 래퍼
+    │   └── keys.ts           # Query Key 팩토리
     └── api/                  # API 클라이언트
         ├── client.ts         # Axios 인스턴스
         ├── error.ts          # 에러 메시지 추출 유틸

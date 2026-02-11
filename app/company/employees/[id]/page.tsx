@@ -1,13 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useEmployeeDetail } from '../_hooks/useEmployeeDetail';
+import { useEmployeeNotes } from '../_hooks/useEmployeeNotes';
+import { useEmployeeWorkInfo } from '../_hooks/useEmployeeWorkInfo';
+import { useEmployeeDisability } from '../_hooks/useEmployeeDisability';
 import { useAttendanceHistory } from '../_hooks/useAttendanceHistory';
 import { useResign } from '../_hooks/useResign';
 import { useEmployeeFiles } from '../_hooks/useEmployeeFiles';
+import { useEmployeeProfile } from '../_hooks/useEmployeeProfile';
 import { ProfileCard } from './_components/ProfileCard';
 import { DisabilityInfoSection } from './_components/DisabilityInfoSection';
 import { NotesSection } from './_components/NotesSection';
@@ -26,9 +30,26 @@ export default function CompanyEmployeeDetailPage() {
   const employeeId = Array.isArray(params.id) ? params.id[0] : (params.id ?? '');
 
   const detail = useEmployeeDetail(employeeId);
-  const attendance = useAttendanceHistory(employeeId);
+  const notesHook = useEmployeeNotes(employeeId);
+  const workInfoHook = useEmployeeWorkInfo(employeeId);
+  const disabilityHook = useEmployeeDisability(employeeId, detail.employee);
+  const attendance = useAttendanceHistory(employeeId, { onSaved: detail.fetchEmployee });
   const resign = useResign({ employeeId, onSuccess: detail.fetchEmployee });
   const employeeFiles = useEmployeeFiles(employeeId);
+  const profileHook = useEmployeeProfile(employeeId);
+
+  useEffect(() => {
+    if (detail.employee) {
+      notesHook.syncFromEmployee(detail.employee);
+      workInfoHook.syncFromEmployee(detail.employee);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail.employee]);
+
+  const handleSaveNotes = () => notesHook.handleSaveNotes(detail.setEmployee);
+  const handleSaveWorkInfo = () => workInfoHook.handleSaveWorkInfo(detail.setEmployee);
+  const handleSaveDisability = () => disabilityHook.handleSaveDisability(detail.setEmployee);
+  const handleSaveProfile = () => profileHook.handleSaveProfile(detail.setEmployee);
 
   const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -73,28 +94,39 @@ export default function CompanyEmployeeDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 왼쪽: 기본 정보 */}
           <div className="space-y-6">
-            <ProfileCard employee={employee} />
+            <ProfileCard
+              employee={employee}
+              isEditing={profileHook.isEditingProfile}
+              isSaving={profileHook.isSavingProfile}
+              profileForm={profileHook.profileForm}
+              onEdit={() => profileHook.handleEditProfile(employee)}
+              onSave={handleSaveProfile}
+              onCancel={profileHook.handleCancelProfile}
+              onUpdateForm={profileHook.updateProfileForm}
+            />
             <DisabilityInfoSection
               employee={employee}
-              isEditing={detail.isEditingDisability}
-              isSaving={detail.isSavingDisability}
-              tempSeverity={detail.tempDisabilitySeverity}
-              setTempSeverity={detail.setTempDisabilitySeverity}
-              tempRecognitionDate={detail.tempDisabilityRecognitionDate}
-              setTempRecognitionDate={detail.setTempDisabilityRecognitionDate}
-              onEdit={detail.handleEditDisability}
-              onSave={detail.handleSaveDisability}
-              onCancel={detail.handleCancelDisability}
+              isEditing={disabilityHook.isEditingDisability}
+              isSaving={disabilityHook.isSavingDisability}
+              tempDisabilityType={disabilityHook.tempDisabilityType}
+              setTempDisabilityType={disabilityHook.setTempDisabilityType}
+              tempSeverity={disabilityHook.tempDisabilitySeverity}
+              setTempSeverity={disabilityHook.setTempDisabilitySeverity}
+              tempRecognitionDate={disabilityHook.tempDisabilityRecognitionDate}
+              setTempRecognitionDate={disabilityHook.setTempDisabilityRecognitionDate}
+              onEdit={disabilityHook.handleEditDisability}
+              onSave={handleSaveDisability}
+              onCancel={disabilityHook.handleCancelDisability}
             />
             <NotesSection
-              notes={detail.notes}
-              isEditing={detail.isEditingNotes}
-              isSaving={detail.isSavingNotes}
-              tempNotes={detail.tempNotes}
-              setTempNotes={detail.setTempNotes}
-              onEdit={detail.handleEditNotes}
-              onSave={detail.handleSaveNotes}
-              onCancel={detail.handleCancelNotes}
+              notes={notesHook.notes}
+              isEditing={notesHook.isEditingNotes}
+              isSaving={notesHook.isSavingNotes}
+              tempNotes={notesHook.tempNotes}
+              setTempNotes={notesHook.setTempNotes}
+              onEdit={notesHook.handleEditNotes}
+              onSave={handleSaveNotes}
+              onCancel={notesHook.handleCancelNotes}
             />
             <ResignSection employee={employee} onOpenResignModal={resign.openResignModal} />
           </div>
@@ -109,17 +141,17 @@ export default function CompanyEmployeeDetailPage() {
               onOpenWorkDone={attendance.openWorkDoneModal}
             />
             <WorkInfoSection
-              workDays={detail.workDays}
-              workStartTime={detail.workStartTime}
-              isEditing={detail.isEditingWorkInfo}
-              isSaving={detail.isSavingWorkInfo}
-              tempWorkDays={detail.tempWorkDays}
-              tempWorkStartTime={detail.tempWorkStartTime}
-              setTempWorkStartTime={detail.setTempWorkStartTime}
-              toggleTempWorkDay={detail.toggleTempWorkDay}
-              onEdit={detail.handleEditWorkInfo}
-              onSave={detail.handleSaveWorkInfo}
-              onCancel={detail.handleCancelEditWorkInfo}
+              workDays={workInfoHook.workDays}
+              workStartTime={workInfoHook.workStartTime}
+              isEditing={workInfoHook.isEditingWorkInfo}
+              isSaving={workInfoHook.isSavingWorkInfo}
+              tempWorkDays={workInfoHook.tempWorkDays}
+              tempWorkStartTime={workInfoHook.tempWorkStartTime}
+              setTempWorkStartTime={workInfoHook.setTempWorkStartTime}
+              toggleTempWorkDay={workInfoHook.toggleTempWorkDay}
+              onEdit={workInfoHook.handleEditWorkInfo}
+              onSave={handleSaveWorkInfo}
+              onCancel={workInfoHook.handleCancelEditWorkInfo}
             />
             <DocumentSection
               files={employeeFiles.files}
@@ -144,7 +176,6 @@ export default function CompanyEmployeeDetailPage() {
         editedWorkTime={attendance.editedWorkTime}
         setEditedWorkTime={attendance.setEditedWorkTime}
         onSave={attendance.handleSaveWorkTime}
-        onVacation={attendance.handleVacation}
         isSaving={attendance.isSaving}
       />
       <WorkDoneModal

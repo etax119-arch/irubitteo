@@ -79,3 +79,13 @@ export function fileToBase64(file: File): Promise<string> {
 export async function filesToBase64(files: File[]): Promise<string[]> {
   return Promise.all(files.map(fileToBase64));
 }
+
+/**
+ * 파일 크기(bytes)를 사람이 읽기 쉬운 형식으로 변환
+ */
+export function formatFileSize(bytes: number | null): string {
+  if (!bytes) return '-';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}

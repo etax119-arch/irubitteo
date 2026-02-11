@@ -1,6 +1,6 @@
 import { Briefcase, Clock, Edit2, Check } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { DAY_LABELS } from '../../../_utils/workDays';
+import { DAY_LABELS } from '@/lib/workDays';
 
 interface WorkInfoSectionProps {
   workDays: string[];

@@ -42,7 +42,7 @@ cp .env.example .env
 | `JWT_SECRET` | JWT 서명 키 | 임의의 긴 문자열 |
 | `JWT_EXPIRES_IN_SECONDS` | Access Token 만료 시간 | `900` (15분) |
 | `JWT_REFRESH_EXPIRES_IN_SECONDS` | Refresh Token 만료 시간 | `604800` (7일) |
-| `SSN_ENCRYPTION_KEY` | 주민번호 AES-256 암호화 키 | 32바이트 hex 문자열 |
+| ~~`SSN_ENCRYPTION_KEY`~~ | ~~주민번호 암호화 키~~ | 더 이상 사용하지 않음 (주민번호 평문 저장) |
 | `SUPABASE_URL` | Supabase 프로젝트 URL | `https://xxx.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase 서비스 키 | Supabase 대시보드에서 확인 |
 | `PORT` | 서버 포트 | `4000` |

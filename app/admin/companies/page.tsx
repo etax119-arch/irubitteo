@@ -1,62 +1,40 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Loader2 } from 'lucide-react';
-import { AxiosError } from 'axios';
 import { CompanyCard } from '../_components/CompanyCard';
 import { AddCompanyModal } from '../_components/AddCompanyModal';
-import { getCompanies, createCompany } from '@/lib/api/companies';
+import { useCompanies } from '@/hooks/useCompanyQuery';
+import { useCreateCompany } from '@/hooks/useCompanyMutations';
+import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
 import type { CompanyWithEmployeeCount, CompanyCreateInput } from '@/types/company';
 
 export default function AdminCompaniesPage() {
   const router = useRouter();
   const toast = useToast();
-  const [companies, setCompanies] = useState<CompanyWithEmployeeCount[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const companiesQuery = useCompanies();
+  const createMutation = useCreateCompany();
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchCompanies = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await getCompanies();
-      setCompanies(result.data);
-    } catch {
-      setError('회원사 목록을 불러오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCompanies();
-  }, [fetchCompanies]);
+  const companies = companiesQuery.data ?? [];
 
   const handleViewDetail = (company: CompanyWithEmployeeCount) => {
     router.push(`/admin/companies/${company.id}`);
   };
 
-  const handleAddCompany = async (data: CompanyCreateInput) => {
-    try {
-      setIsSubmitting(true);
-      await createCompany(data);
-      toast.success('회원사가 추가되었습니다.');
-      setShowAddModal(false);
-      fetchCompanies();
-    } catch (err) {
-      const message =
-        err instanceof AxiosError
-          ? err.response?.data?.message ?? '회원사 추가에 실패했습니다.'
-          : '회원사 추가에 실패했습니다.';
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleAddCompany = (data: CompanyCreateInput) => {
+    createMutation.mutate(data, {
+      onSuccess: () => {
+        toast.success('회원사가 추가되었습니다.');
+        setShowAddModal(false);
+      },
+      onError: (err) => {
+        toast.error(extractErrorMessage(err));
+      },
+    });
   };
 
   const filteredCompanies = companies.filter((company) =>
@@ -87,15 +65,15 @@ export default function AdminCompaniesPage() {
         </div>
       </div>
 
-      {loading ? (
+      {companiesQuery.isLoading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
         </div>
-      ) : error ? (
+      ) : companiesQuery.error ? (
         <div className="text-center py-20">
-          <p className="text-red-500 mb-4">{error}</p>
+          <p className="text-red-500 mb-4">회원사 목록을 불러오는데 실패했습니다.</p>
           <button
-            onClick={fetchCompanies}
+            onClick={() => companiesQuery.refetch()}
             className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors"
           >
             다시 시도
@@ -123,7 +101,7 @@ export default function AdminCompaniesPage() {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSubmit={handleAddCompany}
-        isSubmitting={isSubmitting}
+        isSubmitting={createMutation.isPending}
       />
     </div>
   );

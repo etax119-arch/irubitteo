@@ -1,61 +1,38 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Users, UserCheck, Clock, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { StatCard } from '../_components/StatCard';
 import { AttendanceTable } from '../_components/AttendanceTable';
-import { attendanceApi } from '@/lib/api/attendance';
-import { formatDateAsKST } from '@/lib/kst';
-import type { CompanyDailyStats, DailyAttendanceRecord } from '@/types/attendance';
+import { useCompanyDaily } from '@/hooks/useDashboardQuery';
+import { attendanceKeys } from '@/lib/query/keys';
+import { formatDateAsKST, offsetDateString } from '@/lib/kst';
 
 
 export default function DashboardPage() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [stats, setStats] = useState<CompanyDailyStats>({ total: 0, checkedIn: 0, checkedOut: 0, attendanceRate: 0 });
-  const [records, setRecords] = useState<DailyAttendanceRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const fetchIdRef = useRef(0);
+  const [selectedDate, setSelectedDate] = useState(() => formatDateAsKST(new Date()));
+  const queryClient = useQueryClient();
 
-  const fetchData = useCallback(async (date: Date) => {
-    const id = ++fetchIdRef.current;
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await attendanceApi.getCompanyDaily(formatDateAsKST(date));
-      if (id !== fetchIdRef.current) return;
-      setStats(data.stats);
-      setRecords(data.records);
-    } catch {
-      if (id !== fetchIdRef.current) return;
-      setError('출퇴근 현황을 불러오는데 실패했습니다.');
-    } finally {
-      if (id === fetchIdRef.current) setIsLoading(false);
-    }
-  }, []);
+  const dailyQuery = useCompanyDaily(selectedDate);
 
-  useEffect(() => {
-    fetchData(selectedDate);
-  }, [selectedDate, fetchData]);
+  const stats = dailyQuery.data?.stats ?? { total: 0, checkedIn: 0, checkedOut: 0, attendanceRate: 0 };
+  const records = dailyQuery.data?.records ?? [];
+  const isRefreshing = dailyQuery.isFetching && !dailyQuery.isLoading;
 
-  const goToPrevDay = () => {
-    setSelectedDate((prev) => {
-      const newDate = new Date(prev);
-      newDate.setDate(newDate.getDate() - 1);
-      return newDate;
-    });
+  const changeDate = (offset: number) => {
+    setSelectedDate((prev) => offsetDateString(prev, offset));
   };
 
-  const goToNextDay = () => {
-    setSelectedDate((prev) => {
-      const newDate = new Date(prev);
-      newDate.setDate(newDate.getDate() + 1);
-      return newDate;
-    });
+  const goToPrevDay = () => changeDate(-1);
+  const goToNextDay = () => changeDate(1);
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: attendanceKeys.companyDaily(selectedDate) });
   };
 
-  if (isLoading) {
+  if (dailyQuery.isLoading) {
     return (
       <div className="flex justify-center items-center py-20">
         <div className="text-gray-500">로딩 중...</div>
@@ -63,14 +40,14 @@ export default function DashboardPage() {
     );
   }
 
-  if (error) {
+  if (dailyQuery.error) {
     return (
       <div className="text-center py-20" role="alert">
-        <p className="text-red-500 mb-4">{error}</p>
+        <p className="text-red-500 mb-4">출퇴근 현황을 불러오는데 실패했습니다.</p>
         <Button
           variant="ghost"
-          onClick={() => fetchData(selectedDate)}
-          disabled={isLoading}
+          onClick={() => dailyQuery.refetch()}
+          disabled={dailyQuery.isFetching}
         >
           다시 시도
         </Button>
@@ -124,6 +101,8 @@ export default function DashboardPage() {
         dailyAttendance={records}
         onPrevDay={goToPrevDay}
         onNextDay={goToNextDay}
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
       />
     </div>
   );

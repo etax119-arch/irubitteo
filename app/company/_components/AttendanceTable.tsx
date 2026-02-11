@@ -1,50 +1,17 @@
-import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText, RefreshCw } from 'lucide-react';
 import type { DailyAttendanceRecord } from '@/types/attendance';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
-import type { BadgeVariant } from '@/components/ui/Badge';
+import { IconButton } from '@/components/ui/IconButton';
 import { cn } from '@/lib/cn';
+import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 
 interface AttendanceTableProps {
-  selectedDate: Date;
+  selectedDate: string;
   dailyAttendance: DailyAttendanceRecord[];
   onPrevDay: () => void;
   onNextDay: () => void;
-}
-
-function getStatusBadge(status: DailyAttendanceRecord['status']) {
-  const variantMap: Record<DailyAttendanceRecord['status'], BadgeVariant> = {
-    checkin: 'orange',
-    checkout: 'default',
-    absent: 'danger',
-    leave: 'info',
-    holiday: 'default',
-    pending: 'warning',
-    dayoff: 'default',
-  };
-
-  const labels: Record<DailyAttendanceRecord['status'], string> = {
-    checkin: '출근 완료',
-    checkout: '퇴근 완료',
-    absent: '결근',
-    leave: '휴가',
-    holiday: '휴일',
-    pending: '출근 전',
-    dayoff: '휴무',
-  };
-
-  return (
-    <Badge
-      variant={variantMap[status]}
-      className={cn(
-        'px-3 py-1 font-semibold',
-        status === 'checkout' && 'bg-gray-200',
-        status === 'dayoff' && 'bg-gray-100 text-gray-600',
-      )}
-    >
-      {labels[status]}
-    </Badge>
-  );
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 export function AttendanceTable({
@@ -52,6 +19,8 @@ export function AttendanceTable({
   dailyAttendance,
   onPrevDay,
   onNextDay,
+  onRefresh,
+  isRefreshing,
 }: AttendanceTableProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -61,6 +30,15 @@ export function AttendanceTable({
             <FileText className="w-5 h-5 text-duru-orange-600" />
             출퇴근 기록
           </h2>
+          {onRefresh && (
+            <IconButton
+              icon={<RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />}
+              variant="ghost"
+              size="sm"
+              label="새로고침"
+              onClick={onRefresh}
+            />
+          )}
           <div className="flex items-center gap-2">
             <button
               onClick={onPrevDay}
@@ -70,7 +48,7 @@ export function AttendanceTable({
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
             <span className="text-base font-semibold text-gray-900 min-w-[180px] text-center">
-              {selectedDate.toLocaleDateString('ko-KR', {
+              {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ko-KR', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -117,9 +95,13 @@ export function AttendanceTable({
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-600">{record.phone}</td>
-                  <td className="px-6 py-4 text-gray-900">{record.checkinTime || '-'}</td>
-                  <td className="px-6 py-4 text-gray-900">{record.checkoutTime || '-'}</td>
-                  <td className="px-6 py-4">{getStatusBadge(record.status)}</td>
+                  <td className="px-6 py-4 text-gray-900">{record.clockIn || '-'}</td>
+                  <td className="px-6 py-4 text-gray-900">{record.clockOut || '-'}</td>
+                  <td className="px-6 py-4">
+                    <span className={cn('px-3 py-1 rounded-full text-xs font-semibold', getEmployeeStatusStyle(record.status, true))}>
+                      {getEmployeeStatusLabel(record.status, true)}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 text-gray-600 text-sm max-w-xs truncate">
                     {record.workContent || '-'}
                   </td>

@@ -88,3 +88,15 @@ export function formatKSTDateTime(isoString: string): string {
     timeZone: 'Asia/Seoul',
   });
 }
+
+/**
+ * YYYY-MM-DD 날짜 문자열에 offset일을 더한 새 날짜 문자열 반환
+ */
+export function offsetDateString(dateStr: string, offsetDays: number): string {
+  const date = new Date(dateStr + 'T00:00:00');
+  date.setDate(date.getDate() + offsetDays);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}

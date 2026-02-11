@@ -1,6 +1,7 @@
 import { Clock, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { getStatusColor, type AttendanceRecord } from '../../_hooks/useAttendanceHistory';
+import { getDisplayStatusColor as getStatusColor } from '@/lib/status';
+import type { AttendanceRecord } from '../../_hooks/useAttendanceHistory';
 
 interface AttendanceHistoryTableProps {
   records: AttendanceRecord[];

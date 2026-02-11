@@ -1,49 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MessageSquare, Bell, Edit } from 'lucide-react';
 import { WorkerSelector } from '../_components/WorkerSelector';
 import { NoticeHistory } from '../_components/NoticeHistory';
-import { useNotice } from '@/hooks/useNotice';
+import { useNotices } from '@/hooks/useNoticeQuery';
+import { useActiveEmployees } from '@/hooks/useEmployeeQuery';
+import { useSendNotice, useDeleteNotice } from '@/hooks/useNoticeMutations';
 import { useAuthStore } from '@/lib/auth/store';
 import { useToast } from '@/components/ui/Toast';
-import { getEmployees } from '@/lib/api/employees';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
-import type { Employee } from '@/types/employee';
+import { extractErrorMessage } from '@/lib/api/error';
 
 export default function NoticesPage() {
   const user = useAuthStore((state) => state.user);
   const toast = useToast();
-  const { notices, isLoading, isSending, isDeleting, fetchNotices, sendNotice, deleteNotice } = useNotice();
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [employeesLoading, setEmployeesLoading] = useState(true);
+  const noticesQuery = useNotices();
+  const employeesQuery = useActiveEmployees();
+  const sendMutation = useSendNotice();
+  const deleteMutation = useDeleteNotice();
+
   const [selectedWorkersForNotice, setSelectedWorkersForNotice] = useState<string[]>([]);
   const [noticeContent, setNoticeContent] = useState('');
   const [workerSearchQuery, setWorkerSearchQuery] = useState('');
   const [expandedNotices, setExpandedNotices] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    fetchNotices();
-  }, [fetchNotices]);
-
-  useEffect(() => {
-    let ignore = false;
-    const loadEmployees = async () => {
-      try {
-        // 공지 대상 직원 목록 전체 조회 (합리적 상한)
-        const result = await getEmployees({ isActive: true, limit: 500 });
-        if (!ignore) setEmployees(result.data);
-      } catch {
-        if (!ignore) toast.error('직원 목록을 불러오는데 실패했습니다.');
-      } finally {
-        if (!ignore) setEmployeesLoading(false);
-      }
-    };
-    loadEmployees();
-    return () => { ignore = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- toast is a Zustand selector; stable in practice but creates new object ref each render
-  }, []);
+  const notices = noticesQuery.data ?? [];
+  const employees = employeesQuery.data ?? [];
 
   const toggleWorkerForNotice = (workerId: string) => {
     setSelectedWorkersForNotice((prev) =>
@@ -71,35 +55,35 @@ export default function NoticesPage() {
     });
   };
 
-  const handleDeleteNotice = async (id: string) => {
-    const success = await deleteNotice(id);
-    if (success) {
-      toast.success('공지사항이 삭제되었습니다.');
-    } else {
-      toast.error('공지사항 삭제에 실패했습니다.');
-    }
+  const handleDeleteNotice = (id: string) => {
+    deleteMutation.mutate(id, {
+      onSuccess: () => toast.success('공지사항이 삭제되었습니다.'),
+      onError: (err) => toast.error(extractErrorMessage(err)),
+    });
   };
 
-  const handleSendNotice = async () => {
+  const handleSendNotice = () => {
     if (selectedWorkersForNotice.length === 0 || !noticeContent.trim()) return;
 
-    const result = await sendNotice({
-      content: noticeContent,
-      senderName: user?.name ?? '관리자',
-      recipientIds: selectedWorkersForNotice,
-    });
-
-    if (result) {
-      setSelectedWorkersForNotice([]);
-      setNoticeContent('');
-      setWorkerSearchQuery('');
-      toast.success('공지사항이 성공적으로 발송되었습니다!');
-    } else {
-      toast.error('공지사항 발송에 실패했습니다.');
-    }
+    sendMutation.mutate(
+      {
+        content: noticeContent,
+        senderName: user?.name ?? '관리자',
+        recipientIds: selectedWorkersForNotice,
+      },
+      {
+        onSuccess: () => {
+          setSelectedWorkersForNotice([]);
+          setNoticeContent('');
+          setWorkerSearchQuery('');
+          toast.success('공지사항이 성공적으로 발송되었습니다!');
+        },
+        onError: (err) => toast.error(extractErrorMessage(err)),
+      }
+    );
   };
 
-  if (employeesLoading) {
+  if (employeesQuery.isLoading) {
     return (
       <div className="flex items-center justify-center py-20" role="status">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-duru-orange-500" />
@@ -161,11 +145,11 @@ export default function NoticesPage() {
           <Button
             variant="primary"
             onClick={handleSendNotice}
-            disabled={selectedWorkersForNotice.length === 0 || !noticeContent.trim() || isSending}
+            disabled={selectedWorkersForNotice.length === 0 || !noticeContent.trim() || sendMutation.isPending}
             leftIcon={<Bell className="w-5 h-5" />}
             className="px-8 py-3 text-lg"
           >
-            {isSending ? '발송 중...' : '발송하기'}
+            {sendMutation.isPending ? '발송 중...' : '발송하기'}
           </Button>
         </div>
       </div>
@@ -174,9 +158,9 @@ export default function NoticesPage() {
         notices={notices}
         expandedNotices={expandedNotices}
         onToggleExpand={toggleNoticeExpand}
-        isLoading={isLoading}
+        isLoading={noticesQuery.isLoading}
         onDelete={handleDeleteNotice}
-        isDeleting={isDeleting}
+        isDeleting={deleteMutation.isPending}
       />
     </div>
   );

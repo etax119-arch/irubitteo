@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, ImagePlus, X, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
@@ -86,20 +86,28 @@ export default function CheckOutPage() {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const completeCheckOut = async () => {
-    // 사진을 base64로 변환
-    const photoFiles = photos.map((p) => p.file);
-    const base64Photos = photoFiles.length > 0 ? await filesToBase64(photoFiles) : undefined;
+  const submittingRef = useRef(false);
 
-    const result = await clockOut({
-      workContent: workDone,
-      photos: base64Photos,
-    });
+  const completeCheckOut = useCallback(async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+      // 사진을 base64로 변환
+      const photoFiles = photos.map((p) => p.file);
+      const base64Photos = photoFiles.length > 0 ? await filesToBase64(photoFiles) : undefined;
 
-    if (result) {
-      setShowModal(true);
+      const result = await clockOut({
+        workContent: workDone,
+        photos: base64Photos,
+      });
+
+      if (result) {
+        setShowModal(true);
+      }
+    } finally {
+      submittingRef.current = false;
     }
-  };
+  }, [photos, workDone, clockOut]);
 
   const handleModalClose = () => {
     // 메모리 해제

@@ -28,6 +28,7 @@ export type Employee = {
   id: string;
   name: string;
   phone: string;
+  ssn: string | null;
   disability: string | null;
   hireDate: string;
   gender: string | null;
@@ -37,9 +38,9 @@ export type Employee = {
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'resigned' | 'pending' | 'dayoff';
-  checkinTime: string | null;
-  checkoutTime: string | null;
+  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'resigned' | 'pending' | 'dayoff';
+  clockIn: string | null;
+  clockOut: string | null;
   uniqueCode: string;
   companyNote: string | null;
   adminNote: string | null;
@@ -79,8 +80,17 @@ export type EmployeeCreateInput = {
 export type EmployeeUpdateInput = {
   workDays?: WorkDay[];
   workStartTime?: string;
+  name?: string;
+  phone?: string;
+  gender?: '남' | '여';
+  ssn?: string;
+  emergencyContactName?: string | null;
+  emergencyContactRelation?: string | null;
+  emergencyContactPhone?: string | null;
+  disabilityType?: string | null;
   disabilitySeverity?: '중증' | '경증' | null;
   disabilityRecognitionDate?: string | null;
+  hireDate?: string;
   companyNote?: string | null;
   adminNote?: string | null;
   isActive?: boolean;

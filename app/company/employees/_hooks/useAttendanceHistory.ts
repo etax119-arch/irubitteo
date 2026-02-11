@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { employeeKeys } from '@/lib/query/keys';
 import { attendanceApi } from '@/lib/api/attendance';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
-import type { AttendanceWithEmployee, AttendanceUpdateInput, DisplayStatus } from '@/types/attendance';
+import { getAttendanceDisplayStatus } from '@/lib/status';
+import type { AttendanceWithEmployee, AttendanceUpdateInput, AttendanceStatus, DisplayStatus } from '@/types/attendance';
 
 export type { DisplayStatus };
 
@@ -12,23 +15,14 @@ export interface AttendanceRecord {
   checkin: string;
   checkout: string;
   status: DisplayStatus;
+  rawStatus: AttendanceStatus;
   workDone: string;
 }
 
 function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   const date = att.date.split('T')[0];
 
-  const displayStatus = ((): DisplayStatus => {
-    switch (att.status) {
-      case 'leave': return '휴가';
-      case 'holiday': return '휴일';
-      case 'absent': return '결근';
-      case 'checkin':
-      case 'checkout':
-        return att.isLate ? '지각' : '정상';
-      default: return '정상';
-    }
-  })();
+  const displayStatus = getAttendanceDisplayStatus(att);
 
   return {
     id: att.id,
@@ -38,14 +32,15 @@ function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
       : att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '-',
     checkout: att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-',
     status: displayStatus,
+    rawStatus: att.status,
     workDone: att.workContent || '-',
   };
 }
 
-export { getStatusColor } from '../../_utils/attendanceStatus';
 
-export function useAttendanceHistory(employeeId: string) {
+export function useAttendanceHistory(employeeId: string, options?: { onSaved?: () => void }) {
   const toast = useToast();
+  const queryClient = useQueryClient();
   const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
   const [isLoadingAttendance, setIsLoadingAttendance] = useState(true);
   const [attendanceError, setAttendanceError] = useState<string | null>(null);
@@ -60,11 +55,13 @@ export function useAttendanceHistory(employeeId: string) {
     checkin: '09:00',
     checkout: '18:00',
     workDone: '',
+    status: 'checkin' as AttendanceStatus,
   });
   const [originalWorkTime, setOriginalWorkTime] = useState({
     checkin: '',
     checkout: '',
     workDone: '',
+    status: 'checkin' as AttendanceStatus,
   });
 
   useEffect(() => {
@@ -106,8 +103,8 @@ export function useAttendanceHistory(employeeId: string) {
     const checkin = record.checkin === '결근' || record.checkin === '-' ? '' : record.checkin;
     const checkout = record.checkout === '-' ? '' : record.checkout;
     const workDone = record.workDone === '-' ? '' : record.workDone;
-    setEditedWorkTime({ date: record.date, checkin, checkout, workDone });
-    setOriginalWorkTime({ checkin, checkout, workDone });
+    setEditedWorkTime({ date: record.date, checkin, checkout, workDone, status: record.rawStatus });
+    setOriginalWorkTime({ checkin, checkout, workDone, status: record.rawStatus });
     setIsEditingWorkTime(true);
   };
 
@@ -128,6 +125,9 @@ export function useAttendanceHistory(employeeId: string) {
     if (editedWorkTime.workDone !== originalWorkTime.workDone) {
       payload.workContent = editedWorkTime.workDone;
     }
+    if (editedWorkTime.status !== originalWorkTime.status) {
+      payload.status = editedWorkTime.status;
+    }
 
     if (Object.keys(payload).length === 0) {
       setIsEditingWorkTime(false);
@@ -141,29 +141,10 @@ export function useAttendanceHistory(employeeId: string) {
       setAttendanceHistory(response.data.map(toAttendanceRecord));
       setIsEditingWorkTime(false);
       toast.success('출퇴근 기록이 수정되었습니다.');
+      queryClient.invalidateQueries({ queryKey: employeeKeys.all });
+      options?.onSaved?.();
     } catch {
       toast.error('출퇴근 기록 수정에 실패했습니다.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleVacation = async () => {
-    const record = attendanceHistory.find((r) => r.date === editedWorkTime.date);
-    if (!record) {
-      toast.error('해당 출퇴근 기록을 찾을 수 없습니다.');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      await attendanceApi.updateAttendance(record.id, { status: 'leave' });
-      const response = await attendanceApi.getAttendances({ employeeId, limit: 7 });
-      setAttendanceHistory(response.data.map(toAttendanceRecord));
-      setIsEditingWorkTime(false);
-      toast.success('휴가 처리되었습니다.');
-    } catch {
-      toast.error('휴가 처리에 실패했습니다.');
     } finally {
       setIsSaving(false);
     }
@@ -179,7 +160,6 @@ export function useAttendanceHistory(employeeId: string) {
     setEditedWorkTime,
     handleEditWorkTime,
     handleSaveWorkTime,
-    handleVacation,
     setIsEditingWorkTime,
     showWorkDoneModal,
     selectedWorkDone,

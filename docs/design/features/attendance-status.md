@@ -16,7 +16,6 @@
 | `checkout` | 퇴근 | 직원이 퇴근 시 자동 설정 |
 | `absent` | 결근 | 크론잡 자동 / 기업·관리자 수동 |
 | `leave` | 휴가 | 기업·관리자 수동 |
-| `holiday` | 휴일 | 기업·관리자 수동 |
 
 ### 조회 시 계산값 (레코드 없는 경우만)
 
@@ -58,8 +57,8 @@
 ### 수동 상태 변경 (updateAttendance)
 
 - `PATCH /v1/attendances/:id`
-- 기업 또는 관리자가 `status`를 `leave`, `holiday`, `absent` 등으로 직접 변경 가능
-- `leave` 또는 `holiday`로 변경 시 `isLate`, `isEarlyLeave`는 false로 리셋
+- 기업 또는 관리자가 `status`를 `leave`, `absent` 등으로 직접 변경 가능
+- `leave`로 변경 시 `isLate`, `isEarlyLeave`는 false로 리셋
 
 ### 대시보드 조회 (getCompanyDaily / getDailyAttendance)
 
@@ -79,86 +78,67 @@
 
 ```typescript
 // types/attendance.ts
-type AttendanceStatus = 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday';
+type AttendanceStatus = 'checkin' | 'checkout' | 'absent' | 'leave';
 ```
 
 ### DailyAttendanceRecord.status (대시보드 표시)
 
 ```typescript
 // types/attendance.ts
-status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'pending' | 'dayoff';
+status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'pending' | 'dayoff';
 ```
 
 ### AdminDailyEmployee.status (관리자 대시보드)
 
 ```typescript
 // types/adminDashboard.ts
-status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'pending' | 'dayoff';
+status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'pending' | 'dayoff';
 ```
 
 ### Employee.status (직원 목록)
 
 ```typescript
 // types/employee.ts
-status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'resigned' | 'pending' | 'dayoff';
+status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'resigned' | 'pending' | 'dayoff';
 ```
 
 ### DisplayStatus (출퇴근 기록 표시)
 
 ```typescript
 // types/attendance.ts
-type DisplayStatus = '정상' | '지각' | '결근' | '휴가' | '휴일';
+type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 ```
 
 ---
 
 ## UI 표시
 
-### 기업 대시보드 (AttendanceTable)
+상태 표시는 `lib/status.ts`에서 통합 관리. 모든 페이지(기업/관리자)에서 동일한 색상/라벨 사용.
 
-| status | 라벨 | Badge variant |
-|---|---|---|
-| `checkin` | 출근 완료 | `orange` |
-| `checkout` | 퇴근 완료 | `default` (회색) |
-| `absent` | 결근 | `danger` |
-| `leave` | 휴가 | `info` |
-| `holiday` | 휴일 | `default` |
-| `pending` | 출근 전 | `warning` |
-| `dayoff` | 휴무 | `default` |
+### Employee 실시간 상태 (getEmployeeStatusLabel / getEmployeeStatusStyle)
 
-### 관리자 대시보드 (CompanyAttendanceAccordion)
-
-| status | 라벨 | 스타일 |
-|---|---|---|
-| `checkout` | 퇴근 | `bg-green-100 text-green-700` |
-| `checkin` | 출근 중 | `bg-blue-100 text-blue-700` |
-| `absent` | 결근 | `bg-red-100 text-red-700` |
-| `leave` | 휴가 | `bg-blue-100 text-blue-700` |
-| `holiday` | 휴일 | `bg-purple-100 text-purple-700` |
-| `dayoff` | 휴무 | `bg-gray-100 text-gray-600` |
-| `pending` | 출근 전 | `bg-gray-100 text-gray-700` |
-
-### 직원 목록 (employeeStatus)
+기업 대시보드(AttendanceTable), 관리자 대시보드(CompanyAttendanceAccordion), 직원 목록, 관리자 직원 상세 등에서 공통 사용.
 
 | status | 라벨 | 스타일 |
 |---|---|---|
 | `checkin` | 근무중 | `bg-green-100 text-green-700` |
 | `checkout` | 퇴근 | `bg-blue-100 text-blue-700` |
 | `absent` | 결근 | `bg-red-100 text-red-700` |
-| `leave` | 휴가 | `bg-blue-100 text-blue-700` |
-| `holiday` | 휴일 | `bg-purple-100 text-purple-700` |
+| `leave` | 휴가 | `bg-teal-100 text-teal-700` |
 | `pending` | 출근 전 | `bg-yellow-100 text-yellow-700` |
 | `dayoff` | 휴무 | `bg-gray-100 text-gray-600` |
+| (비활성) | 퇴사 | `bg-gray-200 text-gray-600` |
 
-### 출퇴근 기록 (useAttendanceHistory)
+### 출퇴근 기록 표시 (getAttendanceDisplayStatus / getDisplayStatusColor)
 
-| DB status | DisplayStatus |
-|---|---|
-| `leave` | 휴가 |
-| `holiday` | 휴일 |
-| `absent` | 결근 |
-| `checkin` / `checkout` + isLate | 지각 |
-| `checkin` / `checkout` + !isLate | 정상 |
+관리자 직원 상세, 기업 직원 상세의 출퇴근 기록 테이블에서 사용.
+
+| DB status | DisplayStatus | 스타일 |
+|---|---|---|
+| `leave` | 휴가 | `bg-blue-100 text-blue-700` |
+| `absent` | 결근 | `bg-red-100 text-red-700` |
+| `checkin` / `checkout` + isLate | 지각 | `bg-yellow-100 text-yellow-700` |
+| `checkin` / `checkout` + !isLate | 정상 | `bg-green-100 text-green-700` |
 
 ---
 
@@ -169,7 +149,7 @@ type DisplayStatus = '정상' | '지각' | '결근' | '휴가' | '휴일';
 | 파일 | 역할 |
 |---|---|
 | `prisma/schema.prisma` | status default: `"checkin"` |
-| `src/attendance/dto/attendance-query.dto.ts` | AttendanceStatus enum (CHECKIN, CHECKOUT, ABSENT, LEAVE, HOLIDAY) |
+| `src/attendance/dto/attendance-query.dto.ts` | AttendanceStatus enum (CHECKIN, CHECKOUT, ABSENT, LEAVE) |
 | `src/attendance/attendance.service.ts` | clockIn → checkin, clockOut → checkout, getCompanyDaily DB status 직접 사용 |
 | `src/attendance/attendance-cron.service.ts` | 결근 자동 처리 크론잡 (매 10분) |
 | `src/attendance/attendance.module.ts` | AttendanceCronService 등록 |
@@ -183,10 +163,9 @@ type DisplayStatus = '정상' | '지각' | '결근' | '휴가' | '휴일';
 | `types/attendance.ts` | AttendanceStatus, DisplayStatus, DailyAttendanceRecord 타입 |
 | `types/adminDashboard.ts` | AdminDailyEmployee.status 타입 |
 | `types/employee.ts` | Employee.status 타입 |
-| `app/company/_components/AttendanceTable.tsx` | 기업 대시보드 출퇴근 테이블 배지 |
+| `lib/status.ts` | **통합 상태 유틸리티** (getEmployeeStatusLabel/Style, getAttendanceDisplayStatus, getDisplayStatusColor) |
+| `app/company/_components/AttendanceTable.tsx` | 기업 대시보드 출퇴근 테이블 |
 | `app/admin/_components/CompanyAttendanceAccordion.tsx` | 관리자 회사별 출퇴근 아코디언 |
-| `app/company/_utils/employeeStatus.ts` | 직원 상태 라벨/스타일 |
-| `app/company/_utils/attendanceStatus.ts` | DisplayStatus 색상 |
 | `app/company/employees/_hooks/useAttendanceHistory.ts` | 출퇴근 기록 → DisplayStatus 변환 |
 
 ---

@@ -76,6 +76,12 @@ docs/
 | [직원 앱](design/features/employee-app.md) | 직원 출퇴근 앱 기능 명세 |
 | [출퇴근 Status 체계](design/features/attendance-status.md) | 출퇴근 상태 DB 저장 방식, 크론잡, UI 표시 |
 
+#### 기술 가이드
+
+| 문서 | 설명 |
+|------|------|
+| [TanStack Query](design/tanstack-query.md) | 캐시 정책, Query Key 규칙, 마이그레이션 가이드 |
+
 ---
 
 ## 관련 저장소

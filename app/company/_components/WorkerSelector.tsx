@@ -1,8 +1,6 @@
 import { Search, Users } from 'lucide-react';
 import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
-import { cn } from '@/lib/cn';
 import { filterEmployees } from '../_utils/filterEmployees';
 
 interface WorkerSelectorProps {
@@ -74,24 +72,6 @@ export function WorkerSelector({
               <p className="text-sm text-gray-600 truncate">
                 {worker.disabilityType ?? '-'} · {worker.phone}
               </p>
-            </div>
-            <div className="flex-shrink-0">
-              <Badge
-                variant={
-                  worker.status === 'checkin'
-                    ? 'success'
-                    : worker.status === 'checkout'
-                    ? 'default'
-                    : 'danger'
-                }
-                className={cn('py-1 font-semibold', worker.status === 'checkout' && 'bg-gray-200')}
-              >
-                {worker.status === 'checkin'
-                  ? '근무중'
-                  : worker.status === 'checkout'
-                  ? '퇴근'
-                  : '결근'}
-              </Badge>
             </div>
           </label>
         ))}

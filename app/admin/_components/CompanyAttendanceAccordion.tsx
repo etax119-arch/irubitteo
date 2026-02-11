@@ -1,53 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, ChevronDown, ChevronRight, AlertCircle, Calendar, Search, Clock } from 'lucide-react';
+import { Building2, ChevronDown, ChevronRight, AlertCircle, Calendar, Search, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import type { AdminDailyCompany, AdminDailyEmployee } from '@/types/adminDashboard';
+import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
+import { offsetDateString } from '@/lib/kst';
+import type { AdminDailyCompany } from '@/types/adminDashboard';
 
 interface CompanyAttendanceAccordionProps {
   dailyAttendance: AdminDailyCompany[];
-  onDateChange?: (date: string) => void;
-}
-
-function getDisplayStatus(status: AdminDailyEmployee['status']) {
-  switch (status) {
-    case 'checkout': return '퇴근';
-    case 'checkin': return '출근 중';
-    case 'absent': return '결근';
-    case 'leave': return '휴가';
-    case 'holiday': return '휴일';
-    case 'dayoff': return '휴무';
-    case 'pending': return '출근 전';
-    default: return status;
-  }
-}
-
-function getStatusColor(status: AdminDailyEmployee['status']) {
-  switch (status) {
-    case 'checkout': return 'bg-green-100 text-green-700';
-    case 'checkin': return 'bg-blue-100 text-blue-700';
-    case 'absent': return 'bg-red-100 text-red-700';
-    case 'leave': return 'bg-blue-100 text-blue-700';
-    case 'holiday': return 'bg-purple-100 text-purple-700';
-    case 'dayoff': return 'bg-gray-100 text-gray-600';
-    case 'pending': return 'bg-gray-100 text-gray-700';
-    default: return 'bg-gray-100 text-gray-700';
-  }
+  selectedDate: string;
+  onDateChange: (date: string) => void;
+  isFetching?: boolean;
 }
 
 export function CompanyAttendanceAccordion({
   dailyAttendance,
+  selectedDate,
   onDateChange,
+  isFetching,
 }: CompanyAttendanceAccordionProps) {
   const [expandedCompanies, setExpandedCompanies] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const now = new Date();
-    // KST date
-    const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-    return kst.toISOString().split('T')[0];
-  });
 
   const toggleCompany = (companyId: string) => {
     setExpandedCompanies((prev) => ({
@@ -57,16 +31,11 @@ export function CompanyAttendanceAccordion({
   };
 
   const changeDate = (offset: number) => {
-    const date = new Date(selectedDate + 'T00:00:00');
-    date.setDate(date.getDate() + offset);
-    const newDate = date.toISOString().split('T')[0];
-    setSelectedDate(newDate);
-    onDateChange?.(newDate);
+    onDateChange(offsetDateString(selectedDate, offset));
   };
 
   const handleDateChange = (dateStr: string) => {
-    setSelectedDate(dateStr);
-    onDateChange?.(dateStr);
+    onDateChange(dateStr);
   };
 
   const filteredCompanies = dailyAttendance.filter((company) =>
@@ -123,12 +92,17 @@ export function CompanyAttendanceAccordion({
       </div>
 
       {/* 회사별 아코디언 */}
+      {isFetching && (
+        <div className="flex justify-center py-4">
+          <Loader2 className="w-6 h-6 text-duru-orange-500 animate-spin" />
+        </div>
+      )}
       {filteredCompanies.map((company) => {
         const employees = company.employees;
 
         const statusCounts = employees.reduce(
           (acc, emp) => {
-            const label = getDisplayStatus(emp.status);
+            const label = getEmployeeStatusLabel(emp.status, true);
             acc[label] = (acc[label] || 0) + 1;
             return acc;
           },
@@ -175,16 +149,15 @@ export function CompanyAttendanceAccordion({
                 <div className="flex items-center gap-2">
                   {Object.entries(statusCounts).map(([label, count]) => {
                     const statusKey = label === '퇴근' ? 'checkout'
-                      : label === '출근 중' ? 'checkin'
+                      : label === '근무중' ? 'checkin'
                       : label === '결근' ? 'absent'
                       : label === '휴가' ? 'leave'
-                      : label === '휴일' ? 'holiday'
                       : label === '휴무' ? 'dayoff'
                       : 'pending';
                     return (
                       <span
                         key={label}
-                        className={cn('px-3 py-1 rounded-full text-xs font-semibold', getStatusColor(statusKey as AdminDailyEmployee['status']))}
+                        className={cn('px-3 py-1 rounded-full text-xs font-semibold', getEmployeeStatusStyle(statusKey as 'checkin' | 'checkout' | 'absent' | 'leave' | 'pending' | 'dayoff', true))}
                       >
                         {label}: {count}명
                       </span>
@@ -230,10 +203,10 @@ export function CompanyAttendanceAccordion({
                             <span
                               className={cn(
                                 'px-3 py-1 rounded-full text-xs font-semibold',
-                                getStatusColor(employee.status)
+                                getEmployeeStatusStyle(employee.status, true)
                               )}
                             >
-                              {getDisplayStatus(employee.status)}
+                              {getEmployeeStatusLabel(employee.status, true)}
                             </span>
                           </td>
                           <td className="px-6 py-4">

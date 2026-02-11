@@ -1,4 +1,4 @@
-import type { Employee } from './employee';
+import type { EmployeeDailyStatus } from './attendance';
 
 /** 관리자 대시보드 통계 */
 export interface AdminStats {
@@ -18,7 +18,7 @@ export interface AdminDailyEmployee {
   clockOut: string | null;
   workContent: string | null;
   isLate: boolean;
-  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'pending' | 'dayoff';
+  status: EmployeeDailyStatus;
 }
 
 /** 관리자 일일 출퇴근 - 회사별 */
@@ -66,11 +66,6 @@ export interface MonthlyWorkStatsCompany {
   pmContactEmail: string | null;
   employees: WorkStatEmployee[];
 }
-
-/** 관리자 직원 (회사명 포함) */
-export type EmployeeWithCompany = Employee & {
-  companyName: string;
-};
 
 /** 근로자 필터 */
 export type WorkerFilter = 'current' | 'resigned' | 'waiting' | 'all';

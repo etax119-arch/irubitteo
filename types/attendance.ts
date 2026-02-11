@@ -1,8 +1,13 @@
+import type { Employee } from './employee';
+
 /** 출퇴근 상태 */
-export type AttendanceStatus = 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday';
+export type AttendanceStatus = 'checkin' | 'checkout' | 'absent' | 'leave';
+
+/** 일별 출퇴근 현황에서 사용하는 직원 상태 (Employee.status에서 resigned 제외) */
+export type EmployeeDailyStatus = Exclude<Employee['status'], 'resigned'>;
 
 /** 출퇴근 표시 상태 (기업 대시보드용) */
-export type DisplayStatus = '정상' | '지각' | '결근' | '휴가' | '휴일';
+export type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 
 /** 출퇴근 기록 */
 export type Attendance = {
@@ -93,9 +98,9 @@ export interface DailyAttendanceRecord {
   employeeId: string;
   name: string;
   phone: string;
-  checkinTime: string | null;
-  checkoutTime: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'holiday' | 'pending' | 'dayoff';
+  clockIn: string | null;
+  clockOut: string | null;
+  status: EmployeeDailyStatus;
   workContent: string | null;
 }
 

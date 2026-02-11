@@ -1,12 +1,14 @@
-import { Save, CalendarOff } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import type { AttendanceStatus } from '@/types/attendance';
 
 interface EditedWorkTime {
   date: string;
   checkin: string;
   checkout: string;
   workDone: string;
+  status: AttendanceStatus;
 }
 
 interface WorkTimeEditModalProps {
@@ -15,9 +17,15 @@ interface WorkTimeEditModalProps {
   editedWorkTime: EditedWorkTime;
   setEditedWorkTime: (v: EditedWorkTime) => void;
   onSave: () => void;
-  onVacation?: () => void;
   isSaving: boolean;
 }
+
+const STATUS_OPTIONS: { value: AttendanceStatus; label: string }[] = [
+  { value: 'checkin', label: '출근' },
+  { value: 'checkout', label: '퇴근' },
+  { value: 'absent', label: '결근' },
+  { value: 'leave', label: '휴가' },
+];
 
 export function WorkTimeEditModal({
   isOpen,
@@ -25,7 +33,6 @@ export function WorkTimeEditModal({
   editedWorkTime,
   setEditedWorkTime,
   onSave,
-  onVacation,
   isSaving,
 }: WorkTimeEditModalProps) {
   return (
@@ -74,26 +81,27 @@ export function WorkTimeEditModal({
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">상태</label>
+          <select
+            value={editedWorkTime.status}
+            onChange={(e) => setEditedWorkTime({ ...editedWorkTime, status: e.target.value as AttendanceStatus })}
+            disabled={isSaving}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="flex justify-between pt-4">
           <Button variant="outline" onClick={onClose} disabled={isSaving}>
             취소
           </Button>
-          <div className="flex gap-3">
-            {onVacation && (
-              <Button
-                variant="outline"
-                onClick={onVacation}
-                disabled={isSaving}
-                leftIcon={<CalendarOff className="w-4 h-4" />}
-                className="border-duru-orange-300 bg-duru-orange-50/50 text-duru-orange-600 hover:bg-duru-orange-100"
-              >
-                휴가
-              </Button>
-            )}
-            <Button variant="primary" onClick={onSave} disabled={isSaving} leftIcon={<Save className="w-4 h-4" />}>
-              {isSaving ? '저장 중...' : '저장'}
-            </Button>
-          </div>
+          <Button variant="primary" onClick={onSave} disabled={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+            {isSaving ? '저장 중...' : '저장'}
+          </Button>
         </div>
       </div>
     </Modal>

@@ -4,19 +4,13 @@ import { useState } from 'react';
 import { FileText, Upload, Trash2 } from 'lucide-react';
 import type { EmployeeFile } from '@/types/employee';
 import { Badge } from '@/components/ui/Badge';
+import { formatFileSize } from '@/lib/file';
 
 interface DocumentSectionProps {
   files: EmployeeFile[];
   isLoading: boolean;
   onOpenUploadModal: () => void;
   onDelete: (fileId: string) => void;
-}
-
-function formatFileSize(bytes: number | null): string {
-  if (bytes === null || bytes === 0) return '-';
-  if (bytes < 1024) return `${bytes}B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
 export function DocumentSection({ files, isLoading, onOpenUploadModal, onDelete }: DocumentSectionProps) {
