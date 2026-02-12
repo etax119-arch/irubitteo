@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { NoteUpdateAlertList } from '../_components/NoteUpdateAlertList';
 import { AbsenceAlertList } from '../_components/AbsenceAlertList';
 import { InquiryList } from '../_components/InquiryList';
@@ -11,10 +11,12 @@ import {
   useNoteUpdateAlerts,
   useNotifAbsenceAlerts,
   usePendingInquiries,
+} from '../_hooks/useAdminNotificationQuery';
+import {
   useDismissAbsenceAlert,
   useDismissNoteUpdate,
   useCompleteInquiry,
-} from '@/hooks/useAdminNotificationsQuery';
+} from '../_hooks/useAdminNotificationMutations';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
 import type { Inquiry } from '@/types/inquiry';
@@ -61,8 +63,35 @@ export default function AdminNotificationsPage() {
 
   if (noteQuery.isLoading || absenceQuery.isLoading || inquiryQuery.isLoading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
+      <div className="space-y-6">
+        <Skeleton className="w-32 h-8" />
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <Skeleton className="w-40 h-6 mb-4" />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 p-4 border border-gray-100 rounded-lg">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="flex-1">
+                  <Skeleton className="w-48 h-4 mb-2" />
+                  <Skeleton className="w-32 h-3" />
+                </div>
+                <Skeleton className="w-16 h-8 rounded-lg" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-xl p-6 border border-gray-200">
+              <Skeleton className="w-32 h-6 mb-4" />
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, j) => (
+                  <Skeleton key={j} className="h-16 rounded-lg" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

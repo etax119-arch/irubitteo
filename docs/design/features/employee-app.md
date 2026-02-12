@@ -197,6 +197,7 @@
   - "퇴근" 배지 + 퇴근 날짜/시간 표시
   - 업무 내용
   - 첨부 사진 (클릭 시 `PhotoLightbox`로 확대 보기)
+  - "사진 추가하기" 버튼 → HEIC 변환 + 압축 → base64 → 서버 업로드 (`POST /v1/attendances/:id/photos`)
   - 사진 저장(다운로드) / 삭제 기능 (카드 내 버튼)
 
 **HEIC 이미지 지원** (`HeicImage` 컴포넌트):

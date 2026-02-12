@@ -90,7 +90,7 @@ export function AttendanceTable({
                 <tr key={record.employeeId} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <Avatar name={record.name} size="sm" className="text-xs font-bold" />
+                      <Avatar src={record.profileImage ?? undefined} name={record.name} size="sm" className="text-xs font-bold" />
                       <span className="font-semibold text-gray-900">{record.name}</span>
                     </div>
                   </td>

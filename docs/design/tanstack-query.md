@@ -88,7 +88,9 @@ export const noticeKeys = {
 };
 ```
 
-### 2단계: Query 훅 작성 (`hooks/use{Domain}Query.ts`)
+### 2단계: Query 훅 작성
+
+파일 위치: 여러 라우트에서 공유하면 `hooks/`, 단일 라우트 전용이면 `app/{route}/_hooks/`
 
 ```typescript
 export function useNotices() {
@@ -100,7 +102,7 @@ export function useNotices() {
 }
 ```
 
-### 3단계: Mutation 훅 작성 (`hooks/use{Domain}Mutations.ts`)
+### 3단계: Mutation 훅 작성 (Query와 같은 위치에 배치)
 
 ```typescript
 export function useCreateNotice() {
@@ -133,20 +135,26 @@ export function useCreateNotice() {
 
 | 페이지 | 파일 |
 |--------|------|
-| `/company/schedule` | `hooks/useScheduleQuery.ts`, `hooks/useScheduleMutations.ts` |
-| `/company/notices` | `hooks/useNoticeQuery.ts`, `hooks/useNoticeMutations.ts` |
-| `/company/employees` | `hooks/useEmployeeQuery.ts`, `hooks/useEmployeeMutations.ts` |
-| `/company/dashboard` | `hooks/useDashboardQuery.ts` (staleTime: 60s + 리프레시 버튼) |
-| `/admin/companies` | `hooks/useCompanyQuery.ts`, `hooks/useCompanyMutations.ts` |
-| `/admin/employees` | `hooks/useEmployeeQuery.ts` — `useAdminEmployees` (staleTime: 5min + refresh + debounced search) |
-| `/admin/dashboard` | `hooks/useAdminDashboardQuery.ts` — `useAdminStats`, `useAdminDailyAttendance`, `useAbsenceAlerts` (staleTime: 60s + refresh) |
-| `/admin/workstats` | `hooks/useAdminWorkstatsQuery.ts` — `useAdminMonthlyStats`, `useCalculateMonthlyStats`, `useUpdateMonthlyStats` (staleTime: Infinity + optimistic update) |
-| `/admin/notifications` | `hooks/useAdminNotificationsQuery.ts` — 3 queries + 3 mutations (staleTime: 30s) |
-| `/admin/reports` | `hooks/useAdminReportsQuery.ts` — 1 query + 2 mutations (staleTime: Infinity) |
-
-### 우선순위 1 — 기업 대시보드
-- `/company/employees/[id]` — 다수 훅
+| `/company/schedule` | `app/company/_hooks/useScheduleQuery.ts`, `app/company/_hooks/useScheduleMutations.ts` |
+| `/company/notices` | `app/company/_hooks/useNoticeQuery.ts`, `app/company/_hooks/useNoticeMutations.ts` |
+| `/company/employees` | `hooks/useEmployeeQuery.ts`, `hooks/useEmployeeMutations.ts` (공유) |
+| `/company/dashboard` | `app/company/_hooks/useDashboardQuery.ts` (staleTime: 60s + 리프레시 버튼) |
+| `/admin/companies` | `app/admin/_hooks/useCompanyQuery.ts`, `app/admin/_hooks/useCompanyMutations.ts`, `app/admin/_hooks/useCompanyFiles.ts` |
+| `/admin/employees` | `hooks/useEmployeeQuery.ts` — `useAdminEmployees` (공유, staleTime: 5min + refresh + debounced search) |
+| `/admin/dashboard` | `app/admin/_hooks/useAdminDashboardQuery.ts` — `useAdminStats`, `useAdminDailyAttendance`, `useAbsenceAlerts` (staleTime: 60s + refresh) |
+| `/admin/workstats` | `app/admin/_hooks/useAdminWorkstats.ts` — `useAdminMonthlyStats`, `useCalculateMonthlyStats`, `useUpdateMonthlyStats` (staleTime: Infinity + optimistic update) |
+| `/admin/notifications` | `app/admin/_hooks/useAdminNotificationQuery.ts` — 3 queries, `app/admin/_hooks/useAdminNotificationMutations.ts` — 3 mutations (staleTime: 30s) |
+| `/admin/reports` | `app/admin/_hooks/useAdminReports.ts` — 1 query + 2 mutations (staleTime: Infinity) |
+| `/company/employees/[id]` | `hooks/useEmployeeQuery.ts`, `hooks/useEmployeeMutations.ts`, `hooks/useEmployeeFiles.ts`, `hooks/useAttendanceQuery.ts`, `hooks/useAttendanceMutations.ts` (공유) |
 
 ### 대상 제외 — 직원 앱
 
 - `/employee` — 탭 기반 라우팅이 아닌 단일 페이지 구조로 캐시 이점 없음. TanStack Query 적용 불필요.
+
+### 네이밍 규칙
+
+| 파일 구성 | 네이밍 패턴 | 예시 |
+|-----------|------------|------|
+| Query만 | `use{Domain}Query.ts` | `useNoticeQuery.ts`, `useDashboardQuery.ts` |
+| Mutation만 | `use{Domain}Mutations.ts` | `useNoticeMutations.ts`, `useScheduleMutations.ts` |
+| Query + Mutation 혼합 | `use{Domain}.ts` (Query 접미사 없음) | `useAdminWorkstats.ts`, `useCompanyFiles.ts`, `useEmployeeFiles.ts` |

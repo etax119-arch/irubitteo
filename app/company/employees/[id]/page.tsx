@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { useEmployeeDetail } from '../_hooks/useEmployeeDetail';
-import { useEmployeeNotes } from '../_hooks/useEmployeeNotes';
-import { useEmployeeWorkInfo } from '../_hooks/useEmployeeWorkInfo';
-import { useEmployeeDisability } from '../_hooks/useEmployeeDisability';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { useToast } from '@/components/ui/Toast';
+import { useEmployeeDetail } from '@/hooks/useEmployeeQuery';
+import { useUploadProfileImage, useDeleteProfileImage } from '@/hooks/useEmployeeMutations';
+import { useEmployeeEditForm } from '../_hooks/useEmployeeEditForm';
 import { useAttendanceHistory } from '../_hooks/useAttendanceHistory';
-import { useResign } from '../_hooks/useResign';
 import { useEmployeeFiles } from '../_hooks/useEmployeeFiles';
-import { useEmployeeProfile } from '../_hooks/useEmployeeProfile';
+import { NUM_TO_LABEL } from '@/lib/workDays';
 import { ProfileCard } from './_components/ProfileCard';
 import { DisabilityInfoSection } from './_components/DisabilityInfoSection';
 import { NotesSection } from './_components/NotesSection';
@@ -29,42 +29,89 @@ export default function CompanyEmployeeDetailPage() {
   const params = useParams();
   const employeeId = Array.isArray(params.id) ? params.id[0] : (params.id ?? '');
 
-  const detail = useEmployeeDetail(employeeId);
-  const notesHook = useEmployeeNotes(employeeId);
-  const workInfoHook = useEmployeeWorkInfo(employeeId);
-  const disabilityHook = useEmployeeDisability(employeeId, detail.employee);
-  const attendance = useAttendanceHistory(employeeId, { onSaved: detail.fetchEmployee });
-  const resign = useResign({ employeeId, onSuccess: detail.fetchEmployee });
+  const toast = useToast();
+  const { data: employee, isLoading, error } = useEmployeeDetail(employeeId);
+  const editForm = useEmployeeEditForm(employeeId);
+  const attendance = useAttendanceHistory(employeeId);
   const employeeFiles = useEmployeeFiles(employeeId);
-  const profileHook = useEmployeeProfile(employeeId);
-
-  useEffect(() => {
-    if (detail.employee) {
-      notesHook.syncFromEmployee(detail.employee);
-      workInfoHook.syncFromEmployee(detail.employee);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.employee]);
-
-  const handleSaveNotes = () => notesHook.handleSaveNotes(detail.setEmployee);
-  const handleSaveWorkInfo = () => workInfoHook.handleSaveWorkInfo(detail.setEmployee);
-  const handleSaveDisability = () => disabilityHook.handleSaveDisability(detail.setEmployee);
-  const handleSaveProfile = () => profileHook.handleSaveProfile(detail.setEmployee);
+  const uploadImage = useUploadProfileImage(employeeId);
+  const deleteImage = useDeleteProfileImage(employeeId);
 
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  if (detail.isLoading) {
+  const handleUploadImage = (base64: string) => {
+    uploadImage.mutate(base64, {
+      onSuccess: () => toast.success('프로필 이미지가 업로드되었습니다.'),
+      onError: () => toast.error('프로필 이미지 업로드에 실패했습니다.'),
+    });
+  };
+
+  const handleDeleteImage = () => {
+    deleteImage.mutate(undefined, {
+      onSuccess: () => toast.success('프로필 이미지가 삭제되었습니다.'),
+      onError: () => toast.error('프로필 이미지 삭제에 실패했습니다.'),
+    });
+  };
+
+  const workDays = useMemo(
+    () => (employee?.workDays ?? []).map((n: number) => NUM_TO_LABEL[n] ?? ''),
+    [employee?.workDays],
+  );
+
+  if (isLoading) {
     return (
-      <div className="text-center py-20">
-        <p className="text-gray-500">근로자 정보를 불러오는 중...</p>
+      <div className="max-w-7xl mx-auto pb-8">
+        <div className="flex justify-end mb-2">
+          <Skeleton className="w-10 h-10 rounded-lg" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-center gap-4 mb-6">
+                <Skeleton className="w-16 h-16 rounded-full" />
+                <div>
+                  <Skeleton className="w-24 h-5 mb-2" />
+                  <Skeleton className="w-32 h-4" />
+                </div>
+              </div>
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-4" />
+                ))}
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <Skeleton className="w-24 h-5 mb-4" />
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-4" />
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <Skeleton className="w-32 h-6 mb-4" />
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-12 rounded-lg" />
+                ))}
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <Skeleton className="w-28 h-6 mb-4" />
+              <Skeleton className="h-20 rounded-lg" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (detail.error || !detail.employee) {
+  if (error || !employee) {
     return (
       <div className="text-center py-20" role="alert">
-        <p className="text-gray-500">{detail.error || '근로자 정보를 찾을 수 없습니다.'}</p>
+        <p className="text-gray-500">{error ? '근로자 정보를 불러오는데 실패했습니다.' : '근로자 정보를 찾을 수 없습니다.'}</p>
         <Button
           variant="ghost"
           className="mt-4"
@@ -75,8 +122,6 @@ export default function CompanyEmployeeDetailPage() {
       </div>
     );
   }
-
-  const { employee } = detail;
 
   return (
     <div>
@@ -96,39 +141,42 @@ export default function CompanyEmployeeDetailPage() {
           <div className="space-y-6">
             <ProfileCard
               employee={employee}
-              isEditing={profileHook.isEditingProfile}
-              isSaving={profileHook.isSavingProfile}
-              profileForm={profileHook.profileForm}
-              onEdit={() => profileHook.handleEditProfile(employee)}
-              onSave={handleSaveProfile}
-              onCancel={profileHook.handleCancelProfile}
-              onUpdateForm={profileHook.updateProfileForm}
+              isEditing={editForm.isEditingProfile}
+              isSaving={editForm.isSavingProfile}
+              profileForm={editForm.profileForm}
+              onEdit={() => editForm.handleEditProfile(employee)}
+              onSave={() => editForm.handleSaveProfile(employee)}
+              onCancel={editForm.handleCancelProfile}
+              onUpdateForm={editForm.updateProfileForm}
+              isUploadingImage={uploadImage.isPending || deleteImage.isPending}
+              onUploadImage={handleUploadImage}
+              onDeleteImage={handleDeleteImage}
             />
             <DisabilityInfoSection
               employee={employee}
-              isEditing={disabilityHook.isEditingDisability}
-              isSaving={disabilityHook.isSavingDisability}
-              tempDisabilityType={disabilityHook.tempDisabilityType}
-              setTempDisabilityType={disabilityHook.setTempDisabilityType}
-              tempSeverity={disabilityHook.tempDisabilitySeverity}
-              setTempSeverity={disabilityHook.setTempDisabilitySeverity}
-              tempRecognitionDate={disabilityHook.tempDisabilityRecognitionDate}
-              setTempRecognitionDate={disabilityHook.setTempDisabilityRecognitionDate}
-              onEdit={disabilityHook.handleEditDisability}
-              onSave={handleSaveDisability}
-              onCancel={disabilityHook.handleCancelDisability}
+              isEditing={editForm.isEditingDisability}
+              isSaving={editForm.isSavingDisability}
+              tempDisabilityType={editForm.tempDisabilityType}
+              setTempDisabilityType={editForm.setTempDisabilityType}
+              tempSeverity={editForm.tempDisabilitySeverity}
+              setTempSeverity={editForm.setTempDisabilitySeverity}
+              tempRecognitionDate={editForm.tempDisabilityRecognitionDate}
+              setTempRecognitionDate={editForm.setTempDisabilityRecognitionDate}
+              onEdit={() => editForm.handleEditDisability(employee)}
+              onSave={editForm.handleSaveDisability}
+              onCancel={editForm.handleCancelDisability}
             />
             <NotesSection
-              notes={notesHook.notes}
-              isEditing={notesHook.isEditingNotes}
-              isSaving={notesHook.isSavingNotes}
-              tempNotes={notesHook.tempNotes}
-              setTempNotes={notesHook.setTempNotes}
-              onEdit={notesHook.handleEditNotes}
-              onSave={handleSaveNotes}
-              onCancel={notesHook.handleCancelNotes}
+              notes={employee.companyNote || ''}
+              isEditing={editForm.isEditingNotes}
+              isSaving={editForm.isSavingNotes}
+              tempNotes={editForm.tempNotes}
+              setTempNotes={editForm.setTempNotes}
+              onEdit={() => editForm.handleEditNotes(employee)}
+              onSave={editForm.handleSaveNotes}
+              onCancel={editForm.handleCancelNotes}
             />
-            <ResignSection employee={employee} onOpenResignModal={resign.openResignModal} />
+            <ResignSection employee={employee} onOpenResignModal={editForm.openResignModal} />
           </div>
 
           {/* 오른쪽: 상세 정보 */}
@@ -139,19 +187,28 @@ export default function CompanyEmployeeDetailPage() {
               error={attendance.attendanceError}
               onEditWorkTime={attendance.handleEditWorkTime}
               onOpenWorkDone={attendance.openWorkDoneModal}
+              currentPage={attendance.currentPage}
+              pagination={attendance.pagination}
+              onNextPage={attendance.goToNextPage}
+              onPrevPage={attendance.goToPrevPage}
+              startDate={attendance.startDate}
+              endDate={attendance.endDate}
+              onStartDateChange={attendance.handleStartDateChange}
+              onEndDateChange={attendance.handleEndDateChange}
+              onClearDates={attendance.handleClearDates}
             />
             <WorkInfoSection
-              workDays={workInfoHook.workDays}
-              workStartTime={workInfoHook.workStartTime}
-              isEditing={workInfoHook.isEditingWorkInfo}
-              isSaving={workInfoHook.isSavingWorkInfo}
-              tempWorkDays={workInfoHook.tempWorkDays}
-              tempWorkStartTime={workInfoHook.tempWorkStartTime}
-              setTempWorkStartTime={workInfoHook.setTempWorkStartTime}
-              toggleTempWorkDay={workInfoHook.toggleTempWorkDay}
-              onEdit={workInfoHook.handleEditWorkInfo}
-              onSave={handleSaveWorkInfo}
-              onCancel={workInfoHook.handleCancelEditWorkInfo}
+              workDays={workDays}
+              workStartTime={employee.workStartTime || ''}
+              isEditing={editForm.isEditingWorkInfo}
+              isSaving={editForm.isSavingWorkInfo}
+              tempWorkDays={editForm.tempWorkDays}
+              tempWorkStartTime={editForm.tempWorkStartTime}
+              setTempWorkStartTime={editForm.setTempWorkStartTime}
+              toggleTempWorkDay={editForm.toggleTempWorkDay}
+              onEdit={() => editForm.handleEditWorkInfo(employee)}
+              onSave={editForm.handleSaveWorkInfo}
+              onCancel={editForm.handleCancelEditWorkInfo}
             />
             <DocumentSection
               files={employeeFiles.files}
@@ -184,13 +241,13 @@ export default function CompanyEmployeeDetailPage() {
         selectedWorkDone={attendance.selectedWorkDone}
       />
       <ResignModal
-        isOpen={resign.showResignModal}
-        onClose={resign.closeResignModal}
+        isOpen={editForm.showResignModal}
+        onClose={editForm.closeResignModal}
         employeeName={employee.name}
-        resignForm={resign.resignForm}
-        isSubmitting={resign.isSubmitting}
-        onUpdateForm={resign.updateResignForm}
-        onSubmit={resign.handleSubmitResign}
+        resignForm={editForm.resignForm}
+        isSubmitting={editForm.isSubmittingResign}
+        onUpdateForm={editForm.updateResignForm}
+        onSubmit={editForm.handleSubmitResign}
       />
     </div>
   );

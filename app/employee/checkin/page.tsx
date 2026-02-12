@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
-import { useAttendance } from '@/hooks/useAttendance';
+import { useAttendance } from '../_hooks/useAttendance';
 import { scheduleApi } from '@/lib/api/schedules';
 import { formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
 import type { Schedule } from '@/types/schedule';

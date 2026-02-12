@@ -1,7 +1,8 @@
-import { AlertTriangle, Calendar as CalendarIcon, Check, UserX } from 'lucide-react';
+import { AlertTriangle, Check, UserX } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import type { ResignForm } from '../../_hooks/useResign';
+import { DatePicker } from '@/components/ui/DatePicker';
+import type { ResignForm } from '../../_hooks/useEmployeeEditForm';
 
 interface ResignModalProps {
   isOpen: boolean;
@@ -42,16 +43,11 @@ export function ResignModal({
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             퇴사일 <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="date"
-              value={resignForm.date}
-              onChange={(e) => onUpdateForm({ date: e.target.value })}
-              disabled={isSubmitting}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-          </div>
+          <DatePicker
+            value={resignForm.date}
+            onChange={(v) => onUpdateForm({ date: v })}
+            disabled={isSubmitting}
+          />
         </div>
 
         <div>

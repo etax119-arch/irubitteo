@@ -10,6 +10,7 @@ import { employeeKeys } from '@/lib/query/keys';
 import { useActiveEmployees } from '@/hooks/useEmployeeQuery';
 import { useCreateEmployee } from '@/hooks/useEmployeeMutations';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { EmployeeTable } from '../_components/EmployeeTable';
 import { AddWorkerModal } from '../_components/AddWorkerModal';
@@ -203,8 +204,27 @@ export default function EmployeesPage() {
 
   if (employeesQuery.isLoading) {
     return (
-      <div className="flex justify-center items-center py-20" role="status">
-        <div className="text-gray-500">로딩 중...</div>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="w-40 h-10 rounded-lg" />
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-64 h-10 rounded-lg" />
+            <Skeleton className="w-32 h-10 rounded-lg" />
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-6 py-3 border-b border-gray-200">
+            <Skeleton className="h-8 rounded" />
+          </div>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="px-6 py-4 border-b border-gray-100 flex items-center gap-4">
+              <Skeleton className="w-10 h-10 rounded-full" />
+              <Skeleton className="w-20 h-4" />
+              <Skeleton className="flex-1 h-4" />
+              <Skeleton className="w-16 h-6 rounded-full" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

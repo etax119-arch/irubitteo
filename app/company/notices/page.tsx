@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { MessageSquare, Bell, Edit } from 'lucide-react';
 import { WorkerSelector } from '../_components/WorkerSelector';
 import { NoticeHistory } from '../_components/NoticeHistory';
-import { useNotices } from '@/hooks/useNoticeQuery';
+import { useNotices } from '../_hooks/useNoticeQuery';
 import { useActiveEmployees } from '@/hooks/useEmployeeQuery';
-import { useSendNotice, useDeleteNotice } from '@/hooks/useNoticeMutations';
+import { useSendNotice, useDeleteNotice } from '../_hooks/useNoticeMutations';
 import { useAuthStore } from '@/lib/auth/store';
 import { useToast } from '@/components/ui/Toast';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { extractErrorMessage } from '@/lib/api/error';
 
@@ -85,9 +86,34 @@ export default function NoticesPage() {
 
   if (employeesQuery.isLoading) {
     return (
-      <div className="flex items-center justify-center py-20" role="status">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-duru-orange-500" />
-        <span className="sr-only">로딩 중</span>
+      <div className="space-y-6">
+        <Skeleton className="w-48 h-8" />
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <Skeleton className="w-40 h-6 mb-6" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 rounded-lg" />
+            ))}
+          </div>
+          <Skeleton className="w-full h-32 rounded-lg mb-6" />
+          <div className="flex justify-end gap-3">
+            <Skeleton className="w-20 h-10 rounded-lg" />
+            <Skeleton className="w-28 h-10 rounded-lg" />
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200">
+          <div className="px-6 py-5 border-b border-gray-200">
+            <Skeleton className="w-24 h-6" />
+          </div>
+          <div className="divide-y divide-gray-200">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="px-6 py-5">
+                <Skeleton className="w-48 h-4 mb-3" />
+                <Skeleton className="h-20 rounded-lg" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

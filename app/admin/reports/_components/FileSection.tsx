@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { useAdminFiles, useUploadAdminFile, useDeleteAdminFile } from '@/hooks/useAdminReportsQuery';
+import { useAdminFiles, useUploadAdminFile, useDeleteAdminFile } from '../../_hooks/useAdminReports';
 import FileListItem from './FileListItem';
 import FileUploadModal from './FileUploadModal';
 import type { AdminFileCategory } from '@/types/adminFile';

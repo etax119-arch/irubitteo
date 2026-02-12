@@ -3,7 +3,7 @@
 import { CheckCircle2, Camera, ImagePlus, Save, Trash2 } from 'lucide-react';
 import type { AttendanceWithEmployee, DisplayPhoto } from '@/types/attendance';
 import { formatUtcTimestampAsKSTDate, formatUtcTimestampAsKST } from '@/lib/kst';
-import { HeicImage } from './HeicImage';
+import { HeicImage } from '@/components/HeicImage';
 
 interface WorkRecordCardProps {
   record: AttendanceWithEmployee;

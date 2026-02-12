@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Users, UserCheck, Clock, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatCard } from '../_components/StatCard';
 import { AttendanceTable } from '../_components/AttendanceTable';
-import { useCompanyDaily } from '@/hooks/useDashboardQuery';
+import { useCompanyDaily } from '../_hooks/useDashboardQuery';
 import { attendanceKeys } from '@/lib/query/keys';
 import { formatDateAsKST, offsetDateString } from '@/lib/kst';
 
@@ -34,8 +35,24 @@ export default function DashboardPage() {
 
   if (dailyQuery.isLoading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <div className="text-gray-500">로딩 중...</div>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl p-6 border border-gray-200 bg-white">
+              <Skeleton className="w-12 h-12 rounded-lg mb-4" />
+              <Skeleton className="w-20 h-4 mb-2" />
+              <Skeleton className="w-16 h-8" />
+            </div>
+          ))}
+        </div>
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <Skeleton className="w-32 h-6 mb-6" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 rounded-lg" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

@@ -4,14 +4,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { Building2, Users, UserCheck, AlertCircle, Bell, Loader2, RefreshCw } from 'lucide-react';
+import { Building2, Users, UserCheck, AlertCircle, Bell, RefreshCw } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { AdminStatCard } from '../_components/AdminStatCard';
 import { CompanyAttendanceAccordion } from '../_components/CompanyAttendanceAccordion';
 import { extractErrorMessage } from '@/lib/api/error';
 import { formatDateAsKST } from '@/lib/kst';
 import { adminKeys } from '@/lib/query/keys';
-import { useAdminStats, useAdminDailyAttendance, useAbsenceAlerts } from '@/hooks/useAdminDashboardQuery';
-import { useDismissAbsenceAlert } from '@/hooks/useAdminNotificationsQuery';
+import { useAdminStats, useAdminDailyAttendance, useAbsenceAlerts } from '../_hooks/useAdminDashboardQuery';
+import { useDismissAbsenceAlert } from '../_hooks/useAdminNotificationMutations';
 import { useToast } from '@/components/ui/Toast';
 
 export default function AdminDashboardPage() {
@@ -41,8 +42,27 @@ export default function AdminDashboardPage() {
 
   if (statsQuery.isLoading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
+      <div className="space-y-6">
+        <div className="flex justify-end">
+          <Skeleton className="w-24 h-9 rounded-lg" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl p-6 border border-gray-200 bg-white">
+              <Skeleton className="w-12 h-12 rounded-lg mb-4" />
+              <Skeleton className="w-20 h-4 mb-2" />
+              <Skeleton className="w-16 h-8" />
+            </div>
+          ))}
+        </div>
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <Skeleton className="w-48 h-6 mb-6" />
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 rounded-lg" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -117,7 +137,7 @@ export default function AdminDashboardPage() {
             iconBgColor="bg-red-100"
             iconColor="text-red-600"
             label="긴급 알림"
-            value={stats.pendingIssues}
+            value={urgentAlerts.length}
             unit="건"
             cardBorderColor="border-red-200"
             cardBgColor="bg-red-50"

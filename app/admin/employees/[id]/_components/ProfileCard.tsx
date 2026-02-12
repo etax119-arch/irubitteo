@@ -12,13 +12,22 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
+import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 import type { Employee } from '@/types/employee';
 
 type ProfileCardProps = {
   worker: Employee;
+  isUploadingImage?: boolean;
+  onUploadImage?: (base64: string) => void;
+  onDeleteImage?: () => void;
 };
 
-export function ProfileCard({ worker }: ProfileCardProps) {
+export function ProfileCard({
+  worker,
+  isUploadingImage = false,
+  onUploadImage,
+  onDeleteImage,
+}: ProfileCardProps) {
   const statusLabel = getEmployeeStatusLabel(worker.status, worker.isActive);
   const statusClass = getEmployeeStatusStyle(worker.status, worker.isActive);
 
@@ -27,9 +36,14 @@ export function ProfileCard({ worker }: ProfileCardProps) {
       {/* 프로필 카드 */}
       <div className="bg-white rounded-xl p-6 border border-gray-200">
         <div className="text-center mb-6">
-          <div className="w-24 h-24 bg-duru-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl font-bold text-duru-orange-600">{worker.name[0]}</span>
-          </div>
+          <ProfileImageUpload
+            src={worker.profileImage}
+            name={worker.name}
+            isUploading={isUploadingImage}
+            onUpload={onUploadImage ?? (() => {})}
+            onDelete={onDeleteImage ?? (() => {})}
+            editable={!!onUploadImage}
+          />
           <h2 className="text-2xl font-bold text-gray-900 mb-1">{worker.name}</h2>
           <p className="text-gray-600">{worker.disability ?? '-'}</p>
           <span

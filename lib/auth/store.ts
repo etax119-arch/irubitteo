@@ -45,9 +45,17 @@ export const useAuthStore = create<AuthStore>()(
       name: 'auth-storage', // localStorage 키 이름
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        // 영속화할 상태만 선택 (user, isLoading 제외 - 보안상 user는 메모리에만 유지)
         isAuthenticated: state.isAuthenticated,
+        user: state.user, // 프로필 정보 영속화 (자격증명 아님, 토큰은 HttpOnly 쿠키)
       }),
+      onRehydrateStorage: () => {
+        return (state, error) => {
+          if (!error && state?.isAuthenticated) {
+            // 영속화된 인증 데이터가 있으면 로딩 즉시 해제
+            useAuthStore.setState({ isLoading: false });
+          }
+        };
+      },
     }
   )
 );

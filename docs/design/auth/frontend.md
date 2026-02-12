@@ -169,26 +169,31 @@ export function useAuth() {
     useAuthStore();
 
   const checkAuth = useCallback(async () => {
-    setLoading(true);
+    // 영속화된 인증 데이터가 없을 때만 로딩 표시 (첫 방문)
+    if (!useAuthStore.getState().isAuthenticated) {
+      setLoading(true);
+    }
     try {
       const user = await authApi.getMe();
       setUser(user);
-    } catch {
-      clearUser();
+    } catch (err) {
+      if (err instanceof AxiosError && err.response?.status === 401) {
+        clearUser();
+      }
+      // 네트워크 에러 등은 이전 인증 상태 유지
     } finally {
-      setLoading(false);  // 로딩 상태 해제 보장
+      setLoading(false);
     }
   }, [setUser, clearUser, setLoading]);
 
   // 컴포넌트 마운트 시 인증 상태 확인
   useEffect(() => {
-    // 로그인 페이지에서는 인증 확인 스킵 (불필요한 401 에러 방지)
-    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/login')) {
+    if (pathname.startsWith('/login')) {
       setLoading(false);
       return;
     }
     checkAuth();
-  }, [checkAuth, setLoading]);
+  }, [checkAuth, setLoading, pathname]);
 
   return { user, isAuthenticated, isLoading, login, logout, checkAuth };
 }
@@ -225,10 +230,10 @@ export function useAuth() {
 |-----------|------|-----------|
 | HttpOnly Cookie | accessToken, refreshToken | 서버 |
 | 일반 Cookie | auth-status, user-role | 서버 (middleware.ts 읽기용) |
-| Zustand (메모리) | 사용자 정보 (UI 표시용) | 클라이언트 |
-| localStorage | isAuthenticated만 저장 (user 정보 제외) | 클라이언트 |
+| Zustand (메모리 + persist) | 사용자 프로필 정보 (UI 표시용) | 클라이언트 |
+| localStorage | isAuthenticated + user (프로필 정보) | 클라이언트 |
 
-> **보안 주의**: 사용자 정보(id, name, code 등)는 XSS 공격 방지를 위해 localStorage에 저장하지 않고 메모리에만 유지합니다.
+> **참고**: localStorage에 저장되는 user 정보는 프로필 데이터(이름, 역할, ID)이며 자격증명이 아닙니다. 토큰은 HttpOnly 쿠키로 JS에서 접근 불가합니다. 영속화를 통해 새로고침 시 인증 로딩 단계를 제거합니다.
 
 ### 서버에서 설정해야 할 Cookie
 
@@ -252,7 +257,7 @@ export function useAuth() {
 
 ### 대시보드 공통
 
-- **로딩 스피너**: 인증 상태 확인 중 로딩 표시
+- **스켈레톤 UI**: 첫 방문(localStorage 없는 경우)에만 레이아웃 스켈레톤 표시, 일반 새로고침은 persist에서 즉시 복원하여 인증 로딩 없음
 - **사용자 정보 표시**: 로그인된 사용자 이름 표시
 - **로그아웃**: 서버 API 호출 후 클라이언트 상태 정리
 
@@ -285,8 +290,8 @@ export function useAuth() {
 
 ### 보안 검증
 
-- [x] 토큰이 localStorage/sessionStorage에 저장되지 않음
-- [x] 사용자 정보가 localStorage에 저장되지 않음 (메모리에만 유지)
+- [x] 토큰이 localStorage/sessionStorage에 저장되지 않음 (HttpOnly Cookie)
+- [x] localStorage에는 프로필 정보만 저장 (자격증명 미포함, 새로고침 UX 개선용)
 - [x] 로그인 에러 메시지 통일 (사용자/코드 존재 여부 식별 방지)
 - [ ] Cookie에 HttpOnly 플래그 설정됨 (서버 구현 필요)
 - [ ] HTTPS에서만 Cookie 전송됨 (서버 구현 필요)

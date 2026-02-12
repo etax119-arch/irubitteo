@@ -1,6 +1,7 @@
 'use client';
 
-import { AlertTriangle, Calendar, X, Trash2 } from 'lucide-react';
+import { AlertTriangle, X, Trash2 } from 'lucide-react';
+import { DatePicker } from '@/components/ui/DatePicker';
 
 interface ResignForm {
   date: string;
@@ -55,15 +56,10 @@ export function ResignModal({
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               탈퇴일 <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="date"
-                value={resignForm.date}
-                onChange={(e) => setResignForm({ ...resignForm, date: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-            </div>
+            <DatePicker
+              value={resignForm.date}
+              onChange={(v) => setResignForm({ ...resignForm, date: v })}
+            />
           </div>
 
           <div>

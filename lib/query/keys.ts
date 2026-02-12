@@ -13,15 +13,22 @@ export const employeeKeys = {
   active: () => ['employees', 'active'] as const,
   list: (params: { filter: string; search: string }) =>
     ['employees', 'list', params] as const,
+  detail: (id: string) => ['employees', id] as const,
+  files: (id: string) => ['employees', id, 'files'] as const,
 };
 
 export const attendanceKeys = {
   companyDaily: (date: string) => ['attendances', 'company-daily', date] as const,
+  employeeHistory: (employeeId: string, params?: { page?: number; limit?: number; startDate?: string; endDate?: string }) =>
+    ['attendances', 'employee', employeeId, params ?? {}] as const,
 };
 
 export const companyKeys = {
   all: ['companies'] as const,
   list: () => ['companies', 'list'] as const,
+  detail: (id: string) => ['companies', id] as const,
+  employees: (id: string) => ['companies', id, 'employees'] as const,
+  files: (id: string) => ['companies', id, 'files'] as const,
 };
 
 export const adminKeys = {

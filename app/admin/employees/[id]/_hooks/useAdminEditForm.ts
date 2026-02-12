@@ -1,58 +1,30 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { getEmployee, updateEmployee } from '@/lib/api/employees';
-import { extractErrorMessage } from '@/lib/api/error';
+import { useState } from 'react';
+import { useUpdateEmployee } from '@/hooks/useEmployeeMutations';
 import { useToast } from '@/components/ui/Toast';
+import { extractErrorMessage } from '@/lib/api/error';
 import { NUM_TO_LABEL, LABEL_TO_NUM } from '@/lib/workDays';
 import type { Employee, WorkDay } from '@/types/employee';
 
-export function useAdminEmployeeDetail(employeeId: string) {
+export function useAdminEditForm(employeeId: string) {
   const toast = useToast();
+  const updateMutation = useUpdateEmployee(employeeId);
 
-  const [worker, setWorker] = useState<Employee | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Notes editing state
-  const [notes, setNotes] = useState('');
+  // --- Admin Notes ---
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
 
-  // Work info editing state
-  const [workDays, setWorkDays] = useState<string[]>([]);
-  const [workStartTime, setWorkStartTime] = useState('09:00');
-  const [isEditingWorkInfo, setIsEditingWorkInfo] = useState(false);
-  const [tempWorkDays, setTempWorkDays] = useState<string[]>([]);
-  const [tempWorkStartTime, setTempWorkStartTime] = useState('');
-  const [savingWorkInfo, setSavingWorkInfo] = useState(false);
-
-  const fetchEmployee = useCallback(async () => {
-    try {
-      const result = await getEmployee(employeeId);
-      const emp = result.data;
-      setWorker(emp);
-      setNotes(emp.adminNote || '');
-      const dayNames = (emp.workDays ?? []).map((d) => NUM_TO_LABEL[d]).filter(Boolean);
-      setWorkDays(dayNames);
-      setWorkStartTime(emp.workStartTime ? emp.workStartTime.slice(0, 5) : '09:00');
-    } catch (err) {
-      console.error('Failed to fetch employee:', err);
-      toast.error(extractErrorMessage(err));
-    }
-  }, [employeeId, toast]);
-
-  // Notes handlers
-  const handleEditNotes = () => {
-    setTempNotes(notes);
+  const handleEditNotes = (employee: Employee) => {
+    setTempNotes(employee.adminNote || '');
     setIsEditingNotes(true);
   };
 
   const handleSaveNotes = async () => {
     try {
       setSavingNotes(true);
-      await updateEmployee(employeeId, { adminNote: tempNotes || null });
-      setNotes(tempNotes);
+      await updateMutation.mutateAsync({ adminNote: tempNotes || null });
       setIsEditingNotes(false);
       toast.success('비고란이 저장되었습니다.');
     } catch (err) {
@@ -67,10 +39,16 @@ export function useAdminEmployeeDetail(employeeId: string) {
     setTempNotes('');
   };
 
-  // Work info handlers
-  const handleEditWorkInfo = () => {
-    setTempWorkDays([...workDays]);
-    setTempWorkStartTime(workStartTime);
+  // --- Work Info ---
+  const [isEditingWorkInfo, setIsEditingWorkInfo] = useState(false);
+  const [tempWorkDays, setTempWorkDays] = useState<string[]>([]);
+  const [tempWorkStartTime, setTempWorkStartTime] = useState('');
+  const [savingWorkInfo, setSavingWorkInfo] = useState(false);
+
+  const handleEditWorkInfo = (employee: Employee) => {
+    const dayLabels = (employee.workDays ?? []).map((d) => NUM_TO_LABEL[d]).filter(Boolean);
+    setTempWorkDays([...dayLabels]);
+    setTempWorkStartTime(employee.workStartTime ? employee.workStartTime.slice(0, 5) : '09:00');
     setIsEditingWorkInfo(true);
   };
 
@@ -81,12 +59,10 @@ export function useAdminEmployeeDetail(employeeId: string) {
         .map((d) => LABEL_TO_NUM[d])
         .filter(Boolean)
         .sort() as WorkDay[];
-      await updateEmployee(employeeId, {
+      await updateMutation.mutateAsync({
         workDays: dayNums,
         workStartTime: tempWorkStartTime,
       });
-      setWorkDays([...tempWorkDays]);
-      setWorkStartTime(tempWorkStartTime);
       setIsEditingWorkInfo(false);
       toast.success('근무 정보가 저장되었습니다.');
     } catch (err) {
@@ -111,12 +87,7 @@ export function useAdminEmployeeDetail(employeeId: string) {
   };
 
   return {
-    worker,
-    loading,
-    setLoading,
-    fetchEmployee,
     // Notes
-    notes,
     isEditingNotes,
     tempNotes,
     setTempNotes,
@@ -124,9 +95,7 @@ export function useAdminEmployeeDetail(employeeId: string) {
     handleEditNotes,
     handleSaveNotes,
     handleCancelNotes,
-    // Work info
-    workDays,
-    workStartTime,
+    // Work Info
     isEditingWorkInfo,
     tempWorkDays,
     tempWorkStartTime,

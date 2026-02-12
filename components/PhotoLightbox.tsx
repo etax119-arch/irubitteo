@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { HeicImage } from './HeicImage';
+import { HeicImage } from '@/components/HeicImage';
 import type { DisplayPhoto } from '@/types/attendance';
 
 interface PhotoLightboxProps {

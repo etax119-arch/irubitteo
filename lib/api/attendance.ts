@@ -62,6 +62,18 @@ export const attendanceApi = {
   },
 
   /**
+   * 활동 사진 추가
+   * POST /v1/attendances/:id/photos
+   */
+  async addPhotos(attendanceId: string, photos: string[]): Promise<AttendanceWithEmployee> {
+    const response = await apiClient.post<{ success: boolean; data: AttendanceWithEmployee }>(
+      `/attendances/${attendanceId}/photos`,
+      { photos }
+    );
+    return response.data.data;
+  },
+
+  /**
    * 활동 사진 삭제
    * DELETE /v1/attendances/:id/photos
    */

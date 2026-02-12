@@ -6,7 +6,7 @@ import { HeaderCard } from './_components/HeaderCard';
 import { AttendanceButtons } from './_components/AttendanceButtons';
 import { NoticeSection } from './_components/NoticeSection';
 import { WorkRecordsSection } from './_components/WorkRecordsSection';
-import { PhotoLightbox } from './_components/PhotoLightbox';
+import { PhotoLightbox } from '@/components/PhotoLightbox';
 import { useAuthStore } from '@/lib/auth/store';
 import { authApi } from '@/lib/api/auth';
 import { useWorkRecords } from './_hooks/useWorkRecords';
@@ -40,6 +40,7 @@ export default function EmployeeDashboard() {
     handleMonthChange,
     addPhotoToRecord,
     deletePhotoFromRecord,
+    isUploading,
   } = useWorkRecords();
 
   useEffect(() => {
@@ -86,6 +87,15 @@ export default function EmployeeDashboard() {
     }
   }, [deletePhotoFromRecord, toast]);
 
+  const handleAddPhoto = useCallback(async (recordId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const success = await addPhotoToRecord(recordId, e);
+    if (success) {
+      toast.success('사진이 추가되었습니다.');
+    } else if (e.target.files && e.target.files.length > 0) {
+      toast.error('사진 추가에 실패했습니다.');
+    }
+  }, [addPhotoToRecord, toast]);
+
   const handleCheckIn = () => {
     router.push('/employee/checkin');
   };
@@ -123,7 +133,7 @@ export default function EmployeeDashboard() {
           onYearChange={handleYearChange}
           onMonthChange={handleMonthChange}
           onPhotoClick={setSelectedPhoto}
-          onAddPhoto={addPhotoToRecord}
+          onAddPhoto={handleAddPhoto}
           onSavePhoto={handleSavePhoto}
           onDeletePhoto={handleDeletePhoto}
           isLoading={recordsLoading}

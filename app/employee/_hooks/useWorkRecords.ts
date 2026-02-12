@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAttendance } from '@/hooks/useAttendance';
+import { useState, useEffect, useCallback } from 'react';
+import { useAttendance } from './useAttendance';
 import { attendanceApi } from '@/lib/api/attendance';
+import { isHeicFile, isHeicFileByContent, convertHeicToJpeg, compressImage, filesToBase64 } from '@/lib/file';
 import type { AttendanceWithEmployee } from '@/types/attendance';
 
 export function useWorkRecords() {
@@ -11,14 +12,7 @@ export function useWorkRecords() {
   const [yearMonth, setYearMonth] = useState({ year: new Date().getFullYear(), month: new Date().getMonth() + 1 });
   const { year, month } = yearMonth;
   const [workRecords, setWorkRecords] = useState<AttendanceWithEmployee[]>([]);
-  const localBlobUrls = useRef<string[]>([]);
-
-  useEffect(() => {
-    const urls = localBlobUrls.current;
-    return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, []);
+  const [isUploading, setIsUploading] = useState(false);
 
   // 아코디언 열릴 때 또는 연도/월 변경 시 fetch (lazy loading)
   useEffect(() => {
@@ -65,22 +59,47 @@ export function useWorkRecords() {
     });
   }, []);
 
-  // 업무 기록에 사진 추가 (로컬 상태만 - 서버 반영 안됨)
+  // 업무 기록에 사진 추가 (서버 업로드)
   const addPhotoToRecord = useCallback(
-    (recordId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    async (recordId: string, e: React.ChangeEvent<HTMLInputElement>): Promise<boolean> => {
       const files = Array.from(e.target.files || []);
-      if (files.length === 0) return;
+      if (files.length === 0) return false;
 
-      const newPhotoUrls = files.map((file) => URL.createObjectURL(file));
-      localBlobUrls.current.push(...newPhotoUrls);
+      setIsUploading(true);
+      try {
+        // HEIC 감지/변환 + 압축
+        const processedBlobs = await Promise.all(
+          files.map(async (file) => {
+            let blob: File | Blob = file;
 
-      setWorkRecords((prev) =>
-        prev.map((record) =>
-          record.id === recordId
-            ? { ...record, photoUrls: [...record.photoUrls, ...newPhotoUrls] }
-            : record
-        )
-      );
+            const isHeic = isHeicFile(file) || (await isHeicFileByContent(file));
+            if (isHeic) {
+              try {
+                blob = await convertHeicToJpeg(file);
+              } catch {
+                // 변환 실패 시 원본 사용
+              }
+            }
+
+            return compressImage(blob);
+          })
+        );
+
+        // base64 변환 → API 호출
+        const base64Photos = await filesToBase64(processedBlobs);
+        const updated = await attendanceApi.addPhotos(recordId, base64Photos);
+
+        setWorkRecords((prev) =>
+          prev.map((record) =>
+            record.id === recordId ? updated : record
+          )
+        );
+        return true;
+      } catch {
+        return false;
+      } finally {
+        setIsUploading(false);
+      }
     },
     []
   );
@@ -109,6 +128,7 @@ export function useWorkRecords() {
     month,
     workRecords,
     isLoading,
+    isUploading,
     toggleOpen,
     handleYearChange,
     handleMonthChange,

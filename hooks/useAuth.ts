@@ -76,7 +76,10 @@ export function useAuth() {
    * 인증 상태 확인 (앱 초기화 시 호출)
    */
   const checkAuth = useCallback(async (): Promise<void> => {
-    setLoading(true);
+    // 영속화된 인증 데이터가 없을 때만 로딩 표시 (첫 방문)
+    if (!useAuthStore.getState().isAuthenticated) {
+      setLoading(true);
+    }
 
     try {
       const user = await authApi.getMe();

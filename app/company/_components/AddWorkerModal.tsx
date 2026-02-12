@@ -7,8 +7,6 @@ import {
   Heart,
   Shield,
   Briefcase,
-  Calendar,
-  Clock,
   Hash,
   Lock,
   ChevronDown,
@@ -22,6 +20,8 @@ import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
 import { IconButton } from '@/components/ui/IconButton';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { DatePicker } from '@/components/ui/DatePicker';
+import { TimePicker } from '@/components/ui/TimePicker';
 import { DAY_LABELS } from '@/lib/workDays';
 
 interface AddWorkerModalProps {
@@ -399,16 +399,13 @@ export function AddWorkerModal({
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                   입사일 <span className="text-duru-orange-500">*</span>
                 </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="date"
+                <div className="flex items-center gap-2">
+                  <DatePicker
                     value={form.hireDate}
-                    onChange={(e) => onUpdateForm('hireDate', e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent text-gray-700"
+                    onChange={(v) => onUpdateForm('hireDate', v)}
                   />
                   {complete.hireDate && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                   )}
                 </div>
               </div>
@@ -416,16 +413,13 @@ export function AddWorkerModal({
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                   장애인 인정일 <span className="text-duru-orange-500">*</span>
                 </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="date"
+                <div className="flex items-center gap-2">
+                  <DatePicker
                     value={form.recognitionDate}
-                    onChange={(e) => onUpdateForm('recognitionDate', e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent text-gray-700"
+                    onChange={(v) => onUpdateForm('recognitionDate', v)}
                   />
                   {complete.recognitionDate && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                   )}
                 </div>
               </div>
@@ -463,16 +457,13 @@ export function AddWorkerModal({
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                   출근 시간 <span className="text-duru-orange-500">*</span>
                 </label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="time"
+                <div className="flex items-center gap-2">
+                  <TimePicker
                     value={form.workStartTime}
-                    onChange={(e) => onUpdateForm('workStartTime', e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent text-gray-700"
+                    onChange={(v) => onUpdateForm('workStartTime', v)}
                   />
                   {complete.workStartTime && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                   )}
                 </div>
               </div>

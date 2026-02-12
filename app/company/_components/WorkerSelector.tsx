@@ -66,7 +66,7 @@ export function WorkerSelector({
               onChange={() => onToggleWorker(worker.id)}
               className="w-5 h-5 text-duru-orange-600 rounded focus:ring-duru-orange-500"
             />
-            <Avatar name={worker.name} size="md" className="text-sm font-bold flex-shrink-0" />
+            <Avatar src={worker.profileImage ?? undefined} name={worker.name} size="md" className="text-sm font-bold flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 truncate">{worker.name}</p>
               <p className="text-sm text-gray-600 truncate">

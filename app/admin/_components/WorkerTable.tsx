@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/cn';
+import { Avatar } from '@/components/ui/Avatar';
 import type { EmployeeWithCompany } from '@/types/employee';
 
 interface WorkerTableProps {
@@ -35,21 +36,15 @@ export function WorkerTable({ workers, onViewDetail }: WorkerTableProps) {
                     >
                       <td className="px-8 py-4">
                         <div className="flex items-center gap-3">
-                          <div
+                          <Avatar
+                            src={worker.profileImage ?? undefined}
+                            name={worker.name}
+                            size="md"
                             className={cn(
-                              'w-10 h-10 rounded-full flex items-center justify-center',
-                              isResigned ? 'bg-gray-200' : 'bg-duru-orange-100'
+                              'text-sm font-bold',
+                              isResigned && 'opacity-50 grayscale'
                             )}
-                          >
-                            <span
-                              className={cn(
-                                'text-sm font-bold',
-                                isResigned ? 'text-gray-500' : 'text-duru-orange-600'
-                              )}
-                            >
-                              {worker.name[0]}
-                            </span>
-                          </div>
+                          />
                           <span
                             className={cn(
                               'font-semibold',

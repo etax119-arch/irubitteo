@@ -35,11 +35,16 @@ docs/
 │   │   ├── README.md                  # 인증 개요
 │   │   └── frontend.md                # 프론트엔드 구현
 │   │
+│   ├── tanstack-query.md              # TanStack Query 가이드
+│   │
 │   └── features/                      # 기능 명세
 │       ├── admin-dashboard.md         # 관리자 대시보드
 │       ├── company-dashboard.md       # 기업 대시보드
 │       ├── employee-app.md            # 직원 앱
 │       └── attendance-status.md       # 출퇴근 Status 체계
+│
+└── review/                            # 리뷰 문서
+    └── attendance-system-review.md    # 출퇴근 시스템 리뷰
 ```
 
 ---
@@ -81,6 +86,12 @@ docs/
 | 문서 | 설명 |
 |------|------|
 | [TanStack Query](design/tanstack-query.md) | 캐시 정책, Query Key 규칙, 마이그레이션 가이드 |
+
+#### 리뷰 (review/)
+
+| 문서 | 설명 |
+|------|------|
+| [출퇴근 시스템 리뷰](review/attendance-system-review.md) | 출퇴근 시스템 전반 리뷰 |
 
 ---
 

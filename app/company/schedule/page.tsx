@@ -3,8 +3,8 @@
 import { useState, useCallback } from 'react';
 import { CalendarGrid } from '../_components/CalendarGrid';
 import { ScheduleModal } from '../_components/ScheduleModal';
-import { useMonthlySchedules } from '@/hooks/useScheduleQuery';
-import { useCreateSchedule, useUpdateSchedule, useDeleteSchedule } from '@/hooks/useScheduleMutations';
+import { useMonthlySchedules } from '../_hooks/useScheduleQuery';
+import { useCreateSchedule, useUpdateSchedule, useDeleteSchedule } from '../_hooks/useScheduleMutations';
 import { formatDateAsKST } from '@/lib/kst';
 import { useToast } from '@/components/ui/Toast';
 import type { Schedule } from '@/types/schedule';

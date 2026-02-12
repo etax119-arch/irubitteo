@@ -4,8 +4,10 @@ import { Phone, Heart, User, Briefcase, MapPin, IdCard, Edit2, Check } from 'luc
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
+import { DatePicker } from '@/components/ui/DatePicker';
+import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 import type { Employee } from '@/types/employee';
-import type { ProfileFormState } from '../../_hooks/useEmployeeProfile';
+import type { ProfileFormState } from '../../_hooks/useEmployeeEditForm';
 
 function formatPhoneNumber(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -29,6 +31,9 @@ interface ProfileCardProps {
   onSave: () => void;
   onCancel: () => void;
   onUpdateForm: <K extends keyof ProfileFormState>(key: K, value: ProfileFormState[K]) => void;
+  isUploadingImage?: boolean;
+  onUploadImage?: (base64: string) => void;
+  onDeleteImage?: () => void;
 }
 
 export function ProfileCard({
@@ -40,6 +45,9 @@ export function ProfileCard({
   onSave,
   onCancel,
   onUpdateForm,
+  isUploadingImage = false,
+  onUploadImage,
+  onDeleteImage,
 }: ProfileCardProps) {
   const emergencyContact =
     employee.emergencyContactName && employee.emergencyContactPhone
@@ -52,9 +60,14 @@ export function ProfileCard({
     <>
       <div className="bg-white rounded-xl p-6 border border-gray-200">
         <div className="text-center mb-6">
-          <div className="w-24 h-24 bg-duru-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl font-bold text-duru-orange-600">{employee.name?.[0] ?? '?'}</span>
-          </div>
+          <ProfileImageUpload
+            src={employee.profileImage}
+            name={employee.name}
+            isUploading={isUploadingImage}
+            onUpload={onUploadImage ?? (() => {})}
+            onDelete={onDeleteImage ?? (() => {})}
+            editable={isEditing && !!onUploadImage}
+          />
           <h2 className="text-2xl font-bold text-gray-900 mb-1">{employee.name}</h2>
           <span
             className={cn(
@@ -185,11 +198,10 @@ export function ProfileCard({
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">입사일</label>
-              <input
-                type="date"
+              <DatePicker
                 value={profileForm.hireDate}
-                onChange={(e) => onUpdateForm('hireDate', e.target.value)}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+                onChange={(v) => onUpdateForm('hireDate', v)}
+                inputClassName="py-1.5"
               />
             </div>
             <div>
@@ -268,11 +280,23 @@ export function ProfileCard({
           <span className="text-duru-orange-600 text-lg">#</span>
           근로자 고유번호
         </h3>
-        <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
-          <p className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider">
-            {employee.uniqueCode}
-          </p>
-        </div>
+        {isEditing ? (
+          <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
+            <input
+              type="text"
+              value={profileForm.uniqueCode}
+              onChange={(e) => onUpdateForm('uniqueCode', e.target.value)}
+              maxLength={20}
+              className="w-full text-2xl font-bold text-duru-orange-600 text-center tracking-wider bg-transparent border-b-2 border-duru-orange-300 focus:border-duru-orange-500 focus:outline-none"
+            />
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
+            <p className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider">
+              {employee.uniqueCode}
+            </p>
+          </div>
+        )}
       </div>
     </>
   );

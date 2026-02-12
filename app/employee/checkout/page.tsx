@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, ImagePlus, X, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
 import { Textarea } from '@/components/ui/Textarea';
-import { useAttendance } from '@/hooks/useAttendance';
+import { useAttendance } from '../_hooks/useAttendance';
 import { useToast } from '@/components/ui/Toast';
-import { filesToBase64, isHeicFile, isHeicFileByContent, convertHeicToJpeg } from '@/lib/file';
+import { filesToBase64, isHeicFile, isHeicFileByContent, convertHeicToJpeg, compressImage } from '@/lib/file';
 import type { UploadPhoto } from '@/types/attendance';
 
 const MAX_PHOTO_COUNT = 10;
@@ -53,25 +53,27 @@ export default function CheckOutPage() {
 
     const newPhotos = await Promise.all(
       files.map(async (file) => {
-        let previewUrl: string;
-        // 확장자/MIME 또는 실제 파일 내용(매직 바이트)으로 HEIC 감지
+        let blob: File | Blob = file;
+
+        // 확장자/MIME 또는 실제 파일 내용(매직 바이트)으로 HEIC 감지 → JPEG 변환
         const isHeic = isHeicFile(file) || (await isHeicFileByContent(file));
         if (isHeic) {
           try {
-            const jpegBlob = await convertHeicToJpeg(file);
-            previewUrl = URL.createObjectURL(jpegBlob);
+            blob = await convertHeicToJpeg(file);
           } catch {
             // 변환 실패 시 원본 사용
-            previewUrl = URL.createObjectURL(file);
           }
-        } else {
-          previewUrl = URL.createObjectURL(file);
         }
+
+        // 리사이징 + JPEG 압축
+        blob = await compressImage(blob);
+
+        const previewUrl = URL.createObjectURL(blob);
         return {
           id: crypto.randomUUID(),
           name: file.name,
           url: previewUrl,
-          file, // 원본 파일 저장
+          file: blob,
         };
       })
     );

@@ -3,9 +3,10 @@
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, TrendingUp, Building2, Users, BarChart3, Bell, FileText, LogOut } from 'lucide-react';
+import { TrendingUp, Building2, Users, BarChart3, Bell, FileText, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const tabs = [
   { id: 'dashboard', label: '대시보드', icon: TrendingUp, href: '/admin/dashboard' },
@@ -55,8 +56,44 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500">로딩 중...</div>;
+  if (isLoading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-duru-ivory">
+        {/* 헤더 스켈레톤 */}
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center gap-4">
+                <Skeleton className="w-9 h-9 rounded-lg" />
+                <div>
+                  <Skeleton className="w-36 h-7 mb-1" />
+                  <Skeleton className="w-24 h-4" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-32 h-4" />
+                <Skeleton className="w-20 h-8 rounded-lg" />
+                <Skeleton className="w-10 h-10 rounded-full" />
+              </div>
+            </div>
+          </div>
+        </header>
+        {/* 탭 스켈레톤 */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex gap-8 py-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="w-24 h-6" />
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* 콘텐츠 스켈레톤 */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Skeleton className="w-full h-64 rounded-xl" />
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -70,13 +107,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <Link
-                href="/"
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label="홈으로 이동"
-              >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">이루빛터 관리자</h1>
                 <p className="text-sm text-gray-600">통합 관리 시스템</p>
@@ -92,9 +122,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 로그아웃
               </Button>
-              <div className="w-10 h-10 bg-duru-orange-100 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-duru-orange-600">관</span>
-              </div>
             </div>
           </div>
         </div>

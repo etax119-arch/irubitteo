@@ -79,7 +79,7 @@ export type UploadPhoto = {
   id: string;
   name: string;
   url: string;
-  file: File;
+  file: File | Blob;
 };
 
 /** 출퇴근 기록 조회 파라미터 */
@@ -98,6 +98,7 @@ export interface DailyAttendanceRecord {
   employeeId: string;
   name: string;
   phone: string;
+  profileImage: string | null;
   clockIn: string | null;
   clockOut: string | null;
   status: EmployeeDailyStatus;

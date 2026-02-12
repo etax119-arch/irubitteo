@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart3, Calendar, Search, Loader2, RefreshCw } from 'lucide-react';
+import { BarChart3, Calendar, Search, RefreshCw } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { WorkStatsTable } from '../_components/WorkStatsTable';
 import { PrintPreviewModal } from '../_components/PrintPreviewModal';
 import {
   useAdminMonthlyStats,
   useCalculateMonthlyStats,
   useUpdateMonthlyStats,
-} from '@/hooks/useAdminWorkstatsQuery';
+} from '../_hooks/useAdminWorkstats';
 import { useToast } from '@/components/ui/Toast';
 import { formatDateAsKST } from '@/lib/kst';
 import type { MonthlyWorkStatsCompany } from '@/types/adminDashboard';
@@ -114,8 +115,26 @@ export default function AdminWorkstatsPage() {
       </div>
 
       {statsQuery.isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-duru-orange-500" />
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <Skeleton className="w-32 h-5" />
+                <Skeleton className="w-20 h-8 rounded-lg" />
+              </div>
+              <div className="px-6 py-3 border-b border-gray-100">
+                <Skeleton className="h-6 rounded" />
+              </div>
+              {Array.from({ length: 4 }).map((_, j) => (
+                <div key={j} className="px-6 py-3 border-b border-gray-100 flex items-center gap-4">
+                  <Skeleton className="w-20 h-4" />
+                  <Skeleton className="flex-1 h-4" />
+                  <Skeleton className="w-16 h-4" />
+                  <Skeleton className="w-16 h-4" />
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       ) : (
         <WorkStatsTable

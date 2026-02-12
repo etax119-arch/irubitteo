@@ -41,3 +41,23 @@ export async function updateEmployee(
   );
   return response.data;
 }
+
+export async function uploadProfileImage(
+  id: string,
+  base64Image: string
+): Promise<{ success: boolean; data: Employee }> {
+  const response = await apiClient.patch<{ success: boolean; data: Employee }>(
+    `/employees/${id}/profile-image`,
+    { image: base64Image }
+  );
+  return response.data;
+}
+
+export async function deleteProfileImage(
+  id: string
+): Promise<{ success: boolean; data: Employee }> {
+  const response = await apiClient.delete<{ success: boolean; data: Employee }>(
+    `/employees/${id}/profile-image`
+  );
+  return response.data;
+}

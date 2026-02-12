@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, ChevronDown, ChevronRight, AlertCircle, Calendar, Search, Clock, Loader2 } from 'lucide-react';
+import { Building2, ChevronDown, ChevronRight, AlertCircle, Search, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { offsetDateString } from '@/lib/kst';
+import { DatePicker } from '@/components/ui/DatePicker';
 import type { AdminDailyCompany } from '@/types/adminDashboard';
 
 interface CompanyAttendanceAccordionProps {
@@ -59,15 +60,11 @@ export function CompanyAttendanceAccordion({
             >
               <ChevronDown className="w-5 h-5 rotate-90" />
             </button>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-duru-orange-600" />
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => handleDateChange(e.target.value)}
-                className="px-4 py-2 border-2 border-duru-orange-500 rounded-lg bg-duru-orange-50 text-duru-orange-600 font-bold focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-              />
-            </div>
+            <DatePicker
+              value={selectedDate}
+              onChange={handleDateChange}
+              inputClassName="border-2 border-duru-orange-500 bg-duru-orange-50 text-duru-orange-600 font-bold hover:border-duru-orange-500"
+            />
             <button
               onClick={() => changeDate(1)}
               className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"

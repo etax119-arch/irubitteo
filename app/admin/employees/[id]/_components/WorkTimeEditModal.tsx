@@ -1,6 +1,7 @@
 'use client';
 
 import { X, Save, Loader2 } from 'lucide-react';
+import { TimePicker } from '@/components/ui/TimePicker';
 import type { AttendanceStatus } from '@/types/attendance';
 
 type EditedWorkTime = {
@@ -54,25 +55,17 @@ export function WorkTimeEditModal({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">출근 시간</label>
-            <input
-              type="time"
-              value={editedWorkTime.checkin}
-              onChange={(e) => setEditedWorkTime({ ...editedWorkTime, checkin: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-            />
-          </div>
+          <TimePicker
+            label="출근 시간"
+            value={editedWorkTime.checkin}
+            onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkin: v })}
+          />
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">퇴근 시간</label>
-            <input
-              type="time"
-              value={editedWorkTime.checkout}
-              onChange={(e) => setEditedWorkTime({ ...editedWorkTime, checkout: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-            />
-          </div>
+          <TimePicker
+            label="퇴근 시간"
+            value={editedWorkTime.checkout}
+            onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkout: v })}
+          />
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">업무 내용</label>

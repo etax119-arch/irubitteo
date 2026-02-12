@@ -1,6 +1,7 @@
 import { Save } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { TimePicker } from '@/components/ui/TimePicker';
 import type { AttendanceStatus } from '@/types/attendance';
 
 interface EditedWorkTime {
@@ -48,27 +49,19 @@ export function WorkTimeEditModal({
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">출근 시간</label>
-          <input
-            type="time"
-            value={editedWorkTime.checkin}
-            onChange={(e) => setEditedWorkTime({ ...editedWorkTime, checkin: e.target.value })}
-            disabled={isSaving}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          />
-        </div>
+        <TimePicker
+          label="출근 시간"
+          value={editedWorkTime.checkin}
+          onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkin: v })}
+          disabled={isSaving}
+        />
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">퇴근 시간</label>
-          <input
-            type="time"
-            value={editedWorkTime.checkout}
-            onChange={(e) => setEditedWorkTime({ ...editedWorkTime, checkout: e.target.value })}
-            disabled={isSaving}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          />
-        </div>
+        <TimePicker
+          label="퇴근 시간"
+          value={editedWorkTime.checkout}
+          onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkout: v })}
+          disabled={isSaving}
+        />
 
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">업무 내용</label>

@@ -4,13 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 날짜/시간 입력 브라우저 기본 아이콘 숨김 — 커스텀 아이콘 사용 */
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
-  display: none;
-  -webkit-appearance: none;
-}
-
 /* 커스텀 스크롤바 - 옅은 회색 + 화살표 버튼 */
 .scrollbar-light::-webkit-scrollbar {
   width: 14px;

@@ -1,5 +1,6 @@
 import { Shield, Edit2, Check } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { DatePicker } from '@/components/ui/DatePicker';
 import type { Employee } from '@/types/employee';
 import { DISABILITY_TYPES } from '@/types/employee';
 
@@ -127,11 +128,10 @@ export function DisabilityInfoSection({
           </div>
           <div>
             <label className="block text-xs text-gray-600 mb-1">인정일</label>
-            <input
-              type="date"
+            <DatePicker
               value={tempRecognitionDate}
-              onChange={(e) => setTempRecognitionDate(e.target.value)}
-              className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+              onChange={setTempRecognitionDate}
+              inputClassName="py-1.5 text-xs"
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getEmployees } from '@/lib/api/employees';
+import { getEmployees, getEmployee } from '@/lib/api/employees';
 import { employeeKeys } from '@/lib/query/keys';
 import type { EmployeeQueryParams, EmployeeWithCompany } from '@/types/employee';
 import type { WorkerFilter } from '@/types/adminDashboard';
@@ -39,5 +39,14 @@ export function useAdminEmployees(filter: WorkerFilter, search: string) {
       >,
     select: (data) => data.data,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useEmployeeDetail(id: string) {
+  return useQuery({
+    queryKey: employeeKeys.detail(id),
+    queryFn: () => getEmployee(id),
+    select: (data) => data.data,
+    enabled: !!id,
   });
 }

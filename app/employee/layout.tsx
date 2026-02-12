@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function EmployeeLayout({
   children,
@@ -20,11 +21,28 @@ export default function EmployeeLayout({
     }
   }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading) {
+  if (isLoading && !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-duru-ivory flex items-center justify-center" role="status">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-duru-orange-500" />
+      <div className="min-h-screen bg-duru-ivory px-4 py-6" role="status">
         <span className="sr-only">로딩 중</span>
+        {/* HeaderCard 스켈레톤 */}
+        <div className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <Skeleton className="w-40 h-6" />
+            <Skeleton className="w-16 h-8 rounded-lg" />
+          </div>
+          <Skeleton className="w-32 h-4" />
+        </div>
+        {/* AttendanceButtons 스켈레톤 */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-24 rounded-2xl" />
+        </div>
+        {/* NoticeSection 스켈레톤 */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm">
+          <Skeleton className="w-24 h-5 mb-3" />
+          <Skeleton className="w-full h-16 rounded-lg" />
+        </div>
       </div>
     );
   }

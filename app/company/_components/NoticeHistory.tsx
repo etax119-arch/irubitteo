@@ -1,4 +1,5 @@
 import { FileText, MessageSquare, Trash2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { NoticeResponse } from '@/types/notice';
 import { formatKSTDateTime } from '@/lib/kst';
 
@@ -30,9 +31,22 @@ export function NoticeHistory({
 
       <div className="divide-y divide-gray-200">
         {isLoading ? (
-          <div className="px-6 py-12 flex justify-center" role="status">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-duru-orange-500" />
-            <span className="sr-only">로딩 중</span>
+          <div className="divide-y divide-gray-200">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="px-6 py-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <Skeleton className="w-32 h-4" />
+                  <Skeleton className="w-20 h-4" />
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Skeleton className="w-16 h-4" />
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <Skeleton key={j} className="w-14 h-6 rounded-md" />
+                  ))}
+                </div>
+                <Skeleton className="h-20 rounded-lg" />
+              </div>
+            ))}
           </div>
         ) : notices.length === 0 ? (
           <div className="px-6 py-12 text-center">

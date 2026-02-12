@@ -53,6 +53,7 @@ export type Employee = {
   disabilityType: DisabilityType | null;
   disabilitySeverity: '중증' | '경증' | null;
   disabilityRecognitionDate: string | null;
+  profileImage: string | null;
 };
 
 /** 직원 생성 입력 (companyId는 JWT에서 추출) */
@@ -100,6 +101,7 @@ export type EmployeeUpdateInput = {
   addressCity?: string | null;
   addressDistrict?: string | null;
   addressDetail?: string | null;
+  uniqueCode?: string;
 };
 
 /** 문서 종류 */

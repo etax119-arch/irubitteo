@@ -52,11 +52,51 @@ export async function convertHeicToJpeg(file: File): Promise<Blob> {
 }
 
 /**
- * File을 base64 문자열로 변환
+ * 브라우저 Canvas API로 이미지 리사이징 + JPEG 압축
+ * - maxDimension 이하로 리사이즈 (비율 유지)
+ * - JPEG quality로 압축
+ * - 이미 충분히 작으면 (200KB 이하 + 치수 이내) 원본 반환
+ */
+export async function compressImage(
+  file: File | Blob,
+  options?: { maxDimension?: number; quality?: number }
+): Promise<Blob> {
+  const { maxDimension = 1920, quality = 0.8 } = options ?? {};
+
+  const bitmap = await createImageBitmap(file);
+  const { width, height } = bitmap;
+
+  const withinSize = file.size <= 200 * 1024;
+  const withinDimension = width <= maxDimension && height <= maxDimension;
+
+  if (withinSize && withinDimension) {
+    bitmap.close();
+    return file;
+  }
+
+  // 비율 유지 리사이즈
+  let newW = width;
+  let newH = height;
+  if (!withinDimension) {
+    const ratio = maxDimension / Math.max(width, height);
+    newW = Math.round(width * ratio);
+    newH = Math.round(height * ratio);
+  }
+
+  const canvas = new OffscreenCanvas(newW, newH);
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(bitmap, 0, 0, newW, newH);
+  bitmap.close();
+
+  return canvas.convertToBlob({ type: 'image/jpeg', quality });
+}
+
+/**
+ * File 또는 Blob을 base64 문자열로 변환
  * @param file 변환할 파일
  * @returns Promise<string> data:image/...;base64,... 형식의 문자열
  */
-export function fileToBase64(file: File): Promise<string> {
+export function fileToBase64(file: File | Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -72,11 +112,11 @@ export function fileToBase64(file: File): Promise<string> {
 }
 
 /**
- * 여러 File을 base64 문자열 배열로 변환
+ * 여러 File/Blob을 base64 문자열 배열로 변환
  * @param files 변환할 파일 배열
  * @returns Promise<string[]> base64 문자열 배열
  */
-export async function filesToBase64(files: File[]): Promise<string[]> {
+export async function filesToBase64(files: (File | Blob)[]): Promise<string[]> {
   return Promise.all(files.map(fileToBase64));
 }
 

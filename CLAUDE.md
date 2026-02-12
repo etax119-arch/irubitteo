@@ -163,6 +163,7 @@ durubitteo_web/
 │   │   │   ├── HeicImage.tsx          # HEIC 이미지 지원
 │   │   │   └── SuccessModal.tsx       # 출퇴근 완료 모달
 │   │   └── _hooks/
+│   │       ├── useAttendance.ts       # 출퇴근 API 훅 (useState 기반)
 │   │       ├── useWorkRecords.ts      # 활동 기록 상태 관리
 │   │       └── useEmployeeNotice.ts   # 직원 공지사항 상태 관리
 │   │
@@ -178,12 +179,18 @@ durubitteo_web/
 │   │   │   ├── AddWorkerModal.tsx
 │   │   │   ├── ScheduleModal.tsx
 │   │   │   └── WorkerSelector.tsx
+│   │   ├── _hooks/            # company 전용 훅
+│   │   │   ├── useDashboardQuery.ts     # 대시보드 Query 훅
+│   │   │   ├── useNoticeQuery.ts        # 공지사항 Query 훅
+│   │   │   ├── useNoticeMutations.ts    # 공지사항 Mutation 훅
+│   │   │   ├── useScheduleQuery.ts      # 근무일정 Query 훅
+│   │   │   └── useScheduleMutations.ts  # 근무일정 Mutation 훅
 │   │   ├── _utils/           # 유틸리티
 │   │   │   └── filterEmployees.ts # 직원 검색 필터
 │   │   ├── dashboard/        # 대시보드 탭
 │   │   ├── employees/        # 근로자 관리 탭
 │   │   │   ├── page.tsx
-│   │   │   ├── _hooks/       # useEmployeeDetail, useEmployeeNotes, useEmployeeWorkInfo, useEmployeeDisability, useAttendanceHistory, useResign, useEmployeeFiles
+│   │   │   ├── _hooks/       # useAttendanceHistory, useEmployeeEditForm, useEmployeeFiles
 │   │   │   └── [id]/         # 근로자 상세 + _components/ (11개)
 │   │   ├── schedule/         # 근무일정 탭
 │   │   └── notices/          # 공지사항 탭
@@ -191,6 +198,15 @@ durubitteo_web/
 │   └── admin/                # 관리자 영역 (라우트 기반 탭)
 │       ├── layout.tsx        # 공통 헤더 + 6개 탭 네비게이션
 │       ├── page.tsx          # → /admin/dashboard 리다이렉트
+│       ├── _hooks/            # admin 전용 훅
+│       │   ├── useCompanyQuery.ts              # 회원사 Query 훅
+│       │   ├── useCompanyMutations.ts          # 회원사 Mutation 훅
+│       │   ├── useCompanyFiles.ts              # 회원사 파일 Query/Mutation 훅
+│       │   ├── useAdminDashboardQuery.ts       # 관리자 대시보드 Query 훅
+│       │   ├── useAdminNotificationQuery.ts    # 알림센터 Query 훅
+│       │   ├── useAdminNotificationMutations.ts # 알림센터 Mutation 훅
+│       │   ├── useAdminReports.ts              # 리포트 파일 Query/Mutation 훅
+│       │   └── useAdminWorkstats.ts            # 근무통계 Query/Mutation 훅
 │       ├── _components/
 │       │   ├── AdminStatCard.tsx
 │       │   ├── CompanyCard.tsx
@@ -208,13 +224,13 @@ durubitteo_web/
 │       │   ├── page.tsx
 │       │   └── [id]/         # 회원사 상세
 │       │       ├── page.tsx
-│       │       ├── _hooks/   # useCompanyDetail, useCompanyFiles
+│       │       ├── _hooks/   # useCompanyDetailUI
 │       │       └── _components/  # CompanyProfileCard, PMInfoCard, ResignSection, EmployeeListSection, FileSection, ResignModal
 │       ├── employees/        # 근로자 관리 탭
 │       │   ├── page.tsx
 │       │   └── [id]/         # 근로자 상세
 │       │       ├── page.tsx
-│       │       ├── _hooks/   # useAdminEmployeeDetail, useAdminAttendanceHistory, useAdminEmployeeFiles
+│       │       ├── _hooks/   # useAdminAttendanceHistory, useAdminEditForm, useAdminEmployeeFiles
 │       │       └── _components/  # ProfileCard, AdminNoteSection, CompanyNoteSection, ResignInfoSection, AttendanceHistoryTable, WorkInfoSection, DocumentSection, FileUploadModal, WorkTimeEditModal, WorkDoneModal
 │       ├── workstats/        # 근무 통계 탭
 │       ├── notifications/    # 알림센터 탭
@@ -226,24 +242,16 @@ durubitteo_web/
 │               └── FileUploadModal.tsx # 업로드 모달
 │
 ├── components/               # 공용 컴포넌트 (app 외부)
+│   ├── ProfileImageUpload.tsx # 프로필 이미지 업로드/삭제 (HEIC 변환, 압축)
 │   └── ui/                   # 전역 UI 프리미티브 (Button, Input, Modal 등)
 │
-├── hooks/                    # 공용 훅
+├── hooks/                    # 공용 훅 (여러 라우트에서 공유)
 │   ├── useAuth.ts            # 인증 훅 (login, logout, checkAuth)
-│   ├── useAttendance.ts      # 출퇴근 API 훅
-│   ├── useNoticeQuery.ts     # 공지사항 Query 훅 (TanStack Query)
-│   ├── useNoticeMutations.ts # 공지사항 Mutation 훅 (TanStack Query)
+│   ├── useAttendanceQuery.ts # 출퇴근 Query 훅 (TanStack Query)
+│   ├── useAttendanceMutations.ts # 출퇴근 Mutation 훅 (TanStack Query)
 │   ├── useEmployeeQuery.ts   # 근로자 Query 훅 (TanStack Query)
-│   ├── useEmployeeMutations.ts # 근로자 Mutation 훅 (TanStack Query)
-│   ├── useDashboardQuery.ts  # 대시보드 Query 훅 (TanStack Query)
-│   ├── useAdminDashboardQuery.ts # 관리자 대시보드 Query 훅 (TanStack Query)
-│   ├── useAdminWorkstatsQuery.ts # 관리자 근무통계 Query/Mutation 훅 (TanStack Query)
-│   ├── useAdminNotificationsQuery.ts # 관리자 알림센터 Query/Mutation 훅 (TanStack Query)
-│   ├── useAdminReportsQuery.ts # 관리자 리포트 파일 Query/Mutation 훅 (TanStack Query)
-│   ├── useScheduleQuery.ts   # 근무일정 Query 훅 (TanStack Query)
-│   ├── useScheduleMutations.ts # 근무일정 Mutation 훅 (TanStack Query)
-│   ├── useCompanyQuery.ts    # 회원사 Query 훅 (TanStack Query)
-│   └── useCompanyMutations.ts # 회원사 Mutation 훅 (TanStack Query)
+│   ├── useEmployeeMutations.ts # 근로자 Mutation 훅 (생성, 수정, 프로필 이미지 업로드/삭제)
+│   └── useEmployeeFiles.ts   # 근로자 파일 Query/Mutation 훅 (TanStack Query)
 │
 ├── types/                    # 공용 타입 정의
 │   ├── api.ts                # API 공통 타입 (ApiResponse, Pagination 등)
@@ -277,7 +285,7 @@ durubitteo_web/
         ├── auth.ts           # 인증 API
         ├── admin.ts          # 관리자 API (통계, 출퇴근, 월간 통계, 알림, 파일)
         ├── attendance.ts     # 출퇴근 API
-        ├── employees.ts      # 직원 API
+        ├── employees.ts      # 직원 API (CRUD + 프로필 이미지 업로드/삭제)
         ├── employeeFiles.ts  # 직원 파일 API
         ├── employeeNotices.ts # 직원 공지 API
         ├── notices.ts        # 공지사항 API
@@ -329,6 +337,7 @@ durubitteo_web/
 | `IconButton` | 아이콘 버튼 | `icon`, `variant`, `size`, `label` |
 | `Modal` | 모달 다이얼로그 | `isOpen`, `onClose`, `title`, `size` |
 | `Tabs` | 탭 UI | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
+| `Skeleton` | 로딩 플레이스홀더 | `className` |
 | `Toast` | 토스트 알림 | `useToast()` 훅 사용 |
 
 **사용 예시:**

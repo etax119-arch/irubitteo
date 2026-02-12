@@ -2,6 +2,7 @@
 
 import { Briefcase, Clock, Edit2, Check, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { TimePicker } from '@/components/ui/TimePicker';
 
 type WorkInfoSectionProps = {
   workDays: string[];
@@ -118,17 +119,13 @@ export function WorkInfoSection({
               })}
             </div>
           </div>
-          <div className="w-32">
+          <div className="w-40">
             <label className="block text-xs font-semibold text-gray-700 mb-2">출근 시간</label>
-            <div className="relative">
-              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-              <input
-                type="time"
-                value={tempWorkStartTime}
-                onChange={(e) => setTempWorkStartTime(e.target.value)}
-                className="w-full pl-9 pr-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent text-gray-700"
-              />
-            </div>
+            <TimePicker
+              value={tempWorkStartTime}
+              onChange={setTempWorkStartTime}
+              inputClassName="py-1"
+            />
           </div>
         </div>
       )}

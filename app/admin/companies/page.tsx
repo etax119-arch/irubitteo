@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Loader2 } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { CompanyCard } from '../_components/CompanyCard';
 import { AddCompanyModal } from '../_components/AddCompanyModal';
-import { useCompanies } from '@/hooks/useCompanyQuery';
-import { useCreateCompany } from '@/hooks/useCompanyMutations';
+import { useCompanies } from '../_hooks/useCompanyQuery';
+import { useCreateCompany } from '../_hooks/useCompanyMutations';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
 import type { CompanyWithEmployeeCount, CompanyCreateInput } from '@/types/company';
@@ -66,8 +67,24 @@ export default function AdminCompaniesPage() {
       </div>
 
       {companiesQuery.isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
+        <div className="grid grid-cols-1 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-center gap-4 mb-4">
+                <Skeleton className="w-12 h-12 rounded-lg" />
+                <div className="flex-1">
+                  <Skeleton className="w-32 h-5 mb-2" />
+                  <Skeleton className="w-48 h-4" />
+                </div>
+                <Skeleton className="w-20 h-8 rounded-lg" />
+              </div>
+              <div className="flex gap-4">
+                <Skeleton className="w-24 h-4" />
+                <Skeleton className="w-24 h-4" />
+                <Skeleton className="w-24 h-4" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : companiesQuery.error ? (
         <div className="text-center py-20">

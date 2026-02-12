@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { Search, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
+import { Search, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { WorkerTable } from '../_components/WorkerTable';
 import { useAdminEmployees } from '@/hooks/useEmployeeQuery';
 import { employeeKeys } from '@/lib/query/keys';
@@ -88,8 +89,19 @@ export default function AdminEmployeesPage() {
       </div>
 
       {employeesQuery.isLoading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 text-duru-orange-500 animate-spin" />
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-6 py-3 border-b border-gray-200">
+            <Skeleton className="h-8 rounded" />
+          </div>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="px-6 py-4 border-b border-gray-100 flex items-center gap-4">
+              <Skeleton className="w-10 h-10 rounded-full" />
+              <Skeleton className="w-24 h-4" />
+              <Skeleton className="w-32 h-4" />
+              <Skeleton className="flex-1 h-4" />
+              <Skeleton className="w-16 h-6 rounded-full" />
+            </div>
+          ))}
         </div>
       ) : employeesQuery.isError ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">

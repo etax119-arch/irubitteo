@@ -86,7 +86,7 @@ export function EmployeeTable({
                   <tr key={emp.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <Avatar name={emp.name} size="md" className="text-sm font-bold" />
+                        <Avatar src={emp.profileImage ?? undefined} name={emp.name} size="md" className="text-sm font-bold" />
                         <span className="font-semibold text-gray-900">{emp.name}</span>
                       </div>
                     </td>

@@ -1,19 +1,24 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { attendanceApi } from '@/lib/api/attendance';
+import { useState } from 'react';
+import { useEmployeeAttendanceHistory } from '@/hooks/useAttendanceQuery';
+import { useUpdateAttendance } from '@/hooks/useAttendanceMutations';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
 import type { AttendanceWithEmployee, AttendanceStatus } from '@/types/attendance';
+import type { Pagination } from '@/types/api';
 
-export function useAdminAttendanceHistory(
-  employeeId: string,
-  onSaved?: () => void,
-) {
+export function useAdminAttendanceHistory(employeeId: string) {
   const toast = useToast();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const { data } = useEmployeeAttendanceHistory(employeeId, { page: currentPage, limit: 10, startDate: startDate || undefined, endDate: endDate || undefined });
+  const updateAttendance = useUpdateAttendance(employeeId);
 
-  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceWithEmployee[]>([]);
+  const attendanceHistory: AttendanceWithEmployee[] = data?.records ?? [];
+  const pagination: Pagination | undefined = data?.pagination;
 
   // Work time edit modal
   const [isEditingWorkTime, setIsEditingWorkTime] = useState(false);
@@ -25,23 +30,10 @@ export function useAdminAttendanceHistory(
     workDone: '',
     status: 'checkin' as AttendanceStatus,
   });
-  const [savingWorkTime, setSavingWorkTime] = useState(false);
 
   // Work done modal
   const [showWorkDoneModal, setShowWorkDoneModal] = useState(false);
-  const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string } | null>(null);
-
-  const fetchAttendance = useCallback(async () => {
-    try {
-      const result = await attendanceApi.getAttendances({
-        employeeId,
-        limit: 10,
-      });
-      setAttendanceHistory(result.data);
-    } catch (err) {
-      console.error('Failed to fetch attendance:', err);
-    }
-  }, [employeeId]);
+  const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string; photoUrls: string[] } | null>(null);
 
   const handleEditWorkTime = (record: AttendanceWithEmployee) => {
     const dateStr = formatDateAsKST(new Date(record.date));
@@ -60,26 +52,24 @@ export function useAdminAttendanceHistory(
     if (!editingAttendanceId) return;
     const record = attendanceHistory.find((r) => r.id === editingAttendanceId);
     try {
-      setSavingWorkTime(true);
-      await attendanceApi.updateAttendance(editingAttendanceId, {
-        clockIn: editedWorkTime.checkin ? buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin) : undefined,
-        clockOut: editedWorkTime.checkout ? buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout) : undefined,
-        workContent: editedWorkTime.workDone || undefined,
-        status: record && editedWorkTime.status !== record.status ? editedWorkTime.status : undefined,
+      await updateAttendance.mutateAsync({
+        attendanceId: editingAttendanceId,
+        input: {
+          clockIn: editedWorkTime.checkin ? buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin) : undefined,
+          clockOut: editedWorkTime.checkout ? buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout) : undefined,
+          workContent: editedWorkTime.workDone || undefined,
+          status: record && editedWorkTime.status !== record.status ? editedWorkTime.status : undefined,
+        },
       });
       setIsEditingWorkTime(false);
       toast.success('근무시간이 수정되었습니다.');
-      fetchAttendance();
-      onSaved?.();
     } catch (err) {
       toast.error(extractErrorMessage(err));
-    } finally {
-      setSavingWorkTime(false);
     }
   };
 
-  const openWorkDoneModal = (date: string, workDone: string) => {
-    setSelectedWorkDone({ date, workDone });
+  const openWorkDoneModal = (date: string, workDone: string, photoUrls: string[]) => {
+    setSelectedWorkDone({ date, workDone, photoUrls });
     setShowWorkDoneModal(true);
   };
 
@@ -88,15 +78,26 @@ export function useAdminAttendanceHistory(
     setSelectedWorkDone(null);
   };
 
+  const goToNextPage = () => {
+    if (pagination && currentPage < pagination.totalPages) {
+      setCurrentPage((p) => p + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((p) => p - 1);
+    }
+  };
+
   return {
     attendanceHistory,
-    fetchAttendance,
     // Work time edit
     isEditingWorkTime,
     setIsEditingWorkTime,
     editedWorkTime,
     setEditedWorkTime,
-    savingWorkTime,
+    savingWorkTime: updateAttendance.isPending,
     handleEditWorkTime,
     handleSaveWorkTime,
     // Work done modal
@@ -104,5 +105,16 @@ export function useAdminAttendanceHistory(
     selectedWorkDone,
     openWorkDoneModal,
     closeWorkDoneModal,
+    // Pagination
+    currentPage,
+    pagination,
+    goToNextPage,
+    goToPrevPage,
+    // Date filter
+    startDate,
+    endDate,
+    handleStartDateChange: (value: string) => { setStartDate(value); setCurrentPage(1); },
+    handleEndDateChange: (value: string) => { setEndDate(value); setCurrentPage(1); },
+    handleClearDates: () => { setStartDate(''); setEndDate(''); setCurrentPage(1); },
   };
 }
