@@ -40,7 +40,6 @@ export default function EmployeeDashboard() {
     handleMonthChange,
     addPhotoToRecord,
     deletePhotoFromRecord,
-    isUploading,
   } = useWorkRecords();
 
   useEffect(() => {

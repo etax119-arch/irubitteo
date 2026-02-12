@@ -1,7 +1,8 @@
 'use client';
 
-import { Download, Trash2, FileText, FileSpreadsheet, Image } from 'lucide-react';
+import { Download, Trash2, FileText, FileSpreadsheet, Image as ImageIcon } from 'lucide-react';
 import { IconButton } from '@/components/ui/IconButton';
+import { openExternalFile } from '@/lib/api/download';
 import type { AdminFile } from '@/types/adminFile';
 import { formatFileSize } from '@/lib/file';
 
@@ -15,7 +16,7 @@ function getFileIcon(mimeType: string | null) {
   if (mimeType.includes('spreadsheet') || mimeType.includes('excel'))
     return <FileSpreadsheet className="w-5 h-5 text-green-600" />;
   if (mimeType.startsWith('image/'))
-    return <Image className="w-5 h-5 text-blue-500" />;
+    return <ImageIcon className="w-5 h-5 text-blue-500" />;
   return <FileText className="w-5 h-5 text-red-500" />;
 }
 
@@ -26,7 +27,7 @@ interface FileListItemProps {
 
 export default function FileListItem({ file, onDelete }: FileListItemProps) {
   const handleDownload = () => {
-    window.open(file.filePath, '_blank');
+    openExternalFile(file.filePath);
   };
 
   return (

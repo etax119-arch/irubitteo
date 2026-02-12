@@ -9,6 +9,7 @@ import {
   compressImage,
   fileToBase64,
 } from '@/lib/file';
+import { useToast } from '@/components/ui/Toast';
 
 interface ProfileImageUploadProps {
   src: string | null;
@@ -28,6 +29,7 @@ export function ProfileImageUpload({
   editable = false,
 }: ProfileImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const toast = useToast();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,7 +41,12 @@ export function ProfileImageUpload({
       // HEIC 변환
       const heic = isHeicFile(file) || (await isHeicFileByContent(file));
       if (heic) {
-        blob = await convertHeicToJpeg(file);
+        try {
+          blob = await convertHeicToJpeg(file);
+        } catch {
+          toast.error('이미지 변환에 실패했습니다. 다른 형식의 사진을 사용해주세요.');
+          return;
+        }
       }
 
       // 압축 (512px, 0.8 quality)
@@ -48,7 +55,7 @@ export function ProfileImageUpload({
       const base64 = await fileToBase64(blob);
       onUpload(base64);
     } catch {
-      // 에러는 상위에서 toast로 처리
+      toast.error('이미지 처리에 실패했습니다.');
     }
 
     // input 초기화 (같은 파일 재선택 허용)

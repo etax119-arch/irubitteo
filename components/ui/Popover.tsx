@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 interface PopoverProps {
@@ -13,7 +13,6 @@ interface PopoverProps {
 
 export function Popover({ trigger, children, isOpen, onClose, className }: PopoverProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<'bottom' | 'top'>('bottom');
 
   useEffect(() => {
@@ -37,17 +36,12 @@ export function Popover({ trigger, children, isOpen, onClose, className }: Popov
     };
   }, [isOpen, onClose]);
 
-  useEffect(() => {
-    if (!isOpen || !dropdownRef.current) return;
-
-    const rect = dropdownRef.current.getBoundingClientRect();
+  const dropdownRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
     const spaceBelow = window.innerHeight - rect.top;
-    if (spaceBelow < rect.height + 8) {
-      setPlacement('top');
-    } else {
-      setPlacement('bottom');
-    }
-  }, [isOpen]);
+    setPlacement(spaceBelow < rect.height + 8 ? 'top' : 'bottom');
+  }, []);
 
   return (
     <div ref={containerRef} className="relative">

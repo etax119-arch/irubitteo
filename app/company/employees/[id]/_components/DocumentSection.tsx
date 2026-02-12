@@ -5,6 +5,7 @@ import { FileText, Upload, Trash2 } from 'lucide-react';
 import type { EmployeeFile } from '@/types/employee';
 import { Badge } from '@/components/ui/Badge';
 import { formatFileSize } from '@/lib/file';
+import { openExternalFile } from '@/lib/api/download';
 
 interface DocumentSectionProps {
   files: EmployeeFile[];
@@ -50,15 +51,7 @@ export function DocumentSection({ files, isLoading, onOpenUploadModal, onDelete 
               role="button"
               tabIndex={0}
               className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-              onClick={() => {
-                try {
-                  const url = new URL(file.filePath, window.location.origin);
-                  if (url.origin !== window.location.origin) return;
-                  window.open(url.href, '_blank', 'noopener,noreferrer');
-                } catch {
-                  // 잘못된 URL은 무시
-                }
-              }}
+              onClick={() => openExternalFile(file.filePath)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();

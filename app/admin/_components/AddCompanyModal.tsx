@@ -153,7 +153,7 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: Add
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="예: (주)두루빛 제조"
+                    placeholder="예: (주)이루빛 제조"
                     value={form.companyName}
                     onChange={(e) => updateForm('companyName', e.target.value)}
                     className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"

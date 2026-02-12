@@ -17,11 +17,13 @@ export default function CheckInPage() {
   const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
 
   // 출근 시간 설정 UI 상태 - KST 현재 시간을 기본값으로
-  const now = new Date();
-  const kstHour = (now.getUTCHours() + 9) % 24;
-  const kstMinute = now.getUTCMinutes();
-  const [hourInput, setHourInput] = useState(String(kstHour).padStart(2, '0'));
-  const [minuteInput, setMinuteInput] = useState(String(kstMinute).padStart(2, '0'));
+  const kstParts = new Intl.DateTimeFormat('ko-KR', {
+    hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Seoul',
+  }).formatToParts(new Date());
+  const kstHour = kstParts.find(p => p.type === 'hour')!.value;
+  const kstMinute = kstParts.find(p => p.type === 'minute')!.value;
+  const [hourInput, setHourInput] = useState(kstHour);
+  const [minuteInput, setMinuteInput] = useState(kstMinute);
 
   useEffect(() => {
     scheduleApi.getToday()

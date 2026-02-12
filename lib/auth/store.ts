@@ -59,10 +59,3 @@ export const useAuthStore = create<AuthStore>()(
     }
   )
 );
-
-// 로그아웃 이벤트 리스너 (client.ts에서 발생시킴)
-if (typeof window !== 'undefined') {
-  window.addEventListener('auth:logout', () => {
-    useAuthStore.getState().clearUser();
-  });
-}

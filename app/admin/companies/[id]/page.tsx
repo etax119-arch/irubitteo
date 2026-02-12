@@ -170,7 +170,6 @@ export default function CompanyDetailPage() {
             />
             <FileSection
               files={files}
-              companyId={id}
               isUploading={uploadFile.isPending}
               fileInputRef={fileInputRef}
               onFileChange={handleFileUpload}

@@ -22,7 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Related Projects
 
-두르비터 프로젝트는 여러 저장소로 구성됩니다:
+이루빛터 프로젝트는 여러 저장소로 구성됩니다:
 
 ```
 /Users/hyson/durubitteo/
@@ -116,7 +116,7 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 - Geist fonts configured as CSS variables: `--font-geist-sans`, `--font-geist-mono`
 
 ### Configuration Files
-- `next.config.ts` - Next.js config (currently default)
+- `next.config.ts` - Next.js config (API 프록시 rewrites, 보안 헤더)
 - `eslint.config.mjs` - ESLint v9 flat config extending next/core-web-vitals and next/typescript
 - `postcss.config.mjs` - PostCSS config (Tailwind, autoprefixer)
 - `tsconfig.json` - TypeScript with ES2017 target, strict mode, bundler module resolution
@@ -243,6 +243,7 @@ durubitteo_web/
 │
 ├── components/               # 공용 컴포넌트 (app 외부)
 │   ├── ProfileImageUpload.tsx # 프로필 이미지 업로드/삭제 (HEIC 변환, 압축)
+│   ├── PhotoLightbox.tsx      # 사진 확대 라이트박스 모달
 │   └── ui/                   # 전역 UI 프리미티브 (Button, Input, Modal 등)
 │
 ├── hooks/                    # 공용 훅 (여러 라우트에서 공유)

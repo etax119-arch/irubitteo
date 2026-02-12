@@ -161,7 +161,7 @@ export default function InquiryPage() {
       <header className="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-duru-orange-600">
-            두루빛터
+            이루빛터
           </Link>
           <Link
             href="/"
@@ -193,7 +193,7 @@ export default function InquiryPage() {
           <p className="text-base sm:text-lg text-gray-500 leading-relaxed break-keep max-w-lg mx-auto">
             간단한 정보만 남겨주시면
             <br />
-            두루빛터 담당 전문가가 직접 연락드려
+            이루빛터 담당 전문가가 직접 연락드려
             <br />
             기업에 맞는 고용 방향을 함께 고민해드립니다.
           </p>
@@ -297,7 +297,7 @@ export default function InquiryPage() {
                   onChange={handleChange}
                   onBlur={() => handleBlur('message')}
                   rows={5}
-                  placeholder={`장애인 고용 의무 비율 상담,\n제조·사무·물류 등 직무 배치 가능 여부,\n현재 고민 중인 내용을 자유롭게 작성해주세요.\n\n두루빛터 담당자가 내용을 확인 후 직접 연락드립니다.`}
+                  placeholder={`장애인 고용 의무 비율 상담,\n제조·사무·물류 등 직무 배치 가능 여부,\n현재 고민 중인 내용을 자유롭게 작성해주세요.\n\n이루빛터 담당자가 내용을 확인 후 직접 연락드립니다.`}
                   className={`${getInputClass('message')} resize-none`}
                 />
                 {touched.message && errors.message && (
@@ -311,7 +311,7 @@ export default function InquiryPage() {
                 <p className="text-sm text-gray-600 leading-relaxed">
                   문의 내용을 확인한 후,{' '}
                   <span className="font-semibold text-gray-800">
-                    두루빛터 담당 전문가가 직접 연락
+                    이루빛터 담당 전문가가 직접 연락
                   </span>
                   드립니다.
                   <br />
@@ -354,14 +354,14 @@ export default function InquiryPage() {
                 }`}
               >
                 {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
-                {submitting ? '신청 중...' : '두루빛터 상담 신청하기'}
+                {submitting ? '신청 중...' : '이루빛터 상담 신청하기'}
               </button>
 
               {/* 개인정보 안내 */}
               <p className="text-center text-xs text-gray-400 leading-relaxed">
                 입력하신 정보는 상담 목적 외에는 사용되지 않으며,
                 <br />
-                두루빛터 담당자가 직접 상담을 위해 연락드립니다.
+                이루빛터 담당자가 직접 상담을 위해 연락드립니다.
               </p>
             </form>
           </div>
@@ -389,7 +389,7 @@ export default function InquiryPage() {
             </h2>
 
             <p className="text-base text-gray-500 mb-8 leading-relaxed">
-              곧 두루빛터 담당자가
+              곧 이루빛터 담당자가
               <br />
               직접 연락드리겠습니다.
             </p>

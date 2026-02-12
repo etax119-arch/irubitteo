@@ -79,7 +79,7 @@ export default function EmployeeLoginPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-duru-orange-100 rounded-full mb-4">
               <Hash className="w-8 h-8 text-duru-orange-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">두루빛 출퇴근</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">이루빛 출퇴근</h1>
             <p className="text-gray-600">부여받은 고유 번호를 입력해주세요</p>
           </div>
 

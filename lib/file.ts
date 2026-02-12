@@ -63,7 +63,14 @@ export async function compressImage(
 ): Promise<Blob> {
   const { maxDimension = 1920, quality = 0.8 } = options ?? {};
 
-  const bitmap = await createImageBitmap(file);
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch {
+    // 이미지 디코딩 실패 시 (손상된 파일 등) 원본 반환
+    return file;
+  }
+
   const { width, height } = bitmap;
 
   const withinSize = file.size <= 200 * 1024;

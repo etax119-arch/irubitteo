@@ -40,7 +40,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    두르비터 플랫폼                                 │
+│                    이루빛터 플랫폼                                 │
 │                                                                  │
 │   ┌──────────────────────────────────────────────────────────┐  │
 │   │                    관리자 (단일)                           │  │
@@ -277,6 +277,11 @@ src/
 │  └──────────────────────────────────────────────────────────┘  │
 │                              │                                   │
 │  ┌──────────────────────────────────────────────────────────┐  │
+│  │              보안 헤더 (next.config.ts)                    │  │
+│  │         CSP, HSTS, X-Frame-Options 등                    │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                              │                                   │
+│  ┌──────────────────────────────────────────────────────────┐  │
 │  │              JWT 인증 (Access + Refresh)                  │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                              │                                   │
@@ -297,6 +302,30 @@ src/
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### 보안 헤더 (`next.config.ts`)
+
+| 헤더 | 값 | 목적 |
+|------|-----|------|
+| `X-Frame-Options` | `DENY` | 클릭재킹 방지 |
+| `X-Content-Type-Options` | `nosniff` | MIME 스니핑 방지 |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Referrer 정보 제한 |
+| `Permissions-Policy` | `camera=(self), microphone=(), geolocation=(self)` | 브라우저 기능 제한 |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | HTTPS 강제 |
+| `Content-Security-Policy` | `connect-src 'self' https:` 등 | 리소스 로딩 제한 |
+
+> **참고**: 개발 환경에서는 CSP `connect-src`에 `http://localhost:*`가 추가되어 로컬 API 서버 직접 호출을 허용합니다.
+
+### API 프록시 (`next.config.ts`)
+
+프로덕션에서 프론트엔드 → 백엔드 API 호출은 Next.js rewrites를 통해 프록시됩니다:
+
+```
+프론트엔드 → /api/proxy/:path* → 백엔드 API 서버
+```
+
+- **프로덕션**: `apiClient`의 baseURL이 `/api/proxy`로 설정 → same-origin 요청 (CSP `'self'` 충족)
+- **개발**: baseURL이 `http://localhost:4000/v1`로 설정 → CSP에서 `http://localhost:*` 허용
 
 ---
 

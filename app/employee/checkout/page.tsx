@@ -51,7 +51,7 @@ export default function CheckOutPage() {
       return;
     }
 
-    const newPhotos = await Promise.all(
+    const results = await Promise.all(
       files.map(async (file) => {
         let blob: File | Blob = file;
 
@@ -61,7 +61,8 @@ export default function CheckOutPage() {
           try {
             blob = await convertHeicToJpeg(file);
           } catch {
-            // 변환 실패 시 원본 사용
+            toast.error('이미지 변환에 실패했습니다. 다른 형식의 사진을 사용해주세요.');
+            return null;
           }
         }
 
@@ -77,7 +78,10 @@ export default function CheckOutPage() {
         };
       })
     );
-    setPhotos((prev) => [...prev, ...newPhotos]);
+    const newPhotos = results.filter((p): p is NonNullable<typeof p> => p !== null);
+    if (newPhotos.length > 0) {
+      setPhotos((prev) => [...prev, ...newPhotos]);
+    }
   };
 
   const removePhoto = (id: string) => {

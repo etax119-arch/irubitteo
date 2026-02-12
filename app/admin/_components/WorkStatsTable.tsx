@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Building2, ChevronDown, ChevronRight, Eye, Edit, Check, X } from 'lucide-react';
-import type { MonthlyWorkStatsCompany, WorkStatEmployee } from '@/types/adminDashboard';
+import type { MonthlyWorkStatsCompany } from '@/types/adminDashboard';
 
 interface WorkStatsTableProps {
   companies: MonthlyWorkStatsCompany[];

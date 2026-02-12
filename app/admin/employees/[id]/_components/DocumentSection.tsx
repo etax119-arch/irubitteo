@@ -2,6 +2,7 @@
 
 import { FileText, Upload, Eye, Download, Trash2 } from 'lucide-react';
 import { formatFileSize } from '@/lib/file';
+import { openExternalFile, downloadExternalFile } from '@/lib/api/download';
 import type { EmployeeFile } from '@/types/employee';
 
 type DocumentSectionProps = {
@@ -50,23 +51,20 @@ export function DocumentSection({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <a
-                  href={doc.filePath}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
                   className="p-2 hover:bg-white rounded-lg transition-colors"
                   title="미리보기"
+                  onClick={() => openExternalFile(doc.filePath)}
                 >
                   <Eye className="w-4 h-4 text-gray-600" />
-                </a>
-                <a
-                  href={doc.filePath}
-                  download
+                </button>
+                <button
                   className="p-2 hover:bg-white rounded-lg transition-colors"
                   title="다운로드"
+                  onClick={() => downloadExternalFile(doc.filePath, doc.fileName)}
                 >
                   <Download className="w-4 h-4 text-gray-600" />
-                </a>
+                </button>
                 <button
                   onClick={() => onDeleteFile(doc.id)}
                   className="p-2 hover:bg-white rounded-lg transition-colors"

@@ -130,10 +130,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
-        // CustomEvent로 로그아웃 트리거 (순환 참조 방지)
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('auth:logout'));
-        }
+        useAuthStore.getState().clearUser();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -145,17 +142,16 @@ apiClient.interceptors.response.use(
 );
 ```
 
-### CustomEvent 로그아웃 메커니즘 (`lib/auth/store.ts`)
+### 토큰 갱신 실패 시 로그아웃 (`lib/api/client.ts`)
 
-API 클라이언트에서 스토어를 직접 import하면 순환 참조가 발생합니다.
-CustomEvent를 사용하여 이를 해결:
+토큰 갱신 실패 시 `useAuthStore.getState().clearUser()`를 직접 호출하여 로그아웃 처리:
 
 ```typescript
-// store.ts
-if (typeof window !== 'undefined') {
-  window.addEventListener('auth:logout', () => {
-    useAuthStore.getState().clearUser();
-  });
+// client.ts (인터셉터 내부)
+} catch (refreshError) {
+  processQueue(refreshError);
+  useAuthStore.getState().clearUser();
+  return Promise.reject(refreshError);
 }
 ```
 
@@ -293,18 +289,18 @@ export function useAuth() {
 - [x] 토큰이 localStorage/sessionStorage에 저장되지 않음 (HttpOnly Cookie)
 - [x] localStorage에는 프로필 정보만 저장 (자격증명 미포함, 새로고침 UX 개선용)
 - [x] 로그인 에러 메시지 통일 (사용자/코드 존재 여부 식별 방지)
-- [ ] Cookie에 HttpOnly 플래그 설정됨 (서버 구현 필요)
-- [ ] HTTPS에서만 Cookie 전송됨 (서버 구현 필요)
+- [x] Cookie에 HttpOnly 플래그 설정됨
+- [x] HTTPS에서만 Cookie 전송됨
 
 ---
 
-## 8. 미완료 항목
+## 8. 완료된 항목
 
 | 항목 | 상태 | 비고 |
 |------|------|------|
-| HttpOnly Cookie 설정 | 미완료 | 백엔드에서 설정 필요 |
-| Secure 플래그 설정 | 미완료 | 백엔드에서 설정 필요 |
-| 토큰 갱신 API | 미완료 | 백엔드에서 구현 필요 |
+| HttpOnly Cookie 설정 | 완료 | 백엔드에서 설정 |
+| Secure 플래그 설정 | 완료 | 백엔드에서 설정 |
+| 토큰 갱신 API | 완료 | 백엔드에서 구현 |
 
 ---
 

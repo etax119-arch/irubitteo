@@ -127,6 +127,7 @@ npx prisma studio    # DB GUI 도구
 - **TypeScript 5** (strict)
 - **Tailwind CSS v3**
 - **Zustand** (클라이언트 상태)
+- **TanStack Query** (서버 상태 캐싱)
 
 ### 백엔드
 - **NestJS 11**

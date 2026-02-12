@@ -3,11 +3,11 @@
 import { RefObject } from 'react';
 import { FileText, Upload, Download, Trash2, Paperclip, Eye, Loader2 } from 'lucide-react';
 import { formatFileSize } from '@/lib/file';
+import { openExternalFile, downloadExternalFile } from '@/lib/api/download';
 import type { CompanyFile } from '@/types/company';
 
 interface FileSectionProps {
   files: CompanyFile[];
-  companyId: string;
   isUploading: boolean;
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (file: File) => void;
@@ -16,7 +16,6 @@ interface FileSectionProps {
 
 export function FileSection({
   files,
-  companyId,
   isUploading,
   fileInputRef,
   onFileChange,
@@ -89,23 +88,20 @@ export function FileSection({
                 </p>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
-                <a
-                  href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/v1'}/companies/${companyId}/files/${file.id}/download`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
                   className="p-2 hover:bg-white rounded-lg transition-colors"
                   title="보기"
+                  onClick={() => openExternalFile(file.filePath)}
                 >
                   <Eye className="w-4 h-4 text-gray-500" />
-                </a>
-                <a
-                  href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/v1'}/companies/${companyId}/files/${file.id}/download`}
-                  download
+                </button>
+                <button
                   className="p-2 hover:bg-white rounded-lg transition-colors"
                   title="다운로드"
+                  onClick={() => downloadExternalFile(file.filePath, file.fileName)}
                 >
                   <Download className="w-4 h-4 text-gray-500" />
-                </a>
+                </button>
                 <button
                   className="p-2 hover:bg-white rounded-lg transition-colors"
                   title="삭제"

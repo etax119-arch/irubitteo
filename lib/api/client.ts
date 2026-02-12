@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { useAuthStore } from '@/lib/auth/store';
 
 // 커스텀 요청 설정 속성 (인터셉터에서 사용)
 declare module 'axios' {
@@ -11,11 +12,14 @@ declare module 'axios' {
   }
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/v1';
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? '/api/proxy'
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/v1');
 
 // axios 인스턴스 생성
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 30000, // 30초 타임아웃
   withCredentials: true, // HttpOnly Cookie 전송을 위해 필수
   headers: {
     'Content-Type': 'application/json',
@@ -80,11 +84,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError);
         // 갱신 실패 시 로그아웃 처리 (쿠키 삭제는 서버에서 처리)
-        // 클라이언트 상태는 store에서 처리
-        if (typeof window !== 'undefined') {
-          // 로그아웃 이벤트 발생
-          window.dispatchEvent(new CustomEvent('auth:logout'));
-        }
+        useAuthStore.getState().clearUser();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

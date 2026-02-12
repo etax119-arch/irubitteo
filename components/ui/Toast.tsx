@@ -19,7 +19,7 @@ interface ToastState {
   removeToast: (id: string) => void;
 }
 
-const useToastStore = create<ToastState>((set) => ({
+export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
   addToast: (message, variant) => {
     const id = crypto.randomUUID();
