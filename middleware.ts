@@ -15,7 +15,9 @@ const AUTH_ROUTES = ['/login/admin', '/login/company', '/login/employee'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Cookie에서 인증 상태 확인 (서버에서 설정해야 함)
+  // 크로스 도메인 배포 환경에서는 백엔드 쿠키를 미들웨어에서 읽을 수 없으므로
+  // 인증 보호는 클라이언트 사이드 layout에서 처리 (useAuth 훅)
+  // 미들웨어는 쿠키가 있는 경우에만 역할 기반 라우팅 수행
   const authStatus = request.cookies.get('auth-status')?.value;
   const userRole = request.cookies.get('user-role')?.value as
     | UserRole
@@ -23,24 +25,16 @@ export function middleware(request: NextRequest) {
 
   const isAuthenticated = authStatus === 'authenticated';
 
-  // 보호된 경로 확인
+  // 보호된 경로: 쿠키가 있을 때만 역할 검증 (쿠키 없으면 layout에서 처리)
   const matchedRoute = Object.keys(PROTECTED_ROUTES).find((route) =>
     pathname.startsWith(route)
   );
 
-  if (matchedRoute) {
+  if (matchedRoute && isAuthenticated && userRole) {
     const allowedRoles = PROTECTED_ROUTES[matchedRoute];
 
-    // 미인증 시 로그인 페이지로 리다이렉트
-    if (!isAuthenticated) {
-      const loginUrl = new URL(`/login/${allowedRoles[0]}`, request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
     // 역할별 접근 제어
-    if (userRole && !allowedRoles.includes(userRole)) {
-      // 허용되지 않은 역할이면 해당 역할의 대시보드로 리다이렉트
+    if (!allowedRoles.includes(userRole)) {
       const redirectUrl = new URL(`/${userRole}`, request.url);
       return NextResponse.redirect(redirectUrl);
     }
