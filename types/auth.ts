@@ -47,3 +47,8 @@ export type LoginResponse = {
   message?: string;
   // accessToken, refreshToken은 HttpOnly Cookie로 서버에서 설정됨
 };
+
+export type ChangePasswordParams = {
+  currentPassword: string;
+  newPassword: string;
+};

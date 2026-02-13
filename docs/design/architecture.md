@@ -227,6 +227,7 @@ app/
 | `/admin/workstats` | AdminDashboard.jsx | 탭: 근무 통계 |
 | `/admin/notifications` | AdminDashboard.jsx | 탭: 알림센터 |
 | `/admin/reports` | AdminDashboard.jsx | 탭: 리포트 |
+| `/admin/settings` | AdminDashboard.jsx (확장) | 관리자 계정 설정 (비밀번호 변경) |
 
 ---
 

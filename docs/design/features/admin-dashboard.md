@@ -10,13 +10,13 @@
 
 ## 구현 상태
 
-**구현 완료** (2026-02-05)
+**구현 완료** (2026-02-13)
 
 ### 라우트 구조
 
 ```
 /app/admin/
-├── layout.tsx              # 헤더 + 6개 탭 네비게이션 (Link 기반)
+├── layout.tsx              # 헤더 + 6개 탭 네비게이션 (Link 기반) + 계정 설정 버튼
 ├── page.tsx                # → /admin/dashboard 리다이렉트
 ├── _components/
 │   ├── AdminStatCard.tsx   # 통계 카드 (badge 지원)
@@ -45,7 +45,8 @@
 │       └── _components/    # ProfileCard, AdminNoteSection, CompanyNoteSection, ResignInfoSection, AttendanceHistoryTable, WorkInfoSection, DocumentSection, FileUploadModal, WorkTimeEditModal, WorkDoneModal
 ├── workstats/page.tsx      # 근무 통계 탭
 ├── notifications/page.tsx  # 알림센터 탭
-└── reports/page.tsx        # 리포트 탭
+├── reports/page.tsx        # 리포트 탭
+└── settings/page.tsx       # 관리자 계정 설정 (비밀번호 변경)
 ```
 
 ### 타입 정의
@@ -58,6 +59,7 @@
 
 - `/lib/api/admin.ts` - Admin API (통계, 출퇴근, 월간 통계, 알림, 파일 관리)
 - `/lib/api/inquiries.ts` - 기업 문의 API
+- `/lib/api/auth.ts` - 인증 API (로그인/로그아웃/내 정보/비밀번호 변경)
 
 ### URL 구조
 
@@ -72,6 +74,7 @@
 | `/admin/workstats` | 근무 통계 탭 |
 | `/admin/notifications` | 알림센터 탭 |
 | `/admin/reports` | 리포트 탭 |
+| `/admin/settings` | 관리자 계정 설정 페이지 |
 
 ---
 
@@ -406,6 +409,7 @@ deleteAdminFile(fileId)                    → 파일 삭제
 - [x] 근무 통계 탭: 회사별 아코디언, 인라인 수정, 인쇄 프리뷰 모달
 - [x] 알림센터 탭: 결근 알림, 기업 문의, 상세 모달
 - [x] 리포트 탭: 파일 저장소 (업로드/다운로드/삭제)
+- [x] 헤더 우측 계정 설정 버튼 + 비밀번호 변경 페이지 (`/admin/settings`)
 
 ### 백엔드 연동 완료
 - [x] 대시보드 통계 (`GET /admin/stats`)
@@ -417,6 +421,7 @@ deleteAdminFile(fileId)                    → 파일 삭제
 - [x] 비고 업데이트 조회 (`GET /admin/note-updates`)
 - [x] 비고 업데이트 읽음 처리 (`PATCH /admin/note-updates/dismiss`)
 - [x] 기업 문의 조회/처리 (`GET/PATCH /inquiries`)
+- [x] 관리자 비밀번호 변경 (`PATCH /auth/password`, 성공 시 재로그인)
 - [x] 더미 데이터 제거
 
 ### 백엔드 연동 완료

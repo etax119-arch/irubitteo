@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { AuthUser, LoginResponse } from '@/types/auth';
+import type { AuthUser, LoginResponse, ChangePasswordParams } from '@/types/auth';
 
 export type LoginParams =
   | { type: 'admin'; email: string; password: string }
@@ -48,6 +48,14 @@ export const authApi = {
   async getMe(): Promise<AuthUser> {
     const response = await apiClient.get<{ user: AuthUser }>('/auth/me');
     return response.data.user;
+  },
+
+  /**
+   * 관리자 비밀번호 변경
+   * - 성공 시 서버에서 인증 쿠키를 정리하여 재로그인 필요
+   */
+  async changePassword(params: ChangePasswordParams): Promise<void> {
+    await apiClient.patch('/auth/password', params);
   },
 };
 
