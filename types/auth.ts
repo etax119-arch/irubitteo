@@ -52,3 +52,16 @@ export type ChangePasswordParams = {
   currentPassword: string;
   newPassword: string;
 };
+
+export type CreateAdminAccountParams = {
+  email: string;
+  name: string;
+  password: string;
+};
+
+export type AdminAccountSummary = {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+};
