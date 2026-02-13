@@ -2,21 +2,31 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Lock, Loader2, Mail, User } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
+import { useAdminAccounts } from '../_hooks/useAdminAccountQuery';
 import { authApi } from '@/lib/api/auth';
 import { createAdminAccount } from '@/lib/api/admin';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useAuthStore } from '@/lib/auth/store';
+import { formatKSTDateTime } from '@/lib/kst';
+import { adminKeys } from '@/lib/query/keys';
 
 export default function AdminSettingsPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const toast = useToast();
   const clearUser = useAuthStore((s) => s.clearUser);
+  const {
+    data: adminAccounts,
+    isLoading: isAdminAccountsLoading,
+    isError: isAdminAccountsError,
+    refetch: refetchAdminAccounts,
+  } = useAdminAccounts();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -45,6 +55,7 @@ export default function AdminSettingsPage() {
       setAdminName('');
       setAdminPassword('');
       setConfirmAdminPassword('');
+      void queryClient.invalidateQueries({ queryKey: adminKeys.accounts() });
     },
     onError: (err) => {
       toast.error(extractErrorMessage(err));
@@ -253,6 +264,61 @@ export default function AdminSettingsPage() {
               {createAdminMutation.isPending ? '생성 중...' : '관리자 계정 생성'}
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h2 className="text-2xl font-bold text-gray-900">관리자 계정 리스트</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            현재 등록된 관리자 계정 목록입니다.
+          </p>
+        </CardHeader>
+
+        <CardContent>
+          {isAdminAccountsLoading && (
+            <p className="text-sm text-gray-600">불러오는 중...</p>
+          )}
+
+          {isAdminAccountsError && (
+            <div className="space-y-3">
+              <p className="text-sm text-red-600">
+                관리자 계정 목록을 불러오지 못했습니다.
+              </p>
+              <Button variant="secondary" size="sm" onClick={() => refetchAdminAccounts()}>
+                다시 시도
+              </Button>
+            </div>
+          )}
+
+          {!isAdminAccountsLoading && !isAdminAccountsError && (
+            <>
+              {adminAccounts && adminAccounts.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">이름</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">이메일</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">생성일시</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminAccounts.map((account) => (
+                        <tr key={account.id} className="border-b border-gray-100 last:border-0">
+                          <td className="px-3 py-3 text-gray-900">{account.name}</td>
+                          <td className="px-3 py-3 text-gray-700">{account.email}</td>
+                          <td className="px-3 py-3 text-gray-700">{formatKSTDateTime(account.createdAt)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-600">등록된 관리자 계정이 없습니다.</p>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -139,3 +139,10 @@ export async function createAdminAccount(
   );
   return response.data.data;
 }
+
+export async function getAdminAccounts(): Promise<AdminAccountSummary[]> {
+  const response = await apiClient.get<{ success: boolean; data: AdminAccountSummary[] }>(
+    '/admin/accounts'
+  );
+  return response.data.data;
+}

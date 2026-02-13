@@ -46,7 +46,7 @@
 ├── workstats/page.tsx      # 근무 통계 탭
 ├── notifications/page.tsx  # 알림센터 탭
 ├── reports/page.tsx        # 리포트 탭
-└── settings/page.tsx       # 관리자 계정 설정 (비밀번호 변경 + 관리자 계정 추가)
+└── settings/page.tsx       # 관리자 계정 설정 (비밀번호 변경 + 관리자 계정 추가 + 관리자 계정 리스트)
 ```
 
 ### 타입 정의
@@ -57,7 +57,7 @@
 
 ### API 클라이언트
 
-- `/lib/api/admin.ts` - Admin API (통계, 출퇴근, 월간 통계, 알림, 파일 관리, 관리자 계정 생성)
+- `/lib/api/admin.ts` - Admin API (통계, 출퇴근, 월간 통계, 알림, 파일 관리, 관리자 계정 생성/목록 조회)
 - `/lib/api/inquiries.ts` - 기업 문의 API
 - `/lib/api/auth.ts` - 인증 API (로그인/로그아웃/내 정보/비밀번호 변경)
 
@@ -411,6 +411,7 @@ deleteAdminFile(fileId)                    → 파일 삭제
 - [x] 리포트 탭: 파일 저장소 (업로드/다운로드/삭제)
 - [x] 헤더 우측 계정 설정 버튼 + 계정 설정 페이지 (`/admin/settings`)
 - [x] 관리자 계정 추가 폼 (이메일/이름/초기 비밀번호 + 검증)
+- [x] 관리자 계정 리스트 섹션 (이름/이메일/생성일시, 로딩/에러/빈 상태)
 
 ### 백엔드 연동 완료
 - [x] 대시보드 통계 (`GET /admin/stats`)
@@ -424,6 +425,7 @@ deleteAdminFile(fileId)                    → 파일 삭제
 - [x] 기업 문의 조회/처리 (`GET/PATCH /inquiries`)
 - [x] 관리자 비밀번호 변경 (`PATCH /auth/password`, 성공 시 재로그인)
 - [x] 관리자 계정 생성 (`POST /admin/accounts`)
+- [x] 관리자 계정 목록 조회 (`GET /admin/accounts`)
 - [x] 더미 데이터 제거
 
 ### 백엔드 연동 완료

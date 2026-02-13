@@ -35,6 +35,7 @@ export const adminKeys = {
   all: ['admin'] as const,
   stats: () => ['admin', 'stats'] as const,
   dailyAttendance: (date: string) => ['admin', 'daily-attendance', date] as const,
+  accounts: () => ['admin', 'accounts'] as const,
   absenceAlerts: () => ['admin', 'absence-alerts'] as const,
   noteUpdates: () => ['admin', 'note-updates'] as const,
   notifAbsenceAlerts: () => ['admin', 'absence-alerts', 'notif'] as const,
