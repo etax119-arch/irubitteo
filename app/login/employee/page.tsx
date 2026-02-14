@@ -105,7 +105,7 @@ export default function EmployeeLoginPage() {
                     onKeyDown={handleFirstPartKeyDown}
                     maxLength={4}
                     autoFocus
-                    className="w-[80px] py-2 text-2xl text-center tracking-[0.2em] font-semibold border-0 bg-transparent hover:border-0 focus:ring-0"
+                    className="w-[80px] px-0 py-2 text-2xl text-center tracking-[0.2em] font-semibold border-0 bg-transparent hover:border-0 focus:ring-0"
                   />
                 </div>
                 <span className="text-2xl font-bold text-gray-400">-</span>
@@ -119,7 +119,7 @@ export default function EmployeeLoginPage() {
                     onChange={handleSecondPartChange}
                     onKeyDown={handleSecondPartKeyDown}
                     maxLength={4}
-                    className="w-[80px] py-2 text-2xl text-center tracking-[0.2em] font-semibold border-0 bg-transparent hover:border-0 focus:ring-0"
+                    className="w-[80px] px-0 py-2 text-2xl text-center tracking-[0.2em] font-semibold border-0 bg-transparent hover:border-0 focus:ring-0"
                   />
                 </div>
               </div>
