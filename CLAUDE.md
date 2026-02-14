@@ -390,5 +390,6 @@ function MyComponent() {
 | `verify-imports` | Import 경로 규칙 검증 |
 | `verify-query-patterns` | TanStack Query 패턴 검증 |
 | `verify-file-structure` | 파일 배치/명명 규칙 검증 |
+| `verify-security` | 보안 패턴 검증 (헤더, 인증, 토큰, 라우트 보호) |
 | `verify-implementation` | 모든 verify 스킬 통합 실행 |
 | `manage-skills` | 검증 스킬 유지보수 |

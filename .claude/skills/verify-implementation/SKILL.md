@@ -32,6 +32,7 @@ argument-hint: "[선택사항: 특정 verify 스킬 이름]"
 | 1 | `verify-imports` | Import 경로 규칙 검증 |
 | 2 | `verify-query-patterns` | TanStack Query 패턴 검증 |
 | 3 | `verify-file-structure` | 파일 배치/명명 규칙 검증 |
+| 4 | `verify-security` | 보안 헤더, 인증, 토큰 관리 패턴 검증 |
 
 ## 워크플로우
 
