@@ -391,5 +391,6 @@ function MyComponent() {
 | `verify-query-patterns` | TanStack Query 패턴 검증 |
 | `verify-file-structure` | 파일 배치/명명 규칙 검증 |
 | `verify-security` | 보안 패턴 검증 (헤더, 인증, 토큰, 라우트 보호) |
+| `verify-ui-patterns` | UI 컴포넌트 사용 패턴 검증 (input, textarea, checkbox, button, dialog) |
 | `verify-implementation` | 모든 verify 스킬 통합 실행 |
 | `manage-skills` | 검증 스킬 유지보수 |

@@ -33,6 +33,7 @@ argument-hint: "[선택사항: 특정 verify 스킬 이름]"
 | 2 | `verify-query-patterns` | TanStack Query 패턴 검증 |
 | 3 | `verify-file-structure` | 파일 배치/명명 규칙 검증 |
 | 4 | `verify-security` | 보안 헤더, 인증, 토큰 관리 패턴 검증 |
+| 5 | `verify-ui-patterns` | UI 컴포넌트 사용 패턴 검증 |
 
 ## 워크플로우
 

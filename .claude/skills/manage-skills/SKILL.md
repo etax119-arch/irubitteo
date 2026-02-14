@@ -34,6 +34,7 @@ argument-hint: "[선택사항: 특정 스킬 이름 또는 집중할 영역]"
 | `verify-query-patterns` | TanStack Query 패턴 검증 | `lib/query/**`, `hooks/use*.ts`, `app/**/_hooks/use*.ts` |
 | `verify-file-structure` | 파일 배치/명명 규칙 검증 | `app/**`, `components/**`, `hooks/**`, `types/**` |
 | `verify-security` | 보안 헤더, 인증, 토큰 관리 패턴 검증 | `next.config.ts`, `lib/api/client.ts`, `middleware.ts`, `lib/auth/store.ts`, `app/**/settings/page.tsx` |
+| `verify-ui-patterns` | UI 컴포넌트 사용 패턴 검증 | `app/**/*.tsx`, `components/ui/*.tsx` |
 
 ## 워크플로우
 
