@@ -101,7 +101,8 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 │   └── [id]/page.tsx
 ├── workstats/page.tsx
 ├── notifications/page.tsx
-└── reports/page.tsx
+├── reports/page.tsx
+└── settings/page.tsx
 ```
 
 장점: URL 북마크/공유 가능, 브라우저 히스토리 지원
@@ -206,7 +207,8 @@ durubitteo_web/
 │       │   ├── useAdminNotificationQuery.ts    # 알림센터 Query 훅
 │       │   ├── useAdminNotificationMutations.ts # 알림센터 Mutation 훅
 │       │   ├── useAdminReports.ts              # 리포트 파일 Query/Mutation 훅
-│       │   └── useAdminWorkstats.ts            # 근무통계 Query/Mutation 훅
+│       │   ├── useAdminWorkstats.ts            # 근무통계 Query/Mutation 훅
+│       │   └── useAdminAccountQuery.ts         # 관리자 계정 Query 훅
 │       ├── _components/
 │       │   ├── AdminStatCard.tsx
 │       │   ├── CompanyCard.tsx
@@ -234,12 +236,14 @@ durubitteo_web/
 │       │       └── _components/  # ProfileCard, AdminNoteSection, CompanyNoteSection, ResignInfoSection, AttendanceHistoryTable, WorkInfoSection, DocumentSection, FileUploadModal, WorkTimeEditModal, WorkDoneModal
 │       ├── workstats/        # 근무 통계 탭
 │       ├── notifications/    # 알림센터 탭
-│       └── reports/          # 리포트 탭 (파일 저장소)
-│           ├── page.tsx
-│           └── _components/
-│               ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
-│               ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
-│               └── FileUploadModal.tsx # 업로드 모달
+│       ├── reports/          # 리포트 탭 (파일 저장소)
+│       │   ├── page.tsx
+│       │   └── _components/
+│       │       ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
+│       │       ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
+│       │       └── FileUploadModal.tsx # 업로드 모달
+│       └── settings/        # 설정 탭
+│           └── page.tsx
 │
 ├── components/               # 공용 컴포넌트 (app 외부)
 │   ├── ProfileImageUpload.tsx # 프로필 이미지 업로드/삭제 (HEIC 변환, 압축)
