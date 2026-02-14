@@ -49,6 +49,16 @@ disable-model-invocation: true
 | `app/admin/_hooks/useAdminReports.ts` | 관리자 리포트 훅 |
 | `app/admin/_hooks/useAdminWorkstats.ts` | 관리자 근무통계 훅 |
 | `app/admin/_hooks/useAdminAccountQuery.ts` | 관리자 계정 Query 훅 |
+| `app/employee/_hooks/useAttendance.ts` | 직원 출퇴근 훅 |
+| `app/employee/_hooks/useEmployeeNotice.ts` | 직원 공지사항 훅 |
+| `app/employee/_hooks/useWorkRecords.ts` | 직원 활동 기록 훅 |
+| `app/company/employees/_hooks/useAttendanceHistory.ts` | 기업 직원 출퇴근 이력 훅 |
+| `app/company/employees/_hooks/useEmployeeEditForm.ts` | 기업 직원 수정 폼 훅 |
+| `app/company/employees/_hooks/useEmployeeFiles.ts` | 기업 직원 파일 훅 |
+| `app/admin/companies/[id]/_hooks/useCompanyDetailUI.ts` | 관리자 회원사 상세 UI 훅 |
+| `app/admin/employees/[id]/_hooks/useAdminAttendanceHistory.ts` | 관리자 직원 출퇴근 이력 훅 |
+| `app/admin/employees/[id]/_hooks/useAdminEditForm.ts` | 관리자 직원 수정 폼 훅 |
+| `app/admin/employees/[id]/_hooks/useAdminEmployeeFiles.ts` | 관리자 직원 파일 훅 |
 
 ## 워크플로우
 
@@ -88,13 +98,15 @@ glob: "**/*Query.ts"
 ```
 
 ```
-# *Mutations.ts 파일에서 useQuery 사용 탐지
-pattern: "useQuery"
+# *Mutations.ts 파일에서 useQuery 호출 탐지 (useQueryClient 제외)
+pattern: "useQuery\("
 glob: "**/*Mutations.ts"
 ```
 
 **PASS 기준:** 두 검색 모두 매칭 0건
 **FAIL 기준:** Query 파일에 Mutation이 있거나 그 반대
+
+**주의:** `useQuery\(` 패턴은 함수 호출만 탐지합니다. `useQueryClient` import는 Mutation 파일에서 캐시 무효화를 위해 정상적으로 사용되므로 탐지 대상이 아닙니다.
 
 **수정 방법:** 혼재된 훅을 적절한 파일로 분리합니다. (예: `useDashboardQuery.ts`에 있는 `useMutation` → `useDashboardMutations.ts`로 이동)
 
