@@ -58,6 +58,16 @@ npm start        # Run production server
 npm run lint     # ESLint check
 ```
 
+## Docker 개발 환경
+
+프론트 루트(`irubitteo`)의 `docker-compose.yml` 하나로 프론트엔드+서버를 함께 실행합니다.
+
+```bash
+docker compose up --build
+```
+
+코드 변경 자동 반영을 위해 bind mount + watch 모드(`next dev`, `nest start --watch`)를 사용합니다.
+
 ## Tech Stack
 
 - **Next.js 16.1.6** with App Router (not Pages Router)

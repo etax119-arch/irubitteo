@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Printer, FileDown, User, Phone, Mail, Copy, Check } from 'lucide-react';
+import { X, Printer, FileDown, User, Phone, Mail, Copy, Check, Loader2 } from 'lucide-react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import type { WorkStatEmployee } from '@/types/adminDashboard';
 
 interface PrintPreviewModalProps {
@@ -45,6 +46,8 @@ function PrintPreviewContent({
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [localWorkers, setLocalWorkers] = useState<WorkStatEmployee[]>(() => copyWorkers(workers));
   const [editingCell, setEditingCell] = useState<{ workerId: string; field: 'workDays' | 'totalHours' } | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const toast = useToast();
 
   const avgWorkDays = localWorkers.length > 0
     ? (localWorkers.reduce((sum, w) => sum + w.workDays, 0) / localWorkers.length).toFixed(1)
@@ -74,21 +77,87 @@ function PrintPreviewContent({
     window.print();
   };
 
+  const handleSavePdf = async () => {
+    setIsGeneratingPdf(true);
+
+    // 편집 중이면 종료하고 re-render 대기
+    if (editingCell) {
+      setEditingCell(null);
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    const element = document.getElementById('print-content');
+    if (!element) {
+      toast.error('PDF 생성에 실패했습니다.');
+      setIsGeneratingPdf(false);
+      return;
+    }
+
+    // print: 클래스 처리 - html2canvas는 screen 뷰를 캡처하므로 인라인 스타일로 토글
+    const printHiddenEls = element.querySelectorAll<HTMLElement>('.print\\:hidden');
+    const hiddenPrintInlineEls = element.querySelectorAll<HTMLElement>('.hidden.print\\:inline');
+
+    const savedStyles: { el: HTMLElement; display: string }[] = [];
+
+    printHiddenEls.forEach(el => {
+      savedStyles.push({ el, display: el.style.display });
+      el.style.display = 'none';
+    });
+    hiddenPrintInlineEls.forEach(el => {
+      savedStyles.push({ el, display: el.style.display });
+      el.style.display = 'inline';
+    });
+
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      const filename = `${companyName}_근무통계_${selectedMonth}.pdf`;
+
+      await html2pdf()
+        .set({
+          margin: 10,
+          filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        })
+        .from(element)
+        .save();
+    } catch {
+      toast.error('PDF 생성 중 오류가 발생했습니다.');
+    } finally {
+      // 원래 스타일 복원
+      savedStyles.forEach(({ el, display }) => {
+        el.style.display = display;
+      });
+      setIsGeneratingPdf(false);
+    }
+  };
+
   const hasPmInfo = pmContactName || pmContactPhone || pmContactEmail;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 print:hidden">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xl font-bold text-gray-900">인쇄 프리뷰</h2>
             <div className="flex items-center gap-2">
               <button
-                onClick={handlePrint}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
+                onClick={handleSavePdf}
+                disabled={isGeneratingPdf}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <FileDown className="w-4 h-4" />
-                PDF로 저장
+                {isGeneratingPdf ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    PDF 생성 중...
+                  </>
+                ) : (
+                  <>
+                    <FileDown className="w-4 h-4" />
+                    PDF로 저장
+                  </>
+                )}
               </button>
               <button
                 onClick={handlePrint}

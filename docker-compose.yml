@@ -1,26 +1,26 @@
 services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
     ports:
       - "3000:3000"
     volumes:
       - .:/app
-      - web_node_modules:/app/node_modules
-      - web_next:/app/.next
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
     environment:
-      - NEXT_PUBLIC_API_URL=http://server:4000/v1
-      - WATCHPACK_POLLING=true
+      NEXT_PUBLIC_API_URL: http://server:4000/v1
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    command: sh -c "npm install && npm run dev"
     depends_on:
       server:
         condition: service_healthy
     restart: unless-stopped
 
   server:
-    build:
-      context: ../irubitteo_server
-      dockerfile: Dockerfile.dev
+    image: node:20-alpine
+    working_dir: /app
     ports:
       - "4000:4000"
     volumes:
@@ -29,16 +29,27 @@ services:
     env_file:
       - ../irubitteo_server/.env
     environment:
-      - NODE_OPTIONS=--trace-uncaught --trace-warnings
-    restart: unless-stopped
+      CHOKIDAR_USEPOLLING: "true"
+    command: >
+      sh -c "apk add --no-cache python3 make g++ &&
+      npm install &&
+      npx prisma generate &&
+      npm run start:dev"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/v1/health',r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:4000/v1/health',res=>process.exit(res.statusCode===200?0:1)).on('error',()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 90s
+      start_period: 60s
+    restart: unless-stopped
 
 volumes:
-  web_node_modules:
-  web_next:
+  frontend_node_modules:
+  frontend_next:
   server_node_modules:
