@@ -2,6 +2,7 @@
 
 import { AlertTriangle, X, Trash2 } from 'lucide-react';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface ResignForm {
   date: string;
@@ -62,18 +63,13 @@ export function ResignModal({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              비고 (탈퇴 사유 등)
-            </label>
-            <textarea
-              value={resignForm.reason}
-              onChange={(e) => setResignForm({ ...resignForm, reason: e.target.value })}
-              placeholder="탈퇴 사유나 특이사항을 입력해주세요..."
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
-            />
-          </div>
+          <Textarea
+            label="비고 (탈퇴 사유 등)"
+            value={resignForm.reason}
+            onChange={(e) => setResignForm({ ...resignForm, reason: e.target.value })}
+            placeholder="탈퇴 사유나 특이사항을 입력해주세요..."
+            rows={4}
+          />
 
           <div className="flex gap-3 pt-4">
             <button

@@ -1,6 +1,7 @@
 'use client';
 
 import { MessageSquare, Edit2, Check, Loader2 } from 'lucide-react';
+import { Textarea } from '@/components/ui/Textarea';
 
 type AdminNoteSectionProps = {
   notes: string;
@@ -64,12 +65,12 @@ export function AdminNoteSection({
           </p>
         </div>
       ) : (
-        <textarea
+        <Textarea
           value={tempNotes}
           onChange={(e) => setTempNotes(e.target.value)}
           placeholder="근로자 특징이나 특이사항을 입력하세요..."
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-duru-orange-500 resize-none"
+          className="text-xs"
         />
       )}
     </div>

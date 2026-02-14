@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { X, Printer, FileDown, User, Phone, Mail, Copy, Check } from 'lucide-react';
+import { IconButton } from '@/components/ui/IconButton';
+import { Input } from '@/components/ui/Input';
 import type { WorkStatEmployee } from '@/types/adminDashboard';
 
 interface PrintPreviewModalProps {
@@ -95,9 +97,7 @@ function PrintPreviewContent({
                 <Printer className="w-4 h-4" />
                 인쇄
               </button>
-              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <X className="w-5 h-5 text-gray-600" />
-              </button>
+              <IconButton onClick={onClose} variant="ghost" size="sm" icon={<X className="w-full h-full" />} label="닫기" />
             </div>
           </div>
           {hasPmInfo && (
@@ -194,10 +194,11 @@ function PrintPreviewContent({
                     </td>
                     <td className="px-4 py-3 text-center text-gray-900 border border-gray-300">
                       {editingCell?.workerId === worker.id && editingCell?.field === 'workDays' ? (
-                        <input
+                        <Input
                           type="number"
                           min="0"
-                          className="w-16 px-2 py-1 text-center border border-duru-orange-300 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+                          size="sm"
+                          className="w-16 text-center"
                           value={worker.workDays}
                           onChange={e => updateNumericField(worker.id, 'workDays', e.target.value)}
                           onBlur={() => setEditingCell(null)}
@@ -215,11 +216,12 @@ function PrintPreviewContent({
                     </td>
                     <td className="px-4 py-3 text-center font-bold text-blue-600 border border-gray-300">
                       {editingCell?.workerId === worker.id && editingCell?.field === 'totalHours' ? (
-                        <input
+                        <Input
                           type="number"
                           min="0"
                           step="0.5"
-                          className="w-16 px-2 py-1 text-center border border-duru-orange-300 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+                          size="sm"
+                          className="w-16 text-center"
                           value={worker.totalHours}
                           onChange={e => updateNumericField(worker.id, 'totalHours', e.target.value)}
                           onBlur={() => setEditingCell(null)}

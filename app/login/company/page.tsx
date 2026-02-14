@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Hash, LogIn, AlertTriangle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Input } from '@/components/ui/Input';
 import { AxiosError } from 'axios';
 
 export default function CompanyLoginPage() {
@@ -61,18 +62,17 @@ export default function CompanyLoginPage() {
 
           <div className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                고유 번호
-              </label>
-              <input
+              <Input
                 type="text"
+                label="고유 번호"
                 placeholder="예) COMPANY123"
                 value={companyId}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 autoFocus
-                className={`w-full px-4 py-4 border rounded-lg text-2xl text-center tracking-[0.3em] font-semibold placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-500 placeholder:text-center focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent ${
-                  loginError ? 'border-red-500' : 'border-gray-300'
+                size="lg"
+                className={`text-2xl text-center tracking-[0.3em] font-semibold placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-500 placeholder:text-center ${
+                  loginError ? 'border-red-500' : ''
                 }`}
               />
               {loginError && (

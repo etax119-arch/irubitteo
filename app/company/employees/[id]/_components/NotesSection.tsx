@@ -1,4 +1,5 @@
 import { MessageSquare, Edit2, Check } from 'lucide-react';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface NotesSectionProps {
   notes: string;
@@ -62,13 +63,13 @@ export function NotesSection({
           </p>
         </div>
       ) : (
-        <textarea
+        <Textarea
           value={tempNotes}
           onChange={(e) => setTempNotes(e.target.value)}
           disabled={isSaving}
           placeholder="근로자 특징이나 특이사항을 입력하세요..."
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-duru-orange-500 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-xs"
         />
       )}
     </div>

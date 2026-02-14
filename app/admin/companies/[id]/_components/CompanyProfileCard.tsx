@@ -12,6 +12,8 @@ import {
   Save,
   Clock,
 } from 'lucide-react';
+import { Textarea } from '@/components/ui/Textarea';
+import { Input } from '@/components/ui/Input';
 import { formatKSTDate } from '@/lib/kst';
 import type { CompanyWithEmployeeCount } from '@/types/company';
 
@@ -66,11 +68,11 @@ export function CompanyProfileCard({
           <div className="flex-1">
             <span className="text-gray-600 block">주소:</span>
             {isEditing ? (
-              <textarea
+              <Textarea
                 value={editedInfo.address}
                 onChange={(e) => setEditedInfo({ ...editedInfo, address: e.target.value })}
                 rows={2}
-                className="w-full mt-1 px-2 py-1 border border-gray-300 rounded"
+                className="mt-1 text-sm"
               />
             ) : (
               <span className="font-semibold text-gray-900">{company.address || '-'}</span>
@@ -86,11 +88,12 @@ export function CompanyProfileCard({
           <div className="flex-1">
             <span className="text-gray-600 block">담당자:</span>
             {isEditing ? (
-              <input
+              <Input
                 type="text"
                 value={editedInfo.hrContactName}
                 onChange={(e) => setEditedInfo({ ...editedInfo, hrContactName: e.target.value })}
-                className="w-full mt-1 px-2 py-1 border border-gray-300 rounded"
+                size="sm"
+                className="mt-1"
               />
             ) : (
               <span className="font-semibold text-gray-900">{company.hrContactName || '-'}</span>
@@ -102,11 +105,12 @@ export function CompanyProfileCard({
           <div className="flex-1">
             <span className="text-gray-600 block">담당자 연락처:</span>
             {isEditing ? (
-              <input
+              <Input
                 type="text"
                 value={editedInfo.hrContactPhone}
                 onChange={(e) => setEditedInfo({ ...editedInfo, hrContactPhone: e.target.value })}
-                className="w-full mt-1 px-2 py-1 border border-gray-300 rounded"
+                size="sm"
+                className="mt-1"
               />
             ) : (
               <span className="font-semibold text-gray-900">{company.hrContactPhone || '-'}</span>
@@ -118,11 +122,12 @@ export function CompanyProfileCard({
           <div className="flex-1">
             <span className="text-gray-600 block">담당자 이메일:</span>
             {isEditing ? (
-              <input
+              <Input
                 type="email"
                 value={editedInfo.hrContactEmail}
                 onChange={(e) => setEditedInfo({ ...editedInfo, hrContactEmail: e.target.value })}
-                className="w-full mt-1 px-2 py-1 border border-gray-300 rounded"
+                size="sm"
+                className="mt-1"
               />
             ) : (
               <span className="font-semibold text-gray-900">{company.hrContactEmail || '-'}</span>

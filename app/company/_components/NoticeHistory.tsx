@@ -1,5 +1,10 @@
+'use client';
+
+import { useState } from 'react';
 import { FileText, MessageSquare, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 import type { NoticeResponse } from '@/types/notice';
 import { formatKSTDateTime } from '@/lib/kst';
 
@@ -20,6 +25,15 @@ export function NoticeHistory({
   onDelete,
   isDeleting,
 }: NoticeHistoryProps) {
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
+  const handleConfirmDelete = () => {
+    if (deleteTargetId && onDelete) {
+      onDelete(deleteTargetId);
+    }
+    setDeleteTargetId(null);
+  };
+
   return (
     <div className="bg-white rounded-xl border border-gray-200">
       <div className="px-6 py-5 border-b border-gray-200">
@@ -99,11 +113,7 @@ export function NoticeHistory({
                   </div>
                   {onDelete && (
                     <button
-                      onClick={() => {
-                        if (window.confirm('공지사항을 삭제하시겠습니까?')) {
-                          onDelete(notice.id);
-                        }
-                      }}
+                      onClick={() => setDeleteTargetId(notice.id)}
                       disabled={isDeleting}
                       className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       title="삭제"
@@ -122,6 +132,15 @@ export function NoticeHistory({
           })
         )}
       </div>
+
+      {/* 삭제 확인 모달 */}
+      <Modal isOpen={!!deleteTargetId} onClose={() => setDeleteTargetId(null)} title="삭제 확인" size="sm">
+        <p className="text-gray-600 mb-6">공지사항을 삭제하시겠습니까?</p>
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" size="sm" onClick={() => setDeleteTargetId(null)}>취소</Button>
+          <Button variant="danger" size="sm" onClick={handleConfirmDelete}>삭제</Button>
+        </div>
+      </Modal>
     </div>
   );
 }

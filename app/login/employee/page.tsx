@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { Hash, LogIn, AlertTriangle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Input } from '@/components/ui/Input';
 import { AxiosError } from 'axios';
 
 export default function EmployeeLoginPage() {
@@ -93,30 +94,34 @@ export default function EmployeeLoginPage() {
                   loginError ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
-                <input
-                  ref={firstInputRef}
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="1234"
-                  value={firstPart}
-                  onChange={handleFirstPartChange}
-                  onKeyDown={handleFirstPartKeyDown}
-                  maxLength={4}
-                  autoFocus
-                  className="w-[80px] py-2 text-2xl text-center tracking-[0.2em] font-semibold placeholder:text-gray-400 focus:outline-none bg-transparent"
-                />
+                <div className="w-[80px]">
+                  <Input
+                    ref={firstInputRef}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="1234"
+                    value={firstPart}
+                    onChange={handleFirstPartChange}
+                    onKeyDown={handleFirstPartKeyDown}
+                    maxLength={4}
+                    autoFocus
+                    className="w-[80px] py-2 text-2xl text-center tracking-[0.2em] font-semibold border-0 bg-transparent hover:border-0 focus:ring-0"
+                  />
+                </div>
                 <span className="text-2xl font-bold text-gray-400">-</span>
-                <input
-                  ref={secondInputRef}
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="5678"
-                  value={secondPart}
-                  onChange={handleSecondPartChange}
-                  onKeyDown={handleSecondPartKeyDown}
-                  maxLength={4}
-                  className="w-[80px] py-2 text-2xl text-center tracking-[0.2em] font-semibold placeholder:text-gray-400 focus:outline-none bg-transparent"
-                />
+                <div className="w-[80px]">
+                  <Input
+                    ref={secondInputRef}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="5678"
+                    value={secondPart}
+                    onChange={handleSecondPartChange}
+                    onKeyDown={handleSecondPartKeyDown}
+                    maxLength={4}
+                    className="w-[80px] py-2 text-2xl text-center tracking-[0.2em] font-semibold border-0 bg-transparent hover:border-0 focus:ring-0"
+                  />
+                </div>
               </div>
               {loginError && (
                 <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">

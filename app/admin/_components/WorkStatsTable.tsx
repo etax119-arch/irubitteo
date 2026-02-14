@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Building2, ChevronDown, ChevronRight, Eye, Edit, Check, X } from 'lucide-react';
+import { IconButton } from '@/components/ui/IconButton';
+import { Input } from '@/components/ui/Input';
 import type { MonthlyWorkStatsCompany } from '@/types/adminDashboard';
 
 interface WorkStatsTableProps {
@@ -162,7 +164,7 @@ export function WorkStatsTable({
                             editingCell?.employeeId === employee.id &&
                             editingCell?.field === 'workDays' ? (
                               <div className="flex items-center justify-center gap-2">
-                                <input
+                                <Input
                                   type="number"
                                   value={editValue}
                                   onChange={(e) => setEditValue(e.target.value)}
@@ -171,15 +173,12 @@ export function WorkStatsTable({
                                     if (e.key === 'Escape') cancelEdit();
                                   }}
                                   min="0"
-                                  className="w-20 px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500 text-center"
+                                  size="sm"
+                                  className="w-20 text-center"
                                   autoFocus
                                 />
-                                <button onClick={saveEdit} className="p-1 hover:bg-green-100 rounded">
-                                  <Check className="w-4 h-4 text-green-600" />
-                                </button>
-                                <button onClick={cancelEdit} className="p-1 hover:bg-red-100 rounded">
-                                  <X className="w-4 h-4 text-red-600" />
-                                </button>
+                                <IconButton onClick={saveEdit} variant="ghost" size="sm" icon={<Check className="w-full h-full text-green-600" />} label="저장" className="hover:bg-green-100" />
+                                <IconButton onClick={cancelEdit} variant="ghost" size="sm" icon={<X className="w-full h-full text-red-600" />} label="취소" className="hover:bg-red-100" />
                               </div>
                             ) : (
                               <div
@@ -196,7 +195,7 @@ export function WorkStatsTable({
                             editingCell?.employeeId === employee.id &&
                             editingCell?.field === 'totalHours' ? (
                               <div className="flex items-center justify-center gap-2">
-                                <input
+                                <Input
                                   type="number"
                                   value={editValue}
                                   onChange={(e) => setEditValue(e.target.value)}
@@ -206,15 +205,12 @@ export function WorkStatsTable({
                                   }}
                                   min="0"
                                   step="0.5"
-                                  className="w-20 px-2 py-1 border border-duru-orange-500 rounded focus:outline-none focus:ring-2 focus:ring-duru-orange-500 text-center"
+                                  size="sm"
+                                  className="w-20 text-center"
                                   autoFocus
                                 />
-                                <button onClick={saveEdit} className="p-1 hover:bg-green-100 rounded">
-                                  <Check className="w-4 h-4 text-green-600" />
-                                </button>
-                                <button onClick={cancelEdit} className="p-1 hover:bg-red-100 rounded">
-                                  <X className="w-4 h-4 text-red-600" />
-                                </button>
+                                <IconButton onClick={saveEdit} variant="ghost" size="sm" icon={<Check className="w-full h-full text-green-600" />} label="저장" className="hover:bg-green-100" />
+                                <IconButton onClick={cancelEdit} variant="ghost" size="sm" icon={<X className="w-full h-full text-red-600" />} label="취소" className="hover:bg-red-100" />
                               </div>
                             ) : (
                               <div

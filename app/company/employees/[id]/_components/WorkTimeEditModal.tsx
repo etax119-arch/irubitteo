@@ -1,7 +1,9 @@
 import { Save } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { TimePicker } from '@/components/ui/TimePicker';
+import { Textarea } from '@/components/ui/Textarea';
 import type { AttendanceStatus } from '@/types/attendance';
 
 interface EditedWorkTime {
@@ -39,15 +41,13 @@ export function WorkTimeEditModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="근무시간 수정">
       <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">날짜</label>
-          <input
-            type="text"
-            value={editedWorkTime.date}
-            disabled
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-          />
-        </div>
+        <Input
+          label="날짜"
+          type="text"
+          size="sm"
+          value={editedWorkTime.date}
+          disabled
+        />
 
         <TimePicker
           label="출근 시간"
@@ -63,16 +63,13 @@ export function WorkTimeEditModal({
           disabled={isSaving}
         />
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">업무 내용</label>
-          <textarea
-            value={editedWorkTime.workDone}
-            onChange={(e) => setEditedWorkTime({ ...editedWorkTime, workDone: e.target.value })}
-            disabled={isSaving}
-            rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          />
-        </div>
+        <Textarea
+          label="업무 내용"
+          value={editedWorkTime.workDone}
+          onChange={(e) => setEditedWorkTime({ ...editedWorkTime, workDone: e.target.value })}
+          disabled={isSaving}
+          rows={3}
+        />
 
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">상태</label>
