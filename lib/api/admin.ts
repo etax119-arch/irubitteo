@@ -8,6 +8,7 @@ import type {
   MonthlyWorkStatsCompany,
 } from '@/types/adminDashboard';
 import type { AdminFile, AdminFileCategory } from '@/types/adminFile';
+import type { AdminAccountSummary, CreateAdminAccountParams } from '@/types/auth';
 
 export async function getAdminStats(): Promise<AdminStats> {
   const response = await apiClient.get<{ success: boolean; data: AdminStats }>(
@@ -127,4 +128,21 @@ export async function uploadAdminFile(
 
 export async function deleteAdminFile(fileId: string): Promise<void> {
   await apiClient.delete(`/admin/files/${fileId}`);
+}
+
+export async function createAdminAccount(
+  params: CreateAdminAccountParams
+): Promise<AdminAccountSummary> {
+  const response = await apiClient.post<{ success: boolean; data: AdminAccountSummary }>(
+    '/admin/accounts',
+    params
+  );
+  return response.data.data;
+}
+
+export async function getAdminAccounts(): Promise<AdminAccountSummary[]> {
+  const response = await apiClient.get<{ success: boolean; data: AdminAccountSummary[] }>(
+    '/admin/accounts'
+  );
+  return response.data.data;
 }

@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { offsetDateString } from '@/lib/kst';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { Input } from '@/components/ui/Input';
 import type { AdminDailyCompany } from '@/types/adminDashboard';
 
 interface CompanyAttendanceAccordionProps {
@@ -76,16 +77,14 @@ export function CompanyAttendanceAccordion({
         </div>
 
         {/* 회사 검색 */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="회사명 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-          />
-        </div>
+        <Input
+          type="text"
+          placeholder="회사명 검색..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          size="sm"
+          leftIcon={<Search className="w-5 h-5" />}
+        />
       </div>
 
       {/* 회사별 아코디언 */}

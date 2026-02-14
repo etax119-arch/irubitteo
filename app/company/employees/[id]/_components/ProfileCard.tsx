@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { Input } from '@/components/ui/Input';
 import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 import type { Employee } from '@/types/employee';
 import type { ProfileFormState } from '../../_hooks/useEmployeeEditForm';
@@ -147,35 +148,32 @@ export function ProfileCard({
           </div>
         ) : (
           <div className="space-y-3 border-t border-gray-200 pt-4">
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">이름</label>
-              <input
-                type="text"
-                value={profileForm.name}
-                onChange={(e) => onUpdateForm('name', e.target.value)}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">주민번호</label>
-              <input
-                type="text"
-                value={profileForm.ssn}
-                onChange={(e) => onUpdateForm('ssn', formatSSN(e.target.value))}
-                placeholder="000000-0000000"
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">핸드폰번호</label>
-              <input
-                type="text"
-                value={profileForm.phone}
-                onChange={(e) => onUpdateForm('phone', formatPhoneNumber(e.target.value))}
-                placeholder="010-0000-0000"
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-              />
-            </div>
+            <Input
+              label="이름"
+              type="text"
+              size="sm"
+              value={profileForm.name}
+              onChange={(e) => onUpdateForm('name', e.target.value)}
+              className="py-1.5"
+            />
+            <Input
+              label="주민번호"
+              type="text"
+              size="sm"
+              value={profileForm.ssn}
+              onChange={(e) => onUpdateForm('ssn', formatSSN(e.target.value))}
+              placeholder="000000-0000000"
+              className="py-1.5"
+            />
+            <Input
+              label="핸드폰번호"
+              type="text"
+              size="sm"
+              value={profileForm.phone}
+              onChange={(e) => onUpdateForm('phone', formatPhoneNumber(e.target.value))}
+              placeholder="010-0000-0000"
+              className="py-1.5"
+            />
             <div>
               <label className="block text-xs text-gray-600 mb-1">성별</label>
               <div className="flex gap-2">
@@ -234,43 +232,39 @@ export function ProfileCard({
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">상세 주소</label>
-              <input
-                type="text"
-                value={profileForm.addressDetail}
-                onChange={(e) => onUpdateForm('addressDetail', e.target.value)}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">비상연락처 이름</label>
-              <input
-                type="text"
-                value={profileForm.emergencyContactName}
-                onChange={(e) => onUpdateForm('emergencyContactName', e.target.value)}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">비상연락처 관계</label>
-              <input
-                type="text"
-                value={profileForm.emergencyContactRelation}
-                onChange={(e) => onUpdateForm('emergencyContactRelation', e.target.value)}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">비상연락처 전화</label>
-              <input
-                type="text"
-                value={profileForm.emergencyContactPhone}
-                onChange={(e) => onUpdateForm('emergencyContactPhone', formatPhoneNumber(e.target.value))}
-                placeholder="010-0000-0000"
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-              />
-            </div>
+            <Input
+              label="상세 주소"
+              type="text"
+              size="sm"
+              value={profileForm.addressDetail}
+              onChange={(e) => onUpdateForm('addressDetail', e.target.value)}
+              className="py-1.5"
+            />
+            <Input
+              label="비상연락처 이름"
+              type="text"
+              size="sm"
+              value={profileForm.emergencyContactName}
+              onChange={(e) => onUpdateForm('emergencyContactName', e.target.value)}
+              className="py-1.5"
+            />
+            <Input
+              label="비상연락처 관계"
+              type="text"
+              size="sm"
+              value={profileForm.emergencyContactRelation}
+              onChange={(e) => onUpdateForm('emergencyContactRelation', e.target.value)}
+              className="py-1.5"
+            />
+            <Input
+              label="비상연락처 전화"
+              type="text"
+              size="sm"
+              value={profileForm.emergencyContactPhone}
+              onChange={(e) => onUpdateForm('emergencyContactPhone', formatPhoneNumber(e.target.value))}
+              placeholder="010-0000-0000"
+              className="py-1.5"
+            />
           </div>
         )}
       </div>
@@ -282,12 +276,12 @@ export function ProfileCard({
         </h3>
         {isEditing ? (
           <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
-            <input
+            <Input
               type="text"
               value={profileForm.uniqueCode}
               onChange={(e) => onUpdateForm('uniqueCode', e.target.value)}
               maxLength={20}
-              className="w-full text-2xl font-bold text-duru-orange-600 text-center tracking-wider bg-transparent border-b-2 border-duru-orange-300 focus:border-duru-orange-500 focus:outline-none"
+              className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider bg-transparent border-0 border-b-2 border-duru-orange-300 rounded-none focus:ring-0 focus:border-duru-orange-500"
             />
           </div>
         ) : (

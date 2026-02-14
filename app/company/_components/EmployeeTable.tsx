@@ -3,6 +3,7 @@ import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { IconButton } from '@/components/ui/IconButton';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { filterEmployees } from '../_utils/filterEmployees';
@@ -50,17 +51,15 @@ export function EmployeeTable({
 
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="p-4 border-b border-gray-200">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="이름, 전화번호로 검색..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              aria-label="근로자 검색"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
-            />
-          </div>
+          <Input
+            type="text"
+            size="sm"
+            placeholder="이름, 전화번호로 검색..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            aria-label="근로자 검색"
+            leftIcon={<Search className="w-5 h-5" />}
+          />
         </div>
 
         <div className="overflow-x-auto">

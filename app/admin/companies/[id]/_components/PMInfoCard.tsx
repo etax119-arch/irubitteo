@@ -1,6 +1,7 @@
 'use client';
 
 import { User, Phone, Mail, Edit3, Save, X, Copy, Check } from 'lucide-react';
+import { Input } from '@/components/ui/Input';
 
 interface PMInfo {
   name: string;
@@ -67,11 +68,12 @@ export function PMInfoCard({
           <User className="w-4 h-4 text-gray-400" />
           <span className="text-gray-600 w-12">이름:</span>
           {isEditingPm ? (
-            <input
+            <Input
               type="text"
               value={editedPm.name}
               onChange={(e) => setEditedPm({ ...editedPm, name: e.target.value })}
-              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+              size="sm"
+              className="flex-1"
             />
           ) : (
             <span className="font-semibold text-gray-900">{pmInfo.name || '-'}</span>
@@ -81,11 +83,12 @@ export function PMInfoCard({
           <Phone className="w-4 h-4 text-gray-400" />
           <span className="text-gray-600 w-12">연락처:</span>
           {isEditingPm ? (
-            <input
+            <Input
               type="text"
               value={editedPm.phone}
               onChange={(e) => setEditedPm({ ...editedPm, phone: e.target.value })}
-              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+              size="sm"
+              className="flex-1"
             />
           ) : (
             <span className="font-semibold text-gray-900">{pmInfo.phone || '-'}</span>
@@ -95,11 +98,12 @@ export function PMInfoCard({
           <Mail className="w-4 h-4 text-gray-400" />
           <span className="text-gray-600 w-12">이메일:</span>
           {isEditingPm ? (
-            <input
+            <Input
               type="email"
               value={editedPm.email}
               onChange={(e) => setEditedPm({ ...editedPm, email: e.target.value })}
-              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+              size="sm"
+              className="flex-1"
             />
           ) : (
             <div className="flex items-center gap-2">

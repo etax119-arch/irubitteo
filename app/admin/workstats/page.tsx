@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { BarChart3, Calendar, Search, RefreshCw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Input } from '@/components/ui/Input';
 import { WorkStatsTable } from '../_components/WorkStatsTable';
 import { PrintPreviewModal } from '../_components/PrintPreviewModal';
 import {
@@ -84,29 +85,29 @@ export default function AdminWorkstatsPage() {
           근무 통계
         </h2>
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="회사명 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 w-64"
-            />
-          </div>
+          <Input
+            type="text"
+            placeholder="회사명 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            size="sm"
+            leftIcon={<Search className="w-5 h-5" />}
+            className="w-64"
+          />
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-duru-orange-600" />
-            <input
+            <Input
               type="month"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="px-4 py-2 border-2 border-duru-orange-500 rounded-lg bg-duru-orange-50 text-duru-orange-600 font-bold focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
+              size="sm"
+              className="border-2 border-duru-orange-500 bg-duru-orange-50 text-duru-orange-600 font-bold"
             />
           </div>
           <button
             onClick={handleCalculate}
             disabled={calculateMutation.isPending}
-            className="flex items-center gap-2 px-4 py-2 bg-duru-orange-500 text-white rounded-lg hover:bg-duru-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-duru-orange-500 text-white rounded-lg hover:bg-duru-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium whitespace-nowrap"
           >
             <RefreshCw className={`w-4 h-4 ${calculateMutation.isPending ? 'animate-spin' : ''}`} />
             {calculateMutation.isPending ? '계산 중...' : '재계산'}

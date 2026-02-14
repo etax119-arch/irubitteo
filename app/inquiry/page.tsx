@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import { createInquiry } from '@/lib/api/inquiries';
 import { extractErrorMessage } from '@/lib/api/error';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
 
 interface FormData {
   companyName: string;
@@ -142,15 +145,6 @@ export default function InquiryPage() {
     }
   };
 
-  const getInputClass = (name: keyof FormData) => {
-    const base =
-      'w-full px-4 py-3.5 border rounded-xl text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-duru-orange-400 focus:border-transparent placeholder:text-gray-400';
-    if (touched[name] && errors[name]) {
-      return `${base} border-red-400 bg-red-50/50`;
-    }
-    return `${base} border-gray-200 bg-white hover:border-gray-300`;
-  };
-
   const handleGoHome = () => {
     router.push('/');
   };
@@ -209,20 +203,15 @@ export default function InquiryPage() {
                   <Building2 className="w-4 h-4 text-gray-400" />
                   기업명 <span className="text-duru-orange-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="companyName"
                   value={formData.companyName}
                   onChange={handleChange}
                   onBlur={() => handleBlur('companyName')}
                   placeholder="(주)회사명"
-                  className={getInputClass('companyName')}
+                  error={touched.companyName && errors.companyName ? errors.companyName : undefined}
                 />
-                {touched.companyName && errors.companyName && (
-                  <p className="mt-1.5 text-sm text-red-500">
-                    {errors.companyName}
-                  </p>
-                )}
               </div>
 
               {/* 대표자명 */}
@@ -231,18 +220,15 @@ export default function InquiryPage() {
                   <User className="w-4 h-4 text-gray-400" />
                   대표자명 <span className="text-duru-orange-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="ceoName"
                   value={formData.ceoName}
                   onChange={handleChange}
                   onBlur={() => handleBlur('ceoName')}
                   placeholder="홍길동"
-                  className={getInputClass('ceoName')}
+                  error={touched.ceoName && errors.ceoName ? errors.ceoName : undefined}
                 />
-                {touched.ceoName && errors.ceoName && (
-                  <p className="mt-1.5 text-sm text-red-500">{errors.ceoName}</p>
-                )}
               </div>
 
               {/* 전화번호 · 이메일 (2열) */}
@@ -252,36 +238,30 @@ export default function InquiryPage() {
                     <Phone className="w-4 h-4 text-gray-400" />
                     전화번호 <span className="text-duru-orange-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     onBlur={() => handleBlur('phone')}
                     placeholder="02-1234-5678"
-                    className={getInputClass('phone')}
+                    error={touched.phone && errors.phone ? errors.phone : undefined}
                   />
-                  {touched.phone && errors.phone && (
-                    <p className="mt-1.5 text-sm text-red-500">{errors.phone}</p>
-                  )}
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
                     <Mail className="w-4 h-4 text-gray-400" />
                     이메일 <span className="text-duru-orange-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     onBlur={() => handleBlur('email')}
                     placeholder="example@company.com"
-                    className={getInputClass('email')}
+                    error={touched.email && errors.email ? errors.email : undefined}
                   />
-                  {touched.email && errors.email && (
-                    <p className="mt-1.5 text-sm text-red-500">{errors.email}</p>
-                  )}
                 </div>
               </div>
 
@@ -291,18 +271,15 @@ export default function InquiryPage() {
                   <MessageSquare className="w-4 h-4 text-gray-400" />
                   문의 내용 <span className="text-duru-orange-500">*</span>
                 </label>
-                <textarea
+                <Textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   onBlur={() => handleBlur('message')}
                   rows={5}
                   placeholder={`장애인 고용 의무 비율 상담,\n제조·사무·물류 등 직무 배치 가능 여부,\n현재 고민 중인 내용을 자유롭게 작성해주세요.\n\n이루빛터 담당자가 내용을 확인 후 직접 연락드립니다.`}
-                  className={`${getInputClass('message')} resize-none`}
+                  error={touched.message && errors.message ? errors.message : undefined}
                 />
-                {touched.message && errors.message && (
-                  <p className="mt-1.5 text-sm text-red-500">{errors.message}</p>
-                )}
               </div>
 
               {/* 신뢰 강화 안내 */}
@@ -320,22 +297,21 @@ export default function InquiryPage() {
               </div>
 
               {/* 개인정보 동의 체크박스 */}
-              <div className="flex justify-center">
-                <label className="inline-flex items-center gap-2.5 cursor-pointer select-none py-1">
-                  <input
-                    type="checkbox"
-                    checked={agreePrivacy}
-                    onChange={(e) => setAgreePrivacy(e.target.checked)}
-                    className="w-[18px] h-[18px] rounded border-gray-300 text-duru-orange-500 focus:ring-duru-orange-400 accent-duru-orange-500 cursor-pointer shrink-0"
-                  />
-                  <span className="text-sm text-gray-600 leading-relaxed">
-                    상담을 위한{' '}
-                    <span className="font-semibold text-gray-700 underline underline-offset-2 decoration-gray-300">
-                      개인정보 수집 및 이용
+              <div className="flex justify-center py-1">
+                <Checkbox
+                  checked={agreePrivacy}
+                  onChange={(e) => setAgreePrivacy(e.target.checked)}
+                  size="sm"
+                  label={
+                    <span className="text-sm text-gray-600 leading-relaxed">
+                      상담을 위한{' '}
+                      <span className="font-semibold text-gray-700 underline underline-offset-2 decoration-gray-300">
+                        개인정보 수집 및 이용
+                      </span>
+                      에 동의합니다.
                     </span>
-                    에 동의합니다.
-                  </span>
-                </label>
+                  }
+                />
               </div>
 
               {/* 에러 메시지 */}

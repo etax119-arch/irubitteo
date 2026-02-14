@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
 import { useAttendance } from '../_hooks/useAttendance';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { scheduleApi } from '@/lib/api/schedules';
 import { formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
 import type { Schedule } from '@/types/schedule';
@@ -99,15 +100,14 @@ export default function CheckInPage() {
 
           {/* 확인 체크 영역 */}
           <div className="mx-6 sm:mx-8 mb-4">
-            <label className="flex items-center gap-4 p-5 border-2 border-duru-orange-200 rounded-xl cursor-pointer hover:bg-duru-orange-50 transition-colors">
-              <input
-                type="checkbox"
+            <div className="p-5 border-2 border-duru-orange-200 rounded-xl hover:bg-duru-orange-50 transition-colors">
+              <Checkbox
                 checked={confirmedTasks}
                 onChange={(e) => setConfirmedTasks(e.target.checked)}
-                className="w-7 h-7 text-duru-orange-600 rounded focus:ring-duru-orange-500 shrink-0"
+                label={<span className="text-xl font-semibold text-gray-800">오늘 할 일을 확인했어요!</span>}
+                size="lg"
               />
-              <span className="text-xl font-semibold text-gray-800">오늘 할 일을 확인했어요!</span>
-            </label>
+            </div>
           </div>
 
           {/* 출근 시간 설정 섹션 */}

@@ -1,4 +1,4 @@
-# CLAUDE.md
+# Repository Guidelines
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -101,8 +101,7 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 │   └── [id]/page.tsx
 ├── workstats/page.tsx
 ├── notifications/page.tsx
-├── reports/page.tsx
-└── settings/page.tsx
+└── reports/page.tsx
 ```
 
 장점: URL 북마크/공유 가능, 브라우저 히스토리 지원
@@ -207,8 +206,7 @@ durubitteo_web/
 │       │   ├── useAdminNotificationQuery.ts    # 알림센터 Query 훅
 │       │   ├── useAdminNotificationMutations.ts # 알림센터 Mutation 훅
 │       │   ├── useAdminReports.ts              # 리포트 파일 Query/Mutation 훅
-│       │   ├── useAdminWorkstats.ts            # 근무통계 Query/Mutation 훅
-│       │   └── useAdminAccountQuery.ts         # 관리자 계정 Query 훅
+│       │   └── useAdminWorkstats.ts            # 근무통계 Query/Mutation 훅
 │       ├── _components/
 │       │   ├── AdminStatCard.tsx
 │       │   ├── CompanyCard.tsx
@@ -236,14 +234,12 @@ durubitteo_web/
 │       │       └── _components/  # ProfileCard, AdminNoteSection, CompanyNoteSection, ResignInfoSection, AttendanceHistoryTable, WorkInfoSection, DocumentSection, FileUploadModal, WorkTimeEditModal, WorkDoneModal
 │       ├── workstats/        # 근무 통계 탭
 │       ├── notifications/    # 알림센터 탭
-│       ├── reports/          # 리포트 탭 (파일 저장소)
-│       │   ├── page.tsx
-│       │   └── _components/
-│       │       ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
-│       │       ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
-│       │       └── FileUploadModal.tsx # 업로드 모달
-│       └── settings/        # 설정 탭
-│           └── page.tsx
+│       └── reports/          # 리포트 탭 (파일 저장소)
+│           ├── page.tsx
+│           └── _components/
+│               ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
+│               ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
+│               └── FileUploadModal.tsx # 업로드 모달
 │
 ├── components/               # 공용 컴포넌트 (app 외부)
 │   ├── ProfileImageUpload.tsx # 프로필 이미지 업로드/삭제 (HEIC 변환, 압축)
@@ -380,17 +376,3 @@ function MyComponent() {
 
 **유틸리티:**
 - `cn()` - Tailwind 클래스 병합 (`@/lib/cn`)
-
-## Skills
-
-프로젝트 아키텍처 검증을 위한 스킬 목록입니다:
-
-| 스킬 | 설명 |
-|------|------|
-| `verify-imports` | Import 경로 규칙 검증 |
-| `verify-query-patterns` | TanStack Query 패턴 검증 |
-| `verify-file-structure` | 파일 배치/명명 규칙 검증 |
-| `verify-security` | 보안 패턴 검증 (헤더, 인증, 토큰, 라우트 보호) |
-| `verify-ui-patterns` | UI 컴포넌트 사용 패턴 검증 (input, textarea, checkbox, button, dialog) |
-| `verify-implementation` | 모든 verify 스킬 통합 실행 |
-| `manage-skills` | 검증 스킬 유지보수 |

@@ -19,6 +19,7 @@ import { DISABILITY_TYPES } from '@/types/employee';
 import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
 import { IconButton } from '@/components/ui/IconButton';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { TimePicker } from '@/components/ui/TimePicker';
@@ -131,15 +132,15 @@ export function AddWorkerModal({
                   이름 <span className="text-duru-orange-500">*</span>
                 </label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="text"
+                    size="sm"
                     placeholder="근로자 이름"
                     value={form.name}
                     onChange={(e) => onUpdateForm('name', e.target.value)}
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
                   />
                   {complete.name && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500 z-10" />
                   )}
                 </div>
               </div>
@@ -151,17 +152,17 @@ export function AddWorkerModal({
                     주민등록번호 <span className="text-duru-orange-500">*</span>
                   </label>
                   <div className="relative">
-                    <input
+                    <Input
                       type="text"
+                      size="sm"
                       inputMode="numeric"
                       autoComplete="off"
                       placeholder="000000-0000000"
                       value={form.ssn}
                       onChange={(e) => onUpdateForm('ssn', formatSSN(e.target.value))}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 bg-white"
                     />
                     {complete.ssn && (
-                      <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                      <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500 z-10" />
                     )}
                   </div>
                 </div>
@@ -192,16 +193,16 @@ export function AddWorkerModal({
                   휴대폰 번호 <span className="text-duru-orange-500">*</span>
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
+                  <Input
                     type="tel"
+                    size="sm"
                     placeholder="010-0000-0000"
                     value={form.phone}
                     onChange={(e) => onUpdateForm('phone', formatPhoneNumber(e.target.value))}
-                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
+                    leftIcon={<Phone className="w-4 h-4" />}
                   />
                   {complete.phone && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500 z-10" />
                   )}
                 </div>
               </div>
@@ -263,12 +264,12 @@ export function AddWorkerModal({
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                   상세주소
                 </label>
-                <input
+                <Input
                   type="text"
+                  size="sm"
                   placeholder="상세주소 입력 (선택)"
                   value={form.addressDetail ?? ''}
                   onChange={(e) => onUpdateForm('addressDetail', e.target.value)}
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 bg-gray-50/50"
                 />
               </div>
             </div>
@@ -286,15 +287,15 @@ export function AddWorkerModal({
                   비상 연락처 이름 <span className="text-duru-orange-500">*</span>
                 </label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="text"
+                    size="sm"
                     placeholder="보호자 / 비상연락 대상자"
                     value={form.emergencyName}
                     onChange={(e) => onUpdateForm('emergencyName', e.target.value)}
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
                   />
                   {complete.emergencyName && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500 z-10" />
                   )}
                 </div>
               </div>
@@ -303,15 +304,15 @@ export function AddWorkerModal({
                   근로자와의 관계 <span className="text-duru-orange-500">*</span>
                 </label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="text"
+                    size="sm"
                     placeholder="부모, 보호자 등"
                     value={form.emergencyRelation}
                     onChange={(e) => onUpdateForm('emergencyRelation', e.target.value)}
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
                   />
                   {complete.emergencyRelation && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500 z-10" />
                   )}
                 </div>
               </div>
@@ -320,16 +321,16 @@ export function AddWorkerModal({
                   비상 연락처 전화번호 <span className="text-duru-orange-500">*</span>
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
+                  <Input
                     type="tel"
+                    size="sm"
                     placeholder="010-0000-0000"
                     value={form.emergencyPhone}
                     onChange={(e) => onUpdateForm('emergencyPhone', formatPhoneNumber(e.target.value))}
-                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
+                    leftIcon={<Phone className="w-4 h-4" />}
                   />
                   {complete.emergencyPhone && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500 z-10" />
                   )}
                 </div>
               </div>
@@ -481,16 +482,17 @@ export function AddWorkerModal({
                 근로자 고유 번호 <span className="text-duru-orange-500">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-duru-orange-400" />
-                <input
+                <Input
                   type="text"
+                  size="sm"
                   placeholder="주민번호 + 전화번호 입력 시 자동 생성"
                   value={form.workerId}
                   onChange={(e) => onManualWorkerIdEdit(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 border border-duru-orange-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 bg-white"
+                  leftIcon={<Lock className="w-4 h-4 text-duru-orange-400" />}
+                  className="border-duru-orange-300"
                 />
                 {complete.workerId && (
-                  <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500 z-10" />
                 )}
               </div>
               {form.workerId && (

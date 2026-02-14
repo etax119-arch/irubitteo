@@ -12,9 +12,9 @@ declare module 'axios' {
   }
 }
 
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? '/api/proxy'
-  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/v1');
+// Always use Next.js rewrite proxy so browser requests stay same-origin.
+// This avoids CSP/CORS issues across local and Docker environments.
+const API_BASE_URL = '/api/proxy';
 
 // axios 인스턴스 생성
 export const apiClient = axios.create({

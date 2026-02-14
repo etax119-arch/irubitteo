@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { useAdminFiles, useUploadAdminFile, useDeleteAdminFile } from '../../_hooks/useAdminReports';
 import FileListItem from './FileListItem';
@@ -20,6 +21,7 @@ export default function FileSection({ title, category }: FileSectionProps) {
   const uploadMutation = useUploadAdminFile(category);
   const deleteMutation = useDeleteAdminFile(category);
   const [showUpload, setShowUpload] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const files = filesQuery.data ?? [];
 
@@ -39,12 +41,17 @@ export default function FileSection({ title, category }: FileSectionProps) {
   };
 
   const handleDelete = (fileId: string) => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      deleteMutation.mutate(fileId, {
+    setDeleteTargetId(fileId);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteTargetId) {
+      deleteMutation.mutate(deleteTargetId, {
         onSuccess: () => toast.success('파일이 삭제되었습니다.'),
         onError: () => toast.error('파일 삭제에 실패했습니다.'),
       });
     }
+    setDeleteTargetId(null);
   };
 
   return (
@@ -79,6 +86,15 @@ export default function FileSection({ title, category }: FileSectionProps) {
         onUpload={handleUpload}
         isUploading={uploadMutation.isPending}
       />
+
+      {/* 삭제 확인 모달 */}
+      <Modal isOpen={!!deleteTargetId} onClose={() => setDeleteTargetId(null)} title="삭제 확인" size="sm">
+        <p className="text-gray-600 mb-6">정말 삭제하시겠습니까?</p>
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" size="sm" onClick={() => setDeleteTargetId(null)}>취소</Button>
+          <Button variant="danger" size="sm" onClick={handleConfirmDelete}>삭제</Button>
+        </div>
+      </Modal>
     </div>
   );
 }

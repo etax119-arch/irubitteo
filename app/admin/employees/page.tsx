@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Search, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Input } from '@/components/ui/Input';
 import { WorkerTable } from '../_components/WorkerTable';
 import { useAdminEmployees } from '@/hooks/useEmployeeQuery';
 import { employeeKeys } from '@/lib/query/keys';
@@ -76,14 +77,14 @@ export default function AdminEmployeesPage() {
           ))}
         </div>
 
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
+        <div className="flex-1 max-w-md">
+          <Input
             type="text"
             placeholder="이름, 회사명 검색..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 text-sm"
+            size="sm"
+            leftIcon={<Search className="w-5 h-5" />}
           />
         </div>
       </div>

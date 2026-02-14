@@ -1,6 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import { IconButton } from '@/components/ui/IconButton';
 import type { Inquiry } from '@/types/inquiry';
 
 interface InquiryDetailModalProps {
@@ -28,9 +29,7 @@ export function InquiryDetailModal({ inquiry, onClose, onComplete }: InquiryDeta
       >
         <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
           <h3 className="text-lg font-bold text-gray-900">기업 문의 상세</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X className="w-5 h-5" />
-          </button>
+          <IconButton onClick={onClose} variant="ghost" size="sm" icon={<X className="w-full h-full" />} label="닫기" />
         </div>
         <div className="px-6 py-6">
           <h4 className="text-sm font-semibold text-gray-500 mb-3">기업 정보</h4>

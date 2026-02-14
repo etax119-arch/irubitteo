@@ -7,6 +7,8 @@ import { AttendanceButtons } from './_components/AttendanceButtons';
 import { NoticeSection } from './_components/NoticeSection';
 import { WorkRecordsSection } from './_components/WorkRecordsSection';
 import { PhotoLightbox } from '@/components/PhotoLightbox';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/lib/auth/store';
 import { authApi } from '@/lib/api/auth';
 import { useWorkRecords } from './_hooks/useWorkRecords';
@@ -21,6 +23,7 @@ export default function EmployeeDashboard() {
   const toast = useToast();
   const [showPastNotices, setShowPastNotices] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<DisplayPhoto | null>(null);
+  const [deletePhotoTarget, setDeletePhotoTarget] = useState<{ recordId: string; photoUrl: string } | null>(null);
 
   const {
     todayNotices,
@@ -75,8 +78,14 @@ export default function EmployeeDashboard() {
     }
   }, [toast]);
 
-  const handleDeletePhoto = useCallback(async (recordId: string, photoUrl: string) => {
-    if (!window.confirm('이 사진을 삭제하시겠습니까?')) return;
+  const handleDeletePhoto = useCallback((recordId: string, photoUrl: string) => {
+    setDeletePhotoTarget({ recordId, photoUrl });
+  }, []);
+
+  const handleConfirmDeletePhoto = useCallback(async () => {
+    if (!deletePhotoTarget) return;
+    const { recordId, photoUrl } = deletePhotoTarget;
+    setDeletePhotoTarget(null);
 
     const success = await deletePhotoFromRecord(recordId, photoUrl);
     if (success) {
@@ -84,7 +93,7 @@ export default function EmployeeDashboard() {
     } else {
       toast.error('사진 삭제에 실패했습니다.');
     }
-  }, [deletePhotoFromRecord, toast]);
+  }, [deletePhotoTarget, deletePhotoFromRecord, toast]);
 
   const handleAddPhoto = useCallback(async (recordId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const success = await addPhotoToRecord(recordId, e);
@@ -145,6 +154,15 @@ export default function EmployeeDashboard() {
             onClose={() => setSelectedPhoto(null)}
           />
         )}
+
+        {/* 사진 삭제 확인 모달 */}
+        <Modal isOpen={!!deletePhotoTarget} onClose={() => setDeletePhotoTarget(null)} title="삭제 확인" size="sm">
+          <p className="text-gray-600 mb-6">이 사진을 삭제하시겠습니까?</p>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" size="sm" onClick={() => setDeletePhotoTarget(null)}>취소</Button>
+            <Button variant="danger" size="sm" onClick={handleConfirmDeletePhoto}>삭제</Button>
+          </div>
+        </Modal>
       </div>
     </div>
   );

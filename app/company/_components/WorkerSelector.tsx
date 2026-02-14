@@ -1,6 +1,8 @@
 import { Search, Users } from 'lucide-react';
 import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Input } from '@/components/ui/Input';
 import { filterEmployees } from '../_utils/filterEmployees';
 
 interface WorkerSelectorProps {
@@ -40,31 +42,31 @@ export function WorkerSelector({
       </div>
 
       {/* 검색 바 */}
-      <div className="relative mb-4">
-        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-        <input
+      <div className="mb-4">
+        <Input
           type="text"
+          size="sm"
           placeholder="이름, 전화번호로 검색..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400"
+          leftIcon={<Search className="w-5 h-5" />}
         />
       </div>
 
       {/* 근로자 목록 */}
       <div className="border-2 border-gray-200 rounded-lg max-h-72 overflow-y-auto">
         {filteredWorkers.map((worker, index, array) => (
-          <label
+          <div
             key={worker.id}
             className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
               selectedWorkers.includes(worker.id) ? 'bg-duru-orange-50' : 'hover:bg-gray-50'
             } ${index !== array.length - 1 ? 'border-b border-gray-200' : ''}`}
+            onClick={() => onToggleWorker(worker.id)}
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={selectedWorkers.includes(worker.id)}
               onChange={() => onToggleWorker(worker.id)}
-              className="w-5 h-5 text-duru-orange-600 rounded focus:ring-duru-orange-500"
+              onClick={(e) => e.stopPropagation()}
             />
             <Avatar src={worker.profileImage ?? undefined} name={worker.name} size="md" className="text-sm font-bold flex-shrink-0" />
             <div className="flex-1 min-w-0">
@@ -73,7 +75,7 @@ export function WorkerSelector({
                 {worker.disabilityType ?? '-'} · {worker.phone}
               </p>
             </div>
-          </label>
+          </div>
         ))}
         {filteredWorkers.length === 0 && (
           <div className="px-4 py-8 text-center text-gray-400">

@@ -47,3 +47,21 @@ export type LoginResponse = {
   message?: string;
   // accessToken, refreshToken은 HttpOnly Cookie로 서버에서 설정됨
 };
+
+export type ChangePasswordParams = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export type CreateAdminAccountParams = {
+  email: string;
+  name: string;
+  password: string;
+};
+
+export type AdminAccountSummary = {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+};

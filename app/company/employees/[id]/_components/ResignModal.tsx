@@ -2,6 +2,7 @@ import { AlertTriangle, Check, UserX } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { Textarea } from '@/components/ui/Textarea';
 import type { ResignForm } from '../../_hooks/useEmployeeEditForm';
 
 interface ResignModalProps {
@@ -50,19 +51,14 @@ export function ResignModal({
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            비고 (퇴사 사유 등)
-          </label>
-          <textarea
-            value={resignForm.reason}
-            onChange={(e) => onUpdateForm({ reason: e.target.value })}
-            placeholder="퇴사 사유나 특이사항을 입력해주세요..."
-            rows={4}
-            disabled={isSubmitting}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
-          />
-        </div>
+        <Textarea
+          label="비고 (퇴사 사유 등)"
+          value={resignForm.reason}
+          onChange={(e) => onUpdateForm({ reason: e.target.value })}
+          placeholder="퇴사 사유나 특이사항을 입력해주세요..."
+          rows={4}
+          disabled={isSubmitting}
+        />
 
         <label
           className="flex items-center gap-3 cursor-pointer select-none"

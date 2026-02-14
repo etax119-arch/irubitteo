@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { TrendingUp, Building2, Users, BarChart3, Bell, FileText, LogOut } from 'lucide-react';
+import { TrendingUp, Building2, Users, BarChart3, Bell, FileText, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -33,12 +33,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setToday(formatted); // eslint-disable-line react-hooks/set-state-in-effect -- hydration-safe: 클라이언트 전용 날짜
   }, []);
 
-  const getActiveTab = () => {
+  const getActiveTab = (): string | null => {
     if (pathname.startsWith('/admin/companies')) return 'companies';
     if (pathname.startsWith('/admin/employees')) return 'employees';
     if (pathname.startsWith('/admin/workstats')) return 'workstats';
     if (pathname.startsWith('/admin/notifications')) return 'notifications';
     if (pathname.startsWith('/admin/reports')) return 'reports';
+    if (pathname.startsWith('/admin/settings')) return null;
     return 'dashboard';
   };
 
@@ -114,6 +115,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">{today}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={<Settings className="w-4 h-4" />}
+                onClick={() => router.push('/admin/settings')}
+              >
+                계정 설정
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Shield, LogIn, AlertTriangle, Mail, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Input } from '@/components/ui/Input';
 import { AxiosError } from 'axios';
 
 export default function AdminLoginPage() {
@@ -67,44 +68,30 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                이메일
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={handleEmailChange}
-                  onKeyDown={handleKeyDown}
-                  autoFocus
-                  className={`w-full pl-12 pr-4 py-4 border rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 ${
-                    loginError ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-              </div>
-            </div>
+            <Input
+              type="email"
+              label="이메일"
+              placeholder="admin@example.com"
+              value={email}
+              onChange={handleEmailChange}
+              onKeyDown={handleKeyDown}
+              autoFocus
+              size="lg"
+              leftIcon={<Mail className="w-5 h-5" />}
+              className={loginError ? 'border-red-500' : ''}
+            />
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                비밀번호
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  placeholder="비밀번호를 입력하세요"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  onKeyDown={handleKeyDown}
-                  className={`w-full pl-12 pr-4 py-4 border rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:border-transparent placeholder:text-gray-400 ${
-                    loginError ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-              </div>
-            </div>
+            <Input
+              type="password"
+              label="비밀번호"
+              placeholder="비밀번호를 입력하세요"
+              value={password}
+              onChange={handlePasswordChange}
+              onKeyDown={handleKeyDown}
+              size="lg"
+              leftIcon={<Lock className="w-5 h-5" />}
+              className={loginError ? 'border-red-500' : ''}
+            />
 
             {loginError && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
