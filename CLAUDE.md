@@ -376,3 +376,15 @@ function MyComponent() {
 
 **유틸리티:**
 - `cn()` - Tailwind 클래스 병합 (`@/lib/cn`)
+
+## Skills
+
+프로젝트 아키텍처 검증을 위한 스킬 목록입니다:
+
+| 스킬 | 설명 |
+|------|------|
+| `verify-imports` | Import 경로 규칙 검증 |
+| `verify-query-patterns` | TanStack Query 패턴 검증 |
+| `verify-file-structure` | 파일 배치/명명 규칙 검증 |
+| `verify-implementation` | 모든 verify 스킬 통합 실행 |
+| `manage-skills` | 검증 스킬 유지보수 |
