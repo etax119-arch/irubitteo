@@ -2,8 +2,9 @@
 
 import { RefObject } from 'react';
 import { FileText, Upload, Download, Trash2, Paperclip, Eye, Loader2 } from 'lucide-react';
-import { formatFileSize } from '@/lib/file';
+import { formatFileSize, validateUploadFile, FILE_CONSTRAINTS } from '@/lib/file';
 import { openExternalFile, downloadExternalFile } from '@/lib/api/download';
+import { useToast } from '@/components/ui/Toast';
 import type { CompanyFile } from '@/types/company';
 
 interface FileSectionProps {
@@ -21,6 +22,8 @@ export function FileSection({
   onFileChange,
   onDelete,
 }: FileSectionProps) {
+  const toast = useToast();
+
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <div className="mb-6">
@@ -37,10 +40,17 @@ export function FileSection({
       <input
         ref={fileInputRef}
         type="file"
+        accept={FILE_CONSTRAINTS.DOCUMENT.accept}
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) {
+            const error = validateUploadFile(file, FILE_CONSTRAINTS.DOCUMENT);
+            if (error) {
+              toast.error(error);
+              e.target.value = '';
+              return;
+            }
             onFileChange(file);
             e.target.value = '';
           }

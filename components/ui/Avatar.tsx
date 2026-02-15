@@ -45,6 +45,7 @@ function Avatar({
       <img
         src={src}
         alt={alt || name || 'Avatar'}
+        loading="lazy"
         onError={() => setFailedSrc(src)}
         className={cn(
           'rounded-full object-cover',

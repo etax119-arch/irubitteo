@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, ImagePlus, X, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
 import { Textarea } from '@/components/ui/Textarea';
-import { useAttendance } from '../_hooks/useAttendance';
+import { useClockOut } from '../_hooks/useMyAttendanceMutations';
 import { useToast } from '@/components/ui/Toast';
-import { filesToBase64, isHeicFile, isHeicFileByContent, convertHeicToJpeg, compressImage } from '@/lib/file';
+import { isHeicFile, isHeicFileByContent, convertHeicToJpeg, compressImage } from '@/lib/file';
 import type { UploadPhoto } from '@/types/attendance';
 
-const MAX_PHOTO_COUNT = 10;
+const MAX_PHOTO_COUNT = 5;
 const MAX_FILE_SIZE_MB = 10;
 
 export default function CheckOutPage() {
@@ -18,7 +18,8 @@ export default function CheckOutPage() {
   const [workDone, setWorkDone] = useState('');
   const [photos, setPhotos] = useState<UploadPhoto[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const { clockOut, isLoading, error } = useAttendance();
+  const clockOutMutation = useClockOut();
+  const isLoading = clockOutMutation.isPending;
   const toast = useToast();
 
   // 메모리 누수 방지: 페이지 언마운트 시 blob URL cleanup
@@ -98,22 +99,20 @@ export default function CheckOutPage() {
     if (submittingRef.current) return;
     submittingRef.current = true;
     try {
-      // 사진을 base64로 변환
-      const photoFiles = photos.map((p) => p.file);
-      const base64Photos = photoFiles.length > 0 ? await filesToBase64(photoFiles) : undefined;
+      const photoBlobs = photos.length > 0 ? photos.map((p) => p.file) : undefined;
 
-      const result = await clockOut({
+      await clockOutMutation.mutateAsync({
         workContent: workDone,
-        photos: base64Photos,
+        photos: photoBlobs,
       });
 
-      if (result) {
-        setShowModal(true);
-      }
+      setShowModal(true);
+    } catch {
+      // 글로벌 토스트에서 에러 처리
     } finally {
       submittingRef.current = false;
     }
-  }, [photos, workDone, clockOut]);
+  }, [photos, workDone, clockOutMutation]);
 
   const handleModalClose = () => {
     // 메모리 해제
@@ -144,13 +143,6 @@ export default function CheckOutPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">퇴근하기</h1>
             <p className="text-lg text-gray-500">오늘 한 일을 간단히 기록해주세요</p>
           </div>
-
-          {/* 에러 메시지 */}
-          {error && (
-            <div className="mx-6 sm:mx-8 mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-red-600 text-center font-medium">{error}</p>
-            </div>
-          )}
 
           {/* 오늘의 업무 내용 */}
           <div className="mx-6 sm:mx-8 mb-6">

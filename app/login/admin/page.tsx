@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
 
   // 이메일 형식 검증
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const isValidPassword = password.length >= 1;
+  const isValidPassword = password.length >= 8;
   const isValid = isValidEmail && isValidPassword;
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {

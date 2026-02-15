@@ -28,9 +28,21 @@ export const attendanceApi = {
    * POST /v1/attendances/clock-out
    */
   async clockOut(input: ClockOutInput): Promise<Attendance> {
+    if (input.photos && input.photos.length > 0) {
+      const formData = new FormData();
+      formData.append('workContent', input.workContent);
+      if (input.note) formData.append('note', input.note);
+      input.photos.forEach((blob) => formData.append('photos', blob, 'photo.jpg'));
+      const response = await apiClient.post<{ success: boolean; data: Attendance }>(
+        '/attendances/clock-out',
+        formData
+      );
+      return response.data.data;
+    }
+    const { photos, ...rest } = input;
     const response = await apiClient.post<{ success: boolean; data: Attendance }>(
       '/attendances/clock-out',
-      input
+      rest
     );
     return response.data.data;
   },
@@ -65,10 +77,12 @@ export const attendanceApi = {
    * 활동 사진 추가
    * POST /v1/attendances/:id/photos
    */
-  async addPhotos(attendanceId: string, photos: string[]): Promise<AttendanceWithEmployee> {
+  async addPhotos(attendanceId: string, photos: Blob[]): Promise<AttendanceWithEmployee> {
+    const formData = new FormData();
+    photos.forEach((blob) => formData.append('photos', blob, 'photo.jpg'));
     const response = await apiClient.post<{ success: boolean; data: AttendanceWithEmployee }>(
       `/attendances/${attendanceId}/photos`,
-      { photos }
+      formData
     );
     return response.data.data;
   },

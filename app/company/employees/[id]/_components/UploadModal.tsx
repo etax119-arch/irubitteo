@@ -3,14 +3,12 @@
 import { useState, useRef } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { validateUploadFile, FILE_CONSTRAINTS } from '@/lib/file';
 import type { DocumentType } from '@/types/employee';
 
 const DOCUMENT_TYPES: DocumentType[] = [
   '근로계약서', '동의서', '건강검진', '자격증', '장애인등록증', '이력서', '기타',
 ];
-
-const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -25,24 +23,15 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading }: UploadMo
   const [validationError, setValidationError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateFile = (file: File): string | null => {
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return 'PDF, JPG, PNG 파일만 업로드 가능합니다.';
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      return '파일 크기는 10MB 이하만 가능합니다.';
-    }
-    return null;
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     setValidationError(null);
     if (file) {
-      const error = validateFile(file);
+      const error = validateUploadFile(file, FILE_CONSTRAINTS.DOCUMENT);
       if (error) {
         setValidationError(error);
         setSelectedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
     }

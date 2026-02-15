@@ -171,8 +171,11 @@ app/
 ├── inquiry/page.tsx             # 신규 기업 문의 (CompanyInquiry.jsx)
 ├── playground/page.tsx          # UI 컴포넌트 테스트 페이지
 │
+├── not-found.tsx                # 404 페이지 (서버 컴포넌트)
+│
 ├── employee/                    # 직원 전용 - 출퇴근 앱 (AttendanceApp.jsx)
 │   ├── layout.tsx               # 직원 레이아웃
+│   ├── error.tsx                # 직원 에러 바운더리
 │   ├── _components/             # 직원 전용 컴포넌트
 │   ├── page.tsx                 # 메인 화면 (출근/퇴근 선택)
 │   ├── checkin/page.tsx         # 출근 처리
@@ -180,6 +183,7 @@ app/
 │
 ├── company/                     # 기업 전용 (CompanyDashboard.jsx)
 │   ├── layout.tsx               # 기업 레이아웃
+│   ├── error.tsx                # 기업 에러 바운더리
 │   ├── _components/             # 기업 전용 컴포넌트
 │   ├── dashboard/page.tsx       # 대시보드 (통계, 출퇴근 현황)
 │   ├── employees/               # 직원 관리
@@ -191,6 +195,7 @@ app/
 │
 └── admin/                       # 관리자 전용 (AdminDashboard.jsx)
     ├── layout.tsx               # 관리자 레이아웃
+    ├── error.tsx                # 관리자 에러 바운더리
     ├── _components/             # 관리자 전용 컴포넌트
     ├── dashboard/page.tsx       # 대시보드 (통계)
     ├── companies/               # 회사 관리
@@ -327,6 +332,36 @@ src/
 
 - **프로덕션**: `apiClient`의 baseURL이 `/api/proxy`로 설정 → same-origin 요청 (CSP `'self'` 충족)
 - **개발**: baseURL이 `http://localhost:4000/v1`로 설정 → CSP에서 `http://localhost:*` 허용
+
+### 429 Rate Limit 재시도 (`lib/api/client.ts`)
+
+서버가 429를 반환하면 Axios 인터셉터에서 GET/HEAD 요청만 최대 3회 자동 재시도합니다:
+- `Retry-After` 헤더 존중 (초 단위 / HTTP-date 형식)
+- 헤더가 없으면 exponential backoff (1s → 2s → 4s, 최대 8s)
+- POST/PUT/PATCH/DELETE는 중복 변경 방지를 위해 재시도하지 않음
+- TanStack Query에서는 4xx를 재시도하지 않으므로 중복 재시도 없음
+
+### 파일 업로드 검증 (`lib/file.ts`)
+
+모든 파일 업로드 컴포넌트에서 공용 `validateUploadFile()` 함수를 사용하여 파일 타입/크기를 검증합니다:
+
+| 제약 조건 | 허용 타입 | 최대 크기 | 적용 컴포넌트 |
+|-----------|----------|----------|-------------|
+| `DOCUMENT` | PDF, JPG, PNG | 10MB | 근로자 문서, 기업 첨부파일 |
+| `REPORT` | PDF, JPG, PNG, DOCX, XLSX | 10MB | 리포트 탭 파일 |
+
+### Error Boundary (`error.tsx` / `not-found.tsx`)
+
+| 파일 | 범위 | 특징 |
+|------|------|------|
+| `app/error.tsx` | 루트 에러 | 전체 화면 에러 UI |
+| `app/global-error.tsx` | 전역 에러 | 루트 레이아웃 포함 에러 |
+| `app/not-found.tsx` | 404 페이지 | 서버 컴포넌트, 홈 링크 |
+| `app/admin/error.tsx` | 관리자 라우트 | 레이아웃 유지, 대시보드 링크 |
+| `app/company/error.tsx` | 기업 라우트 | 레이아웃 유지, 대시보드 링크 |
+| `app/employee/error.tsx` | 직원 라우트 | 레이아웃 유지, 홈 링크 |
+
+> 라우트별 `error.tsx`가 있으면 해당 라우트의 layout은 유지된 채 에러 UI만 교체되므로 UX가 개선됩니다.
 
 ---
 

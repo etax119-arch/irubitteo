@@ -13,17 +13,20 @@
 
 ### Query Keys (`lib/query/keys.ts`)
 
-7개 도메인에 대한 팩토리 패턴 정의:
+8개 도메인에 대한 팩토리 패턴 정의:
 
 ```
+authKeys       - all, me()
 scheduleKeys   - all, monthly(year, month)
-noticeKeys     - all, list(companyId), detail(id)
-employeeKeys   - all, detail(id), active(companyId)
-attendanceKeys - all, today(employeeId), history(employeeId)
-companyKeys    - all, detail(id), employees(id), files(id)
-adminKeys      - stats, daily, monthly(year, month), absenceAlerts,
-                 notifAbsenceAlerts, noteUpdateAlerts, pendingInquiries, files
-inquiryKeys    - all, detail(id)
+noticeKeys     - all, list()
+employeeKeys   - all, lists(), active(), list(params), companyList(params), detail(id), files(id)
+attendanceKeys - companyDaily(date), employeeHistory(employeeId, params?),
+                 myToday(), myHistoryAll(), myHistory(params)
+companyKeys    - all, lists(), list(params?), detail(id), employees(id), files(id)
+adminKeys      - all, stats(), dailyAttendance(date, page?, search?), accounts(),
+                 absenceAlerts(), noteUpdates(), notifAbsenceAlerts(),
+                 monthlyStats(year, month, page?, search?), files(category)
+inquiryKeys    - pending()
 ```
 
 ### QueryProvider (`lib/query/QueryProvider.tsx`)
@@ -56,6 +59,8 @@ inquiryKeys    - all, detail(id)
 | staleTime | 훅 | 적절성 |
 |-----------|-----|--------|
 | **30초** | `useEmployeeAttendanceHistory` | 적절 - 출퇴근 기록은 자주 변경 |
+| **30초** | `useMyTodayAttendance` | 적절 - 근무 중 상태 변경 |
+| **30초** | `useMyAttendanceHistory` | 적절 - 활동 기록 조회 (페이지네이션 limit=20) |
 | **30초** | `useNoteUpdateAlerts` | 적절 - 실시간성 필요 |
 | **30초** | `useNotifAbsenceAlerts` | 적절 - 실시간성 필요 |
 | **30초** | `usePendingInquiries` | 적절 - 새 문의 빠른 반영 |
@@ -63,6 +68,7 @@ inquiryKeys    - all, detail(id)
 | **60초** | `useAdminDailyAttendance` | 적절 - 일일 출퇴근 현황 |
 | **60초** | `useAbsenceAlerts` | 적절 - 대시보드 알림 |
 | **60초** | `useCompanyDaily` | 적절 - 기업 대시보드 |
+| **5분** | `useAuthQuery` | 적절 - 인증 상태 확인 주기 |
 | **5분** | `useAdminEmployees` | 적절 - 관리자 근로자 목록 |
 
 ### staleTime 종합 평가
@@ -85,17 +91,26 @@ inquiryKeys    - all, detail(id)
 
 ### 개선 가능한 점
 
-#### 3-1. 과도한 캐시 무효화 범위
+#### 3-0. 활성 근로자 전체 스캔 최적화 (개선 완료)
 
-일부 mutation이 필요 이상으로 넓은 범위를 invalidate하고 있다.
+`useActiveEmployees`가 호출하는 `fetchAllActiveEmployees()`는 순차 `while` 루프로 페이지를 하나씩 조회하여 waterfall 지연이 발생했다.
+
+- **기존**: `while` 루프로 page 1→2→3→… 순차 요청 (MAX_PAGES=100 하드코딩)
+- **개선**: 첫 페이지 조회 후 서버 `totalPages` 기반으로 나머지 페이지를 `MAX_CONCURRENCY(3)`개씩 배치 병렬 요청 (`Promise.allSettled`)
+- **효과**: 10페이지 기준 ~10 RTT → ~4 RTT로 감소, 불필요한 MAX_PAGES 상수 제거
+- **부분 실패 허용**: `Promise.allSettled`로 단일 페이지 실패 시에도 성공한 페이지 데이터 보존
+
+#### 3-1. 캐시 무효화 범위 (개선 완료 + 잔여)
+
+**개선 완료**: `employeeKeys.all` → `employeeKeys.lists()`, `companyKeys.all` → `companyKeys.lists()`로 범위 축소하여 상세/파일 캐시 불필요 refetch 방지.
+
+**잔여 항목**:
 
 | mutation | 현재 무효화 | 최적 무효화 |
 |----------|-----------|-----------|
 | `useCreateSchedule` | `scheduleKeys.all` | `scheduleKeys.monthly(year, month)` |
 | `useUpdateSchedule` | `scheduleKeys.all` | `scheduleKeys.monthly(year, month)` |
 | `useDeleteSchedule` | `scheduleKeys.all` | `scheduleKeys.monthly(year, month)` |
-| `useUpdateCompany` | `companyKeys.detail(id)` + `companyKeys.all` | `companyKeys.detail(id)`만으로 충분할 수 있음 |
-| `useUpdateEmployee` | `employeeKeys.detail(id)` + `employeeKeys.all` | `employeeKeys.detail(id)`만으로 충분할 수 있음 |
 
 #### 3-2. 알림 키 중복
 
@@ -116,7 +131,8 @@ inquiryKeys    - all, detail(id)
 
 ```
 hooks/                              # 공유 훅 (company + admin 양쪽에서 사용)
-├── useAuth.ts                      # Zustand 기반 (비-Query)
+├── useAuth.ts                      # useAuthQuery 기반 (Zustand 동기화)
+├── useAuthQuery.ts                 # Query만 (staleTime: 5분)
 ├── useAttendanceQuery.ts           # Query만
 ├── useAttendanceMutations.ts       # Mutation만
 ├── useEmployeeQuery.ts             # Query만
@@ -124,8 +140,9 @@ hooks/                              # 공유 훅 (company + admin 양쪽에서 �
 └── useEmployeeFiles.ts             # Query + Mutation 통합
 
 app/employee/_hooks/                # employee 전용 훅
-├── useAttendance.ts                # useState 기반 (레거시)
-├── useWorkRecords.ts               # 활동 기록 상태 관리
+├── useMyAttendanceQuery.ts         # Query만 (staleTime: 30s, status=checkout 서버 필터)
+├── useMyAttendanceMutations.ts     # Mutation만 (clockIn, clockOut, addPhotos, deletePhoto)
+├── useWorkRecords.ts               # 활동 기록 상태 관리 (React Query + 페이지네이션)
 └── useEmployeeNotice.ts            # 직원 공지사항 상태 관리
 
 app/company/_hooks/                 # company 전용 훅
@@ -166,7 +183,8 @@ app/admin/employees/[id]/_hooks/    # 관리자 근로자 상세 로컬 훅
 | **Colocation** | 단일 라우트 전용 훅은 해당 라우트의 `_hooks/`에 배치, 공유 훅만 `hooks/`에 유지 |
 | **Query/Mutation 분리** | 범용 도메인은 분리 (`useXxxQuery` + `useXxxMutations`), 단일 리소스 CRUD는 통합 (`useEmployeeFiles`, `useCompanyFiles` 등) |
 | **로컬 훅 패턴** | 양호 — 상세 페이지의 UI 상태 + mutation 조합을 로컬 `_hooks/`에 캡슐화 |
-| **레거시 훅** | `useAttendance.ts` (useState 기반) — employee 앱에서 사용 중 |
+| **인증 통합** | `useAuth.ts`가 `useAuthQuery` (TanStack Query)를 사용하여 인증 상태 관리 |
+| **레거시 훅** | 없음 — employee 앱도 TanStack Query로 마이그레이션 완료 |
 
 ---
 
@@ -174,6 +192,7 @@ app/admin/employees/[id]/_hooks/    # 관리자 근로자 상세 로컬 훅
 
 | 우선순위 | 항목 | 설명 |
 |---------|------|------|
+| ~~**Medium**~~ | ~~Employee/Company 캐시 무효화 범위 축소~~ | ~~완료~~ — `keys.all` → `keys.lists()` 변경 완료 |
 | **Low** | Schedule mutation 무효화 범위 축소 | `scheduleKeys.all` → `scheduleKeys.monthly(year, month)` |
 | ~~**Low**~~ | ~~Query/Mutation 분리 일관성~~ | ~~완료~~ — 범용 도메인은 분리, 단일 리소스 CRUD는 통합으로 컨벤션 정립 |
 | **Low** | mutation onError 표준화 | 공용 훅에 기본 `onError` 추가 또는 컨벤션 문서화 |

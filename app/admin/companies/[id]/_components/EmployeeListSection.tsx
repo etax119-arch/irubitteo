@@ -2,18 +2,33 @@
 
 import { Users } from 'lucide-react';
 import type { Employee } from '@/types/employee';
+import type { Pagination } from '@/types/api';
+import { PaginationBar } from '@/components/ui/PaginationBar';
 
 interface EmployeeListSectionProps {
   employees: Employee[];
+  totalCount: number;
+  pagination?: Pagination;
+  currentPage: number;
+  onPrevPage: () => void;
+  onNextPage: () => void;
   onViewEmployee: (id: string) => void;
 }
 
-export function EmployeeListSection({ employees, onViewEmployee }: EmployeeListSectionProps) {
+export function EmployeeListSection({
+  employees,
+  totalCount,
+  pagination,
+  currentPage,
+  onPrevPage,
+  onNextPage,
+  onViewEmployee,
+}: EmployeeListSectionProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
         <Users className="w-5 h-5 text-duru-orange-600" />
-        소속 근로자 ({employees.length}명)
+        소속 근로자 ({totalCount}명)
       </h3>
 
       <div className="overflow-x-auto">
@@ -56,6 +71,15 @@ export function EmployeeListSection({ employees, onViewEmployee }: EmployeeListS
           </tbody>
         </table>
       </div>
+
+      {pagination && (
+        <PaginationBar
+          currentPage={currentPage}
+          pagination={pagination}
+          onPrevPage={onPrevPage}
+          onNextPage={onNextPage}
+        />
+      )}
     </div>
   );
 }

@@ -18,25 +18,30 @@ export async function getAdminStats(): Promise<AdminStats> {
 }
 
 export async function getAdminDailyAttendance(
-  date?: string
-): Promise<AdminDailyCompany[]> {
-  const response = await apiClient.get<{ success: boolean; data: AdminDailyCompany[] }>(
+  date?: string,
+  page?: number,
+  limit?: number,
+  search?: string
+): Promise<PaginatedResponse<AdminDailyCompany>> {
+  const response = await apiClient.get<PaginatedResponse<AdminDailyCompany>>(
     '/admin/daily-attendance',
-    { params: date ? { date } : undefined }
+    { params: { date, page, limit, search } }
   );
-  return response.data.data;
+  return response.data;
 }
 
 export async function getAdminMonthlyStats(
   year: number,
   month: number,
-  companyId?: string
-): Promise<MonthlyWorkStatsCompany[]> {
-  const response = await apiClient.get<{ success: boolean; data: MonthlyWorkStatsCompany[] }>(
+  page?: number,
+  limit?: number,
+  search?: string
+): Promise<PaginatedResponse<MonthlyWorkStatsCompany>> {
+  const response = await apiClient.get<PaginatedResponse<MonthlyWorkStatsCompany>>(
     '/admin/monthly-stats',
-    { params: { year, month, ...(companyId ? { companyId } : {}) } }
+    { params: { year, month, page, limit, search } }
   );
-  return response.data.data;
+  return response.data;
 }
 
 export async function getAbsenceAlerts(

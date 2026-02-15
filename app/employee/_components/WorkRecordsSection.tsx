@@ -6,7 +6,9 @@ import {
   FileText,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PaginationBar } from '@/components/ui/PaginationBar';
 import type { AttendanceWithEmployee, DisplayPhoto } from '@/types/attendance';
+import type { Pagination } from '@/types/api';
 import { DateNavigator } from './DateNavigator';
 import { WorkRecordCard } from './WorkRecordCard';
 
@@ -23,6 +25,10 @@ interface WorkRecordsSectionProps {
   onSavePhoto: (url: string, fileName: string) => void;
   onDeletePhoto: (recordId: string, photoUrl: string) => void;
   isLoading?: boolean;
+  currentPage?: number;
+  pagination?: Pagination;
+  onPrevPage?: () => void;
+  onNextPage?: () => void;
 }
 
 export function WorkRecordsSection({
@@ -38,11 +44,11 @@ export function WorkRecordsSection({
   onSavePhoto,
   onDeletePhoto,
   isLoading = false,
+  currentPage,
+  pagination,
+  onPrevPage,
+  onNextPage,
 }: WorkRecordsSectionProps) {
-  // 퇴근 기록만 필터링 (clockOut이 있는 기록)
-  // 날짜 필터링은 API 호출 시 이미 적용됨
-  const filteredRecords = workRecords.filter((record) => record.clockOut !== null);
-
   return (
     <div className="mt-6">
       {/* 트리거 카드 */}
@@ -95,9 +101,9 @@ export function WorkRecordsSection({
                 </div>
               ))}
             </div>
-          ) : filteredRecords.length > 0 ? (
+          ) : workRecords.length > 0 ? (
             <div className="space-y-3">
-              {filteredRecords.map((record) => (
+              {workRecords.map((record) => (
                 <WorkRecordCard
                   key={record.id}
                   record={record}
@@ -119,6 +125,16 @@ export function WorkRecordsSection({
                 등록된 활동 기록이 없습니다.
               </p>
             </div>
+          )}
+
+          {/* 페이지네이션 */}
+          {currentPage != null && pagination && onPrevPage && onNextPage && (
+            <PaginationBar
+              currentPage={currentPage}
+              pagination={pagination}
+              onPrevPage={onPrevPage}
+              onNextPage={onNextPage}
+            />
           )}
         </div>
       )}

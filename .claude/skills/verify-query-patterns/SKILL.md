@@ -35,6 +35,7 @@ disable-model-invocation: true
 | `hooks/useEmployeeMutations.ts` | 공용 근로자 Mutation 훅 |
 | `hooks/useEmployeeFiles.ts` | 공용 근로자 파일 Query/Mutation 훅 |
 | `hooks/useAuth.ts` | 인증 훅 |
+| `hooks/useAuthQuery.ts` | 공용 인증 Query 훅 |
 | `app/company/_hooks/useDashboardQuery.ts` | 기업 대시보드 Query 훅 |
 | `app/company/_hooks/useNoticeQuery.ts` | 기업 공지사항 Query 훅 |
 | `app/company/_hooks/useNoticeMutations.ts` | 기업 공지사항 Mutation 훅 |
@@ -150,6 +151,23 @@ glob: "**/*.ts"
 
 **수정 방법:** `queryKey: ['employees']` → `queryKey: employeeKeys.all` (`lib/query/keys.ts`에서 import)
 
+### Step 5: setQueryData에서 Key 팩토리 사용 확인
+
+**검사:** `setQueryData` 호출 시 첫 번째 인자에 하드코딩된 문자열 배열이 아닌 key factory를 사용해야 합니다.
+
+**도구:** Grep
+
+```
+# setQueryData에서 하드코딩된 키 사용 탐지
+pattern: "setQueryData\(\s*\["
+glob: "**/*.ts"
+```
+
+**PASS 기준:** 매칭 결과 0건
+**FAIL 기준:** `setQueryData(['employees', id], ...)` 형태의 하드코딩
+
+**수정 방법:** `setQueryData(['employees', id], ...)` → `setQueryData(employeeKeys.detail(id), ...)` (`lib/query/keys.ts`에서 import)
+
 ## Output Format
 
 ```markdown
@@ -161,6 +179,7 @@ glob: "**/*.ts"
 | 2 | Query/Mutation 분리 | PASS/FAIL | 혼재 파일 N개 |
 | 3 | API 클라이언트 직접 import | PASS/FAIL | 위반 파일 N개 |
 | 4 | invalidateQueries 키 팩토리 | PASS/FAIL | 하드코딩 N건 |
+| 5 | setQueryData 키 팩토리 | PASS/FAIL | 하드코딩 N건 |
 ```
 
 ## 예외사항

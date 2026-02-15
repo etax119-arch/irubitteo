@@ -43,6 +43,10 @@ export default function EmployeeDashboard() {
     handleMonthChange,
     addPhotoToRecord,
     deletePhotoFromRecord,
+    currentPage,
+    pagination,
+    goToNextPage,
+    goToPrevPage,
   } = useWorkRecords();
 
   useEffect(() => {
@@ -145,6 +149,10 @@ export default function EmployeeDashboard() {
           onSavePhoto={handleSavePhoto}
           onDeletePhoto={handleDeletePhoto}
           isLoading={recordsLoading}
+          currentPage={currentPage}
+          pagination={pagination}
+          onPrevPage={goToPrevPage}
+          onNextPage={goToNextPage}
         />
 
         {/* 사진 확대 모달 */}

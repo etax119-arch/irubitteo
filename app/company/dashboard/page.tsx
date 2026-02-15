@@ -114,6 +114,7 @@ export default function DashboardPage() {
 
       {/* 출퇴근 기록 */}
       <AttendanceTable
+        key={selectedDate}
         selectedDate={selectedDate}
         dailyAttendance={records}
         onPrevDay={goToPrevDay}

@@ -1,14 +1,15 @@
 'use client';
 
-import { Trash2, AlertTriangle } from 'lucide-react';
+import { Trash2, AlertTriangle, RotateCcw } from 'lucide-react';
 import type { CompanyWithEmployeeCount } from '@/types/company';
 
 interface ResignSectionProps {
   company: CompanyWithEmployeeCount;
   onOpenResignModal: () => void;
+  onRestore: () => void;
 }
 
-export function ResignSection({ company, onOpenResignModal }: ResignSectionProps) {
+export function ResignSection({ company, onOpenResignModal, onRestore }: ResignSectionProps) {
   if (company.isActive) {
     return (
       <button
@@ -37,6 +38,13 @@ export function ResignSection({ company, onOpenResignModal }: ResignSectionProps
           <span className="font-semibold text-red-900">{company.resignReason || '(사유 없음)'}</span>
         </div>
       </div>
+      <button
+        onClick={onRestore}
+        className="w-full mt-4 py-3 bg-green-50 text-green-600 rounded-xl font-semibold hover:bg-green-100 transition-colors flex items-center justify-center gap-2 border border-green-200"
+      >
+        <RotateCcw className="w-5 h-5" />
+        복구하기
+      </button>
     </div>
   );
 }

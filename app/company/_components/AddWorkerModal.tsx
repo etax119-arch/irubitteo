@@ -101,6 +101,7 @@ export function AddWorkerModal({
       onClose={onClose}
       size="lg"
       showCloseButton={false}
+      closeOnOverlayClick={false}
       className="max-h-[90vh] overflow-hidden flex flex-col"
       contentClassName="!p-0 flex flex-col overflow-y-auto"
     >

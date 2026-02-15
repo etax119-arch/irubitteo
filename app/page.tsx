@@ -3,7 +3,6 @@ import HeroSection from './_components/HeroSection';
 import ServiceSection from './_components/ServiceSection';
 import CommuteSection from './_components/CommuteSection';
 import TargetAudienceSection from './_components/TargetAudienceSection';
-import PartnersSection from './_components/PartnersSection';
 import Footer from './_components/Footer';
 
 export default function LandingPage() {
@@ -14,7 +13,6 @@ export default function LandingPage() {
       <ServiceSection />
       <CommuteSection />
       <TargetAudienceSection />
-      <PartnersSection />
       <Footer />
     </div>
   );

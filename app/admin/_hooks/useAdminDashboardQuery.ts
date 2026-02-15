@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getAdminStats, getAdminDailyAttendance, getAbsenceAlerts } from '@/lib/api/admin';
 import { adminKeys } from '@/lib/query/keys';
 
@@ -12,11 +12,17 @@ export function useAdminStats() {
   });
 }
 
-export function useAdminDailyAttendance(date: string) {
+export function useAdminDailyAttendance(
+  date: string,
+  page: number = 1,
+  limit: number = 10,
+  search?: string
+) {
   return useQuery({
-    queryKey: adminKeys.dailyAttendance(date),
-    queryFn: () => getAdminDailyAttendance(date),
+    queryKey: adminKeys.dailyAttendance(date, page, search),
+    queryFn: () => getAdminDailyAttendance(date, page, limit, search),
     staleTime: DASHBOARD_STALE_TIME,
+    placeholderData: keepPreviousData,
   });
 }
 

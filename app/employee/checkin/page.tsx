@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
-import { useAttendance } from '../_hooks/useAttendance';
+import { useClockIn } from '../_hooks/useMyAttendanceMutations';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { scheduleApi } from '@/lib/api/schedules';
 import { formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
@@ -14,7 +14,8 @@ export default function CheckInPage() {
   const router = useRouter();
   const [confirmedTasks, setConfirmedTasks] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const { clockIn, isLoading, error } = useAttendance();
+  const clockInMutation = useClockIn();
+  const isLoading = clockInMutation.isPending;
   const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
 
   // 출근 시간 설정 UI 상태 - KST 현재 시간을 기본값으로
@@ -42,11 +43,13 @@ export default function CheckInPage() {
     if (submittingRef.current) return;
     submittingRef.current = true;
     try {
-    const todayKST = formatDateAsKST(new Date());
-    const clockInTimestamp = buildKSTTimestamp(todayKST, `${hourInput}:${minuteInput}`);
+      const todayKST = formatDateAsKST(new Date());
+      const clockInTimestamp = buildKSTTimestamp(todayKST, `${hourInput}:${minuteInput}`);
 
-    const result = await clockIn({ clockIn: clockInTimestamp });
-    if (result) setShowModal(true);
+      await clockInMutation.mutateAsync({ clockIn: clockInTimestamp });
+      setShowModal(true);
+    } catch {
+      // 글로벌 토스트에서 에러 처리
     } finally {
       submittingRef.current = false;
     }
@@ -90,13 +93,6 @@ export default function CheckInPage() {
                 : todaySchedule.content}
             </p>
           </div>
-
-          {/* 에러 메시지 */}
-          {error && (
-            <div className="mx-6 sm:mx-8 mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-red-600 text-center font-medium">{error}</p>
-            </div>
-          )}
 
           {/* 확인 체크 영역 */}
           <div className="mx-6 sm:mx-8 mb-4">

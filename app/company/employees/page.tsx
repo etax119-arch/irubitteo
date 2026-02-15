@@ -1,40 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 import type { Employee, WorkDay } from '@/types/employee';
 import type { AddWorkerForm } from '@/types/companyDashboard';
 import { useQueryClient } from '@tanstack/react-query';
 import { employeeKeys } from '@/lib/query/keys';
-import { useActiveEmployees } from '@/hooks/useEmployeeQuery';
+import { useCompanyPaginatedEmployees } from '@/hooks/useEmployeeQuery';
 import { useCreateEmployee } from '@/hooks/useEmployeeMutations';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { PaginationBar } from '@/components/ui/PaginationBar';
 import { EmployeeTable } from '../_components/EmployeeTable';
 import { AddWorkerModal } from '../_components/AddWorkerModal';
 import { LABEL_TO_NUM } from '@/lib/workDays';
+import { formatDateAsKST } from '@/lib/kst';
 
-const INITIAL_ADD_WORKER_FORM: AddWorkerForm = {
-  name: '',
-  ssn: '',
-  phone: '',
-  gender: '',
-  addressCity: '',
-  addressDistrict: '',
-  addressDetail: '',
-  emergencyName: '',
-  emergencyRelation: '',
-  emergencyPhone: '',
-  disabilityType: '',
-  disabilitySeverity: '',
-  hireDate: '',
-  recognitionDate: '',
-  workDays: [],
-  workStartTime: '',
-  workerId: '',
-};
+function createInitialAddWorkerForm(): AddWorkerForm {
+  return {
+    name: '',
+    ssn: '',
+    phone: '',
+    gender: '',
+    addressCity: '',
+    addressDistrict: '',
+    addressDetail: '',
+    emergencyName: '',
+    emergencyRelation: '',
+    emergencyPhone: '',
+    disabilityType: '',
+    disabilitySeverity: '',
+    hireDate: formatDateAsKST(new Date()),
+    recognitionDate: '',
+    workDays: [],
+    workStartTime: '',
+    workerId: '',
+  };
+}
 
 function generateWorkerId(ssn: string, phone: string): string | null {
   const ssnDigits = ssn.replace(/\D/g, '');
@@ -49,20 +53,31 @@ export default function EmployeesPage() {
   const router = useRouter();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const employeesQuery = useActiveEmployees(5 * 60 * 1000);
   const createMutation = useCreateEmployee();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
-  const [addWorkerForm, setAddWorkerForm] = useState<AddWorkerForm>(INITIAL_ADD_WORKER_FORM);
+  const [addWorkerForm, setAddWorkerForm] = useState<AddWorkerForm>(() => createInitialAddWorkerForm());
   const [addWorkerComplete, setAddWorkerComplete] = useState<Record<string, boolean>>({});
   const [workerIdManuallyEdited, setWorkerIdManuallyEdited] = useState(false);
 
-  const employees = employeesQuery.data ?? [];
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const employeesQuery = useCompanyPaginatedEmployees(debouncedSearch, page);
+  const employees = employeesQuery.data?.employees ?? [];
+  const pagination = employeesQuery.data?.pagination;
   const isRefreshing = employeesQuery.isFetching && !employeesQuery.isLoading;
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: employeeKeys.all });
+    queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
   };
 
   const updateAddWorkerForm = (field: keyof AddWorkerForm, value: string | string[]) => {
@@ -174,7 +189,7 @@ export default function EmployeesPage() {
         onSuccess: () => {
           toast.success('근로자가 추가되었습니다.');
           setShowAddWorkerModal(false);
-          setAddWorkerForm(INITIAL_ADD_WORKER_FORM);
+          setAddWorkerForm(createInitialAddWorkerForm());
           setAddWorkerComplete({});
           setWorkerIdManuallyEdited(false);
         },
@@ -195,7 +210,7 @@ export default function EmployeesPage() {
 
   const handleCloseAddWorkerModal = () => {
     setShowAddWorkerModal(false);
-    setAddWorkerForm(INITIAL_ADD_WORKER_FORM);
+    setAddWorkerForm(createInitialAddWorkerForm());
     setAddWorkerComplete({});
     setWorkerIdManuallyEdited(false);
   };
@@ -251,6 +266,14 @@ export default function EmployeesPage() {
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
       />
+      {pagination && (
+        <PaginationBar
+          currentPage={page}
+          pagination={pagination}
+          onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
+          onNextPage={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+        />
+      )}
 
       <AddWorkerModal
         isOpen={showAddWorkerModal}

@@ -132,12 +132,12 @@
 ### 2. 근로자 관리 탭
 
 **목적**: 소속 근로자 목록 조회 및 신규 등록
-**데이터 관리**: TanStack Query 적용 (`useActiveEmployees`, `useCreateEmployee`)
+**데이터 관리**: TanStack Query 적용 (`useCompanyPaginatedEmployees`, `useCreateEmployee`, 서버 사이드 페이지네이션, 검색 디바운싱 300ms, `PaginationBar`, `onNextPage` 상한 검증)
 **API 연동**: ✅ 완료 (`GET /v1/employees`)
 
 #### 상단 영역
 - "근로자 관리" 제목
-- 검색창 (이름, 전화번호, 장애유형 클라이언트 필터링)
+- 검색창 (이름, 전화번호, 장애유형 — 서버 사이드 검색, 300ms 디바운싱)
 - "+ 근로자 추가" 버튼
 
 #### 근로자 목록 테이블
@@ -281,7 +281,7 @@
 - 파일 클릭 시 새 탭에서 미리보기/다운로드 (URL 프로토콜 검증: http/https만 허용)
 - 삭제 버튼 (확인 후 Supabase Storage + DB 삭제)
 - 빈 상태 / 로딩 상태 UI
-- 파일 업로드 모달: 문서 종류 선택 (근로계약서, 동의서, 건강검진, 자격증, 장애인등록증, 이력서, 기타) + 파일 선택 (PDF, JPG, PNG, 최대 10MB)
+- 파일 업로드 모달: 문서 종류 선택 (근로계약서, 동의서, 건강검진, 자격증, 장애인등록증, 이력서, 기타) + 파일 선택 (PDF, JPG, PNG, 최대 10MB, `validateUploadFile` + `FILE_CONSTRAINTS.DOCUMENT` 검증)
 - API: `GET/POST /v1/employees/:id/files`, `DELETE /v1/employees/:id/files/:fileId`
 - Supabase Storage 버킷: `employee-files`
 
@@ -326,12 +326,13 @@
 
 #### 새 공지사항 발송 섹션
 
-**발송 대상 근로자**:
-- "전체 선택" / "전체 해제" 버튼
-- 검색창 (이름, 전화번호, 장애유형)
+**발송 대상 근로자** (`WorkerSelector` 컴포넌트):
+- "전체 선택" / "전체 해제" 버튼 (현재 검색 필터 기준, 결과 0건 시 비활성화)
+- 검색창 (이름, 전화번호로 필터링, `useMemo` 캐싱)
 - 근로자 체크박스 목록
-  - 아바타, 이름, 장애유형, 전화번호, 상태
+  - 아바타, 이름, 장애유형, 전화번호
 - 선택된 근로자 수 표시
+- **성능 최적화**: 선택 상태를 `Set<string>`으로 관리하여 O(1) 조회, `useCallback`으로 콜백 메모이제이션
 
 **공지사항 내용**:
 - 텍스트 영역 (6줄)

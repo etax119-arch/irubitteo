@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
@@ -20,11 +20,31 @@ export default function AdminDashboardPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState(() => formatDateAsKST(new Date()));
+  const [attendancePage, setAttendancePage] = useState(1);
+  const [attendanceSearch, setAttendanceSearch] = useState('');
+  const [debouncedAttendanceSearch, setDebouncedAttendanceSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedAttendanceSearch(attendanceSearch);
+      setAttendancePage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [attendanceSearch]);
 
   const statsQuery = useAdminStats();
-  const attendanceQuery = useAdminDailyAttendance(selectedDate);
+  const attendanceQuery = useAdminDailyAttendance(selectedDate, attendancePage, 10, debouncedAttendanceSearch || undefined);
   const alertsQuery = useAbsenceAlerts();
   const dismissMutation = useDismissAbsenceAlert();
+
+  const handleDateChange = (date: string) => {
+    setSelectedDate(date);
+    setAttendancePage(1);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setAttendanceSearch(query);
+  };
 
   const handleDismissAlert = (alertId: string, employeeId: string) => {
     dismissMutation.mutate(alertId, {
@@ -83,7 +103,8 @@ export default function AdminDashboardPage() {
   }
 
   const stats = statsQuery.data;
-  const dailyAttendance = attendanceQuery.data ?? [];
+  const dailyAttendance = attendanceQuery.data?.data ?? [];
+  const attendancePagination = attendanceQuery.data?.pagination ?? null;
   const urgentAlerts = alertsQuery.data ?? [];
 
   return (
@@ -193,8 +214,17 @@ export default function AdminDashboardPage() {
       <CompanyAttendanceAccordion
         dailyAttendance={dailyAttendance}
         selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
+        onDateChange={handleDateChange}
         isFetching={attendanceQuery.isFetching}
+        searchQuery={attendanceSearch}
+        onSearchChange={handleSearchChange}
+        pagination={attendancePagination}
+        currentPage={attendancePage}
+        onPrevPage={() => setAttendancePage((p) => Math.max(1, p - 1))}
+        onNextPage={() => setAttendancePage((p) => {
+          const max = attendancePagination?.totalPages ?? p + 1;
+          return Math.min(max, p + 1);
+        })}
       />
     </div>
   );

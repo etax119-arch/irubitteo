@@ -1,39 +1,37 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAttendance } from './useAttendance';
-import { attendanceApi } from '@/lib/api/attendance';
-import { isHeicFile, isHeicFileByContent, convertHeicToJpeg, compressImage, filesToBase64 } from '@/lib/file';
-import type { AttendanceWithEmployee } from '@/types/attendance';
+import { useState, useCallback } from 'react';
+import { useMyAttendanceHistory } from './useMyAttendanceQuery';
+import { useAddPhotos, useDeletePhoto } from './useMyAttendanceMutations';
+import { isHeicFile, isHeicFileByContent, convertHeicToJpeg, compressImage } from '@/lib/file';
+import type { Pagination } from '@/types/api';
+
+const PAGE_LIMIT = 20;
 
 export function useWorkRecords() {
-  const { fetchAttendances, isLoading } = useAttendance();
   const [isOpen, setIsOpen] = useState(false);
   const [yearMonth, setYearMonth] = useState({ year: new Date().getFullYear(), month: new Date().getMonth() + 1 });
   const { year, month } = yearMonth;
-  const [workRecords, setWorkRecords] = useState<AttendanceWithEmployee[]>([]);
+  const [page, setPage] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
 
-  // 아코디언 열릴 때 또는 연도/월 변경 시 fetch (lazy loading)
-  useEffect(() => {
-    if (!isOpen) return;
+  const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+  const lastDay = new Date(year, month, 0).getDate();
+  const endDate = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
 
-    let ignore = false;
+  const { data, isLoading } = useMyAttendanceHistory({
+    page,
+    limit: PAGE_LIMIT,
+    startDate,
+    endDate,
+    enabled: isOpen,
+  });
 
-    const loadWorkRecords = async () => {
-      const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-      const lastDay = new Date(year, month, 0).getDate();
-      const endDate = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
+  const workRecords = data?.records ?? [];
+  const pagination: Pagination = data?.pagination ?? { page: 1, limit: PAGE_LIMIT, total: 0, totalPages: 1 };
 
-      const attendances = await fetchAttendances({ startDate, endDate });
-      if (attendances && !ignore) {
-        setWorkRecords(attendances);
-      }
-    };
-
-    loadWorkRecords();
-    return () => { ignore = true; };
-  }, [isOpen, year, month, fetchAttendances]);
+  const addPhotosMutation = useAddPhotos();
+  const deletePhotoMutation = useDeletePhoto();
 
   const toggleOpen = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -44,6 +42,7 @@ export function useWorkRecords() {
       ...prev,
       year: direction === 'prev' ? prev.year - 1 : prev.year + 1,
     }));
+    setPage(1);
   }, []);
 
   const handleMonthChange = useCallback((direction: 'prev' | 'next') => {
@@ -57,9 +56,17 @@ export function useWorkRecords() {
         ? { year: prev.year + 1, month: 1 }
         : { ...prev, month: prev.month + 1 };
     });
+    setPage(1);
   }, []);
 
-  // 업무 기록에 사진 추가 (서버 업로드)
+  const goToNextPage = useCallback(() => {
+    setPage((prev) => (prev < pagination.totalPages ? prev + 1 : prev));
+  }, [pagination.totalPages]);
+
+  const goToPrevPage = useCallback(() => {
+    setPage((prev) => (prev > 1 ? prev - 1 : prev));
+  }, []);
+
   const addPhotoToRecord = useCallback(
     async (recordId: string, e: React.ChangeEvent<HTMLInputElement>): Promise<boolean> => {
       const files = Array.from(e.target.files || []);
@@ -67,8 +74,7 @@ export function useWorkRecords() {
 
       setIsUploading(true);
       try {
-        // HEIC 감지/변환 + 압축
-        const processedBlobs = await Promise.all(
+        const rawBlobs = await Promise.all(
           files.map(async (file) => {
             let blob: File | Blob = file;
 
@@ -77,7 +83,7 @@ export function useWorkRecords() {
               try {
                 blob = await convertHeicToJpeg(file);
               } catch {
-                // 변환 실패 시 원본 사용
+                return null;
               }
             }
 
@@ -85,15 +91,10 @@ export function useWorkRecords() {
           })
         );
 
-        // base64 변환 → API 호출
-        const base64Photos = await filesToBase64(processedBlobs);
-        const updated = await attendanceApi.addPhotos(recordId, base64Photos);
+        const processedBlobs = rawBlobs.filter((b): b is Blob => b !== null);
+        if (processedBlobs.length === 0) return false;
 
-        setWorkRecords((prev) =>
-          prev.map((record) =>
-            record.id === recordId ? updated : record
-          )
-        );
+        await addPhotosMutation.mutateAsync({ attendanceId: recordId, photos: processedBlobs });
         return true;
       } catch {
         return false;
@@ -101,25 +102,19 @@ export function useWorkRecords() {
         setIsUploading(false);
       }
     },
-    []
+    [addPhotosMutation]
   );
 
-  // 서버에서 사진 삭제 후 로컬 state 반영
   const deletePhotoFromRecord = useCallback(
     async (recordId: string, photoUrl: string): Promise<boolean> => {
       try {
-        const updated = await attendanceApi.deletePhoto(recordId, photoUrl);
-        setWorkRecords((prev) =>
-          prev.map((record) =>
-            record.id === recordId ? updated : record
-          )
-        );
+        await deletePhotoMutation.mutateAsync({ attendanceId: recordId, photoUrl });
         return true;
       } catch {
         return false;
       }
     },
-    []
+    [deletePhotoMutation]
   );
 
   return {
@@ -134,5 +129,9 @@ export function useWorkRecords() {
     handleMonthChange,
     addPhotoToRecord,
     deletePhotoFromRecord,
+    currentPage: page,
+    pagination,
+    goToNextPage,
+    goToPrevPage,
   };
 }

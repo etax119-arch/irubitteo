@@ -31,16 +31,24 @@ interface AddCompanyModalProps {
   isSubmitting?: boolean;
 }
 
-const initialForm: AddCompanyForm = {
+const getTodayDateString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getInitialForm = (): AddCompanyForm => ({
   companyName: '',
   businessNumber: '',
   address: '',
-  contractStartDate: '',
+  contractStartDate: getTodayDateString(),
   contactName: '',
   contactPhone: '',
   contactEmail: '',
   companyCode: '',
-};
+});
 
 const initialPmInfo: PMInfo = {
   name: '',
@@ -49,14 +57,14 @@ const initialPmInfo: PMInfo = {
 };
 
 export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: AddCompanyModalProps) {
-  const [form, setForm] = useState<AddCompanyForm>(initialForm);
+  const [form, setForm] = useState<AddCompanyForm>(getInitialForm);
   const [pmInfo, setPmInfo] = useState<PMInfo>(initialPmInfo);
   const [complete, setComplete] = useState<Record<string, boolean>>({});
 
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   if (isOpen && !prevIsOpen) {
     setPrevIsOpen(isOpen);
-    setForm(initialForm);
+    setForm(getInitialForm());
     setPmInfo(initialPmInfo);
     setComplete({});
   }
@@ -77,7 +85,7 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: Add
   };
 
   const handleClose = () => {
-    setForm(initialForm);
+    setForm(getInitialForm());
     setPmInfo(initialPmInfo);
     setComplete({});
     onClose();
@@ -310,10 +318,6 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: Add
                   <CheckCircle2 className="absolute right-3 top-9 w-4 h-4 text-green-500" />
                 )}
               </div>
-              <p className="text-xs text-gray-500 flex items-center gap-1.5 bg-white rounded-lg px-3 py-2 border border-gray-200">
-                <Lock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                초기 비밀번호는 자동 생성되어 담당자 이메일로 발송됩니다.
-              </p>
             </div>
           </div>
         </div>

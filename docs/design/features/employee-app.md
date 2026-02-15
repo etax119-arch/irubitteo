@@ -31,8 +31,10 @@
 │   ├── HeicImage.tsx           # HEIC 이미지 지원
 │   └── SuccessModal.tsx        # 출퇴근 완료 모달
 └── _hooks/
-    ├── useWorkRecords.ts       # 활동 기록 상태 관리
-    └── useEmployeeNotice.ts    # 직원 공지사항 상태 관리
+    ├── useMyAttendanceQuery.ts    # 출퇴근 Query 훅 (TanStack Query)
+    ├── useMyAttendanceMutations.ts # 출퇴근 Mutation 훅 (TanStack Query)
+    ├── useWorkRecords.ts          # 활동 기록 상태 관리 (React Query + 페이지네이션)
+    └── useEmployeeNotice.ts       # 직원 공지사항 상태 관리
 ```
 
 ### URL 구조
@@ -168,8 +170,12 @@
 **사진 첨부 섹션**:
 - "사진 추가하기" 버튼 (파일 선택)
 - 첨부된 사진 미리보기 (썸네일 + 삭제 버튼)
-- 사진 제한: 최대 10장, 파일당 10MB
+- 사진 제한: 최대 5장, 파일당 10MB
 - HEIC/HEIF 이미지 업로드 시 JPEG 자동 변환
+
+**사진 업로드 방식**:
+- FormData (multipart/form-data)로 Blob 직접 전송
+- HEIC/HEIF 이미지는 업로드 전 JPEG 자동 변환 + 압축
 
 **퇴근 완료 버튼**:
 - 업무 내용 입력 시 활성화
@@ -193,11 +199,11 @@
 - 년/월 네비게이션 (`DateNavigator` 컴포넌트)
   - 년도 이전/다음, 월 이전/다음 버튼
 - 월별 활동 기록 목록 (`WorkRecordCard` 컴포넌트)
-  - `clockOut !== null`인 기록만 표시
+  - 서버에서 `status=checkout` 필터로 퇴근 완료 기록만 조회
   - "퇴근" 배지 + 퇴근 날짜/시간 표시
   - 업무 내용
   - 첨부 사진 (클릭 시 `PhotoLightbox`로 확대 보기)
-  - "사진 추가하기" 버튼 → HEIC 변환 + 압축 → base64 → 서버 업로드 (`POST /v1/attendances/:id/photos`)
+  - "사진 추가하기" 버튼 → HEIC 변환 + 압축 → Blob → FormData (multipart/form-data) 업로드 (`POST /v1/attendances/:id/photos`). HEIC 변환 실패 시 해당 파일 제외 (모두 실패 시 업로드 중단)
   - 사진 저장(다운로드) / 삭제 기능 (카드 내 버튼)
 
 **HEIC 이미지 지원** (`HeicImage` 컴포넌트):
@@ -211,7 +217,12 @@
 - `HeicImage` 컴포넌트로 HEIC 이미지 자동 변환 표시
 - 클릭 또는 ESC로 닫기
 
-**Lazy Loading**: 아코디언이 열릴 때만 API 호출
+**데이터 관리**: TanStack Query 기반
+- 아코디언 열릴 때만 쿼리 활성화 (`enabled: isOpen`)
+- 서버 사이드 페이지네이션 (`limit=20`, `PaginationBar` 컴포넌트)
+- `staleTime: 30s` — 아코디언 닫기/열기 시 캐시 히트
+- 월/연도 변경 시 페이지 1로 리셋
+- 사진 추가/삭제 시 mutation → 자동 캐시 무효화
 
 ---
 

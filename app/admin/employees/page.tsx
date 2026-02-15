@@ -7,6 +7,7 @@ import { Search, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
+import { PaginationBar } from '@/components/ui/PaginationBar';
 import { WorkerTable } from '../_components/WorkerTable';
 import { useAdminEmployees } from '@/hooks/useEmployeeQuery';
 import { employeeKeys } from '@/lib/query/keys';
@@ -26,21 +27,26 @@ export default function AdminEmployeesPage() {
   const [filter, setFilter] = useState<WorkerFilter>('current');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1);
+    }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const employeesQuery = useAdminEmployees(filter, debouncedSearch);
-  const employees = employeesQuery.data ?? [];
+  const employeesQuery = useAdminEmployees(filter, debouncedSearch, page);
+  const employees = employeesQuery.data?.employees ?? [];
+  const pagination = employeesQuery.data?.pagination;
 
   const handleViewDetail = (employee: EmployeeWithCompany) => {
     router.push(`/admin/employees/${employee.id}`);
   };
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: employeeKeys.all });
+    queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
   };
 
   return (
@@ -64,7 +70,7 @@ export default function AdminEmployeesPage() {
           {filters.map((f) => (
             <button
               key={f.id}
-              onClick={() => setFilter(f.id)}
+              onClick={() => { setFilter(f.id); setPage(1); }}
               className={cn(
                 'px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap',
                 filter === f.id
@@ -116,10 +122,20 @@ export default function AdminEmployeesPage() {
           </button>
         </div>
       ) : (
-        <WorkerTable
-          workers={employees}
-          onViewDetail={handleViewDetail}
-        />
+        <>
+          <WorkerTable
+            workers={employees}
+            onViewDetail={handleViewDetail}
+          />
+          {pagination && (
+            <PaginationBar
+              currentPage={page}
+              pagination={pagination}
+              onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
+              onNextPage={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+            />
+          )}
+        </>
       )}
     </div>
   );

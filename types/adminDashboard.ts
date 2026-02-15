@@ -69,3 +69,6 @@ export interface MonthlyWorkStatsCompany {
 
 /** 근로자 필터 */
 export type WorkerFilter = 'current' | 'resigned' | 'waiting' | 'all';
+
+/** 회원사 필터 */
+export type CompanyFilter = 'active' | 'inactive';

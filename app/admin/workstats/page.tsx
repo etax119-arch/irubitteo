@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { BarChart3, Calendar, Search, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BarChart3, Search, RefreshCw, ChevronDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
+import { PaginationBar } from '@/components/ui/PaginationBar';
+import { MonthPicker } from '../_components/MonthPicker';
 import { WorkStatsTable } from '../_components/WorkStatsTable';
 import { PrintPreviewModal } from '../_components/PrintPreviewModal';
 import {
@@ -19,20 +21,38 @@ function getCurrentMonth(): string {
   return formatDateAsKST(new Date()).substring(0, 7);
 }
 
+function offsetMonthString(monthStr: string, offset: number): string {
+  const [year, month] = monthStr.split('-').map(Number);
+  const date = new Date(year, month - 1, 1);
+  date.setMonth(date.getMonth() + offset);
+  const nextYear = date.getFullYear();
+  const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
+  return `${nextYear}-${nextMonth}`;
+}
+
 export default function AdminWorkstatsPage() {
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [printPreview, setPrintPreview] = useState<MonthlyWorkStatsCompany | null>(null);
   const toast = useToast();
+
+  // 검색 디바운스 (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const year = Number(selectedMonth.split('-')[0]);
   const month = Number(selectedMonth.split('-')[1]);
 
-  const statsQuery = useAdminMonthlyStats(year, month);
+  const statsQuery = useAdminMonthlyStats(year, month, page, 10, debouncedSearch || undefined);
   const calculateMutation = useCalculateMonthlyStats();
-  const updateMutation = useUpdateMonthlyStats(year, month);
+  const updateMutation = useUpdateMonthlyStats(year, month, page, debouncedSearch || undefined);
 
-  const companies = statsQuery.data ?? [];
+  const companies = statsQuery.data?.data ?? [];
+  const pagination = statsQuery.data?.pagination ?? null;
 
   const handleCalculate = () => {
     calculateMutation.mutate(
@@ -66,6 +86,9 @@ export default function AdminWorkstatsPage() {
         ...(field === 'workDays' ? { workDays: value } : { totalWorkHours: value }),
       },
       {
+        onSuccess: () => {
+          toast.success('통계가 수정되었습니다.');
+        },
         onError: () => {
           toast.error('통계 수정에 실패했습니다.');
         },
@@ -73,9 +96,20 @@ export default function AdminWorkstatsPage() {
     );
   };
 
-  const filteredCompanies = companies.filter((company) =>
-    company.companyName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const changeMonth = (offset: number) => {
+    setSelectedMonth((prev) => offsetMonthString(prev, offset));
+    setPage(1);
+  };
+
+  const handleMonthChange = (monthValue: string) => {
+    setSelectedMonth(monthValue);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -89,20 +123,34 @@ export default function AdminWorkstatsPage() {
             type="text"
             placeholder="회사명 검색..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             size="sm"
             leftIcon={<Search className="w-5 h-5" />}
             className="w-64"
           />
           <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-duru-orange-600" />
-            <Input
-              type="month"
+            <button
+              onClick={() => changeMonth(-1)}
+              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              title="이전 월"
+              aria-label="이전 월"
+            >
+              <ChevronDown className="w-5 h-5 rotate-90" />
+            </button>
+            <MonthPicker
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              size="sm"
-              className="border-2 border-duru-orange-500 bg-duru-orange-50 text-duru-orange-600 font-bold"
+              onChange={handleMonthChange}
+              className="w-[150px]"
+              inputClassName="border-2 border-duru-orange-500 bg-duru-orange-50 text-duru-orange-600 font-bold hover:border-duru-orange-500"
             />
+            <button
+              onClick={() => changeMonth(1)}
+              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              title="다음 월"
+              aria-label="다음 월"
+            >
+              <ChevronDown className="w-5 h-5 -rotate-90" />
+            </button>
           </div>
           <button
             onClick={handleCalculate}
@@ -138,12 +186,22 @@ export default function AdminWorkstatsPage() {
           ))}
         </div>
       ) : (
-        <WorkStatsTable
-          companies={filteredCompanies}
-          selectedMonth={selectedMonth}
-          onPrintPreview={handlePrintPreview}
-          onWorkStatsUpdate={handleWorkStatsUpdate}
-        />
+        <>
+          <WorkStatsTable
+            companies={companies}
+            selectedMonth={selectedMonth}
+            onPrintPreview={handlePrintPreview}
+            onWorkStatsUpdate={handleWorkStatsUpdate}
+          />
+          {pagination && (
+            <PaginationBar
+              currentPage={page}
+              pagination={pagination}
+              onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
+              onNextPage={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+            />
+          )}
+        </>
       )}
 
       <PrintPreviewModal

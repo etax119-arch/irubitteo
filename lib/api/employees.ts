@@ -44,11 +44,13 @@ export async function updateEmployee(
 
 export async function uploadProfileImage(
   id: string,
-  base64Image: string
+  imageBlob: Blob
 ): Promise<{ success: boolean; data: Employee }> {
+  const formData = new FormData();
+  formData.append('image', imageBlob, 'profile.jpg');
   const response = await apiClient.patch<{ success: boolean; data: Employee }>(
     `/employees/${id}/profile-image`,
-    { image: base64Image }
+    formData
   );
   return response.data;
 }

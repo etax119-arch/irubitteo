@@ -35,7 +35,7 @@ export type ClockInInput = {
 /** 퇴근 처리 입력 (attendanceId는 JWT + 오늘 날짜로 조회) */
 export type ClockOutInput = {
   workContent: string; // 필수
-  photos?: string[];
+  photos?: Blob[];
   note?: string;
 };
 

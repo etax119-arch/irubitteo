@@ -1,7 +1,9 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import type { DocumentType } from '@/types/employee';
+import { validateUploadFile, FILE_CONSTRAINTS } from '@/lib/file';
 
 type FileUploadModalProps = {
   isOpen: boolean;
@@ -24,11 +26,31 @@ export function FileUploadModal({
   uploading,
   onUpload,
 }: FileUploadModalProps) {
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   if (!isOpen) return null;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setValidationError(null);
+    if (file) {
+      const error = validateUploadFile(file, FILE_CONSTRAINTS.DOCUMENT);
+      if (error) {
+        setValidationError(error);
+        setUploadFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+    }
+    setUploadFile(file);
+  };
 
   const handleClose = () => {
     onClose();
     setUploadFile(null);
+    setValidationError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -65,12 +87,17 @@ export function FileUploadModal({
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">파일 선택</label>
             <input
+              ref={fileInputRef}
               type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+              accept={FILE_CONSTRAINTS.DOCUMENT.accept}
+              onChange={handleFileChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500"
             />
-            <p className="text-xs text-gray-500 mt-2">PDF, JPG, PNG 파일만 업로드 가능 (최대 10MB)</p>
+            {validationError ? (
+              <p className="text-xs text-red-500 mt-2">{validationError}</p>
+            ) : (
+              <p className="text-xs text-gray-500 mt-2">PDF, JPG, PNG 파일만 업로드 가능 (최대 10MB)</p>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -82,7 +109,7 @@ export function FileUploadModal({
             </button>
             <button
               onClick={onUpload}
-              disabled={uploading || !uploadFile}
+              disabled={uploading || !uploadFile || !!validationError}
               className="flex-1 py-3 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {uploading && <Loader2 className="w-4 h-4 animate-spin" />}

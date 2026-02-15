@@ -44,6 +44,23 @@ lib/query/
 - **mutation 성공 시 `invalidateQueries`** — 캐시를 무효화하면 마운트된 쿼리가 자동 refetch
 - **gcTime: 30분** — 언마운트된 쿼리의 캐시를 30분간 보관 (탭 복귀 시 즉시 표시)
 
+### 서버 사이드 페이지네이션 패턴
+
+페이지네이션 파라미터(page, limit, search)를 Query Key에 포함하여 페이지별 캐시를 분리합니다:
+
+```typescript
+// Query Key에 페이지네이션 파라미터 포함
+employeeKeys.list({ filter, search, page, limit })
+companyKeys.list({ filter, search, page, limit })
+adminKeys.monthlyStats(year, month, page, search)
+adminKeys.dailyAttendance(date, page, search)
+attendanceKeys.myHistory({ page, limit, startDate, endDate })
+```
+
+- **`placeholderData: keepPreviousData`** — 페이지 전환 시 이전 데이터를 유지하여 깜빡임 방지
+- **검색 디바운싱 (300ms)** — 입력마다 API 호출하지 않고 300ms 대기 후 요청
+- **`PaginationBar` 컴포넌트** — `@/components/ui/PaginationBar`로 이전/다음 네비게이션 제공
+
 ### 도메인별 staleTime 가이드
 
 실시간성이 필요한 도메인은 `staleTime`을 개별 쿼리에서 오버라이드합니다:
@@ -62,18 +79,60 @@ lib/query/
 `lib/query/keys.ts`에 도메인별 키 팩토리를 정의합니다:
 
 ```typescript
-export const scheduleKeys = {
-  all: ['schedules'] as const,
-  monthly: (year: number, month: number) => ['schedules', 'monthly', year, month] as const,
-  today: () => ['schedules', 'today'] as const,
+export const authKeys = {
+  all: ['auth'] as const,
+  me: () => ['auth', 'me'] as const,
+};
+
+export const employeeKeys = {
+  all: ['employees'] as const,
+  lists: () => ['employees', 'list'] as const,
+  active: () => ['employees', 'list', 'active'] as const,
+  list: (params: { filter, search, page, limit }) =>
+    ['employees', 'list', 'filtered', params] as const,
+  companyList: (params: { search, page, limit }) =>
+    ['employees', 'list', 'company', params] as const,
+  detail: (id: string) => ['employees', id] as const,
+  files: (id: string) => ['employees', id, 'files'] as const,
+};
+
+export const companyKeys = {
+  all: ['companies'] as const,
+  lists: () => ['companies', 'list'] as const,
+  list: (params?: { filter, search, page, limit }) => [...],
+  detail: (id: string) => ['companies', id] as const,
+  employees: (id: string, params?: { page, limit }) => [...],
+  files: (id: string) => ['companies', id, 'files'] as const,
+};
+
+export const adminKeys = {
+  // 페이지네이션 파라미터 포함 키
+  dailyAttendance: (date, page?, search?) => ['admin', 'daily-attendance', date, { page, search }],
+  monthlyStats: (year, month, page?, search?) => ['admin', 'monthly-stats', year, month, { page, search }],
+  // ...
 };
 ```
 
 ### 규칙
 
 1. `all` — 해당 도메인의 모든 캐시를 무효화할 때 사용
-2. 세부 키는 `all`의 prefix를 공유하여 `invalidateQueries({ queryKey: keys.all })`로 일괄 무효화 가능
-3. 파라미터가 있는 키는 함수로 정의
+2. `lists()` — 목록 쿼리만 무효화할 때 사용 (상세/파일 캐시는 유지)
+3. 세부 키는 `all`의 prefix를 공유하여 계층적 무효화 가능
+4. 파라미터가 있는 키는 함수로 정의
+
+### 캐시 무효화 전략
+
+목록 변경 mutation 시 `lists()` 단위로 무효화하여 범위를 최소화합니다:
+
+```typescript
+// 좋은 예: lists() 단위 무효화 → 상세/파일 캐시 보존
+queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
+
+// 나쁜 예: all 단위 무효화 → 불필요한 상세/파일 refetch 발생
+queryClient.invalidateQueries({ queryKey: employeeKeys.all });
+```
+
+`invalidateQueries`는 prefix matching이므로 `lists()`를 무효화하면 `list(params)`, `active()`, `companyList(params)` 등 하위 키가 모두 무효화됩니다.
 
 ---
 
@@ -146,10 +205,8 @@ export function useCreateNotice() {
 | `/admin/notifications` | `app/admin/_hooks/useAdminNotificationQuery.ts` — 3 queries, `app/admin/_hooks/useAdminNotificationMutations.ts` — 3 mutations (staleTime: 30s) |
 | `/admin/reports` | `app/admin/_hooks/useAdminReports.ts` — 1 query + 2 mutations (staleTime: Infinity) |
 | `/company/employees/[id]` | `hooks/useEmployeeQuery.ts`, `hooks/useEmployeeMutations.ts`, `hooks/useEmployeeFiles.ts`, `hooks/useAttendanceQuery.ts`, `hooks/useAttendanceMutations.ts` (공유) |
-
-### 대상 제외 — 직원 앱
-
-- `/employee` — 탭 기반 라우팅이 아닌 단일 페이지 구조로 캐시 이점 없음. TanStack Query 적용 불필요.
+| 인증 (`useAuth`) | `hooks/useAuthQuery.ts` — `useAuthQuery` (staleTime: 5분, retry: false), `hooks/useAuth.ts` — Zustand 동기화 |
+| `/employee` (출퇴근 앱) | `app/employee/_hooks/useMyAttendanceQuery.ts` — `useMyTodayAttendance`, `useMyAttendanceHistory` (staleTime: 30s, status=checkout 서버 필터, 페이지네이션 limit=20), `app/employee/_hooks/useMyAttendanceMutations.ts` — `useClockIn`, `useClockOut`, `useAddPhotos`, `useDeletePhoto` |
 
 ### 네이밍 규칙
 

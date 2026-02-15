@@ -174,9 +174,10 @@ durubitteo_web/
 │   │   │   ├── HeicImage.tsx          # HEIC 이미지 지원
 │   │   │   └── SuccessModal.tsx       # 출퇴근 완료 모달
 │   │   └── _hooks/
-│   │       ├── useAttendance.ts       # 출퇴근 API 훅 (useState 기반)
-│   │       ├── useWorkRecords.ts      # 활동 기록 상태 관리
-│   │       └── useEmployeeNotice.ts   # 직원 공지사항 상태 관리
+│   │       ├── useMyAttendanceQuery.ts    # 출퇴근 Query 훅 (TanStack Query)
+│   │       ├── useMyAttendanceMutations.ts # 출퇴근 Mutation 훅 (TanStack Query)
+│   │       ├── useWorkRecords.ts          # 활동 기록 상태 관리 (React Query + 페이지네이션)
+│   │       └── useEmployeeNotice.ts       # 직원 공지사항 상태 관리
 │   │
 │   ├── company/              # 기업 영역 (라우트 기반 탭)
 │   │   ├── layout.tsx        # 공통 헤더 + 탭 네비게이션 + 인증 보호
@@ -261,7 +262,8 @@ durubitteo_web/
 │   └── ui/                   # 전역 UI 프리미티브 (Button, Input, Modal 등)
 │
 ├── hooks/                    # 공용 훅 (여러 라우트에서 공유)
-│   ├── useAuth.ts            # 인증 훅 (login, logout, checkAuth)
+│   ├── useAuth.ts            # 인증 훅 (login, logout, checkAuth — useAuthQuery 기반)
+│   ├── useAuthQuery.ts       # 인증 Query 훅 (TanStack Query, staleTime: 5분)
 │   ├── useAttendanceQuery.ts # 출퇴근 Query 훅 (TanStack Query)
 │   ├── useAttendanceMutations.ts # 출퇴근 Mutation 훅 (TanStack Query)
 │   ├── useEmployeeQuery.ts   # 근로자 Query 훅 (TanStack Query)
@@ -283,7 +285,7 @@ durubitteo_web/
 │
 └── lib/                      # 유틸리티 함수
     ├── cn.ts                 # Tailwind 클래스 병합
-    ├── file.ts               # HEIC 파일 유틸리티 + formatFileSize
+    ├── file.ts               # HEIC 파일 유틸리티 + formatFileSize + validateUploadFile + FILE_CONSTRAINTS
     ├── kst.ts                # KST 시간 변환 (formatUtcTimestampAsKST, formatKSTDate, offsetDateString 등)
     ├── workDays.ts           # 요일 매핑 (DAY_LABELS, LABEL_TO_NUM, NUM_TO_LABEL)
     ├── status.ts             # 출퇴근 상태 표시 통합 (getEmployeeStatusLabel/Style, getDisplayStatusColor)
@@ -354,6 +356,7 @@ durubitteo_web/
 | `Tabs` | 탭 UI | `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
 | `Skeleton` | 로딩 플레이스홀더 | `className` |
 | `Toast` | 토스트 알림 | `useToast()` 훅 사용 |
+| `PaginationBar` | 서버 사이드 페이지네이션 | `currentPage`, `pagination`, `onPrevPage`, `onNextPage` |
 
 **사용 예시:**
 ```tsx

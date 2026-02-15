@@ -39,8 +39,8 @@ export default function CompanyEmployeeDetailPage() {
 
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  const handleUploadImage = (base64: string) => {
-    uploadImage.mutate(base64, {
+  const handleUploadImage = (blob: Blob) => {
+    uploadImage.mutate(blob, {
       onSuccess: () => toast.success('프로필 이미지가 업로드되었습니다.'),
       onError: () => toast.error('프로필 이미지 업로드에 실패했습니다.'),
     });

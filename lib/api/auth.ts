@@ -1,4 +1,4 @@
-import apiClient from './client';
+import apiClient, { resetRefreshCircuit } from './client';
 import type { AuthUser, LoginResponse, ChangePasswordParams } from '@/types/auth';
 
 export type LoginParams =
@@ -22,6 +22,7 @@ export const authApi = {
     }
 
     const response = await apiClient.post<LoginResponse>('/auth/login', body);
+    resetRefreshCircuit();
     return response.data;
   },
 

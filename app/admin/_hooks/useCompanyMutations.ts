@@ -9,7 +9,7 @@ export function useCreateCompany() {
   return useMutation({
     mutationFn: (input: CompanyCreateInput) => createCompany(input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: companyKeys.all });
+      queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
     },
   });
 }
@@ -22,7 +22,7 @@ export function useUpdateCompany(companyId: string) {
       updateCompany(companyId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: companyKeys.detail(companyId) });
-      queryClient.invalidateQueries({ queryKey: companyKeys.all });
+      queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
     },
   });
 }

@@ -18,7 +18,7 @@ import type { Employee } from '@/types/employee';
 type ProfileCardProps = {
   worker: Employee;
   isUploadingImage?: boolean;
-  onUploadImage?: (base64: string) => void;
+  onUploadImage?: (blob: Blob) => void;
   onDeleteImage?: () => void;
 };
 

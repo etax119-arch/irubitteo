@@ -16,6 +16,7 @@ export function useDismissAbsenceAlert() {
         return { ...old, data: old.data.filter((a) => a.id !== alertId) };
       });
       queryClient.invalidateQueries({ queryKey: adminKeys.absenceAlerts() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
     },
   });
 }
@@ -28,6 +29,7 @@ export function useDismissNoteUpdate() {
       queryClient.setQueryData<NoteUpdateAlert[]>(adminKeys.noteUpdates(), (old) =>
         old?.filter((a) => a.employeeId !== employeeId)
       );
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
     },
   });
 }
@@ -41,6 +43,7 @@ export function useCompleteInquiry() {
         if (!old) return old;
         return { ...old, data: old.data.filter((inq) => inq.id !== inquiryId) };
       });
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
     },
   });
 }

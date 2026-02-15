@@ -7,13 +7,21 @@ import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { offsetDateString } from '@/lib/kst';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Input } from '@/components/ui/Input';
+import { PaginationBar } from '@/components/ui/PaginationBar';
 import type { AdminDailyCompany } from '@/types/adminDashboard';
+import type { Pagination } from '@/types/api';
 
 interface CompanyAttendanceAccordionProps {
   dailyAttendance: AdminDailyCompany[];
   selectedDate: string;
   onDateChange: (date: string) => void;
   isFetching?: boolean;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  pagination: Pagination | null;
+  currentPage: number;
+  onPrevPage: () => void;
+  onNextPage: () => void;
 }
 
 export function CompanyAttendanceAccordion({
@@ -21,9 +29,14 @@ export function CompanyAttendanceAccordion({
   selectedDate,
   onDateChange,
   isFetching,
+  searchQuery,
+  onSearchChange,
+  pagination,
+  currentPage,
+  onPrevPage,
+  onNextPage,
 }: CompanyAttendanceAccordionProps) {
   const [expandedCompanies, setExpandedCompanies] = useState<Record<string, boolean>>({});
-  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleCompany = (companyId: string) => {
     setExpandedCompanies((prev) => ({
@@ -39,10 +52,6 @@ export function CompanyAttendanceAccordion({
   const handleDateChange = (dateStr: string) => {
     onDateChange(dateStr);
   };
-
-  const filteredCompanies = dailyAttendance.filter((company) =>
-    company.companyName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="space-y-4">
@@ -81,7 +90,7 @@ export function CompanyAttendanceAccordion({
           type="text"
           placeholder="회사명 검색..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => onSearchChange(e.target.value)}
           size="sm"
           leftIcon={<Search className="w-5 h-5" />}
         />
@@ -93,7 +102,7 @@ export function CompanyAttendanceAccordion({
           <Loader2 className="w-6 h-6 text-duru-orange-500 animate-spin" />
         </div>
       )}
-      {filteredCompanies.map((company) => {
+      {dailyAttendance.map((company) => {
         const employees = company.employees;
 
         const statusCounts = employees.reduce(
@@ -234,6 +243,16 @@ export function CompanyAttendanceAccordion({
           </div>
         );
       })}
+
+      {/* 페이지네이션 */}
+      {pagination && (
+        <PaginationBar
+          currentPage={currentPage}
+          pagination={pagination}
+          onPrevPage={onPrevPage}
+          onNextPage={onNextPage}
+        />
+      )}
     </div>
   );
 }

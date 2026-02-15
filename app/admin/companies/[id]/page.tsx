@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { X } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -23,8 +23,14 @@ export default function CompanyDetailPage() {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [employeePage, setEmployeePage] = useState(1);
+
+  useEffect(() => { setEmployeePage(1); }, [id]);
+
   const { data: company, isLoading } = useCompanyDetail(id);
-  const { data: employees = [] } = useCompanyEmployees(id);
+  const { data: employeesData } = useCompanyEmployees(id, employeePage);
+  const employees = employeesData?.employees ?? [];
+  const employeePagination = employeesData?.pagination;
   const { data: files = [] } = useCompanyFilesQuery(id);
   const uploadFile = useUploadCompanyFile(id);
   const deleteFile = useDeleteCompanyFile(id);
@@ -159,6 +165,7 @@ export default function CompanyDetailPage() {
             <ResignSection
               company={company}
               onOpenResignModal={() => detailUI.setShowResignModal(true)}
+              onRestore={detailUI.handleRestore}
             />
           </div>
 
@@ -166,6 +173,11 @@ export default function CompanyDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             <EmployeeListSection
               employees={employees}
+              totalCount={employeePagination?.total ?? employees.length}
+              pagination={employeePagination}
+              currentPage={employeePage}
+              onPrevPage={() => setEmployeePage((p) => Math.max(1, p - 1))}
+              onNextPage={() => setEmployeePage((p) => Math.min(p + 1, employeePagination?.totalPages ?? p))}
               onViewEmployee={(employeeId) => router.push(`/admin/employees/${employeeId}`)}
             />
             <FileSection

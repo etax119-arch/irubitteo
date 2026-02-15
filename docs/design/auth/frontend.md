@@ -64,7 +64,8 @@ durubitteo_web/
 │       └── store.ts          # Zustand 스토어 + persist + CustomEvent
 │
 ├── hooks/
-│   └── useAuth.ts            # 인증 훅 (로그인, 로그아웃, checkAuth 자동 호출)
+│   ├── useAuth.ts            # 인증 훅 (로그인, 로그아웃, checkAuth — useAuthQuery 기반)
+│   └── useAuthQuery.ts       # 인증 Query 훅 (TanStack Query, staleTime: 5분)
 │
 ├── middleware.ts             # Next.js 라우트 보호 (쿠키 기반 역할별 접근 제어)
 │
@@ -85,115 +86,174 @@ durubitteo_web/
 | `lib/api/client.ts` | axios 인스턴스, 401 응답 시 토큰 갱신 큐 시스템 |
 | `lib/api/auth.ts` | login, logout, refresh, getMe API 함수 |
 | `lib/auth/store.ts` | Zustand + persist로 UI 표시용 사용자 상태 관리 |
-| `hooks/useAuth.ts` | 컴포넌트용 인증 훅 (마운트 시 checkAuth 자동 호출) |
+| `hooks/useAuthQuery.ts` | TanStack Query 기반 인증 상태 조회 (`GET /auth/me`, staleTime: 5분) |
+| `hooks/useAuth.ts` | 컴포넌트용 인증 훅 (useAuthQuery 결과를 Zustand에 동기화, 로그인/로그아웃) |
 | `middleware.ts` | 쿠키 기반 역할별 라우트 접근 제어 |
 
 ---
 
 ## 3. 핵심 구현 상세
 
-### 토큰 갱신 큐 시스템 (`lib/api/client.ts`)
+### 토큰 갱신 큐 시스템 + 서킷 브레이커 (`lib/api/client.ts`)
 
-동시 요청 시 토큰 갱신을 한 번만 수행하고, 대기 중인 요청들을 큐에서 처리:
+동시 요청 시 토큰 갱신을 한 번만 수행하고, 대기 중인 요청들을 큐에서 처리합니다.
+큐 폭주 방지 및 연속 실패 시 서킷 브레이커로 보호합니다:
 
 ```typescript
-let isRefreshing = false;
-let failedQueue: Array<{ resolve: Function; reject: Function }> = [];
+// 설정 상수
+const REFRESH_CONFIG = {
+  MAX_QUEUE_SIZE: 50,              // 큐 크기 제한 (10탭 × 4쿼리 + 여유분)
+  QUEUE_TIMEOUT_MS: 10_000,        // 큐 대기 타임아웃 (10s)
+  REFRESH_TIMEOUT_MS: 5_000,       // 갱신 요청 타임아웃 (5s)
+  STAGGER_BASE_MS: 50,             // 시차 재시도 간격
+  CIRCUIT_BREAKER_THRESHOLD: 3,    // 연속 실패 허용 횟수
+  CIRCUIT_BREAKER_RESET_MS: 30_000, // 서킷 차단 시간 (30s)
+  PROACTIVE_REFRESH_BEFORE_MS: 2 * 60 * 1000,   // 만료 2분 전 갱신
+  ACCESS_TOKEN_TTL_MS: 15 * 60 * 1000,           // 15분 (서버 설정과 동일)
+} as const;
 
-const processQueue = (error: unknown = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) prom.reject(error);
-    else prom.resolve();
+// 상태 변수
+let isRefreshing = false;
+let failedQueue: Array<{ resolve; reject; timer }> = [];
+let consecutiveFailures = 0;
+let circuitOpenUntil = 0;
+
+// 서킷 브레이커: 연속 3회 실패 시 30초간 갱신 시도 차단
+function isCircuitOpen(): boolean {
+  if (consecutiveFailures < REFRESH_CONFIG.CIRCUIT_BREAKER_THRESHOLD) return false;
+  return Date.now() < circuitOpenUntil;
+}
+
+// 큐 처리: 성공 시 50ms 간격으로 시차 재시도
+function processQueue(error: unknown) {
+  failedQueue.forEach((entry, index) => {
+    clearTimeout(entry.timer);
+    if (error) entry.reject(error);
+    else setTimeout(() => entry.resolve(), index * REFRESH_CONFIG.STAGGER_BASE_MS);
   });
   failedQueue = [];
-};
+}
+```
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+**핵심 보호 메커니즘**:
+- **큐 크기 제한 (50개)**: 초과 요청은 즉시 거부
+- **큐 타임아웃 (10s)**: 대기 시간 초과 시 자동 거부
+- **갱신 타임아웃 (5s)**: `/auth/refresh` 요청에 타임아웃 적용
+- **시차 재시도 (50ms)**: 갱신 성공 시 큐 요청을 50ms 간격으로 풀어서 서버 부하 방지
+- **서킷 브레이커 (3회→30s)**: 연속 3회 갱신 실패 시 30초간 갱신 시도 자체를 차단
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        // 이미 갱신 중이면 큐에 추가
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(() => apiClient(originalRequest));
-      }
+### 프로액티브 토큰 갱신 (`lib/api/client.ts`)
 
-      originalRequest._retry = true;
-      isRefreshing = true;
+accessToken 만료(15분) 2분 전에 미리 갱신하여 401 자체를 예방합니다:
 
-      try {
-        await apiClient.post('/auth/refresh');
-        processQueue();
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError);
-        useAuthStore.getState().clearUser();
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
-    }
+```typescript
+// 타이머 스케줄: 로그인/갱신 성공 → 13분 후 자동 갱신
+export function scheduleProactiveRefresh() { ... }
+export function cancelProactiveRefresh() { ... }
+async function performProactiveRefresh() { ... }
+```
 
-    return Promise.reject(error);
-  }
-);
+**트리거 지점** (응답 인터셉터):
+- **로그인 성공** (`/auth/login`): 항상 타이머 재시작
+- **갱신 성공** (`/auth/refresh`): 항상 타이머 재시작 (새 토큰 기준)
+- **세션 복원** (`/auth/me`): 타이머가 없을 때만 1회 시작 (새로고침 시)
+
+**정리 지점**:
+- `clearAuthState()`: 갱신 실패 → 로그아웃 시 타이머 취소
+- `useAuth().logout()`: 사용자 명시적 로그아웃 시 타이머 취소
+
+**동시성 안전**:
+- `isRefreshing` 플래그를 reactive 경로와 공유
+- 프로액티브 갱신 중 401 발생 → 큐에 추가 → 성공 시 `processQueue(null)`로 처리
+- 프로액티브 실패 → `drainQueue(err)` → 다음 401에서 reactive 경로 재시도
+- 프로액티브 실패 시 `clearAuthState()` 미호출 (치명적이지 않음)
+
+### 429 Rate Limit 재시도 (`lib/api/client.ts`)
+
+서버가 429 (Too Many Requests)를 반환하면 Axios 인터셉터에서 자동 재시도합니다:
+
+```typescript
+const MAX_RATE_LIMIT_RETRIES = 3;
+const RETRYABLE_METHODS = new Set(['get', 'head']);
+```
+
+**재시도 정책**:
+- **대상 메서드**: GET/HEAD만 (POST/PUT/PATCH/DELETE는 중복 변경 리스크로 재시도하지 않음)
+- **최대 재시도**: 3회
+- **지연 전략**: `Retry-After` 헤더 우선 → 없으면 exponential backoff (1s → 2s → 4s, 최대 8s)
+- **Retry-After 파싱**: 초 단위 숫자 + HTTP-date 형식 모두 지원
+- **TanStack Query 연동**: Query에서는 4xx를 재시도하지 않으므로 Axios 최대 3회 × Query 1회 = 최대 4회로 제한
+
+```typescript
+// lib/api/error.ts에 429 메시지 추가
+429: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
 ```
 
 ### 토큰 갱신 실패 시 로그아웃 (`lib/api/client.ts`)
 
-토큰 갱신 실패 시 `useAuthStore.getState().clearUser()`를 직접 호출하여 로그아웃 처리:
+토큰 갱신 실패 시 Zustand 상태 초기화 + TanStack Query 전체 캐시 클리어:
 
 ```typescript
-// client.ts (인터셉터 내부)
-} catch (refreshError) {
-  processQueue(refreshError);
+function clearAuthState() {
+  cancelProactiveRefresh();
   useAuthStore.getState().clearUser();
-  return Promise.reject(refreshError);
+  if (typeof window !== 'undefined') {
+    getQueryClient().clear();
+  }
+}
+```
+
+> **참고**: `clear()`는 동기 함수로 모든 쿼리 캐시를 즉시 제거합니다. auth 쿼리만 삭제하면 이전 사용자의 데이터가 캐시에 남아 보안 위험이 있으므로 전체 클리어합니다.
+
+### useAuthQuery 훅 (`hooks/useAuthQuery.ts`)
+
+TanStack Query 기반 인증 상태 조회:
+
+```typescript
+export function useAuthQuery(enabled: boolean = true) {
+  return useQuery<AuthUser>({
+    queryKey: authKeys.me(),
+    queryFn: () => authApi.getMe(),
+    enabled,
+    staleTime: 5 * 60 * 1000,  // 5분
+    gcTime: 30 * 60 * 1000,    // 30분
+    retry: false,
+  });
 }
 ```
 
 ### useAuth 훅 (`hooks/useAuth.ts`)
 
-컴포넌트 마운트 시 자동으로 인증 상태 확인 (로그인 페이지 제외):
+`useAuthQuery` 결과를 Zustand에 동기화하고, 로그인/로그아웃 기능 제공:
 
 ```typescript
 export function useAuth() {
   const { user, isAuthenticated, isLoading, setUser, clearUser, setLoading } =
     useAuthStore();
 
-  const checkAuth = useCallback(async () => {
-    // 영속화된 인증 데이터가 없을 때만 로딩 표시 (첫 방문)
-    if (!useAuthStore.getState().isAuthenticated) {
-      setLoading(true);
-    }
-    try {
-      const user = await authApi.getMe();
-      setUser(user);
-    } catch (err) {
-      if (err instanceof AxiosError && err.response?.status === 401) {
-        clearUser();
-      }
-      // 네트워크 에러 등은 이전 인증 상태 유지
-    } finally {
-      setLoading(false);
-    }
-  }, [setUser, clearUser, setLoading]);
+  // 로그인 페이지에서는 /auth/me 호출 차단
+  const isLoginPage = pathname.startsWith('/login');
+  const authQuery = useAuthQuery(!isLoginPage);
 
-  // 컴포넌트 마운트 시 인증 상태 확인
+  // TanStack Query 결과를 Zustand에 동기화
   useEffect(() => {
-    if (pathname.startsWith('/login')) {
-      setLoading(false);
-      return;
+    if (isLoginPage) { setLoading(false); return; }
+    if (authQuery.isSuccess && authQuery.data) setUser(authQuery.data);
+    else if (authQuery.isError) {
+      if (authQuery.error instanceof AxiosError && authQuery.error.response?.status === 401)
+        clearUser();
+      else setLoading(false); // 네트워크 에러 시 기존 상태 유지
     }
-    checkAuth();
-  }, [checkAuth, setLoading, pathname]);
+  }, [isLoginPage, authQuery.isSuccess, authQuery.isError, ...]);
 
   return { user, isAuthenticated, isLoading, login, logout, checkAuth };
 }
 ```
+
+**이전 대비 변경점**:
+- 수동 `checkAuth()` → `useAuthQuery`가 마운트 시 자동 호출
+- 로그인 성공 시 `queryClient.setQueryData(authKeys.me(), response.user)`로 캐시에 직접 설정
+- 로그아웃 시 `await queryClient.cancelQueries()` + `queryClient.clear()`로 in-flight 요청 취소 후 전체 캐시 클리어
 
 ---
 
@@ -297,6 +357,7 @@ export function useAuth() {
 - [x] 직원 로그인 (고유번호)
 - [x] 로그아웃
 - [x] 토큰 자동 갱신 (401 → refresh → 재시도)
+- [x] 프로액티브 토큰 갱신 (만료 2분 전 자동 갱신)
 - [x] 갱신 실패 시 로그아웃
 
 ### 라우트 보호 검증

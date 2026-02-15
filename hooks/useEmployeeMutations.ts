@@ -8,7 +8,7 @@ export function useCreateEmployee() {
   return useMutation({
     mutationFn: (input: EmployeeCreateInput) => createEmployee(input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: employeeKeys.all });
+      queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
     },
   });
 }
@@ -19,7 +19,7 @@ export function useUpdateEmployee(employeeId: string) {
     mutationFn: (input: EmployeeUpdateInput) => updateEmployee(employeeId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: employeeKeys.detail(employeeId) });
-      queryClient.invalidateQueries({ queryKey: employeeKeys.all });
+      queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
     },
   });
 }
@@ -27,10 +27,10 @@ export function useUpdateEmployee(employeeId: string) {
 export function useUploadProfileImage(employeeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (base64Image: string) => uploadProfileImage(employeeId, base64Image),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: employeeKeys.detail(employeeId) });
-      queryClient.invalidateQueries({ queryKey: employeeKeys.all });
+    mutationFn: (imageBlob: Blob) => uploadProfileImage(employeeId, imageBlob),
+    onSuccess: (response) => {
+      queryClient.setQueryData(employeeKeys.detail(employeeId), response);
+      queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
     },
   });
 }
@@ -39,9 +39,9 @@ export function useDeleteProfileImage(employeeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => deleteProfileImage(employeeId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: employeeKeys.detail(employeeId) });
-      queryClient.invalidateQueries({ queryKey: employeeKeys.all });
+    onSuccess: (response) => {
+      queryClient.setQueryData(employeeKeys.detail(employeeId), response);
+      queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
     },
   });
 }

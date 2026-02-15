@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Search, Users } from 'lucide-react';
 import type { Employee } from '@/types/employee';
 import { Avatar } from '@/components/ui/Avatar';
@@ -7,11 +8,11 @@ import { filterEmployees } from '../_utils/filterEmployees';
 
 interface WorkerSelectorProps {
   employees: Employee[];
-  selectedWorkers: string[];
+  selectedWorkers: Set<string>;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onToggleWorker: (workerId: string) => void;
-  onToggleAll: () => void;
+  onToggleAll: (filteredWorkerIds: string[]) => void;
 }
 
 export function WorkerSelector({
@@ -22,7 +23,8 @@ export function WorkerSelector({
   onToggleWorker,
   onToggleAll,
 }: WorkerSelectorProps) {
-  const filteredWorkers = filterEmployees(employees, searchQuery);
+  const filteredWorkers = useMemo(() => filterEmployees(employees, searchQuery), [employees, searchQuery]);
+  const allFilteredSelected = filteredWorkers.length > 0 && filteredWorkers.every((w) => selectedWorkers.has(w.id));
 
   return (
     <div className="mb-6">
@@ -33,10 +35,11 @@ export function WorkerSelector({
         </h4>
         <div className="flex items-center gap-3">
           <button
-            onClick={onToggleAll}
-            className="px-4 py-2 bg-duru-orange-50 text-duru-orange-600 rounded-lg font-semibold hover:bg-duru-orange-100 transition-colors border border-duru-orange-200 text-sm"
+            onClick={() => onToggleAll(filteredWorkers.map((w) => w.id))}
+            disabled={filteredWorkers.length === 0}
+            className={`px-4 py-2 bg-duru-orange-50 text-duru-orange-600 rounded-lg font-semibold hover:bg-duru-orange-100 transition-colors border border-duru-orange-200 text-sm ${filteredWorkers.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {selectedWorkers.length === employees.length ? '전체 해제' : '전체 선택'}
+            {allFilteredSelected ? '전체 해제' : '전체 선택'}
           </button>
         </div>
       </div>
@@ -59,12 +62,12 @@ export function WorkerSelector({
           <div
             key={worker.id}
             className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
-              selectedWorkers.includes(worker.id) ? 'bg-duru-orange-50' : 'hover:bg-gray-50'
+              selectedWorkers.has(worker.id) ? 'bg-duru-orange-50' : 'hover:bg-gray-50'
             } ${index !== array.length - 1 ? 'border-b border-gray-200' : ''}`}
             onClick={() => onToggleWorker(worker.id)}
           >
             <Checkbox
-              checked={selectedWorkers.includes(worker.id)}
+              checked={selectedWorkers.has(worker.id)}
               onChange={() => onToggleWorker(worker.id)}
               onClick={(e) => e.stopPropagation()}
             />
@@ -85,12 +88,12 @@ export function WorkerSelector({
       </div>
 
       {/* 선택 요약 */}
-      {selectedWorkers.length > 0 && (
+      {selectedWorkers.size > 0 && (
         <div className="mt-4 bg-duru-orange-50 rounded-lg p-4 border border-duru-orange-200">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-gray-900">선택된 근로자</p>
             <p className="text-lg font-bold text-duru-orange-600">
-              {selectedWorkers.length}명
+              {selectedWorkers.size}명
             </p>
           </div>
         </div>

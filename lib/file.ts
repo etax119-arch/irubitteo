@@ -127,6 +127,40 @@ export async function filesToBase64(files: (File | Blob)[]): Promise<string[]> {
   return Promise.all(files.map(fileToBase64));
 }
 
+// ── 파일 업로드 검증 ──
+
+export const FILE_CONSTRAINTS = {
+  DOCUMENT: {
+    maxSize: 10 * 1024 * 1024,
+    allowedTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    accept: '.pdf,.jpg,.jpeg,.png',
+    label: 'PDF, JPG, PNG',
+  },
+  REPORT: {
+    maxSize: 10 * 1024 * 1024,
+    allowedTypes: [
+      'application/pdf', 'image/jpeg', 'image/png',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ],
+    accept: '.pdf,.jpg,.jpeg,.png,.docx,.xlsx',
+    label: 'PDF, JPG, PNG, DOCX, XLSX',
+  },
+} as const;
+
+export function validateUploadFile(
+  file: File,
+  constraints: { maxSize: number; allowedTypes: readonly string[]; label: string },
+): string | null {
+  if (!constraints.allowedTypes.includes(file.type)) {
+    return `${constraints.label} 파일만 업로드 가능합니다.`;
+  }
+  if (file.size > constraints.maxSize) {
+    return `파일 크기는 ${constraints.maxSize / (1024 * 1024)}MB 이하만 가능합니다.`;
+  }
+  return null;
+}
+
 /**
  * 파일 크기(bytes)를 사람이 읽기 쉬운 형식으로 변환
  */

@@ -7,7 +7,6 @@ import {
   isHeicFileByContent,
   convertHeicToJpeg,
   compressImage,
-  fileToBase64,
 } from '@/lib/file';
 import { useToast } from '@/components/ui/Toast';
 
@@ -15,7 +14,7 @@ interface ProfileImageUploadProps {
   src: string | null;
   name: string;
   isUploading: boolean;
-  onUpload: (base64: string) => void;
+  onUpload: (blob: Blob) => void;
   onDelete: () => void;
   editable?: boolean;
 }
@@ -52,8 +51,7 @@ export function ProfileImageUpload({
       // 압축 (512px, 0.8 quality)
       blob = await compressImage(blob, { maxDimension: 512, quality: 0.8 });
 
-      const base64 = await fileToBase64(blob);
-      onUpload(base64);
+      onUpload(blob);
     } catch {
       toast.error('이미지 처리에 실패했습니다.');
     }

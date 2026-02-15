@@ -33,7 +33,7 @@ interface ProfileCardProps {
   onCancel: () => void;
   onUpdateForm: <K extends keyof ProfileFormState>(key: K, value: ProfileFormState[K]) => void;
   isUploadingImage?: boolean;
-  onUploadImage?: (base64: string) => void;
+  onUploadImage?: (blob: Blob) => void;
   onDeleteImage?: () => void;
 }
 

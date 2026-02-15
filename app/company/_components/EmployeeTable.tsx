@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { IconButton } from '@/components/ui/IconButton';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
-import { filterEmployees } from '../_utils/filterEmployees';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -27,8 +26,6 @@ export function EmployeeTable({
   onRefresh,
   isRefreshing,
 }: EmployeeTableProps) {
-  const filteredEmployees = filterEmployees(employees, searchQuery);
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -74,14 +71,14 @@ export function EmployeeTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredEmployees.length === 0 ? (
+              {employees.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     {searchQuery ? '검색 결과가 없습니다.' : '등록된 근로자가 없습니다.'}
                   </td>
                 </tr>
               ) : (
-                filteredEmployees.map((emp) => (
+                employees.map((emp) => (
                   <tr key={emp.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">

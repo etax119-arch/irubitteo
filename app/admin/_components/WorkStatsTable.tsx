@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Building2, ChevronDown, ChevronRight, Eye, Edit, Check, X } from 'lucide-react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Input } from '@/components/ui/Input';
@@ -26,6 +26,28 @@ export function WorkStatsTable({
     field: 'workDays' | 'totalHours';
   } | null>(null);
   const [editValue, setEditValue] = useState('');
+
+  const companyAverages = useMemo(() => {
+    const map = new Map<string, { avgWorkHours: string; avgWorkDays: string }>();
+    for (const company of companies) {
+      const total = company.employees.length;
+      if (total === 0) {
+        map.set(company.companyId, { avgWorkHours: '0', avgWorkDays: '0' });
+        continue;
+      }
+      let sumHours = 0;
+      let sumDays = 0;
+      for (const w of company.employees) {
+        sumHours += w.totalHours;
+        sumDays += w.workDays;
+      }
+      map.set(company.companyId, {
+        avgWorkHours: (sumHours / total).toFixed(1),
+        avgWorkDays: (sumDays / total).toFixed(1),
+      });
+    }
+    return map;
+  }, [companies]);
 
   const toggleCompany = (companyId: string) => {
     setExpandedCompanies((prev) => ({
@@ -58,12 +80,9 @@ export function WorkStatsTable({
     <div className="space-y-4">
       {companies.map((company) => {
         const totalEmployees = company.employees.length;
-        const avgWorkHours = totalEmployees > 0
-          ? (company.employees.reduce((sum, w) => sum + w.totalHours, 0) / totalEmployees).toFixed(1)
-          : '0';
-        const avgWorkDays = totalEmployees > 0
-          ? (company.employees.reduce((sum, w) => sum + w.workDays, 0) / totalEmployees).toFixed(1)
-          : '0';
+        const averages = companyAverages.get(company.companyId);
+        const avgWorkHours = averages?.avgWorkHours ?? '0';
+        const avgWorkDays = averages?.avgWorkDays ?? '0';
         const isExpanded = expandedCompanies[company.companyId];
 
         return (

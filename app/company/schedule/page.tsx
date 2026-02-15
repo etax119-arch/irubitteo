@@ -20,9 +20,9 @@ export default function SchedulePage() {
   const month = currentMonth.getMonth() + 1;
   const { data: schedules = [] } = useMonthlySchedules(year, month);
 
-  const createMutation = useCreateSchedule();
-  const updateMutation = useUpdateSchedule();
-  const deleteMutation = useDeleteSchedule();
+  const createMutation = useCreateSchedule(year, month);
+  const updateMutation = useUpdateSchedule(year, month);
+  const deleteMutation = useDeleteSchedule(year, month);
   const isSaving = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 
   const goToPrevMonth = useCallback(() => {

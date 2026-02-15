@@ -9,7 +9,7 @@ export function useSendNotice() {
   return useMutation({
     mutationFn: (input: NoticeCreateInput) => noticeApi.create(input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: noticeKeys.all });
+      queryClient.invalidateQueries({ queryKey: noticeKeys.list() });
     },
   });
 }
@@ -20,7 +20,7 @@ export function useDeleteNotice() {
   return useMutation({
     mutationFn: (id: string) => noticeApi.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: noticeKeys.all });
+      queryClient.invalidateQueries({ queryKey: noticeKeys.list() });
     },
   });
 }

@@ -1,9 +1,15 @@
+'use client';
+
+import { useState } from 'react';
 import { ChevronLeft, ChevronRight, FileText, RefreshCw } from 'lucide-react';
 import type { DailyAttendanceRecord } from '@/types/attendance';
 import { Avatar } from '@/components/ui/Avatar';
 import { IconButton } from '@/components/ui/IconButton';
+import { PaginationBar } from '@/components/ui/PaginationBar';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
+
+const PAGE_SIZE = 20;
 
 interface AttendanceTableProps {
   selectedDate: string;
@@ -22,6 +28,11 @@ export function AttendanceTable({
   onRefresh,
   isRefreshing,
 }: AttendanceTableProps) {
+  const [page, setPage] = useState(1);
+
+  const totalPages = Math.ceil(dailyAttendance.length / PAGE_SIZE);
+  const paginatedRecords = dailyAttendance.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <div className="flex items-center justify-between mb-6">
@@ -79,14 +90,14 @@ export function AttendanceTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {dailyAttendance.length === 0 ? (
+            {paginatedRecords.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                   출퇴근 기록이 없습니다.
                 </td>
               </tr>
             ) : (
-              dailyAttendance.map((record) => (
+              paginatedRecords.map((record) => (
                 <tr key={record.employeeId} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -111,6 +122,20 @@ export function AttendanceTable({
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <PaginationBar
+          currentPage={page}
+          pagination={{
+            page,
+            limit: PAGE_SIZE,
+            total: dailyAttendance.length,
+            totalPages,
+          }}
+          onPrevPage={() => setPage((p) => Math.max(1, p - 1))}
+          onNextPage={() => setPage((p) => Math.min(totalPages, p + 1))}
+        />
+      )}
     </div>
   );
 }

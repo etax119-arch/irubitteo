@@ -122,6 +122,19 @@ export function useCompanyDetailUI(companyId: string) {
     }
   };
 
+  const handleRestore = async () => {
+    try {
+      await updateMutation.mutateAsync({
+        isActive: true,
+        resignDate: null,
+        resignReason: null,
+      });
+      toast.success('회원사가 복구되었습니다.');
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    }
+  };
+
   return {
     // HR info edit
     isEditing,
@@ -145,5 +158,6 @@ export function useCompanyDetailUI(companyId: string) {
     resignForm,
     setResignForm,
     handleResign,
+    handleRestore,
   };
 }

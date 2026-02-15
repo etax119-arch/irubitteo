@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { MessageSquare, Bell, Edit } from 'lucide-react';
 import { WorkerSelector } from '../_components/WorkerSelector';
 import { NoticeHistory } from '../_components/NoticeHistory';
@@ -22,7 +22,7 @@ export default function NoticesPage() {
   const sendMutation = useSendNotice();
   const deleteMutation = useDeleteNotice();
 
-  const [selectedWorkersForNotice, setSelectedWorkersForNotice] = useState<string[]>([]);
+  const [selectedWorkersForNotice, setSelectedWorkersForNotice] = useState<Set<string>>(new Set());
   const [noticeContent, setNoticeContent] = useState('');
   const [workerSearchQuery, setWorkerSearchQuery] = useState('');
   const [expandedNotices, setExpandedNotices] = useState<Set<string>>(new Set());
@@ -30,19 +30,29 @@ export default function NoticesPage() {
   const notices = noticesQuery.data ?? [];
   const employees = employeesQuery.data ?? [];
 
-  const toggleWorkerForNotice = (workerId: string) => {
-    setSelectedWorkersForNotice((prev) =>
-      prev.includes(workerId) ? prev.filter((id) => id !== workerId) : [...prev, workerId]
-    );
-  };
+  const toggleWorkerForNotice = useCallback((workerId: string) => {
+    setSelectedWorkersForNotice((prev) => {
+      const next = new Set(prev);
+      if (next.has(workerId)) next.delete(workerId);
+      else next.add(workerId);
+      return next;
+    });
+  }, []);
 
-  const toggleAllWorkersForNotice = () => {
-    if (selectedWorkersForNotice.length === employees.length) {
-      setSelectedWorkersForNotice([]);
-    } else {
-      setSelectedWorkersForNotice(employees.map((e) => e.id));
-    }
-  };
+  const toggleAllWorkersForNotice = useCallback((filteredWorkerIds: string[]) => {
+    setSelectedWorkersForNotice((prev) => {
+      const allSelected = filteredWorkerIds.length > 0 && filteredWorkerIds.every((id) => prev.has(id));
+      if (allSelected) {
+        const next = new Set(prev);
+        filteredWorkerIds.forEach((id) => next.delete(id));
+        return next;
+      } else {
+        const next = new Set(prev);
+        filteredWorkerIds.forEach((id) => next.add(id));
+        return next;
+      }
+    });
+  }, []);
 
   const toggleNoticeExpand = (noticeId: string) => {
     setExpandedNotices((prev) => {
@@ -64,17 +74,17 @@ export default function NoticesPage() {
   };
 
   const handleSendNotice = () => {
-    if (selectedWorkersForNotice.length === 0 || !noticeContent.trim()) return;
+    if (selectedWorkersForNotice.size === 0 || !noticeContent.trim()) return;
 
     sendMutation.mutate(
       {
         content: noticeContent,
         senderName: user?.name ?? '관리자',
-        recipientIds: selectedWorkersForNotice,
+        recipientIds: Array.from(selectedWorkersForNotice),
       },
       {
         onSuccess: () => {
-          setSelectedWorkersForNotice([]);
+          setSelectedWorkersForNotice(new Set());
           setNoticeContent('');
           setWorkerSearchQuery('');
           toast.success('공지사항이 성공적으로 발송되었습니다!');
@@ -160,7 +170,7 @@ export default function NoticesPage() {
           <Button
             variant="outline"
             onClick={() => {
-              setSelectedWorkersForNotice([]);
+              setSelectedWorkersForNotice(new Set());
               setNoticeContent('');
               setWorkerSearchQuery('');
             }}
@@ -171,7 +181,7 @@ export default function NoticesPage() {
           <Button
             variant="primary"
             onClick={handleSendNotice}
-            disabled={selectedWorkersForNotice.length === 0 || !noticeContent.trim() || sendMutation.isPending}
+            disabled={selectedWorkersForNotice.size === 0 || !noticeContent.trim() || sendMutation.isPending}
             leftIcon={<Bell className="w-5 h-5" />}
             className="px-8 py-3 text-lg"
           >
