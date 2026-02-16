@@ -25,11 +25,11 @@ export default function Header() {
           </nav>
           <Link
             href="/login/company"
-            className="text-base font-semibold text-white bg-duru-orange-500 px-6 py-2.5 rounded hover:bg-duru-orange-600 transition-colors flex items-center gap-2 shadow-sm"
+            className="text-xs sm:text-base font-semibold text-white bg-duru-orange-500 px-3 sm:px-6 h-10 rounded hover:bg-duru-orange-600 transition-colors flex items-center gap-1 sm:gap-2 shadow-sm whitespace-nowrap"
           >
-            <Building2 className="w-4 h-4" />
+            <Building2 className="w-3 h-3 sm:w-4 sm:h-4" />
             기업 전용 페이지
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
           </Link>
         </div>
       </div>
