@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Clock, Building2, ChevronRight } from 'lucide-react';
+import { Clock, FileText, ChevronRight } from 'lucide-react';
 import HeroSlider from './HeroSlider';
 
 export default function HeroSection() {
@@ -34,11 +34,11 @@ export default function HeroSection() {
               <ChevronRight className="w-5 h-5" />
             </Link>
             <Link
-              href="/login/company"
+              href="/inquiry"
               className="px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded font-medium text-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
             >
-              <Building2 className="w-5 h-5" />
-              기업 관리자 페이지
+              <FileText className="w-5 h-5" />
+              신규 기업 문의
             </Link>
           </div>
         </div>
