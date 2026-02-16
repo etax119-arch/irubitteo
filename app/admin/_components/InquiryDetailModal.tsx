@@ -47,8 +47,8 @@ export function InquiryDetailModal({ inquiry, onClose, onComplete }: InquiryDeta
               <p className="text-base text-gray-900">{inquiry.phone}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-400 mb-1">이메일</p>
-              <p className="text-base text-gray-900">{inquiry.email ?? '-'}</p>
+              <p className="text-xs text-gray-400 mb-1">상시근로자 수</p>
+              <p className="text-base text-gray-900">{inquiry.regularEmployeeCount != null ? `${inquiry.regularEmployeeCount}명` : '-'}</p>
             </div>
           </div>
           <div className="border-t border-gray-100 pt-5">

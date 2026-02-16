@@ -33,7 +33,7 @@ export function NoticeSection({
             {todayNotices.map((notice) => (
               <div key={notice.id} className="bg-white rounded-xl p-6 border border-duru-orange-100">
                 <p className="text-base font-bold text-duru-orange-600 mb-3">{formatKSTDate(notice.createdAt)}</p>
-                <p className="text-xl sm:text-2xl font-semibold text-gray-900 leading-relaxed whitespace-pre-line mb-4">
+                <p className="text-xl sm:text-2xl font-semibold text-gray-900 leading-relaxed whitespace-pre-line break-words [overflow-wrap:anywhere] mb-4">
                   {notice.content}
                 </p>
                 <p className="text-sm text-gray-400">전송자: {notice.senderName ?? '관리자'}</p>

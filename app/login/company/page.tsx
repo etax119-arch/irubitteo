@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { Hash, LogIn, AlertTriangle, Loader2 } from 'lucide-react';
+import { LogIn, AlertTriangle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/Input';
 import { AxiosError } from 'axios';
@@ -53,10 +54,13 @@ export default function CompanyLoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-duru-orange-100">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-duru-orange-100 rounded-full mb-4">
-              <Hash className="w-8 h-8 text-duru-orange-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">이루빛 기업</h1>
+            <Image
+              src="/images/landing_logo_tran_1.png"
+              alt="이루빛터"
+              width={1563}
+              height={1563}
+              className="h-[250px] w-auto mx-auto -my-[40px]"
+            />
             <p className="text-gray-600">부여받은 고유 번호를 입력해주세요</p>
           </div>
 

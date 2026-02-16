@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: '정책 안내',
+  description: '이루빛터 이용약관, 개인정보처리방침, 접근성 정책',
+};
 
 export default function PoliciesLayout({
   children,

@@ -1,17 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Home,
   Phone,
-  Mail,
+  Users,
   CheckCircle2,
   User,
   Building2,
   MessageSquare,
-  ShieldCheck,
   Loader2,
 } from 'lucide-react';
 import { createInquiry } from '@/lib/api/inquiries';
@@ -24,7 +24,7 @@ interface FormData {
   companyName: string;
   ceoName: string;
   phone: string;
-  email: string;
+  regularEmployeeCount: string;
   message: string;
 }
 
@@ -32,7 +32,7 @@ interface FormErrors {
   companyName?: string;
   ceoName?: string;
   phone?: string;
-  email?: string;
+  regularEmployeeCount?: string;
   message?: string;
 }
 
@@ -40,15 +40,15 @@ interface TouchedFields {
   companyName?: boolean;
   ceoName?: boolean;
   phone?: boolean;
-  email?: boolean;
+  regularEmployeeCount?: boolean;
   message?: boolean;
 }
 
 const fieldLabels: Record<keyof FormData, string> = {
   companyName: '기업명',
-  ceoName: '대표자명',
+  ceoName: '담당자명',
   phone: '전화번호',
-  email: '이메일',
+  regularEmployeeCount: '상시근로자 수',
   message: '문의 내용',
 };
 
@@ -60,7 +60,7 @@ export default function InquiryPage() {
     companyName: '',
     ceoName: '',
     phone: '',
-    email: '',
+    regularEmployeeCount: '',
     message: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -87,11 +87,6 @@ export default function InquiryPage() {
     let error = '';
     if (!value.trim()) {
       error = `${fieldLabels[name]}을(를) 입력해주세요.`;
-    } else if (name === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        error = '올바른 이메일 형식을 입력해주세요.';
-      }
     }
     setErrors((prev) => ({ ...prev, [name]: error }));
     return error;
@@ -101,7 +96,7 @@ export default function InquiryPage() {
     formData.companyName.trim() &&
     formData.ceoName.trim() &&
     formData.phone.trim() &&
-    formData.email.trim() &&
+    formData.regularEmployeeCount.trim() &&
     formData.message.trim();
 
   const isSubmitEnabled = isAllFilled && agreePrivacy;
@@ -112,7 +107,7 @@ export default function InquiryPage() {
       'companyName',
       'ceoName',
       'phone',
-      'email',
+      'regularEmployeeCount',
       'message',
     ];
     const newTouched: TouchedFields = {};
@@ -133,7 +128,7 @@ export default function InquiryPage() {
           companyName: formData.companyName,
           representativeName: formData.ceoName,
           phone: formData.phone,
-          email: formData.email,
+          regularEmployeeCount: parseInt(formData.regularEmployeeCount) || undefined,
           content: formData.message,
         });
         setShowCompleteModal(true);
@@ -153,9 +148,15 @@ export default function InquiryPage() {
     <div className="min-h-screen bg-duru-ivory">
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-duru-orange-600">
-            이루빛터
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/images/landing_logo_tran_1.png"
+              alt="이루빛터"
+              width={1563}
+              height={1563}
+              className="h-[220px] w-auto -my-[40px] -ml-[30px]"
+            />
           </Link>
           <Link
             href="/"
@@ -184,13 +185,6 @@ export default function InquiryPage() {
             시작하세요
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-500 leading-relaxed break-keep max-w-lg mx-auto">
-            간단한 정보만 남겨주시면
-            <br />
-            이루빛터 담당 전문가가 직접 연락드려
-            <br />
-            기업에 맞는 고용 방향을 함께 고민해드립니다.
-          </p>
         </section>
 
         {/* Form Section */}
@@ -214,11 +208,11 @@ export default function InquiryPage() {
                 />
               </div>
 
-              {/* 대표자명 */}
+              {/* 담당자명 */}
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
                   <User className="w-4 h-4 text-gray-400" />
-                  대표자명 <span className="text-duru-orange-500">*</span>
+                  담당자명 <span className="text-duru-orange-500">*</span>
                 </label>
                 <Input
                   type="text"
@@ -231,7 +225,7 @@ export default function InquiryPage() {
                 />
               </div>
 
-              {/* 전화번호 · 이메일 (2열) */}
+              {/* 전화번호 · 상시근로자 수 (2열) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
@@ -250,17 +244,17 @@ export default function InquiryPage() {
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    이메일 <span className="text-duru-orange-500">*</span>
+                    <Users className="w-4 h-4 text-gray-400" />
+                    상시근로자 수 <span className="text-duru-orange-500">*</span>
                   </label>
                   <Input
-                    type="email"
-                    name="email"
-                    value={formData.email}
+                    type="number"
+                    name="regularEmployeeCount"
+                    value={formData.regularEmployeeCount}
                     onChange={handleChange}
-                    onBlur={() => handleBlur('email')}
-                    placeholder="example@company.com"
-                    error={touched.email && errors.email ? errors.email : undefined}
+                    onBlur={() => handleBlur('regularEmployeeCount')}
+                    placeholder="예: 50"
+                    error={touched.regularEmployeeCount && errors.regularEmployeeCount ? errors.regularEmployeeCount : undefined}
                   />
                 </div>
               </div>
@@ -277,23 +271,9 @@ export default function InquiryPage() {
                   onChange={handleChange}
                   onBlur={() => handleBlur('message')}
                   rows={5}
-                  placeholder={`장애인 고용 의무 비율 상담,\n제조·사무·물류 등 직무 배치 가능 여부,\n현재 고민 중인 내용을 자유롭게 작성해주세요.\n\n이루빛터 담당자가 내용을 확인 후 직접 연락드립니다.`}
+                  placeholder={`장애인 표준사업장 설립 문의,\n제조·사무·물류 등 직무 배치 가능 여부,\n현재 고민 중인 내용을 자유롭게 작성해주세요.\n\n이루빛터 담당자가 내용을 확인 후 직접 연락드립니다.`}
                   error={touched.message && errors.message ? errors.message : undefined}
                 />
-              </div>
-
-              {/* 신뢰 강화 안내 */}
-              <div className="flex items-start gap-3 bg-duru-orange-50 rounded-xl px-5 py-4">
-                <ShieldCheck className="w-5 h-5 text-duru-orange-500 mt-0.5 shrink-0" />
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  문의 내용을 확인한 후,{' '}
-                  <span className="font-semibold text-gray-800">
-                    이루빛터 담당 전문가가 직접 연락
-                  </span>
-                  드립니다.
-                  <br />
-                  자동 응답이 아닌, 기업 상황에 맞는 1:1 상담을 제공합니다.
-                </p>
               </div>
 
               {/* 개인정보 동의 체크박스 */}

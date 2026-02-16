@@ -126,6 +126,25 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 - Dark mode via `prefers-color-scheme` media query and `dark:` Tailwind prefix
 - Geist fonts configured as CSS variables: `--font-geist-sans`, `--font-geist-mono`
 
+### Logo & Icon Files
+
+#### 메타 아이콘 (Next.js App Router 자동 인식)
+| 파일 | 용도 |
+|------|------|
+| `app/icon.png` | 파비콘 — 브라우저 탭, 검색 결과(네이버/구글) URL 왼쪽 아이콘 |
+| `app/apple-icon.png` | iOS 홈 화면 추가 시 아이콘 |
+| `app/opengraph-image.png` | OG 이미지 — 검색 결과 미리보기, 카카오톡/SNS 링크 공유 시 썸네일 |
+
+#### 로고 이미지 (페이지 내 사용)
+| 파일 | 배경 | 사용 위치 |
+|------|------|----------|
+| `public/images/landing_logo_tran_1.png` | 투명 (컬러) | 헤더, ServiceSection ABOUT, 로그인 페이지, inquiry 헤더 |
+| `public/images/landing_logo_tran_2.png` | 투명 (밝은톤) | — |
+| `public/images/landing_logo_tran_3.png` | 투명 (흰색) | Footer (어두운 배경) |
+
+#### 로고 원본 (`public/images/logos/`)
+AI 원본 파일 및 PNG 변환본 보관 (직접 사용하지 않음)
+
 ### Configuration Files
 - `next.config.ts` - Next.js config (API 프록시 rewrites, 보안 헤더)
 - `eslint.config.mjs` - ESLint v9 flat config extending next/core-web-vitals and next/typescript

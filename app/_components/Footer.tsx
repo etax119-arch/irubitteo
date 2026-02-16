@@ -1,4 +1,5 @@
 import { Mail, MapPin } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -7,7 +8,13 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-1 md:col-span-2">
-            <h5 className="text-white font-bold text-xl mb-4">이루빛터</h5>
+            <Image
+              src="/images/landing_logo_tran_3.png"
+              alt="이루빛터"
+              width={1563}
+              height={1563}
+              className="h-[250px] w-auto -ml-[42px] -my-[100px] -mb-[60px] "
+            />
             <p className="leading-relaxed mb-4 max-w-sm">
               장애인 근로자의 안정적인 일자리와<br/>
               효율적인 근태 관리를 지원하는 고용 플랫폼입니다.

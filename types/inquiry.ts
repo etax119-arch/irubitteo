@@ -4,7 +4,7 @@ export type Inquiry = {
   companyName: string;
   representativeName: string;
   phone: string;
-  email: string | null;
+  regularEmployeeCount: number | null;
   content: string;
   status: 'pending' | 'completed';
   createdAt: string;
@@ -16,7 +16,7 @@ export type InquiryCreateInput = {
   companyName: string;
   representativeName: string;
   phone: string;
-  email?: string;
+  regularEmployeeCount?: number;
   content: string;
 };
 
