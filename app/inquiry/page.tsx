@@ -11,7 +11,6 @@ import {
   User,
   Building2,
   MessageSquare,
-  ShieldCheck,
   Loader2,
 } from 'lucide-react';
 import { createInquiry } from '@/lib/api/inquiries';
@@ -46,9 +45,9 @@ interface TouchedFields {
 
 const fieldLabels: Record<keyof FormData, string> = {
   companyName: '기업명',
-  ceoName: '대표자명',
+  ceoName: '담당자명',
   phone: '전화번호',
-  email: '이메일',
+  email: '상시근로자 수',
   message: '문의 내용',
 };
 
@@ -87,11 +86,6 @@ export default function InquiryPage() {
     let error = '';
     if (!value.trim()) {
       error = `${fieldLabels[name]}을(를) 입력해주세요.`;
-    } else if (name === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        error = '올바른 이메일 형식을 입력해주세요.';
-      }
     }
     setErrors((prev) => ({ ...prev, [name]: error }));
     return error;
@@ -184,13 +178,6 @@ export default function InquiryPage() {
             시작하세요
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-500 leading-relaxed break-keep max-w-lg mx-auto">
-            간단한 정보만 남겨주시면
-            <br />
-            이루빛터 담당 전문가가 직접 연락드려
-            <br />
-            기업에 맞는 고용 방향을 함께 고민해드립니다.
-          </p>
         </section>
 
         {/* Form Section */}
@@ -214,11 +201,11 @@ export default function InquiryPage() {
                 />
               </div>
 
-              {/* 대표자명 */}
+              {/* 담당자명 */}
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
                   <User className="w-4 h-4 text-gray-400" />
-                  대표자명 <span className="text-duru-orange-500">*</span>
+                  담당자명 <span className="text-duru-orange-500">*</span>
                 </label>
                 <Input
                   type="text"
@@ -251,15 +238,15 @@ export default function InquiryPage() {
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
                     <Mail className="w-4 h-4 text-gray-400" />
-                    이메일 <span className="text-duru-orange-500">*</span>
+                    상시근로자 수 <span className="text-duru-orange-500">*</span>
                   </label>
                   <Input
-                    type="email"
+                    type="text"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     onBlur={() => handleBlur('email')}
-                    placeholder="example@company.com"
+                    placeholder="예: 10명"
                     error={touched.email && errors.email ? errors.email : undefined}
                   />
                 </div>
@@ -277,23 +264,9 @@ export default function InquiryPage() {
                   onChange={handleChange}
                   onBlur={() => handleBlur('message')}
                   rows={5}
-                  placeholder={`장애인 고용 의무 비율 상담,\n제조·사무·물류 등 직무 배치 가능 여부,\n현재 고민 중인 내용을 자유롭게 작성해주세요.\n\n이루빛터 담당자가 내용을 확인 후 직접 연락드립니다.`}
+                  placeholder={`장애인 표준사업장 설립 문의,\n제조·사무·물류 등 직무 배치 가능 여부,\n현재 고민 중인 내용을 자유롭게 작성해주세요.\n\n이루빛터 담당자가 내용을 확인 후 직접 연락드립니다.`}
                   error={touched.message && errors.message ? errors.message : undefined}
                 />
-              </div>
-
-              {/* 신뢰 강화 안내 */}
-              <div className="flex items-start gap-3 bg-duru-orange-50 rounded-xl px-5 py-4">
-                <ShieldCheck className="w-5 h-5 text-duru-orange-500 mt-0.5 shrink-0" />
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  문의 내용을 확인한 후,{' '}
-                  <span className="font-semibold text-gray-800">
-                    이루빛터 담당 전문가가 직접 연락
-                  </span>
-                  드립니다.
-                  <br />
-                  자동 응답이 아닌, 기업 상황에 맞는 1:1 상담을 제공합니다.
-                </p>
               </div>
 
               {/* 개인정보 동의 체크박스 */}
