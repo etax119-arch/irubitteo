@@ -1,6 +1,7 @@
 import Header from './_components/Header';
 import HeroSection from './_components/HeroSection';
 import ServiceSection from './_components/ServiceSection';
+import ReviewSection from './_components/ReviewSection';
 import TargetAudienceSection from './_components/TargetAudienceSection';
 import Footer from './_components/Footer';
 
@@ -10,6 +11,7 @@ export default function LandingPage() {
       <Header />
       <HeroSection />
       <ServiceSection />
+      <ReviewSection />
       <TargetAudienceSection />
       <Footer />
     </div>
