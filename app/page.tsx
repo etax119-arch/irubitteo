@@ -1,7 +1,7 @@
 import Header from './_components/Header';
 import HeroSection from './_components/HeroSection';
 import ServiceSection from './_components/ServiceSection';
-import CommuteSection from './_components/CommuteSection';
+import StorySection from './_components/StorySection';
 import TargetAudienceSection from './_components/TargetAudienceSection';
 import Footer from './_components/Footer';
 
@@ -11,7 +11,7 @@ export default function LandingPage() {
       <Header />
       <HeroSection />
       <ServiceSection />
-      <CommuteSection />
+      <StorySection />
       <TargetAudienceSection />
       <Footer />
     </div>
