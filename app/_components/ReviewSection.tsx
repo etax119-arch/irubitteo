@@ -127,12 +127,8 @@ export default function ReviewSection() {
                 </div>
               </div>
 
-              {/* 하단 강조선 - 주황빛 그라데이션으로 통일 */}
-              <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r ${
-                idx === 0 ? 'from-orange-500 via-amber-500 to-yellow-500' :
-                idx === 1 ? 'from-duru-orange-500 via-orange-400 to-amber-500' :
-                'from-amber-500 via-orange-400 to-red-400'
-              } transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
+              {/* 하단 강조선 - 단색 주황색 */}
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-duru-orange-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
             </div>
           ))}
         </div>
