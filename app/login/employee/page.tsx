@@ -147,7 +147,7 @@ export default function EmployeeLoginPage() {
             <p className="text-center text-sm text-gray-400">
               고유 번호를 모르시나요?{' '}
               <span className="text-gray-500 underline underline-offset-2">
-                관리자에게 문의해주세요
+                근로자 신규상담하기
               </span>
             </p>
 

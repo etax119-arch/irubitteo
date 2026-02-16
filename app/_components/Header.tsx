@@ -12,8 +12,8 @@ export default function Header() {
         <div className="flex items-center gap-8">
           <nav className="hidden md:flex items-center gap-8 text-lg font-semibold text-gray-600">
             <Link href="/login/admin" className="hover:text-duru-orange-600 transition-colors">이루빛 관리자</Link>
-            <a href="#" className="hover:text-duru-orange-600 transition-colors">채용정보</a>
-            <a href="#" className="hover:text-duru-orange-600 transition-colors">고객센터</a>
+            <Link href="/login/employee" className="hover:text-duru-orange-600 transition-colors">채용정보</Link>
+            <Link href="/inquiry" className="hover:text-duru-orange-600 transition-colors">고객센터</Link>
           </nav>
           <Link
             href="/login/company"
