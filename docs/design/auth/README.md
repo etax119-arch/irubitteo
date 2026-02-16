@@ -23,10 +23,10 @@
 
 | Cookie | HttpOnly | Secure | SameSite | Path | Max-Age |
 |--------|----------|--------|----------|------|---------|
-| accessToken | Yes | Yes | Strict | / | 900 (15분) |
-| refreshToken | Yes | Yes | Strict | /v1/auth | 604800 (7일) |
-| auth-status | No | Yes | Strict | / | 3600 |
-| user-role | No | Yes | Strict | / | 3600 |
+| accessToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 900 (15분) |
+| refreshToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) |
+| auth-status | No | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) |
+| user-role | No | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) |
 
 **참고**: `auth-status`와 `user-role`은 클라이언트(middleware.ts)에서 라우트 보호를 위해 읽을 수 있도록 HttpOnly가 아닙니다.
 

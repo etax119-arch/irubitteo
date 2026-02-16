@@ -70,25 +70,15 @@ export function AttendanceHistoryTable({
             {records.length > 0 ? (
               records.map((record) => {
                 const displayStatus = getAttendanceDisplayStatus(record);
-                const checkinDisplay = record.clockIn
-                  ? formatUtcTimestampAsKST(record.clockIn)
-                  : displayStatus === '결근'
-                  ? '결근'
-                  : '-';
-                const checkoutDisplay = record.clockOut
-                  ? formatUtcTimestampAsKST(record.clockOut)
-                  : '-';
+                const isAbsentOrLeave = displayStatus === '결근' || displayStatus === '휴가';
+                const checkinDisplay = isAbsentOrLeave ? '-' : (record.clockIn ? formatUtcTimestampAsKST(record.clockIn) : '-');
+                const checkoutDisplay = isAbsentOrLeave ? '-' : (record.clockOut ? formatUtcTimestampAsKST(record.clockOut) : '-');
                 const dateDisplay = formatDateAsKST(new Date(record.date));
 
                 return (
                   <tr key={record.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-gray-900">{dateDisplay}</td>
-                    <td
-                      className={cn(
-                        'px-4 py-3',
-                        checkinDisplay === '결근' ? 'text-red-600 font-semibold' : 'text-gray-900'
-                      )}
-                    >
+                    <td className="px-4 py-3 text-gray-900">
                       {checkinDisplay}
                     </td>
                     <td className="px-4 py-3 text-gray-900">{checkoutDisplay}</td>

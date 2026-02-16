@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from 'react';
 import { DayPicker } from 'react-day-picker';
-import { format, parse, isValid } from 'date-fns';
+import { format, parse, isValid, addMonths, subMonths, addYears, subYears } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Popover } from '@/components/ui/Popover';
 
@@ -39,7 +39,8 @@ export function DatePicker({
   const [isOpen, setIsOpen] = useState(false);
 
   const selected = value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined;
-  const defaultMonth = selected && isValid(selected) ? selected : new Date();
+  const initialMonth = selected && isValid(selected) ? selected : new Date();
+  const [month, setMonth] = useState(initialMonth);
 
   const handleSelect = useCallback(
     (date: Date | undefined) => {
@@ -86,7 +87,8 @@ export function DatePicker({
           mode="single"
           locale={ko}
           selected={selected}
-          defaultMonth={defaultMonth}
+          month={month}
+          onMonthChange={setMonth}
           onSelect={handleSelect}
           showOutsideDays
           classNames={{
@@ -111,12 +113,42 @@ export function DatePicker({
             disabled: 'text-gray-300 cursor-not-allowed',
           }}
           components={{
-            Chevron: ({ orientation }) =>
-              orientation === 'left' ? (
-                <ChevronLeft className="w-4 h-4 text-gray-600" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-600" />
-              ),
+            Nav: () => (
+              <div className="flex items-center justify-between absolute top-4 left-4 right-4">
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setMonth(prev => subYears(prev, 1))}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <ChevronsLeft className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMonth(prev => subMonths(prev, 1))}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setMonth(prev => addMonths(prev, 1))}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMonth(prev => addYears(prev, 1))}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <ChevronsRight className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
+              </div>
+            ),
           }}
         />
       </Popover>

@@ -139,66 +139,6 @@ export default function AdminSettingsPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       <Card>
         <CardHeader>
-          <h2 className="text-2xl font-bold text-gray-900">관리자 계정 설정</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            비밀번호를 변경하면 현재 세션이 종료되고 다시 로그인해야 합니다.
-          </p>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          <Input
-            type="password"
-            label="현재 비밀번호"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            autoComplete="current-password"
-            leftIcon={<Lock className="w-4 h-4" />}
-            placeholder="현재 비밀번호를 입력하세요"
-          />
-
-          <Input
-            type="password"
-            label="새 비밀번호"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            autoComplete="new-password"
-            leftIcon={<Lock className="w-4 h-4" />}
-            placeholder="8자 이상 입력하세요"
-          />
-
-          <Input
-            type="password"
-            label="새 비밀번호 확인"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
-            leftIcon={<Lock className="w-4 h-4" />}
-            placeholder="새 비밀번호를 다시 입력하세요"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSubmit();
-              }
-            }}
-          />
-
-          <div className="pt-2 flex justify-end">
-            <Button
-              onClick={handleSubmit}
-              disabled={changePasswordMutation.isPending}
-              leftIcon={
-                changePasswordMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : undefined
-              }
-            >
-              {changePasswordMutation.isPending ? '변경 중...' : '비밀번호 변경'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <h2 className="text-2xl font-bold text-gray-900">관리자 계정 추가</h2>
           <p className="text-sm text-gray-600 mt-1">
             새로운 관리자 로그인 계정을 생성합니다.
@@ -262,6 +202,66 @@ export default function AdminSettingsPage() {
               }
             >
               {createAdminMutation.isPending ? '생성 중...' : '관리자 계정 생성'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h2 className="text-2xl font-bold text-gray-900">관리자 계정 설정</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            비밀번호를 변경하면 현재 세션이 종료되고 다시 로그인해야 합니다.
+          </p>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <Input
+            type="password"
+            label="현재 비밀번호"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            autoComplete="current-password"
+            leftIcon={<Lock className="w-4 h-4" />}
+            placeholder="현재 비밀번호를 입력하세요"
+          />
+
+          <Input
+            type="password"
+            label="새 비밀번호"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+            leftIcon={<Lock className="w-4 h-4" />}
+            placeholder="8자 이상 입력하세요"
+          />
+
+          <Input
+            type="password"
+            label="새 비밀번호 확인"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
+            leftIcon={<Lock className="w-4 h-4" />}
+            placeholder="새 비밀번호를 다시 입력하세요"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSubmit();
+              }
+            }}
+          />
+
+          <div className="pt-2 flex justify-end">
+            <Button
+              onClick={handleSubmit}
+              disabled={changePasswordMutation.isPending}
+              leftIcon={
+                changePasswordMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : undefined
+              }
+            >
+              {changePasswordMutation.isPending ? '변경 중...' : '비밀번호 변경'}
             </Button>
           </div>
         </CardContent>

@@ -64,21 +64,10 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
             {records.map((record) => (
               <tr key={record.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 text-gray-900">{record.date}</td>
-                <td
-                  className={cn(
-                    'px-4 py-3',
-                    record.checkin === '결근' ? 'text-red-600 font-semibold' : 'text-gray-900',
-                    record.status === '휴가' && 'text-gray-400 line-through'
-                  )}
-                >
+                <td className="px-4 py-3 text-gray-900">
                   {record.checkin}
                 </td>
-                <td
-                  className={cn(
-                    'px-4 py-3 text-gray-900',
-                    record.status === '휴가' && 'text-gray-400 line-through'
-                  )}
-                >
+                <td className="px-4 py-3 text-gray-900">
                   {record.checkout}
                 </td>
                 <td className="px-4 py-3">

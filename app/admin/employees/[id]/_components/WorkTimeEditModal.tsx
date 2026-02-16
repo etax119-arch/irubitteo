@@ -33,6 +33,18 @@ export function WorkTimeEditModal({
 }: WorkTimeEditModalProps) {
   if (!isOpen) return null;
 
+  const isTimeDisabled = editedWorkTime.status === 'absent' || editedWorkTime.status === 'leave';
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value as AttendanceStatus;
+    const clearTime = newStatus === 'absent' || newStatus === 'leave';
+    setEditedWorkTime({
+      ...editedWorkTime,
+      status: newStatus,
+      ...(clearTime ? { checkin: '', checkout: '' } : {}),
+    });
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-8 max-w-md w-full">
@@ -60,12 +72,14 @@ export function WorkTimeEditModal({
             label="출근 시간"
             value={editedWorkTime.checkin}
             onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkin: v })}
+            disabled={isTimeDisabled || savingWorkTime}
           />
 
           <TimePicker
             label="퇴근 시간"
             value={editedWorkTime.checkout}
             onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkout: v })}
+            disabled={isTimeDisabled || savingWorkTime}
           />
 
           <Textarea
@@ -79,12 +93,11 @@ export function WorkTimeEditModal({
             <label className="block text-sm font-semibold text-gray-700 mb-2">상태</label>
             <select
               value={editedWorkTime.status}
-              onChange={(e) => setEditedWorkTime({ ...editedWorkTime, status: e.target.value as AttendanceStatus })}
+              onChange={handleStatusChange}
               disabled={savingWorkTime}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="checkin">출근</option>
-              <option value="checkout">퇴근</option>
+              <option value="checkin">정상</option>
               <option value="absent">결근</option>
               <option value="leave">휴가</option>
             </select>

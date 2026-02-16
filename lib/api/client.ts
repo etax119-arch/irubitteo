@@ -116,6 +116,11 @@ async function performProactiveRefresh() {
   } catch (err) {
     recordRefreshFailure();
     drainQueue(err);
+    // 일시적 네트워크 오류에서도 프로액티브 갱신 루프가 멈추지 않도록 재시도 스케줄링
+    const retryDelay = isCircuitOpen()
+      ? REFRESH_CONFIG.CIRCUIT_BREAKER_RESET_MS
+      : REFRESH_CONFIG.REFRESH_TIMEOUT_MS;
+    proactiveTimer = setTimeout(performProactiveRefresh, retryDelay);
   } finally {
     isRefreshing = false;
   }
@@ -180,6 +185,18 @@ function parseRetryAfter(header: string | string[] | undefined): number | null {
 apiClient.interceptors.response.use(
   (response) => {
     const url = response.config.url ?? '';
+    if (url.includes('/auth/refresh') && response.data?.success !== true) {
+      return Promise.reject(
+        new AxiosError(
+          response.data?.message || 'Refresh failed',
+          'ERR_REFRESH_FAILED',
+          response.config,
+          response.request,
+          response,
+        ),
+      );
+    }
+
     if (url.includes('/auth/login') || url.includes('/auth/refresh')) {
       scheduleProactiveRefresh();
     } else if (url.includes('/auth/me') && !proactiveTimer) {
@@ -213,12 +230,6 @@ apiClient.interceptors.response.use(
       !originalRequest.url?.includes('/auth/refresh') &&
       !originalRequest.url?.includes('/auth/login')
     ) {
-      // 서킷 오픈 → 즉시 거부
-      if (isCircuitOpen()) {
-        clearAuthState();
-        return Promise.reject(error);
-      }
-
       if (isRefreshing) {
         // 큐 크기 초과 → 즉시 거부
         if (failedQueue.length >= REFRESH_CONFIG.MAX_QUEUE_SIZE) {

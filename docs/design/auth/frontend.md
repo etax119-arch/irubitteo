@@ -295,10 +295,10 @@ export function useAuth() {
 
 | Cookie | HttpOnly | Secure | SameSite | Path | Max-Age | 설명 |
 |--------|----------|--------|----------|------|---------|------|
-| accessToken | Yes | Yes | Strict | / | 900 (15분) | JWT Access Token |
-| refreshToken | Yes | Yes | Strict | /v1/auth | 604800 (7일) | JWT Refresh Token |
-| auth-status | No | Yes | Strict | / | 604800 (7일) | 인증 상태 플래그 |
-| user-role | No | Yes | Strict | / | 604800 (7일) | 사용자 역할 |
+| accessToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 900 (15분) | JWT Access Token |
+| refreshToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) | JWT Refresh Token |
+| auth-status | No | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) | 인증 상태 플래그 |
+| user-role | No | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) | 사용자 역할 |
 
 ---
 

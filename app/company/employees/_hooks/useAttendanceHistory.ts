@@ -23,14 +23,13 @@ export interface AttendanceRecord {
 function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   const date = att.date.split('T')[0];
   const displayStatus = getAttendanceDisplayStatus(att);
+  const isAbsentOrLeave = att.status === 'absent' || att.status === 'leave';
 
   return {
     id: att.id,
     date,
-    checkin: att.status === 'absent' && !att.clockIn
-      ? '결근'
-      : att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '-',
-    checkout: att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-',
+    checkin: isAbsentOrLeave ? '-' : (att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '-'),
+    checkout: isAbsentOrLeave ? '-' : (att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-'),
     status: displayStatus,
     rawStatus: att.status,
     workDone: att.workContent || '-',
@@ -79,7 +78,7 @@ export function useAttendanceHistory(employeeId: string) {
   };
 
   const handleEditWorkTime = (record: AttendanceRecord) => {
-    const checkin = record.checkin === '결근' || record.checkin === '-' ? '' : record.checkin;
+    const checkin = record.checkin === '-' ? '' : record.checkin;
     const checkout = record.checkout === '-' ? '' : record.checkout;
     const workDone = record.workDone === '-' ? '' : record.workDone;
     setEditedWorkTime({ date: record.date, checkin, checkout, workDone, status: record.rawStatus });

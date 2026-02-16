@@ -100,12 +100,12 @@ export default function AdminNotificationsPage() {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">알림 센터</h2>
 
-      <NoteUpdateAlertList alerts={noteQuery.data ?? []} onDismiss={handleDismissNoteUpdate} />
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AbsenceAlertList alerts={absenceQuery.data ?? []} onDismiss={handleDismissAlert} />
         <InquiryList inquiries={inquiryQuery.data ?? []} onViewDetail={setSelectedInquiry} />
       </div>
+
+      <NoteUpdateAlertList alerts={noteQuery.data ?? []} onDismiss={handleDismissNoteUpdate} />
 
       <InquiryDetailModal
         inquiry={selectedInquiry}
