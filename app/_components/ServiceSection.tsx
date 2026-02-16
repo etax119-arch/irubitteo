@@ -62,7 +62,7 @@ export default function ServiceSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 - 이루빛터 의미 중심 */}
         <div className="text-center mb-20">
-          <div className="inline-block px-5 py-2 bg-gradient-to-r from-duru-orange-50 to-amber-50 border border-duru-orange-100 rounded-full text-duru-orange-600 text-sm font-semibold mb-6 shadow-sm">
+          <div className="inline-block px-5 py-2 bg-gradient-to-r from-duru-orange-50 to-amber-50 border border-duru-orange-100 rounded-full text-duru-orange-600 text-base font-semibold mb-6 shadow-sm">
             ABOUT
           </div>
           <h2 className={`text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight transition-all duration-700 ${
@@ -72,7 +72,7 @@ export default function ServiceSection() {
             <span className="bg-gradient-to-r from-duru-orange-600 to-amber-600 bg-clip-text text-transparent">빛</span>
             터
           </h2>
-          <div className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed space-y-2">
+          <div className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed space-y-2">
             <p className={`transition-all duration-700 delay-200 ${
               showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
@@ -123,7 +123,7 @@ export default function ServiceSection() {
                   </h3>
 
                   {/* 설명 */}
-                  <p className="text-gray-600 leading-relaxed break-keep">
+                  <p className="text-base text-gray-600 leading-relaxed break-keep">
                     {service.desc}
                   </p>
                 </div>
@@ -156,7 +156,7 @@ export default function ServiceSection() {
                     {stat.value}
                     <span className="text-3xl">{stat.suffix}</span>
                   </div>
-                  <div className="text-gray-600 font-medium tracking-wide">
+                  <div className="text-lg text-gray-600 font-medium tracking-wide">
                     {stat.label}
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export default function ServiceSection() {
         <div className={`mt-16 text-center ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         } transition-all duration-700 delay-500`}>
-          <p className="text-gray-600 mb-6">
+          <p className="text-lg text-gray-600 mb-6">
             더 자세한 서비스 내용이 궁금하신가요?
           </p>
           <a

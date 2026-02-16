@@ -8,14 +8,14 @@ import Footer from './_components/Footer';
 
 const notoSansKR = Noto_Sans_KR({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['500', '600', '700', '800'],
   display: 'swap',
   variable: '--font-noto-sans-kr',
 });
 
 export default function LandingPage() {
   return (
-    <div className={`min-h-screen bg-duru-ivory text-duru-text-main selection:bg-duru-orange-200 ${notoSansKR.className}`}>
+    <div className={`min-h-screen bg-duru-ivory text-duru-text-main selection:bg-duru-orange-200 ${notoSansKR.className}`} style={{ fontWeight: 500 }}>
       <Header />
       <HeroSection />
       <ServiceSection />
