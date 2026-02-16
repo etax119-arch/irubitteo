@@ -11,7 +11,7 @@ const impactItems = [
     ),
     title: '함께 성장하는',
     subtitle: '일터',
-    description: '발달장애인과 비장애인이 함께 일하며 서로의 가능성을 확장합니다',
+    description: '근로자와 기업이 함께 일하며 서로의 가능성을 확장합니다',
     gradient: 'from-amber-500/10 to-orange-500/10'
   },
   {
@@ -39,7 +39,7 @@ const impactItems = [
 ];
 
 const stats = [
-  { value: '287명', label: '누적 고용', suffix: '+' },
+  { value: '1,200', label: '장애인 고용 사업장', suffix: '+' },
   { value: '94%', label: '만족도', suffix: '' },
   { value: '3년', label: '평균 근속', suffix: '+' }
 ];
