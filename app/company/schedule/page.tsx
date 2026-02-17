@@ -41,11 +41,11 @@ export default function SchedulePage() {
     setShowModal(true);
   }, [schedules]);
 
-  const handleSave = useCallback(async (content: string) => {
+  const handleSave = useCallback(async (content: string, isHoliday: boolean) => {
     if (!selectedDate) return;
     if (selectedSchedule) {
       updateMutation.mutate(
-        { id: selectedSchedule.id, input: { content } },
+        { id: selectedSchedule.id, input: { content, isHoliday } },
         {
           onSuccess: () => {
             toast.success('일정이 수정되었습니다.');
@@ -57,7 +57,7 @@ export default function SchedulePage() {
     } else {
       const dateStr = formatDateAsKST(selectedDate);
       createMutation.mutate(
-        { date: dateStr, content },
+        { date: dateStr, content, isHoliday },
         {
           onSuccess: () => {
             toast.success('일정이 등록되었습니다.');

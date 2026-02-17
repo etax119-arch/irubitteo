@@ -83,15 +83,30 @@ export default function CheckInPage() {
           </div>
 
           {/* 오늘의 작업 내용 */}
-          <div className="mx-6 sm:mx-8 mb-6 bg-[#FFF4EC] rounded-2xl p-6 sm:p-8 border border-duru-orange-100">
-            <h3 className="text-xl font-bold text-duru-orange-600 mb-5">오늘의 작업 내용</h3>
-            <p className="text-xl font-medium text-gray-900 leading-loose whitespace-pre-line break-words [overflow-wrap:anywhere]">
-              {todaySchedule === undefined
-                ? '불러오는 중...'
-                : todaySchedule === null
-                ? '등록된 작업 내용이 없습니다.'
-                : todaySchedule.content}
-            </p>
+          <div className={`mx-6 sm:mx-8 mb-6 rounded-2xl p-6 sm:p-8 border ${
+            todaySchedule?.isHoliday
+              ? 'bg-red-50 border-red-200'
+              : 'bg-[#FFF4EC] border-duru-orange-100'
+          }`}>
+            {todaySchedule?.isHoliday ? (
+              <>
+                <h3 className="text-xl font-bold text-red-600 mb-5">오늘은 휴일입니다</h3>
+                <p className="text-xl font-medium text-gray-900 leading-loose whitespace-pre-line break-words [overflow-wrap:anywhere]">
+                  {todaySchedule.content || '휴일입니다.'}
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-xl font-bold text-duru-orange-600 mb-5">오늘의 작업 내용</h3>
+                <p className="text-xl font-medium text-gray-900 leading-loose whitespace-pre-line break-words [overflow-wrap:anywhere]">
+                  {todaySchedule === undefined
+                    ? '불러오는 중...'
+                    : todaySchedule === null
+                    ? '등록된 작업 내용이 없습니다.'
+                    : todaySchedule.content}
+                </p>
+              </>
+            )}
           </div>
 
           {/* 확인 체크 영역 */}

@@ -50,6 +50,15 @@ export function CalendarGrid({
       const now = new Date();
       const isToday = date === now.getDate() && month === now.getMonth() && year === now.getFullYear();
       const schedule = scheduleMap.get(date);
+      const isScheduleHoliday = schedule?.isHoliday ?? false;
+
+      const cellBg = isScheduleHoliday
+        ? 'bg-red-50 border-red-300'
+        : isWeekend
+        ? 'bg-gray-50 border-gray-200'
+        : schedule
+        ? 'bg-blue-50 border-blue-300'
+        : 'bg-white border-gray-200 hover:border-duru-orange-300';
 
       cells.push(
         <div
@@ -57,13 +66,7 @@ export function CalendarGrid({
           onClick={() => onDateClick(new Date(year, month, date))}
           className={`min-h-[120px] border-2 rounded-lg p-3 transition-all hover:shadow-lg cursor-pointer ${
             isToday ? 'ring-2 ring-duru-orange-500' : ''
-          } ${
-            isWeekend
-              ? 'bg-gray-50 border-gray-200'
-              : schedule
-              ? 'bg-blue-50 border-blue-300'
-              : 'bg-white border-gray-200 hover:border-duru-orange-300'
-          }`}
+          } ${cellBg}`}
         >
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
@@ -80,7 +83,16 @@ export function CalendarGrid({
               </span>
             </div>
 
-            {schedule && (
+            {isScheduleHoliday && schedule && (
+              <div className="flex-1 flex flex-col gap-1">
+                <p className="text-sm font-bold text-red-600">휴일</p>
+                {schedule.content && (
+                  <p className="text-xs text-gray-600 line-clamp-2">{schedule.content}</p>
+                )}
+              </div>
+            )}
+
+            {schedule && !isScheduleHoliday && (
               <div className="flex-1 flex flex-col gap-1">
                 <p className="text-sm font-bold text-gray-900 line-clamp-2">
                   업무 지시서

@@ -116,6 +116,7 @@ export interface CompanyDailyStats {
 /** 기업 대시보드 일별 출퇴근 응답 */
 export interface CompanyDailyResponse {
   date: string;
+  isHoliday: boolean;
   stats: CompanyDailyStats;
   records: DailyAttendanceRecord[];
 }

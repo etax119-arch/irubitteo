@@ -6,6 +6,7 @@ import type { Schedule } from '@/types/schedule';
 import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface ScheduleModalProps {
   isOpen: boolean;
@@ -13,7 +14,7 @@ interface ScheduleModalProps {
   existingSchedule: Schedule | null;
   isSaving: boolean;
   onClose: () => void;
-  onSave: (content: string) => void;
+  onSave: (content: string, isHoliday: boolean) => void;
   onDelete: () => void;
 }
 
@@ -27,13 +28,17 @@ export function ScheduleModal({
   onDelete,
 }: ScheduleModalProps) {
   const [content, setContent] = useState('');
+  const [isHoliday, setIsHoliday] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- 모달 열릴 때 기존 데이터로 폼 초기화
       setContent(existingSchedule?.content ?? '');
+      setIsHoliday(existingSchedule?.isHoliday ?? false);
     }
   }, [isOpen, existingSchedule]);
+
+  const canSave = isHoliday || content.trim();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" showCloseButton={false}>
@@ -62,12 +67,26 @@ export function ScheduleModal({
           </p>
         )}
 
+        <div className="mb-6 p-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+          <Checkbox
+            checked={isHoliday}
+            onChange={(e) => setIsHoliday(e.target.checked)}
+            label={<span className="text-lg font-semibold text-gray-800">휴일로 설정</span>}
+            size="md"
+          />
+          {isHoliday && (
+            <p className="mt-2 ml-8 text-sm text-gray-500">
+              휴일에는 출근이 필요하지 않으며, 결근 처리되지 않습니다.
+            </p>
+          )}
+        </div>
+
         <Textarea
-          label="근무 내용"
+          label={isHoliday ? '메모 (선택사항)' : '근무 내용'}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="해당 날짜의 근무 내용을 입력하세요..."
-          rows={8}
+          placeholder={isHoliday ? '휴일 사유 등을 입력할 수 있습니다...' : '해당 날짜의 근무 내용을 입력하세요...'}
+          rows={isHoliday ? 4 : 8}
           className="border-gray-300 rounded-lg"
         />
 
@@ -87,8 +106,8 @@ export function ScheduleModal({
           </Button>
           <Button
             variant="primary"
-            onClick={() => onSave(content)}
-            disabled={!content.trim() || isSaving}
+            onClick={() => onSave(content, isHoliday)}
+            disabled={!canSave || isSaving}
             className="flex-1 py-3"
           >
             저장

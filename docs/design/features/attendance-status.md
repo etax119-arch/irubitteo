@@ -22,7 +22,7 @@
 | 값 | 의미 | 조건 |
 |---|---|---|
 | `pending` | 출근 전 | 출근일인데 레코드 없음 |
-| `dayoff` | 휴무 | 비출근일이고 레코드 없음 |
+| `dayoff` | 휴무 | 비출근일이고 레코드 없음, 또는 **회사 휴일** |
 
 ---
 
@@ -47,12 +47,24 @@
 
 **동작 순서**:
 1. KST 기준 현재 시각과 오늘 날짜 계산
-2. 활성 직원 중 오늘이 출근일(`workDays`)인 직원 조회
-3. 각 직원의 `workStartTime + 30분`이 현재시간보다 이전인지 확인
-4. 오늘 attendance 레코드가 없으면 → `status: 'absent'` 레코드 생성
-5. 이미 레코드가 있으면 (출근했거나 이미 absent) → 아무것도 안 함
+2. **오늘 휴일인 회사 ID 벌크 조회** (`getHolidayCompanyIds()`)
+3. 활성 직원 중 오늘이 출근일(`workDays`)인 직원 조회
+4. **휴일 회사 소속 직원은 스킵** (`holidayCompanyIds.has(emp.companyId)`)
+5. 각 직원의 `workStartTime + 30분`이 현재시간보다 이전인지 확인
+6. 오늘 attendance 레코드가 없으면 → `status: 'absent'` 레코드 생성
+7. 이미 레코드가 있으면 (출근했거나 이미 absent) → 아무것도 안 함
 
 **예시**: 출근시간 09:00인 직원이 09:30까지 미출근 → 09:30~09:40 사이 크론 실행 시 absent 레코드 생성
+**휴일 예시**: 기업이 해당 날짜를 휴일로 설정 → 크론잡이 해당 기업 직원을 모두 건너뜀
+
+### 사후 휴일 등록 시 자동 결근 정리
+
+- **파일**: `src/schedules/schedules.service.ts`
+- 휴일 등록(create) 또는 수정(update)에서 `isHoliday: true` 설정 시, 해당 날짜의 **자동 결근 레코드만 삭제**
+- `$transaction`으로 스케줄 저장 + 결근 정리를 원자적 처리
+- **자동 결근 식별 조건** (5개 모두 만족): `status='absent'`, `clockIn=null`, `clockOut=null`, `note=null`, `workContent=null`
+- 관리자 수동 결근(메모 추가 등)은 보존됨
+- `employee: { companyId }` 관계 필터로 비활성 직원 포함 전체 정리
 
 ### 수동 상태 변경 (updateAttendance)
 
@@ -63,7 +75,11 @@
 ### 대시보드 조회 (getCompanyDaily / getDailyAttendance)
 
 - attendance 레코드가 있으면 → `att.status` 그대로 반환
-- 레코드 없으면 → 출근일이면 `pending`, 비출근일이면 `dayoff`
+- 레코드 없으면:
+  - **회사 휴일이면** → `dayoff` (휴일 우선)
+  - 출근일이면 → `pending`
+  - 비출근일이면 → `dayoff`
+- `getCompanyDaily()` 응답에 `isHoliday: boolean` 포함 (프론트엔드 휴일 표시용)
 
 ### 결근 알림 (getAbsenceAlerts)
 
@@ -148,12 +164,15 @@ type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 
 | 파일 | 역할 |
 |---|---|
-| `prisma/schema.prisma` | status default: `"checkin"` |
+| `prisma/schema.prisma` | status default: `"checkin"`, Schedule.isHoliday 필드 |
 | `src/attendance/dto/attendance-query.dto.ts` | AttendanceStatus enum (CHECKIN, CHECKOUT, ABSENT, LEAVE) |
-| `src/attendance/attendance.service.ts` | clockIn → checkin, clockOut → checkout, getCompanyDaily DB status 직접 사용 |
-| `src/attendance/attendance-cron.service.ts` | 결근 자동 처리 크론잡 (매 10분) |
+| `src/attendance/attendance.service.ts` | clockIn → checkin, clockOut → checkout, getCompanyDaily 휴일→dayoff 반영 |
+| `src/attendance/attendance-cron.service.ts` | 결근 자동 처리 크론잡 (매 10분, 휴일 회사 스킵) |
 | `src/attendance/attendance.module.ts` | AttendanceCronService 등록 |
-| `src/admin/admin.service.ts` | getDailyAttendance/getAbsenceAlerts DB status 직접 사용 |
+| `src/admin/admin.service.ts` | getDailyAttendance/getAbsenceAlerts 휴일→dayoff 반영 |
+| `src/employees/employees.service.ts` | toResponse() 휴일→dayoff 반영 |
+| `src/schedules/schedules.service.ts` | 휴일 등록 시 자동 결근 레코드 정리 ($transaction) |
+| `src/common/utils/holiday.ts` | 휴일 조회 공통 유틸 (getHolidayCompanyIds, isCompanyHoliday) |
 | `src/app.module.ts` | ScheduleModule.forRoot() 등록 |
 
 ### 프론트엔드 (durubitteo_web)
