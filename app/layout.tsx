@@ -29,6 +29,13 @@ export const metadata: Metadata = {
     title: '이루빛터 - 장애인 근로자와 기업이 함께 빛나는 일터',
     description: '장애인 근로자와 기업을 위한, 일자리 매칭, 장애인 표준사업장, 장애인 고용부담금, 인증대행',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon.png', sizes: '48x48', type: 'image/png' },
+    ],
+    apple: { url: '/apple-icon.png', sizes: '180x180' },
+  },
 };
 
 export default function RootLayout({
