@@ -151,7 +151,7 @@ export default function InquiryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <Image
-              src="/images/landing_logo_tran_1.png"
+              src="/images/logo_tran.png"
               alt="이루빛터"
               width={1563}
               height={1563}

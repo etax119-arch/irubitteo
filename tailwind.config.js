@@ -7,6 +7,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        'landing-orange': '#DF8F4B',
         'duru-orange': {
           50: '#FFF9F5',
           100: '#FFF2E8',

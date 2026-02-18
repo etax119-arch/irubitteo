@@ -79,7 +79,7 @@ export default function EmployeeLoginPage() {
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-duru-orange-100">
           <div className="text-center mb-8">
             <Image
-              src="/images/landing_logo_tran_1.png"
+              src="/images/logo_tran.png"
               alt="이루빛터"
               width={1563}
               height={1563}

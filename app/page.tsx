@@ -41,7 +41,7 @@ const notoSansKR = Noto_Sans_KR({
 
 export default function LandingPage() {
   return (
-    <div className={`min-h-screen bg-duru-ivory text-duru-text-main selection:bg-duru-orange-200 ${notoSansKR.className}`} style={{ fontWeight: 500 }}>
+    <div className={`min-h-screen bg-duru-ivory text-duru-text-main selection:bg-landing-orange selection:text-white ${notoSansKR.className}`} style={{ fontWeight: 500 }}>
       <StructuredData data={organizationData} />
       <StructuredData data={websiteData} />
       <Header />

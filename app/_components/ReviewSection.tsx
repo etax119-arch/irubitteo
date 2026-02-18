@@ -10,10 +10,10 @@ const reviews = [
     name: '이○수 대표님',
     rating: 5,
     text: '장애인 고용 의무를 이행하면서도 우수한 인력을 확보할 수 있었습니다. 출퇴근 관리 시스템이 매우 편리하고, 근로자들의 업무 능력도 뛰어나 만족스럽습니다.',
-    gradient: 'from-orange-400/15 to-amber-400/15',
-    borderColor: 'border-orange-200',
-    iconBg: 'bg-gradient-to-br from-orange-50 to-amber-50',
-    iconColor: 'text-orange-600'
+    gradient: 'from-landing-orange/15 to-landing-orange/15',
+    borderColor: 'border-landing-orange/30',
+    iconBg: 'bg-landing-orange/10',
+    iconColor: 'text-landing-orange'
   },
   {
     category: '보호자',
@@ -21,10 +21,10 @@ const reviews = [
     name: '김○희 어머님',
     rating: 5,
     text: '우리 아이가 처음으로 안정적인 직장을 갖게 되었어요. 매달 급여도 꼬박꼬박 받고, 회사에서도 인정받는 모습을 보니 정말 뿌듯합니다. 이루빛터 덕분에 희망을 찾았습니다.',
-    gradient: 'from-orange-500/15 to-amber-500/15',
-    borderColor: 'border-duru-orange-200',
-    iconBg: 'bg-gradient-to-br from-duru-orange-50 to-amber-50',
-    iconColor: 'text-duru-orange-600'
+    gradient: 'from-landing-orange/15 to-landing-orange/15',
+    borderColor: 'border-landing-orange/35',
+    iconBg: 'bg-landing-orange/10',
+    iconColor: 'text-landing-orange'
   },
   {
     category: '병원',
@@ -32,10 +32,10 @@ const reviews = [
     name: '박○진 인사팀장님',
     rating: 5,
     text: '병원 내 다양한 부서에 장애인 근로자를 배치했는데, 관리가 정말 수월합니다. 실시간 근태 확인과 급여 정산이 자동화되어 있어 업무 효율이 크게 향상되었습니다.',
-    gradient: 'from-orange-300/15 to-yellow-400/15',
-    borderColor: 'border-orange-100',
-    iconBg: 'bg-gradient-to-br from-orange-50 to-yellow-50',
-    iconColor: 'text-orange-500'
+    gradient: 'from-landing-orange/15 to-landing-orange/15',
+    borderColor: 'border-landing-orange/25',
+    iconBg: 'bg-landing-orange/10',
+    iconColor: 'text-landing-orange'
   }
 ];
 
@@ -65,14 +65,14 @@ export default function ReviewSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 */}
         <div className="text-center mb-16">
-          <div className="inline-block px-5 py-2 bg-gradient-to-r from-duru-orange-50 to-amber-50 border border-duru-orange-100 rounded-full text-duru-orange-600 text-sm font-semibold mb-6 shadow-sm">
+          <div className="inline-block px-5 py-2 bg-landing-orange/10 border border-landing-orange/30 rounded-full text-landing-orange text-sm font-semibold mb-6 shadow-sm">
             REVIEWS
           </div>
           <h2 className={`text-4xl md:text-5xl font-bold text-gray-900 mb-6 transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             함께한 분들의{' '}
-            <span className="bg-gradient-to-r from-duru-orange-600 to-amber-600 bg-clip-text text-transparent">
+            <span className="text-landing-orange">
               생생한 이야기
             </span>
           </h2>
@@ -83,7 +83,7 @@ export default function ReviewSection() {
           {reviews.map((review, idx) => (
             <div
               key={idx}
-              className={`group relative overflow-hidden bg-white rounded-3xl p-8 border ${review.borderColor} hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-2 transition-all duration-500 ${
+              className={`group relative overflow-hidden bg-white rounded-3xl p-8 border ${review.borderColor} hover:shadow-2xl hover:shadow-[0_20px_45px_-20px_rgba(223,143,75,0.45)] hover:-translate-y-2 transition-all duration-500 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`}
               style={{
@@ -110,15 +110,15 @@ export default function ReviewSection() {
 
                 {/* 리뷰 내용 */}
                 <p className="text-gray-700 leading-relaxed mb-6 min-h-[140px] break-keep">
-                  "{review.text}"
+                  &quot;{review.text}&quot;
                 </p>
 
                 {/* 구분선 */}
-                <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent mb-5 group-hover:via-orange-400 transition-colors duration-300" />
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-landing-orange/50 to-transparent mb-5 group-hover:via-landing-orange transition-colors duration-300" />
 
                 {/* 작성자 정보 */}
                 <div>
-                  <p className="text-gray-900 font-bold text-lg mb-1 group-hover:text-orange-600 transition-colors duration-300">
+                  <p className="text-gray-900 font-bold text-lg mb-1 group-hover:text-landing-orange transition-colors duration-300">
                     {review.name}
                   </p>
                   <p className="text-gray-500 text-sm">
@@ -128,7 +128,7 @@ export default function ReviewSection() {
               </div>
 
               {/* 하단 강조선 - 단색 주황색 */}
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-duru-orange-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-landing-orange transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
             </div>
           ))}
         </div>

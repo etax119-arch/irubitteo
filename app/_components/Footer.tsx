@@ -9,11 +9,11 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-1 md:col-span-2">
             <Image
-              src="/images/landing_logo_tran_3.png"
+              src="/images/footer_logo_tran.png"
               alt="이루빛터"
               width={1563}
               height={1563}
-              className="h-[250px] w-auto -ml-[42px] -my-[100px] -mb-[60px] "
+              className="h-[250px] w-auto -ml-[42px] -my-[100px] -mb-[70px] "
             />
             <p className="leading-relaxed mb-4 max-w-sm">
               장애인 근로자의 안정적인 일자리와<br/>

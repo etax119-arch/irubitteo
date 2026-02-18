@@ -1,6 +1,6 @@
 'use client';
 
-import { Briefcase, Clock, Building2, HeartHandshake } from 'lucide-react';
+import { Clock, Building2, HeartHandshake } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
@@ -9,22 +9,22 @@ const services = [
     icon: Clock,
     title: "스마트 출퇴근 관리",
     desc: "모바일 앱으로 간편하게 출퇴근을 기록하고 근무 일정을 관리합니다.",
-    gradient: "from-orange-500/10 to-amber-500/10",
-    iconColor: "text-duru-orange-600"
+    gradient: "from-landing-orange/10 to-landing-orange/10",
+    iconColor: "text-landing-orange"
   },
   {
     icon: Building2,
     title: "기업·기관 채용 연계",
     desc: "장애인 고용을 희망하는 우수 기업 및 공공기관과 협력합니다.",
-    gradient: "from-orange-500/10 to-amber-500/10",
-    iconColor: "text-duru-orange-600"
+    gradient: "from-landing-orange/10 to-landing-orange/10",
+    iconColor: "text-landing-orange"
   },
   {
     icon: HeartHandshake,
     title: "안정적인 근무 지원",
     desc: "취업 후에도 지속적인 상담과 모니터링으로 적응을 돕습니다.",
-    gradient: "from-orange-500/10 to-amber-500/10",
-    iconColor: "text-duru-orange-600"
+    gradient: "from-landing-orange/10 to-landing-orange/10",
+    iconColor: "text-landing-orange"
   }
 ];
 
@@ -63,14 +63,14 @@ export default function ServiceSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 - 이루빛터 의미 중심 */}
         <div className="text-center mb-20">
-          <div className="inline-block px-5 py-2 bg-gradient-to-r from-duru-orange-50 to-amber-50 border border-duru-orange-100 rounded-full text-duru-orange-600 text-base font-semibold mb-6 shadow-sm">
+          <div className="inline-block px-5 py-2 bg-landing-orange/10 border border-landing-orange/30 rounded-full text-landing-orange text-base font-semibold mb-6 shadow-sm">
             ABOUT
           </div>
           <div className={`mb-6 transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             <Image
-              src="/images/landing_logo_tran_1.png"
+              src="/images/logo_tran.png"
               alt="이루빛터"
               width={1563}
               height={1563}
@@ -94,7 +94,7 @@ export default function ServiceSection() {
               showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               기업은 사회적 가치를 실현하는{' '}
-              <span className="font-semibold bg-gradient-to-r from-duru-orange-600 to-amber-600 bg-clip-text text-transparent">함께 빛나는 일터</span>를 만듭니다.
+              <span className="font-semibold text-landing-orange">함께 빛나는 일터</span>를 만듭니다.
             </p>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function ServiceSection() {
             return (
               <div
                 key={idx}
-                className={`group relative overflow-hidden bg-white rounded-3xl p-8 border border-gray-100 hover:border-duru-orange-200 transition-all duration-500 hover:shadow-xl ${
+                className={`group relative overflow-hidden bg-white rounded-3xl p-8 border border-gray-100 hover:border-landing-orange/40 transition-all duration-500 hover:shadow-xl ${
                   isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 }`}
                 style={{
@@ -118,7 +118,7 @@ export default function ServiceSection() {
 
                 <div className="relative z-10">
                   {/* 아이콘 */}
-                  <div className={`mb-6 ${service.iconColor} group-hover:text-duru-orange-700 transition-colors duration-300 group-hover:scale-110 transform transition-transform`}>
+                  <div className={`mb-6 ${service.iconColor} group-hover:text-landing-orange transition-colors duration-300 group-hover:scale-110 transform transition-transform`}>
                     <Icon className="w-12 h-12" />
                   </div>
 
@@ -134,7 +134,7 @@ export default function ServiceSection() {
                 </div>
 
                 {/* 데코레이션 라인 */}
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-duru-orange-500 to-amber-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-landing-orange to-landing-orange transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
               </div>
             );
           })}
@@ -143,7 +143,7 @@ export default function ServiceSection() {
         {/* 통계 */}
         <div className="relative mt-20">
           {/* 배경 블러 효과 */}
-          <div className="absolute inset-0 bg-gradient-to-r from-duru-orange-500/5 via-amber-500/5 to-red-500/5 rounded-3xl blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-landing-orange/5 via-landing-orange/10 to-landing-orange/5 rounded-3xl blur-3xl" />
 
           <div className="relative bg-white/80 backdrop-blur-sm border border-gray-100 rounded-3xl p-10 shadow-lg">
             <div className="grid md:grid-cols-3 gap-8">
@@ -157,7 +157,7 @@ export default function ServiceSection() {
                     transitionDelay: `${1200 + idx * 100}ms`
                   }}
                 >
-                  <div className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-duru-orange-600 to-amber-600 bg-clip-text text-transparent mb-3 group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-5xl md:text-6xl font-bold text-landing-orange mb-3 group-hover:scale-110 transition-transform duration-300">
                     {stat.value}
                     <span className="text-3xl">{stat.suffix}</span>
                   </div>
@@ -179,7 +179,7 @@ export default function ServiceSection() {
           </p>
           <a
             href="/inquiry"
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-duru-orange-500 text-white font-semibold rounded-xl hover:bg-duru-orange-600 hover:shadow-lg hover:scale-105 transition-all duration-300"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-landing-orange text-white font-semibold rounded-xl hover:bg-landing-orange/90 hover:shadow-lg hover:scale-105 transition-all duration-300"
           >
             <span>서비스 문의하기</span>
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
