@@ -1,6 +1,9 @@
 import { Clock, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { getDisplayStatusColor as getStatusColor } from '@/lib/status';
+import {
+  getAttendanceRecordStatusColor as getStatusColor,
+  getAttendanceRecordStatusLabel as getStatusLabel,
+} from '@/lib/status';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import type { AttendanceRecord } from '../../_hooks/useAttendanceHistory';
 import type { Pagination } from '@/types/api';
@@ -77,7 +80,7 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
                       getStatusColor(record.status)
                     )}
                   >
-                    {record.status}
+                    {getStatusLabel(record.status)}
                   </span>
                 </td>
                 <td className="px-4 py-3">

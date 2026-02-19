@@ -3,18 +3,19 @@ import { useEmployeeAttendanceHistory } from '@/hooks/useAttendanceQuery';
 import { useUpdateAttendance } from '@/hooks/useAttendanceMutations';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
-import { getAttendanceDisplayStatus } from '@/lib/status';
-import type { AttendanceWithEmployee, AttendanceUpdateInput, AttendanceStatus, DisplayStatus } from '@/types/attendance';
+import type {
+  AttendanceStatus,
+  AttendanceUpdateInput,
+  AttendanceWithEmployee,
+} from '@/types/attendance';
 import type { Pagination } from '@/types/api';
-
-export type { DisplayStatus };
 
 export interface AttendanceRecord {
   id: string;
   date: string;
   checkin: string;
   checkout: string;
-  status: DisplayStatus;
+  status: AttendanceStatus;
   rawStatus: AttendanceStatus;
   workDone: string;
   photoUrls: string[];
@@ -22,7 +23,6 @@ export interface AttendanceRecord {
 
 function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   const date = att.date.split('T')[0];
-  const displayStatus = getAttendanceDisplayStatus(att);
   const isAbsentOrLeave = att.status === 'absent' || att.status === 'leave';
 
   return {
@@ -30,7 +30,7 @@ function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
     date,
     checkin: isAbsentOrLeave ? '-' : (att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '-'),
     checkout: isAbsentOrLeave ? '-' : (att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-'),
-    status: displayStatus,
+    status: att.status,
     rawStatus: att.status,
     workDone: att.workContent || '-',
     photoUrls: att.photoUrls,
@@ -103,8 +103,20 @@ export function useAttendanceHistory(employeeId: string) {
     if (editedWorkTime.workDone !== originalWorkTime.workDone) {
       payload.workContent = editedWorkTime.workDone;
     }
-    if (editedWorkTime.status !== originalWorkTime.status) {
+    const finalStatus =
+      editedWorkTime.status !== originalWorkTime.status
+        ? editedWorkTime.status
+        : originalWorkTime.status;
+    const finalCheckout = editedWorkTime.checkout.trim();
+    const shouldForceCheckinSave =
+      editedWorkTime.status === 'checkin' && !!originalWorkTime.checkout && !finalCheckout;
+    if (editedWorkTime.status !== originalWorkTime.status || shouldForceCheckinSave) {
       payload.status = editedWorkTime.status;
+    }
+
+    if (finalStatus === 'checkout' && !finalCheckout) {
+      toast.error('퇴근 상태로 저장하려면 퇴근 시간을 입력해주세요.');
+      return;
     }
 
     if (Object.keys(payload).length === 0) {

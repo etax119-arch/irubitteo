@@ -69,8 +69,13 @@
 ### 수동 상태 변경 (updateAttendance)
 
 - `PATCH /v1/attendances/:id`
-- 기업 또는 관리자가 `status`를 `leave`, `absent` 등으로 직접 변경 가능
+- 기업 또는 관리자가 `status`를 `checkin`, `checkout`, `leave`, `absent`로 직접 변경 가능
 - `leave`로 변경 시 `isLate`, `isEarlyLeave`는 false로 리셋
+- `checkin`으로 변경 시 `clockOut`은 `null`로 정리되고 `isEarlyLeave`는 false로 리셋
+- `status` 미전송 시 `clockIn`/`clockOut` 최종값 기준으로 `status` 자동 동기화
+  - 최종 `clockOut` 존재 시 `checkout`
+  - 최종 `clockOut` 없음 + `clockIn` 존재 시 `checkin`
+- 최종 `status`가 `checkout`인데 최종 `clockOut`이 없으면 `400` 에러 반환
 
 ### 대시보드 조회 (getCompanyDaily / getDailyAttendance)
 
@@ -118,12 +123,14 @@ status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'pending' | 'dayoff';
 status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'resigned' | 'pending' | 'dayoff';
 ```
 
-### DisplayStatus (출퇴근 기록 표시)
+### DisplayStatus (레거시 표시 타입)
 
 ```typescript
 // types/attendance.ts
 type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 ```
+
+> `DisplayStatus`는 타입 호환성을 위해 남아 있으며, 최근 출퇴근 기록 테이블의 기본 표시는 AttendanceStatus 기반(raw status)으로 변경되었습니다.
 
 ---
 
@@ -145,16 +152,20 @@ type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 | `dayoff` | 휴무 | `bg-gray-100 text-gray-600` |
 | (비활성) | 퇴사 | `bg-gray-200 text-gray-600` |
 
-### 출퇴근 기록 표시 (getAttendanceDisplayStatus / getDisplayStatusColor)
+### 최근 출퇴근 기록 표시 (getAttendanceRecordStatusLabel / getAttendanceRecordStatusColor)
 
-관리자 직원 상세, 기업 직원 상세의 출퇴근 기록 테이블에서 사용.
+관리자 직원 상세, 기업 직원 상세의 최근 출퇴근 기록 테이블에서 사용.
 
-| DB status | DisplayStatus | 스타일 |
+| DB status | 라벨 | 스타일 |
 |---|---|---|
-| `leave` | 휴가 | `bg-blue-100 text-blue-700` |
+| `checkin` | 출근 | `bg-green-100 text-green-700` |
+| `checkout` | 퇴근 | `bg-blue-100 text-blue-700` |
 | `absent` | 결근 | `bg-red-100 text-red-700` |
-| `checkin` / `checkout` + isLate | 지각 | `bg-yellow-100 text-yellow-700` |
-| `checkin` / `checkout` + !isLate | 정상 | `bg-green-100 text-green-700` |
+| `leave` | 휴가 | `bg-teal-100 text-teal-700` |
+
+### DisplayStatus 변환 유틸 (getAttendanceDisplayStatus / getDisplayStatusColor)
+
+`DisplayStatus(정상/지각/결근/휴가)`가 필요한 화면에서 사용 가능하며, 최근 출퇴근 기록 테이블의 기본 표시에는 사용하지 않습니다.
 
 ---
 
@@ -166,7 +177,7 @@ type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 |---|---|
 | `prisma/schema.prisma` | status default: `"checkin"`, Schedule.isHoliday 필드 |
 | `src/attendance/dto/attendance-query.dto.ts` | AttendanceStatus enum (CHECKIN, CHECKOUT, ABSENT, LEAVE) |
-| `src/attendance/attendance.service.ts` | clockIn → checkin, clockOut → checkout, getCompanyDaily 휴일→dayoff 반영 |
+| `src/attendance/attendance.service.ts` | clockIn → checkin, clockOut → checkout, updateAttendance status 동기화/검증, getCompanyDaily 휴일→dayoff 반영 |
 | `src/attendance/attendance-cron.service.ts` | 결근 자동 처리 크론잡 (매 10분, 휴일 회사 스킵) |
 | `src/attendance/attendance.module.ts` | AttendanceCronService 등록 |
 | `src/admin/admin.service.ts` | getDailyAttendance/getAbsenceAlerts 휴일→dayoff 반영 |
@@ -179,13 +190,17 @@ type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 
 | 파일 | 역할 |
 |---|---|
-| `types/attendance.ts` | AttendanceStatus, DisplayStatus, DailyAttendanceRecord 타입 |
+| `types/attendance.ts` | AttendanceStatus, DisplayStatus(레거시), DailyAttendanceRecord 타입 |
 | `types/adminDashboard.ts` | AdminDailyEmployee.status 타입 |
 | `types/employee.ts` | Employee.status 타입 |
-| `lib/status.ts` | **통합 상태 유틸리티** (getEmployeeStatusLabel/Style, getAttendanceDisplayStatus, getDisplayStatusColor) |
+| `lib/status.ts` | **통합 상태 유틸리티** (getEmployeeStatusLabel/Style, getAttendanceRecordStatusLabel/Color, getAttendanceDisplayStatus, getDisplayStatusColor) |
+| `app/employee/page.tsx` | 직원 홈 — `getAttendanceMode()` 순수 함수로 출퇴근 버튼 상태 결정 (holiday/dayoff/checkin/checkout/completed) |
+| `app/employee/_components/AttendanceButtons.tsx` | `AttendanceMode` 기반 조건부 렌더링 (버튼/휴일/비근무일/완료 메시지) |
+| `app/employee/_hooks/useMyProfile.ts` | `GET /v1/employees/me` — workDays 기반 비근무일 판정 |
+| `app/employee/_hooks/useMyScheduleToday.ts` | `GET /v1/schedules/today` — 회사 휴일 판정 |
 | `app/company/_components/AttendanceTable.tsx` | 기업 대시보드 출퇴근 테이블 |
 | `app/admin/_components/CompanyAttendanceAccordion.tsx` | 관리자 회사별 출퇴근 아코디언 |
-| `app/company/employees/_hooks/useAttendanceHistory.ts` | 출퇴근 기록 → DisplayStatus 변환 |
+| `app/company/employees/_hooks/useAttendanceHistory.ts` | 최근 출퇴근 기록 가공 (raw status 유지) |
 
 ---
 

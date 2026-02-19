@@ -2,6 +2,13 @@ import apiClient from './client';
 import type { PaginatedResponse } from '@/types/api';
 import type { Employee, EmployeeQueryParams, EmployeeCreateInput, EmployeeUpdateInput } from '@/types/employee';
 
+export async function getMyEmployeeProfile(): Promise<{ success: boolean; data: Employee }> {
+  const response = await apiClient.get<{ success: boolean; data: Employee }>(
+    '/employees/me'
+  );
+  return response.data;
+}
+
 export async function getEmployees(
   params?: EmployeeQueryParams
 ): Promise<PaginatedResponse<Employee>> {

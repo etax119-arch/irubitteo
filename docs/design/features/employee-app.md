@@ -22,7 +22,7 @@
 ├── checkout/page.tsx       # 퇴근 화면
 ├── _components/
 │   ├── HeaderCard.tsx          # 사용자 인사 + 날짜 + 로그아웃
-│   ├── AttendanceButtons.tsx   # 출근/퇴근 버튼 그리드
+│   ├── AttendanceButtons.tsx   # 출퇴근 버튼 (상태별 조건부 렌더링)
 │   ├── NoticeSection.tsx       # 긴급 공지 섹션
 │   ├── WorkRecordsSection.tsx  # 활동 기록 아코디언
 │   ├── DateNavigator.tsx       # 연도/월 네비게이션
@@ -33,6 +33,8 @@
 └── _hooks/
     ├── useMyAttendanceQuery.ts    # 출퇴근 Query 훅 (TanStack Query)
     ├── useMyAttendanceMutations.ts # 출퇴근 Mutation 훅 (TanStack Query)
+    ├── useMyScheduleToday.ts      # 오늘 스케줄 Query 훅 (휴일 판정)
+    ├── useMyProfile.ts            # 본인 프로필 Query 훅 (workDays 비근무일 판정)
     ├── useWorkRecords.ts          # 활동 기록 상태 관리 (React Query + 페이지네이션)
     └── useEmployeeNotice.ts       # 직원 공지사항 상태 관리
 ```
@@ -91,13 +93,22 @@
   - "{이름}님, 환영합니다!"
   - 현재 날짜 표시 (예: "2026년 1월 28일 수요일")
   - 로그아웃 버튼
-- 출근/퇴근 버튼 (2열 그리드)
-  - **출근하기**: 주황색 그라데이션 버튼
-    - 아이콘: Clock
-    - 설명: "오늘의 할 일을 확인하세요"
-  - **퇴근하기**: 회색 그라데이션 버튼
-    - 아이콘: CheckCircle2
-    - 설명: "오늘 한 일을 기록하세요"
+- 출퇴근 버튼 영역 (`AttendanceButtons` 컴포넌트 — 상태별 조건부 렌더링)
+  - 상태 판정 로직: `page.tsx`의 `getAttendanceMode()` 순수 함수
+  - 데이터 소스: `useMyTodayAttendance()` + `useMyScheduleToday()` + `useMyProfile()`
+
+| 상태 (mode) | 조건 | UI |
+|-------------|------|----|
+| `loading` | 데이터 로딩 중 | Skeleton 플레이스홀더 |
+| `error` | API 에러 | 에러 메시지 + 새로고침 안내 |
+| `holiday` | `Schedule.isHoliday === true` | Coffee 아이콘 + "오늘은 휴일입니다" + 휴일 메모 |
+| `dayoff` | 오늘이 `Employee.workDays`에 미포함 | Coffee 아이콘 + "오늘은 근무일이 아닙니다" |
+| `checkin` | 출퇴근 기록 없음 (근무일) | 출근 버튼만 (전체 폭) |
+| `checkout` | 출근 완료, 퇴근 전 (`status === 'checkin'`) | 퇴근 버튼만 (전체 폭) |
+| `completed` | 퇴근 완료 (`status === 'checkout'` 등) | CheckCircle2 아이콘 + "오늘 근무를 완료했습니다" |
+
+  - **출근하기**: 주황색 그라데이션 버튼 (Clock 아이콘)
+  - **퇴근하기**: 회색 그라데이션 버튼 (CheckCircle2 아이콘)
 
 **긴급 공지 섹션**:
 **API 연동**: ✅ 완료 (`GET /v1/notices/my`, `PATCH /v1/notices/:id/read`)
@@ -261,9 +272,10 @@
 | 출근 처리 | `POST /v1/attendances/clock-in` | ✅ 완료 |
 | 퇴근 처리 | `POST /v1/attendances/clock-out` | ✅ 완료 |
 | 오늘 출퇴근 기록 | `GET /v1/attendances/today` | ✅ 완료 |
+| 본인 프로필 (workDays) | `GET /v1/employees/me` | ✅ 완료 |
+| 오늘 스케줄 (휴일 판정) | `GET /v1/schedules/today` | ✅ 완료 |
 | 활동 기록 조회 | `GET /v1/attendances` | ✅ 완료 |
 | 사진 삭제 | `DELETE /v1/attendances/:id/photos` | ✅ 완료 |
-| 오늘의 작업 내용 | `GET /v1/schedules/today` | ✅ 완료 |
 | 긴급 공지 조회 | `GET /v1/notices/my` | ✅ 완료 |
 | 공지 읽음 처리 | `PATCH /v1/notices/:id/read` | ✅ 완료 |
 

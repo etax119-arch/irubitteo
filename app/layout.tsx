@@ -15,19 +15,31 @@ export const metadata: Metadata = {
     default: '이루빛터 - 장애인 근로자와 기업이 함께 빛나는 일터',
     template: '%s | 이루빛터',
   },
-  description: '장애인 근로자와 기업을 위한, 일자리 매칭, 장애인 표준사업장, 장애인 고용부담금, 인증대행',
+  description: '이루빛터는 장애인 근로자 채용 연계부터 출퇴근 관리까지 지원하는 통합 고용 관리 플랫폼입니다.',
   keywords: ['이루빛터', 'irubitteo', '장애인 근로자', '장애인 고용', '출퇴근 관리', '무상지원금', '세액감면', '인증대행', '장애인 표준사업장'],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
+  },
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
+    url: '/',
     siteName: '이루빛터',
     title: '이루빛터 - 장애인 근로자와 기업이 함께 빛나는 일터',
-    description: '장애인 근로자와 기업을 위한, 일자리 매칭, 장애인 표준사업장, 장애인 고용부담금, 인증대행',
+    description: '이루빛터는 장애인 근로자 채용 연계부터 출퇴근 관리까지 지원하는 통합 고용 관리 플랫폼입니다.',
   },
   twitter: {
     card: 'summary_large_image',
     title: '이루빛터 - 장애인 근로자와 기업이 함께 빛나는 일터',
-    description: '장애인 근로자와 기업을 위한, 일자리 매칭, 장애인 표준사업장, 장애인 고용부담금, 인증대행',
+    description: '이루빛터는 장애인 근로자 채용 연계부터 출퇴근 관리까지 지원하는 통합 고용 관리 플랫폼입니다.',
   },
   icons: {
     icon: [

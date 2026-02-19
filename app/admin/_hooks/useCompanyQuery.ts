@@ -40,7 +40,7 @@ export function useCompanyDetail(id: string) {
 export function useCompanyEmployees(companyId: string, page = 1, limit = 20) {
   return useQuery({
     queryKey: companyKeys.employees(companyId, { page, limit }),
-    queryFn: () => getEmployees({ companyId, page, limit }),
+    queryFn: () => getEmployees({ companyId, page, limit, isActive: true }),
     select: (data) => ({ employees: data.data, pagination: data.pagination }),
     enabled: !!companyId,
     placeholderData: keepPreviousData,

@@ -19,7 +19,7 @@ export default function HeroSection() {
             <span className="text-landing-orange">함께 빛나는</span> 일터
           </h1>
 
-          <p className="text-xl text-gray-600 leading-relaxed break-keep max-w-xl">
+          <p className="text-xl text-gray-600 leading-relaxed break-keep max-w-xl" data-nosnippet>
             이루빛터는 장애인 근로자를 위한 맞춤형 일자리 매칭부터<br className="hidden sm:block"/>
             편리한 출퇴근 관리까지, 든든한 다리가 되어드립니다.
           </p>

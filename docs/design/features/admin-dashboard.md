@@ -535,16 +535,17 @@ deleteCompanyFile(id, fileId)     → 파일 삭제
 | 업무내용 확인 | 특정 날짜 업무내용 읽기 전용 |
 | 파일 업로드 | 문서유형 드롭다운 (7종) + 파일 선택 (.pdf, .jpg, .jpeg, .png, 최대 10MB, `validateUploadFile` + `FILE_CONSTRAINTS.DOCUMENT` 검증) |
 
-#### 출퇴근 상태 표시
+#### 최근 출퇴근 기록 상태 표시
 
 | 상태 | 표시 라벨 | 배지 색상 |
 |------|---------|---------|
-| checkout (정상) | 정상 | 초록 |
-| checkout (지각) | 지각 | 노랑 |
+| checkout | 퇴근 | 파랑 |
 | leave | 휴가 | 파랑 |
 | absent | 결근 | 빨강 |
-| checkin | 근무중 | 초록 |
-| pending | 출근전 | 회색 |
+| checkin | 출근 | 초록 |
+
+> 최근 출퇴근 기록 테이블(근로자 상세)의 상태는 DB attendance status를 그대로 라벨링합니다.
+> (`checkin`=출근, `checkout`=퇴근, `absent`=결근, `leave`=휴가)
 
 #### API 연동
 

@@ -13,8 +13,44 @@ import { useAuthStore } from '@/lib/auth/store';
 import { authApi } from '@/lib/api/auth';
 import { useWorkRecords } from './_hooks/useWorkRecords';
 import { useEmployeeNotice } from './_hooks/useEmployeeNotice';
+import { useMyTodayAttendance } from './_hooks/useMyAttendanceQuery';
+import { useMyScheduleToday } from './_hooks/useMyScheduleToday';
+import { useMyProfile } from './_hooks/useMyProfile';
 import { useToast } from '@/components/ui/Toast';
+import { formatDateAsKST } from '@/lib/kst';
 import type { DisplayPhoto } from '@/types/attendance';
+import type { AttendanceMode } from './_components/AttendanceButtons';
+import type { WorkDay } from '@/types/employee';
+import type { AttendanceWithEmployee } from '@/types/attendance';
+import type { Schedule } from '@/types/schedule';
+
+function getKSTWorkDay(): WorkDay {
+  const kstDateStr = formatDateAsKST(new Date());
+  const kstDate = new Date(kstDateStr + 'T12:00:00+09:00');
+  const jsDay = kstDate.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  return (jsDay === 0 ? 7 : jsDay) as WorkDay; // 1=Mon, ..., 7=Sun
+}
+
+function getAttendanceMode(params: {
+  isLoading: boolean;
+  isError: boolean;
+  todaySchedule: Schedule | null | undefined;
+  workDays: WorkDay[] | undefined;
+  todayWorkDay: WorkDay;
+  todayAttendance: AttendanceWithEmployee | null | undefined;
+}): AttendanceMode {
+  const { isLoading, isError, todaySchedule, workDays, todayWorkDay, todayAttendance } = params;
+
+  if (isLoading) return 'loading';
+  if (isError) return 'error';
+
+  if (todaySchedule?.isHoliday) return 'holiday';
+  if (workDays && !workDays.includes(todayWorkDay)) return 'dayoff';
+
+  if (!todayAttendance) return 'checkin';
+  if (todayAttendance.status === 'checkin') return 'checkout';
+  return 'completed';
+}
 
 export default function EmployeeDashboard() {
   const router = useRouter();
@@ -48,6 +84,23 @@ export default function EmployeeDashboard() {
     goToNextPage,
     goToPrevPage,
   } = useWorkRecords();
+
+  const { data: todayAttendance, isLoading: attendanceLoading, isError: attendanceError } = useMyTodayAttendance();
+  const { data: todaySchedule, isLoading: scheduleLoading, isError: scheduleError } = useMyScheduleToday();
+  const { data: myProfile, isLoading: profileLoading, isError: profileError } = useMyProfile();
+
+  const isLoading = attendanceLoading || scheduleLoading || profileLoading;
+  const isError = attendanceError || scheduleError || profileError;
+  const todayWorkDay = getKSTWorkDay();
+
+  const mode = getAttendanceMode({
+    isLoading,
+    isError,
+    todaySchedule: todaySchedule ?? null,
+    workDays: myProfile?.workDays,
+    todayWorkDay,
+    todayAttendance: todayAttendance ?? null,
+  });
 
   useEffect(() => {
     fetchNotices();
@@ -122,7 +175,14 @@ export default function EmployeeDashboard() {
         {/* 헤더 카드 */}
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-duru-orange-100 mb-6">
           <HeaderCard userName={user?.name || ''} onLogout={handleLogout} />
-          <AttendanceButtons onCheckIn={handleCheckIn} onCheckOut={handleCheckOut} />
+          <AttendanceButtons
+            mode={mode}
+            onCheckIn={handleCheckIn}
+            onCheckOut={handleCheckOut}
+            holidayContent={todaySchedule?.isHoliday ? todaySchedule.content : undefined}
+            clockIn={todayAttendance?.clockIn}
+            clockOut={todayAttendance?.clockOut}
+          />
         </div>
 
         {/* 공지 섹션 */}

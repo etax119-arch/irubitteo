@@ -51,6 +51,24 @@ export function useAdminAttendanceHistory(employeeId: string) {
   const handleSaveWorkTime = async () => {
     if (!editingAttendanceId) return;
     const record = attendanceHistory.find((r) => r.id === editingAttendanceId);
+    const finalStatus =
+      record && editedWorkTime.status !== record.status
+        ? editedWorkTime.status
+        : (record?.status ?? editedWorkTime.status);
+    const finalCheckout = editedWorkTime.checkout.trim();
+    const hasOriginalCheckout = Boolean(record?.clockOut);
+    const shouldForceCheckinSave =
+      editedWorkTime.status === 'checkin' && hasOriginalCheckout && !finalCheckout;
+    const statusForSave =
+      record && (editedWorkTime.status !== record.status || shouldForceCheckinSave)
+        ? editedWorkTime.status
+        : undefined;
+
+    if (finalStatus === 'checkout' && !finalCheckout) {
+      toast.error('퇴근 상태로 저장하려면 퇴근 시간을 입력해주세요.');
+      return;
+    }
+
     try {
       await updateAttendance.mutateAsync({
         attendanceId: editingAttendanceId,
@@ -58,7 +76,7 @@ export function useAdminAttendanceHistory(employeeId: string) {
           clockIn: editedWorkTime.checkin ? buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin) : undefined,
           clockOut: editedWorkTime.checkout ? buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout) : undefined,
           workContent: editedWorkTime.workDone || undefined,
-          status: record && editedWorkTime.status !== record.status ? editedWorkTime.status : undefined,
+          status: statusForSave,
         },
       });
       setIsEditingWorkTime(false);

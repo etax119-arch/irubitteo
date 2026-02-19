@@ -32,6 +32,7 @@ export default function HeroSlider() {
             src={image}
             alt={`히어로 이미지 ${idx + 1}`}
             fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
             className="object-cover"
             priority={idx === 0}
           />

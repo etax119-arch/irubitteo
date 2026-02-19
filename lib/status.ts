@@ -1,5 +1,9 @@
 import type { Employee } from '@/types/employee';
-import type { DisplayStatus, AttendanceWithEmployee } from '@/types/attendance';
+import type {
+  AttendanceStatus,
+  AttendanceWithEmployee,
+  DisplayStatus,
+} from '@/types/attendance';
 
 // ──────────────────────────────────────────────
 // System A: Employee 실시간 상태 (checkin, checkout, absent, leave, pending, dayoff)
@@ -62,6 +66,44 @@ export function getDisplayStatusColor(status: DisplayStatus) {
     case '지각': return 'bg-yellow-100 text-yellow-700';
     case '휴가': return 'bg-blue-100 text-blue-700';
     case '결근': return 'bg-red-100 text-red-700';
+    default: {
+      const _exhaustive: never = status;
+      return _exhaustive;
+    }
+  }
+}
+
+// ──────────────────────────────────────────────
+// System C: 최근 출퇴근 기록 상태 (출근, 퇴근, 결근, 휴가)
+// ──────────────────────────────────────────────
+
+export function getAttendanceRecordStatusLabel(status: AttendanceStatus) {
+  switch (status) {
+    case 'checkin':
+      return '출근';
+    case 'checkout':
+      return '퇴근';
+    case 'absent':
+      return '결근';
+    case 'leave':
+      return '휴가';
+    default: {
+      const _exhaustive: never = status;
+      return _exhaustive;
+    }
+  }
+}
+
+export function getAttendanceRecordStatusColor(status: AttendanceStatus) {
+  switch (status) {
+    case 'checkin':
+      return 'bg-green-100 text-green-700';
+    case 'checkout':
+      return 'bg-blue-100 text-blue-700';
+    case 'absent':
+      return 'bg-red-100 text-red-700';
+    case 'leave':
+      return 'bg-teal-100 text-teal-700';
     default: {
       const _exhaustive: never = status;
       return _exhaustive;

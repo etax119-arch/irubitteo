@@ -3,7 +3,10 @@
 import { Clock, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { formatUtcTimestampAsKST, formatDateAsKST } from '@/lib/kst';
-import { getAttendanceDisplayStatus, getDisplayStatusColor } from '@/lib/status';
+import {
+  getAttendanceRecordStatusColor,
+  getAttendanceRecordStatusLabel,
+} from '@/lib/status';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import type { AttendanceWithEmployee } from '@/types/attendance';
 import type { Pagination } from '@/types/api';
@@ -69,11 +72,11 @@ export function AttendanceHistoryTable({
           <tbody className="divide-y divide-gray-200">
             {records.length > 0 ? (
               records.map((record) => {
-                const displayStatus = getAttendanceDisplayStatus(record);
-                const isAbsentOrLeave = displayStatus === '결근' || displayStatus === '휴가';
+                const isAbsentOrLeave = record.status === 'absent' || record.status === 'leave';
                 const checkinDisplay = isAbsentOrLeave ? '-' : (record.clockIn ? formatUtcTimestampAsKST(record.clockIn) : '-');
                 const checkoutDisplay = isAbsentOrLeave ? '-' : (record.clockOut ? formatUtcTimestampAsKST(record.clockOut) : '-');
                 const dateDisplay = formatDateAsKST(new Date(record.date));
+                const statusLabel = getAttendanceRecordStatusLabel(record.status);
 
                 return (
                   <tr key={record.id} className="hover:bg-gray-50">
@@ -86,10 +89,10 @@ export function AttendanceHistoryTable({
                       <span
                         className={cn(
                           'px-2 py-1 rounded-full text-xs font-semibold',
-                          getDisplayStatusColor(displayStatus)
+                          getAttendanceRecordStatusColor(record.status)
                         )}
                       >
-                        {displayStatus}
+                        {statusLabel}
                       </span>
                     </td>
                     <td className="px-4 py-3">

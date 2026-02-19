@@ -6,6 +6,7 @@ export const authKeys = {
 export const scheduleKeys = {
   all: ['schedules'] as const,
   monthly: (year: number, month: number) => ['schedules', 'monthly', year, month] as const,
+  today: () => ['schedules', 'today'] as const,
 };
 
 export const noticeKeys = {
@@ -15,6 +16,7 @@ export const noticeKeys = {
 
 export const employeeKeys = {
   all: ['employees'] as const,
+  me: () => ['employees', 'me'] as const,
   lists: () => ['employees', 'list'] as const,
   active: () => ['employees', 'list', 'active'] as const,
   list: (params: { filter: string; search: string; page: number; limit: number }) =>

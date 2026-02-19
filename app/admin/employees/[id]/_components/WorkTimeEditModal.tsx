@@ -33,15 +33,19 @@ export function WorkTimeEditModal({
 }: WorkTimeEditModalProps) {
   if (!isOpen) return null;
 
-  const isTimeDisabled = editedWorkTime.status === 'absent' || editedWorkTime.status === 'leave';
+  const isAbsentOrLeave = editedWorkTime.status === 'absent' || editedWorkTime.status === 'leave';
+  const isCheckinDisabled = isAbsentOrLeave || editedWorkTime.status === 'checkout';
+  const isCheckoutDisabled = isAbsentOrLeave || editedWorkTime.status === 'checkin';
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as AttendanceStatus;
     const clearTime = newStatus === 'absent' || newStatus === 'leave';
+    const clearCheckout = newStatus === 'checkin';
     setEditedWorkTime({
       ...editedWorkTime,
       status: newStatus,
       ...(clearTime ? { checkin: '', checkout: '' } : {}),
+      ...(clearCheckout ? { checkout: '' } : {}),
     });
   };
 
@@ -72,14 +76,14 @@ export function WorkTimeEditModal({
             label="출근 시간"
             value={editedWorkTime.checkin}
             onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkin: v })}
-            disabled={isTimeDisabled || savingWorkTime}
+            disabled={isCheckinDisabled || savingWorkTime}
           />
 
           <TimePicker
             label="퇴근 시간"
             value={editedWorkTime.checkout}
             onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkout: v })}
-            disabled={isTimeDisabled || savingWorkTime}
+            disabled={isCheckoutDisabled || savingWorkTime}
           />
 
           <Textarea
@@ -97,7 +101,8 @@ export function WorkTimeEditModal({
               disabled={savingWorkTime}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="checkin">정상</option>
+              <option value="checkin">출근(근무중)</option>
+              <option value="checkout">퇴근</option>
               <option value="absent">결근</option>
               <option value="leave">휴가</option>
             </select>

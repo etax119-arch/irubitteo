@@ -86,6 +86,7 @@ export const authKeys = {
 
 export const employeeKeys = {
   all: ['employees'] as const,
+  me: () => ['employees', 'me'] as const,
   lists: () => ['employees', 'list'] as const,
   active: () => ['employees', 'list', 'active'] as const,
   list: (params: { filter, search, page, limit }) =>
@@ -206,7 +207,7 @@ export function useCreateNotice() {
 | `/admin/reports` | `app/admin/_hooks/useAdminReports.ts` — 1 query + 2 mutations (staleTime: Infinity) |
 | `/company/employees/[id]` | `hooks/useEmployeeQuery.ts`, `hooks/useEmployeeMutations.ts`, `hooks/useEmployeeFiles.ts`, `hooks/useAttendanceQuery.ts`, `hooks/useAttendanceMutations.ts` (공유) |
 | 인증 (`useAuth`) | `hooks/useAuthQuery.ts` — `useAuthQuery` (staleTime: 5분, retry: false), `hooks/useAuth.ts` — Zustand 동기화 |
-| `/employee` (출퇴근 앱) | `app/employee/_hooks/useMyAttendanceQuery.ts` — `useMyTodayAttendance`, `useMyAttendanceHistory` (staleTime: 30s, status=checkout 서버 필터, 페이지네이션 limit=20), `app/employee/_hooks/useMyAttendanceMutations.ts` — `useClockIn`, `useClockOut`, `useAddPhotos`, `useDeletePhoto` |
+| `/employee` (출퇴근 앱) | `app/employee/_hooks/useMyAttendanceQuery.ts` — `useMyTodayAttendance`, `useMyAttendanceHistory` (staleTime: 30s, status=checkout 서버 필터, 페이지네이션 limit=20), `app/employee/_hooks/useMyAttendanceMutations.ts` — `useClockIn`, `useClockOut`, `useAddPhotos`, `useDeletePhoto`, `app/employee/_hooks/useMyScheduleToday.ts` — `useMyScheduleToday` (staleTime: 5min, 휴일 판정), `app/employee/_hooks/useMyProfile.ts` — `useMyProfile` (staleTime: 5min, workDays 비근무일 판정) |
 
 ### 네이밍 규칙
 

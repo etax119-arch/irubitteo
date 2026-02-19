@@ -184,7 +184,7 @@ durubitteo_web/
 │   │   ├── checkout/page.tsx # 퇴근 페이지
 │   │   ├── _components/
 │   │   │   ├── HeaderCard.tsx         # 사용자 인사 + 날짜 + 로그아웃
-│   │   │   ├── AttendanceButtons.tsx  # 출근/퇴근 버튼 그리드
+│   │   │   ├── AttendanceButtons.tsx  # 출퇴근 버튼 (상태별 조건부 렌더링)
 │   │   │   ├── NoticeSection.tsx      # 긴급 공지 섹션
 │   │   │   ├── WorkRecordsSection.tsx # 활동 기록 아코디언
 │   │   │   ├── DateNavigator.tsx      # 연도/월 네비게이션
@@ -195,6 +195,8 @@ durubitteo_web/
 │   │   └── _hooks/
 │   │       ├── useMyAttendanceQuery.ts    # 출퇴근 Query 훅 (TanStack Query)
 │   │       ├── useMyAttendanceMutations.ts # 출퇴근 Mutation 훅 (TanStack Query)
+│   │       ├── useMyScheduleToday.ts      # 오늘 스케줄 Query 훅 (휴일 판정)
+│   │       ├── useMyProfile.ts            # 본인 프로필 Query 훅 (workDays 비근무일 판정)
 │   │       ├── useWorkRecords.ts          # 활동 기록 상태 관리 (React Query + 페이지네이션)
 │   │       └── useEmployeeNotice.ts       # 직원 공지사항 상태 관리
 │   │
