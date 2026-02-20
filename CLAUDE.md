@@ -428,3 +428,4 @@ function MyComponent() {
 | `verify-ui-patterns` | UI 컴포넌트 사용 패턴 검증 (input, textarea, checkbox, button, dialog) |
 | `verify-implementation` | 모든 verify 스킬 통합 실행 |
 | `manage-skills` | 검증 스킬 유지보수 |
+| `codex-review` | Codex CLI를 통한 구현 계획 외부 리뷰 |
