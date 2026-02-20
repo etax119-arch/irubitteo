@@ -37,7 +37,7 @@ export function PMInfoCard({
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-gray-900 flex items-center gap-2">
           <User className="w-5 h-5 text-duru-orange-600" />
-          영업 담당자
+          관리 담당자
         </h3>
         {!isEditingPm ? (
           <button
