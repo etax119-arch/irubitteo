@@ -21,7 +21,7 @@ const organizationData = {
   alternateName: 'Irubitteo',
   url: 'https://www.irubitteo.com',
   logo: 'https://www.irubitteo.com/images/logo.png',
-  description: '이루빛터는 장애인 근로자 채용 연계부터 출퇴근 관리까지 지원하는 통합 고용 관리 플랫폼입니다.',
+  description: '가능성이 일상의 빛이 되는 곳, 이루빛터에서는 장애인 근로자를 위한 맞춤형 직무를 설계하고 매칭하여 빛나는 내일을 함께 합니다.',
 };
 
 const websiteData = {
