@@ -23,16 +23,14 @@ export default function Footer() {
           <div>
             <h6 className="text-white font-bold mb-4 text-lg">서비스</h6>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:text-white">일자리 찾기</a></li>
-              <li><a href="#" className="hover:text-white">근태관리 안내</a></li>
-              <li><a href="#" className="hover:text-white">기업 채용 문의</a></li>
+              <li><Link href="/login/admin" className="hover:text-white">이루빛 관리자</Link></li>
             </ul>
           </div>
           <div>
             <h6 className="text-white font-bold mb-4 text-lg">문의처</h6>
             <ul className="space-y-2">
-              <li className="flex items-center gap-2"><Mail className="w-5 h-5"/> etax119@gmail.com</li>
-              <li className="flex items-center gap-2"><MapPin className="w-5 h-5"/> 서울특별시 성동구 아차산로17길 49, 1509호, 1510호, 1511호, 1512호 (성수동2가, 생각공장 데시앙플렉스)</li>
+              <li className="flex items-center gap-2"><Mail className="w-5 h-5"/> irubitteo26@naver.com</li>
+              <li className="flex items-center gap-2"><MapPin className="w-5 h-5"/> 서울특별시 성동구 아차산로17길 49,703호</li>
             </ul>
           </div>
         </div>
