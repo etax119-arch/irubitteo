@@ -12,7 +12,7 @@ const PROTECTED_ROUTES: Record<string, UserRole[]> = {
 // 인증된 사용자가 접근할 수 없는 경로 (로그인 페이지 등)
 const AUTH_ROUTES = ['/login/admin', '/login/company', '/login/employee'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 크로스 도메인 배포 환경에서는 백엔드 쿠키를 미들웨어에서 읽을 수 없으므로
@@ -54,7 +54,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * 다음 경로를 제외한 모든 요청에 대해 middleware 실행:
+     * 다음 경로를 제외한 모든 요청에 대해 proxy 실행:
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
