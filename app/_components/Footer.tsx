@@ -24,6 +24,9 @@ export default function Footer() {
             <h6 className="text-white font-bold mb-4 text-lg">서비스</h6>
             <ul className="space-y-2">
               <li><Link href="/login/admin" className="hover:text-white">이루빛 관리자</Link></li>
+              <li><Link href="/gallery" className="hover:text-white">빛터 갤러리</Link></li>
+              <li><Link href="/newsletter" className="hover:text-white">빛터 소식지</Link></li>
+              <li><Link href="/resume" className="hover:text-white">이력서 등록</Link></li>
             </ul>
           </div>
           <div>
