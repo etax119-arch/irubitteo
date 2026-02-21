@@ -6,16 +6,19 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { NoteUpdateAlertList } from '../_components/NoteUpdateAlertList';
 import { AbsenceAlertList } from '../_components/AbsenceAlertList';
 import { InquiryList } from '../_components/InquiryList';
+import { ResumeList } from '../_components/ResumeList';
 import { InquiryDetailModal } from '../_components/InquiryDetailModal';
 import {
   useNoteUpdateAlerts,
   useNotifAbsenceAlerts,
   usePendingInquiries,
+  usePendingResumes,
 } from '../_hooks/useAdminNotificationQuery';
 import {
   useDismissAbsenceAlert,
   useDismissNoteUpdate,
   useCompleteInquiry,
+  useReviewResume,
 } from '../_hooks/useAdminNotificationMutations';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
@@ -29,10 +32,12 @@ export default function AdminNotificationsPage() {
   const noteQuery = useNoteUpdateAlerts();
   const absenceQuery = useNotifAbsenceAlerts();
   const inquiryQuery = usePendingInquiries();
+  const resumeQuery = usePendingResumes();
 
   const dismissAbsence = useDismissAbsenceAlert();
   const dismissNote = useDismissNoteUpdate();
   const completeInq = useCompleteInquiry();
+  const reviewRes = useReviewResume();
 
   const handleDismissAlert = (alertId: string, employeeId: string) => {
     dismissAbsence.mutate(alertId, {
@@ -61,7 +66,14 @@ export default function AdminNotificationsPage() {
     });
   };
 
-  if (noteQuery.isLoading || absenceQuery.isLoading || inquiryQuery.isLoading) {
+  const handleResumeReview = (resumeId: string) => {
+    reviewRes.mutate(resumeId, {
+      onSuccess: () => toast.success('이력서 확인이 완료되었습니다.'),
+      onError: (err) => toast.error(extractErrorMessage(err)),
+    });
+  };
+
+  if (noteQuery.isLoading || absenceQuery.isLoading || inquiryQuery.isLoading || resumeQuery.isLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="w-32 h-8" />
@@ -105,7 +117,10 @@ export default function AdminNotificationsPage() {
         <InquiryList inquiries={inquiryQuery.data ?? []} onViewDetail={setSelectedInquiry} />
       </div>
 
-      <NoteUpdateAlertList alerts={noteQuery.data ?? []} onDismiss={handleDismissNoteUpdate} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ResumeList resumes={resumeQuery.data ?? []} onReview={handleResumeReview} />
+        <NoteUpdateAlertList alerts={noteQuery.data ?? []} onDismiss={handleDismissNoteUpdate} />
+      </div>
 
       <InquiryDetailModal
         inquiry={selectedInquiry}

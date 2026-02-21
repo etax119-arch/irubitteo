@@ -7,7 +7,7 @@ export default function TargetAudienceSection() {
         <div className="grid md:grid-cols-2 gap-8">
           {/* For Workers */}
           <div className="bg-landing-orange/10 rounded-2xl p-10 border-2 border-landing-orange/30 shadow-lg hover:shadow-xl transition-shadow">
-            <h3 className="text-3xl font-bold text-landing-orange mb-4">구직자 안내</h3>
+            <h3 className="text-3xl font-bold text-landing-orange mb-4">장애인 구직자 안내</h3>
             <p className="text-lg text-gray-700 mb-8 break-keep">
               나의 능력에 맞는 일자리를 찾고 계신가요?
               상담부터 취업, 근태 관리까지 원스톱으로 도와드립니다.
@@ -19,7 +19,7 @@ export default function TargetAudienceSection() {
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-landing-orange rounded-full"></div>
-                이력서 및 면접 코칭
+                이력서 등록 및 기업 매칭
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-landing-orange rounded-full"></div>
@@ -27,13 +27,13 @@ export default function TargetAudienceSection() {
               </li>
             </ul>
             <Link href="/login/employee" className="block w-full py-4 text-lg bg-white border-2 border-landing-orange text-landing-orange font-bold rounded-lg hover:bg-landing-orange/10 transition-colors text-center shadow-md">
-              구직자 서비스 바로가기
+              이력서 등록 바로가기
             </Link>
           </div>
 
           {/* For Companies */}
           <div className="bg-white rounded-2xl p-10 border-2 border-landing-orange/30 shadow-lg hover:shadow-xl transition-shadow">
-            <h3 className="text-3xl font-bold text-landing-orange mb-4">기업/기관 안내</h3>
+            <h3 className="text-3xl font-bold text-landing-orange mb-4">기업 안내</h3>
             <p className="text-lg text-gray-700 mb-8 break-keep">
               장애인 고용을 통해 사회적 가치를 실현하세요.
               적합한 인재 추천과 효율적인 인사 관리를 지원합니다.
@@ -45,7 +45,7 @@ export default function TargetAudienceSection() {
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-landing-orange rounded-full"></div>
-                장애인표준사업장 지원 및 고용 장려금 안내
+                안정적인 근로 관리
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-landing-orange rounded-full"></div>

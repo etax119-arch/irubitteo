@@ -11,6 +11,9 @@ declare module 'html2pdf.js' {
     set(options: Html2PdfOptions): Html2PdfInstance;
     from(element: HTMLElement): Html2PdfInstance;
     save(): Promise<void>;
+    outputPdf(type: 'blob'): Promise<Blob>;
+    outputPdf(type: 'datauristring'): Promise<string>;
+    outputPdf(type: 'arraybuffer'): Promise<ArrayBuffer>;
   }
 
   function html2pdf(): Html2PdfInstance;

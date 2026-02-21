@@ -87,7 +87,7 @@ export function useCompanyDetailUI(companyId: string) {
       });
       setIsEditingPm(false);
       setEditedPm({ name: '', phone: '', email: '' });
-      toast.success('영업 담당자 정보가 수정되었습니다.');
+      toast.success('관리 담당자 정보가 수정되었습니다.');
     } catch (err) {
       toast.error(extractErrorMessage(err));
     }

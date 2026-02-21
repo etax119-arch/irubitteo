@@ -73,3 +73,7 @@ export const adminKeys = {
 export const inquiryKeys = {
   pending: () => ['inquiries', 'pending'] as const,
 };
+
+export const resumeKeys = {
+  pending: () => ['resumes', 'pending'] as const,
+};

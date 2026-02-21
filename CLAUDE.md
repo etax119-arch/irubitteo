@@ -174,6 +174,11 @@ durubitteo_web/
 │   ├── inquiry/              # 기업 문의 페이지
 │   │   └── page.tsx          # /inquiry
 │   │
+│   ├── resume/               # 이력서 제출 페이지 (공개)
+│   │   ├── page.tsx          # /resume (폼 + PDF 생성 + 제출)
+│   │   └── _components/
+│   │       └── ResumePdfPreview.tsx  # PDF 생성용 숨겨진 렌더링
+│   │
 │   ├── playground/           # 개발용 테스트 페이지
 │   │   └── page.tsx          # /playground
 │   │
@@ -250,6 +255,7 @@ durubitteo_web/
 │       │   ├── AbsenceAlertList.tsx
 │       │   ├── InquiryList.tsx
 │       │   ├── InquiryDetailModal.tsx
+│       │   ├── ResumeList.tsx
 │       │   ├── NoteUpdateAlertList.tsx
 │       │   ├── AddCompanyModal.tsx
 │       │   └── PrintPreviewModal.tsx
@@ -302,7 +308,8 @@ durubitteo_web/
 │   ├── attendance.ts         # 출퇴근 타입
 │   ├── schedule.ts           # 근무일정 타입
 │   ├── notice.ts             # 공지사항 타입
-│   └── inquiry.ts            # 기업 문의 타입
+│   ├── inquiry.ts            # 기업 문의 타입
+│   └── resume.ts             # 이력서 타입
 │
 └── lib/                      # 유틸리티 함수
     ├── cn.ts                 # Tailwind 클래스 병합
@@ -330,7 +337,8 @@ durubitteo_web/
         ├── schedules.ts      # 근무일정 API
         ├── companies.ts      # 기업 API
         ├── companyFiles.ts   # 기업 파일 API
-        └── inquiries.ts      # 기업 문의 API
+        ├── inquiries.ts      # 기업 문의 API
+        └── resumes.ts        # 이력서 API (제출, 목록, 확인완료)
 ```
 
 #### Component & Hook Placement
@@ -428,3 +436,4 @@ function MyComponent() {
 | `verify-ui-patterns` | UI 컴포넌트 사용 패턴 검증 (input, textarea, checkbox, button, dialog) |
 | `verify-implementation` | 모든 verify 스킬 통합 실행 |
 | `manage-skills` | 검증 스킬 유지보수 |
+| `codex-review` | Codex CLI를 통한 구현 계획 외부 리뷰 |

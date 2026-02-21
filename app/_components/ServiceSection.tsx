@@ -28,11 +28,6 @@ const services = [
   }
 ];
 
-const stats = [
-  { value: '1,200', label: '장애인 고용 사업장', suffix: '+' },
-  { value: '94%', label: '만족도', suffix: '' },
-  { value: '3년', label: '평균 근속', suffix: '+' }
-];
 
 export default function ServiceSection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -138,36 +133,6 @@ export default function ServiceSection() {
               </div>
             );
           })}
-        </div>
-
-        {/* 통계 */}
-        <div className="relative mt-20">
-          {/* 배경 블러 효과 */}
-          <div className="absolute inset-0 bg-gradient-to-r from-landing-orange/5 via-landing-orange/10 to-landing-orange/5 rounded-3xl blur-3xl" />
-
-          <div className="relative bg-white/80 backdrop-blur-sm border border-gray-100 rounded-3xl p-10 shadow-lg">
-            <div className="grid md:grid-cols-3 gap-8">
-              {stats.map((stat, idx) => (
-                <div
-                  key={idx}
-                  className={`text-center group ${
-                    isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                  } transition-all duration-700`}
-                  style={{
-                    transitionDelay: `${1200 + idx * 100}ms`
-                  }}
-                >
-                  <div className="text-5xl md:text-6xl font-bold text-landing-orange mb-3 group-hover:scale-110 transition-transform duration-300">
-                    {stat.value}
-                    <span className="text-3xl">{stat.suffix}</span>
-                  </div>
-                  <div className="text-lg text-gray-600 font-medium tracking-wide">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* CTA 영역 */}

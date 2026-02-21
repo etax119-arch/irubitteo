@@ -271,7 +271,7 @@ export default function InquiryPage() {
                   onChange={handleChange}
                   onBlur={() => handleBlur('message')}
                   rows={5}
-                  placeholder={`장애인 표준사업장 설립 문의,\n제조·사무·물류 등 직무 배치 가능 여부,\n현재 고민 중인 내용을 자유롭게 작성해주세요.\n\n이루빛터 담당자가 내용을 확인 후 직접 연락드립니다.`}
+                  placeholder={`장애인근로자 고용은 어떻게 할수있을까요?\n장애인근로자의 직무에는 어떤것이 있을까요?\n장애인근로자 고용후 관리는 어떻게 해야 하나요?\n\n문의 내용을 자유롭게 작성해 주세요.\n이루빛터 담당자가 내용 확인 후 직접 연락드립니다.`}
                   error={touched.message && errors.message ? errors.message : undefined}
                 />
               </div>
