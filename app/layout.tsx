@@ -62,6 +62,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="이루빛터 RSS"
+          href="https://www.irubitteo.com/rss.xml"
+        />
+      </head>
       <body className="antialiased">
         <QueryProvider>
           {children}

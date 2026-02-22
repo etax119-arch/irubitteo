@@ -58,6 +58,7 @@ docs/
 | 문서 | 설명 |
 |------|------|
 | [개발 환경 셋업](getting-started.md) | 사전 요구사항, 환경변수, 서버/프론트 설정, 실행 방법 |
+| [개발 환경 셋업](getting-started.md#6-검색엔진-제출-url-프로덕션) | 운영 도메인 sitemap/rss/robots 제출 URL |
 
 ### 설계 문서 (design/)
 

@@ -26,7 +26,7 @@ export default function TargetAudienceSection() {
                 취업 후 적응 지원 프로그램
               </li>
             </ul>
-            <Link href="/login/employee" className="block w-full py-4 text-lg bg-white border-2 border-landing-orange text-landing-orange font-bold rounded-lg hover:bg-landing-orange/10 transition-colors text-center shadow-md">
+            <Link href="/resume" className="block w-full py-4 text-lg bg-white border-2 border-landing-orange text-landing-orange font-bold rounded-lg hover:bg-landing-orange/10 transition-colors text-center shadow-md">
               이력서 등록 바로가기
             </Link>
           </div>

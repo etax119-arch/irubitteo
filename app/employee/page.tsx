@@ -47,7 +47,7 @@ function getAttendanceMode(params: {
   if (todaySchedule?.isHoliday) return 'holiday';
   if (workDays && !workDays.includes(todayWorkDay)) return 'dayoff';
 
-  if (!todayAttendance) return 'checkin';
+  if (!todayAttendance || todayAttendance.status === 'absent') return 'checkin';
   if (todayAttendance.status === 'checkin') return 'checkout';
   return 'completed';
 }

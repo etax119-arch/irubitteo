@@ -145,3 +145,19 @@ npx prisma studio    # DB GUI 도구
 | 프론트엔드 | 3000 | http://localhost:3000 |
 | 백엔드 API | 4000 | http://localhost:4000/v1 |
 | Prisma Studio | 5555 | http://localhost:5555 |
+
+---
+
+## 6. 검색엔진 제출 URL (프로덕션)
+
+운영 도메인(`https://www.irubitteo.com`) 기준으로 다음 URL을 제출합니다.
+
+| 항목 | URL | 비고 |
+|------|-----|------|
+| 사이트맵 | `https://www.irubitteo.com/sitemap.xml` | Next.js `app/sitemap.ts`에서 생성 |
+| RSS 피드 | `https://www.irubitteo.com/rss.xml` | Next.js `app/rss.xml/route.ts`에서 생성 |
+| robots | `https://www.irubitteo.com/robots.txt` | Next.js `app/robots.ts`에서 생성 |
+
+네이버 서치어드바이저 기준:
+- **사이트/도메인 등록 + 소유권 확인** 후 제출
+- `사이트맵 URL`과 `RSS URL`을 각각 등록
