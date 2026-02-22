@@ -11,7 +11,9 @@ export default function EmployeeError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Employee error:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Employee error:', error);
+    }
   }, [error]);
 
   return (

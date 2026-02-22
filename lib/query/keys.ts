@@ -77,3 +77,25 @@ export const inquiryKeys = {
 export const resumeKeys = {
   pending: () => ['resumes', 'pending'] as const,
 };
+
+export const galleryKeys = {
+  all: ['galleries'] as const,
+  lists: () => ['galleries', 'list'] as const,
+  adminList: (params?: { page: number; limit: number }) =>
+    params
+      ? (['galleries', 'list', 'admin', params] as const)
+      : (['galleries', 'list', 'admin'] as const),
+  detail: (id: string) => ['galleries', id] as const,
+};
+
+export const newsletterKeys = {
+  all: ['newsletters'] as const,
+  lists: () => ['newsletters', 'list'] as const,
+  publicList: (params: { page: number; limit: number; search?: string }) =>
+    ['newsletters', 'list', 'public', params] as const,
+  adminList: (params?: { page: number; limit: number }) =>
+    params
+      ? (['newsletters', 'list', 'admin', params] as const)
+      : (['newsletters', 'list', 'admin'] as const),
+  detail: (id: string) => ['newsletters', id] as const,
+};

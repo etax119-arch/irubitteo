@@ -70,7 +70,7 @@ function Modal({
     >
       <div
         className={cn(
-          'bg-white rounded-2xl shadow-xl w-full',
+          'bg-white rounded-2xl shadow-xl w-full max-h-[calc(100vh-2rem)] flex flex-col',
           sizeStyles[size],
           className
         )}
@@ -97,7 +97,7 @@ function Modal({
             )}
           </div>
         )}
-        <div className={cn("p-6", contentClassName)}>
+        <div className={cn("p-6 overflow-y-auto min-h-0", contentClassName)}>
           {children}
         </div>
       </div>

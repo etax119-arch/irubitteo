@@ -1,3 +1,11 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '이용약관',
+  description: '이루빛터 서비스 이용약관을 확인하세요.',
+  alternates: { canonical: '/policies/terms' },
+};
+
 export default function TermsPage() {
   return (
     <article className="space-y-8 text-sm leading-7 text-gray-700">

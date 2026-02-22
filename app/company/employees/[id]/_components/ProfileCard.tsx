@@ -8,7 +8,7 @@ import { DatePicker } from '@/components/ui/DatePicker';
 import { Input } from '@/components/ui/Input';
 import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 import type { Employee } from '@/types/employee';
-import type { ProfileFormState } from '../../_hooks/useEmployeeEditForm';
+import type { ProfileFormState } from '../_hooks/useEmployeeEditForm';
 
 function formatPhoneNumber(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11);

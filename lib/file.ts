@@ -146,6 +146,15 @@ export const FILE_CONSTRAINTS = {
     accept: '.pdf,.jpg,.jpeg,.png,.docx,.xlsx',
     label: 'PDF, JPG, PNG, DOCX, XLSX',
   },
+  CONTENT_IMAGE: {
+    maxSize: 10 * 1024 * 1024,
+    allowedTypes: [
+      'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+      'image/heic', 'image/heif',
+    ],
+    accept: 'image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif',
+    label: 'JPG, PNG, WebP, GIF',
+  },
 } as const;
 
 export function validateUploadFile(

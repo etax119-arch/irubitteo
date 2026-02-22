@@ -106,6 +106,14 @@ export async function generateResumePdf(
 
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
+  const centerMargin = (contentWidth: number) => {
+    const sideMargin = (pageWidth - contentWidth) / 2;
+    return { left: sideMargin, right: sideMargin };
+  };
+
+  const personalTableWidth = 172;
+  const standardTableWidth = 172;
+  const careerTableWidth = 172;
 
   /* ── 폰트 등록 (TTF — jsPDF 네이티브 지원) ── */
   doc.addFileToVFS('NanumGothic-Regular.ttf', fonts.regular);
@@ -139,11 +147,12 @@ export async function generateResumePdf(
     startY,
     theme: 'grid',
     styles: baseStyles,
+    margin: centerMargin(personalTableWidth),
     columnStyles: {
-      0: { ...thStyles, cellWidth: 28 },
-      1: { cellWidth: 58 },
-      2: { ...thStyles, cellWidth: 28 },
-      3: { cellWidth: 58 },
+      0: { ...thStyles, cellWidth: 31 },
+      1: { cellWidth: 55 },
+      2: { ...thStyles, cellWidth: 31 },
+      3: { cellWidth: 55 },
     },
     body: [
       sectionHeaderRow('개인정보', 4),
@@ -190,6 +199,7 @@ export async function generateResumePdf(
     startY,
     theme: 'grid',
     styles: baseStyles,
+    margin: centerMargin(standardTableWidth),
     columnStyles: {
       0: { ...thStyles, cellWidth: 28 },
       1: { cellWidth: 58 },
@@ -240,6 +250,7 @@ export async function generateResumePdf(
     startY,
     theme: 'grid',
     styles: baseStyles,
+    margin: centerMargin(careerTableWidth),
     columnStyles: {
       0: { cellWidth: 52 },
       1: { cellWidth: 42 },
@@ -278,6 +289,7 @@ export async function generateResumePdf(
     startY,
     theme: 'grid',
     styles: baseStyles,
+    margin: centerMargin(standardTableWidth),
     columnStyles: {
       0: { ...thStyles, cellWidth: 28 },
       1: { cellWidth: 58 },

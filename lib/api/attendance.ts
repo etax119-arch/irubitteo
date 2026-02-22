@@ -39,10 +39,11 @@ export const attendanceApi = {
       );
       return response.data.data;
     }
-    const { photos, ...rest } = input;
+    const requestBody = { ...input };
+    delete requestBody.photos;
     const response = await apiClient.post<{ success: boolean; data: Attendance }>(
       '/attendances/clock-out',
-      rest
+      requestBody
     );
     return response.data.data;
   },

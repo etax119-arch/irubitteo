@@ -10,7 +10,9 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Unhandled error:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Unhandled error:', error);
+    }
   }, [error]);
 
   return (

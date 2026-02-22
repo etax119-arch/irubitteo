@@ -1,3 +1,11 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '웹접근성정책',
+  description: '이루빛터의 웹접근성 정책을 확인하세요.',
+  alternates: { canonical: '/policies/accessibility' },
+};
+
 export default function AccessibilityPage() {
   return (
     <article className="space-y-8 text-sm leading-7 text-gray-700">

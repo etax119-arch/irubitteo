@@ -153,7 +153,7 @@ export default function TestimonialsSection() {
 
               {/* 후기 내용 */}
               <p className="text-duru-text-main mb-6 leading-relaxed min-h-[120px]">
-                "{testimonial.content}"
+                {`"${testimonial.content}"`}
               </p>
 
               {/* 작성자 정보 */}

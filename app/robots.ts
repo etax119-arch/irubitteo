@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: 'Yeti',
-        allow: ['/', '/inquiry', '/resume', '/policies/'],
+        allow: ['/', '/inquiry', '/resume', '/policies/', '/gallery', '/gallery/', '/newsletter', '/newsletter/'],
         disallow: [
           '/login', '/login/',
           '/employee', '/employee/',
@@ -17,7 +17,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: '*',
-        allow: ['/', '/inquiry', '/resume', '/policies/'],
+        allow: ['/', '/inquiry', '/resume', '/policies/', '/gallery', '/gallery/', '/newsletter', '/newsletter/'],
         disallow: [
           '/login', '/login/',
           '/employee', '/employee/',

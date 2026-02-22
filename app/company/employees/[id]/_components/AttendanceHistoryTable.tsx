@@ -5,7 +5,7 @@ import {
   getAttendanceRecordStatusLabel as getStatusLabel,
 } from '@/lib/status';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
-import type { AttendanceRecord } from '../../_hooks/useAttendanceHistory';
+import type { AttendanceRecord } from '../_hooks/useAttendanceHistory';
 import type { Pagination } from '@/types/api';
 
 interface AttendanceHistoryTableProps {

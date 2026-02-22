@@ -171,6 +171,16 @@ app/
 ├── inquiry/page.tsx             # 신규 기업 문의 (CompanyInquiry.jsx)
 ├── playground/page.tsx          # UI 컴포넌트 테스트 페이지
 │
+├── gallery/                     # 갤러리 공개 페이지 (SSR/ISR)
+│   ├── page.tsx                 # 갤러리 목록
+│   ├── [id]/page.tsx            # 갤러리 상세
+│   └── _components/             # GalleryCard, GalleryGrid, GalleryPagination, PurchaseInquiryButton
+│
+├── newsletter/                  # 뉴스레터 공개 페이지 (SSR/ISR)
+│   ├── page.tsx                 # 뉴스레터 목록
+│   ├── [id]/page.tsx            # 뉴스레터 상세
+│   └── _components/             # NewsletterCard, NewsletterPagination
+│
 ├── not-found.tsx                # 404 페이지 (서버 컴포넌트)
 │
 ├── employee/                    # 직원 전용 - 출퇴근 앱 (AttendanceApp.jsx)
@@ -206,10 +216,16 @@ app/
     │   └── [id]/page.tsx        # 직원 상세 (AdminWorkerDetail.jsx)
     ├── workstats/page.tsx       # 근무 통계
     ├── notifications/page.tsx   # 알림센터 (결근 알림 + 문의 관리)
-    └── reports/                 # 리포트 (파일 저장소)
-        ├── page.tsx
-        ├── _hooks/              # useAdminFiles
-        └── _components/         # FileSection, FileListItem, FileUploadModal
+    ├── reports/                 # 리포트 (파일 저장소)
+    │   ├── page.tsx
+    │   ├── _hooks/              # useAdminFiles
+    │   └── _components/         # FileSection, FileListItem, FileUploadModal
+    └── content/                 # 콘텐츠 관리 (갤러리 + 뉴스레터)
+        ├── layout.tsx           # 서브탭 (갤러리/뉴스레터)
+        ├── page.tsx             # → /admin/content/gallery 리다이렉트
+        ├── gallery/page.tsx     # 갤러리 관리
+        ├── newsletter/page.tsx  # 뉴스레터 관리
+        └── _components/         # GalleryAdminCard, GalleryForm, NewsletterAdminCard, NewsletterForm
 ```
 
 ### 디자인 파일 매핑
@@ -232,6 +248,12 @@ app/
 | `/admin/workstats` | AdminDashboard.jsx | 탭: 근무 통계 |
 | `/admin/notifications` | AdminDashboard.jsx | 탭: 알림센터 |
 | `/admin/reports` | AdminDashboard.jsx | 탭: 리포트 |
+| `/admin/content/gallery` | — | 갤러리 관리 (SSR/ISR 공개 연동) |
+| `/admin/content/newsletter` | — | 뉴스레터 관리 (SSR/ISR 공개 연동) |
+| `/gallery` | — | 갤러리 공개 목록 (SSR/ISR) |
+| `/gallery/[id]` | — | 갤러리 상세 (SSR) |
+| `/newsletter` | — | 뉴스레터 공개 목록 (SSR/ISR) |
+| `/newsletter/[id]` | — | 뉴스레터 상세 (SSR) |
 | `/admin/settings` | AdminDashboard.jsx (확장) | 관리자 계정 설정 (비밀번호 변경 + 관리자 계정 추가 + 관리자 계정 리스트) |
 
 ---
@@ -255,6 +277,8 @@ src/
 ├── schedules/                   # 근무일정 모듈
 ├── notices/                     # 공지사항 모듈
 ├── inquiries/                   # 기업 문의 모듈
+├── galleries/                   # 갤러리 모듈 (공개 + 관리자 API, 이미지 처리)
+├── newsletters/                 # 뉴스레터 모듈 (공개 + 관리자 API, 이미지 처리)
 │
 ├── admin/                       # 관리자 전용 모듈 (통계, 알림)
 ├── admin-files/                 # 관리자 파일 모듈 (문서 템플릿/리포트)
@@ -265,7 +289,7 @@ src/
 ├── common/                      # 공통 모듈
 │   ├── filters/                # Global Exception Filter
 │   ├── interceptors/           # Response Interceptor
-│   └── utils/                  # KST 시간대 유틸리티
+│   └── utils/                  # KST 시간대 유틸리티, image-processing.ts
 │
 └── prisma/                      # Prisma 설정
 ```

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { X } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -23,9 +23,15 @@ export default function CompanyDetailPage() {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [employeePage, setEmployeePage] = useState(1);
-
-  useEffect(() => { setEmployeePage(1); }, [id]);
+  const [employeePageByCompany, setEmployeePageByCompany] = useState<Record<string, number>>({});
+  const employeePage = employeePageByCompany[id] ?? 1;
+  const setEmployeePage = (next: number | ((prev: number) => number)) => {
+    setEmployeePageByCompany((prev) => {
+      const current = prev[id] ?? 1;
+      const resolved = typeof next === 'function' ? next(current) : next;
+      return { ...prev, [id]: resolved };
+    });
+  };
 
   const { data: company, isLoading } = useCompanyDetail(id);
   const { data: employeesData } = useCompanyEmployees(id, employeePage);

@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { TrendingUp, Building2, Users, BarChart3, Bell, FileText, LogOut, Settings } from 'lucide-react';
+import { TrendingUp, Building2, Users, BarChart3, Bell, FileText, Newspaper, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -15,6 +15,7 @@ const tabs = [
   { id: 'workstats', label: '근무 통계', icon: BarChart3, href: '/admin/workstats' },
   { id: 'notifications', label: '알림센터', icon: Bell, href: '/admin/notifications' },
   { id: 'reports', label: '리포트', icon: FileText, href: '/admin/reports' },
+  { id: 'content', label: '콘텐츠 관리', icon: Newspaper, href: '/admin/content' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (pathname.startsWith('/admin/workstats')) return 'workstats';
     if (pathname.startsWith('/admin/notifications')) return 'notifications';
     if (pathname.startsWith('/admin/reports')) return 'reports';
+    if (pathname.startsWith('/admin/content')) return 'content';
     if (pathname.startsWith('/admin/settings')) return null;
     return 'dashboard';
   };
@@ -83,7 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex gap-8 py-4">
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 7 }).map((_, i) => (
                 <Skeleton key={i} className="w-24 h-6" />
               ))}
             </div>

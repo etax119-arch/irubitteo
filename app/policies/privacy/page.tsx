@@ -1,3 +1,11 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '개인정보처리방침',
+  description: '이루빛터의 개인정보처리방침을 확인하세요.',
+  alternates: { canonical: '/policies/privacy' },
+};
+
 export default function PrivacyPage() {
   return (
     <article className="space-y-8 text-sm leading-7 text-gray-700">

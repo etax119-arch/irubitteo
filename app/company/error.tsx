@@ -11,7 +11,9 @@ export default function CompanyError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Company error:', error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Company error:', error);
+    }
   }, [error]);
 
   return (

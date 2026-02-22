@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Textarea } from '@/components/ui/Textarea';
-import type { ResignForm } from '../../_hooks/useEmployeeEditForm';
+import type { ResignForm } from '../_hooks/useEmployeeEditForm';
 
 interface ResignModalProps {
   isOpen: boolean;

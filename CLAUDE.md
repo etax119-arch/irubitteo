@@ -99,7 +99,7 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 └── notices/page.tsx
 
 /admin/
-├── layout.tsx      # 헤더 + 6개 탭 (Link 컴포넌트)
+├── layout.tsx      # 헤더 + 7개 탭 (Link 컴포넌트)
 ├── page.tsx        # redirect('/admin/dashboard')
 ├── _components/    # AdminStatCard, CompanyCard, WorkerTable 등
 ├── dashboard/page.tsx
@@ -112,6 +112,11 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 ├── workstats/page.tsx
 ├── notifications/page.tsx
 ├── reports/page.tsx
+├── content/
+│   ├── layout.tsx    # 콘텐츠 서브 탭 (갤러리/소식지)
+│   ├── page.tsx      # → /admin/content/gallery 리다이렉트
+│   ├── gallery/page.tsx
+│   └── newsletter/page.tsx
 └── settings/page.tsx
 ```
 
@@ -159,12 +164,18 @@ durubitteo_web/
 │   ├── _components/          # 루트 레벨 공용 컴포넌트
 │   │   ├── Header.tsx
 │   │   ├── Footer.tsx
+│   │   ├── GoogleAnalytics.tsx
+│   │   ├── NaverAnalytics.tsx
 │   │   ├── HeroSection.tsx
 │   │   ├── HeroSlider.tsx
 │   │   ├── ServiceSection.tsx
 │   │   ├── TargetAudienceSection.tsx
-│   │   ├── PartnersSection.tsx
-│   │   └── CommuteSection.tsx
+│   │   ├── CommuteSection.tsx
+│   │   ├── ReviewSection.tsx
+│   │   ├── StorySection.tsx
+│   │   ├── TestimonialsSection.tsx
+│   │   ├── TrustSection.tsx
+│   │   └── StructuredData.tsx
 │   │
 │   ├── login/                # 로그인 페이지들
 │   │   ├── admin/page.tsx    # /login/admin
@@ -181,6 +192,26 @@ durubitteo_web/
 │   │
 │   ├── playground/           # 개발용 테스트 페이지
 │   │   └── page.tsx          # /playground
+│   │
+│   ├── gallery/              # 갤러리 공개 페이지 (SSR/ISR)
+│   │   ├── page.tsx          # /gallery (목록)
+│   │   ├── [id]/page.tsx     # /gallery/[id] (상세)
+│   │   └── _components/
+│   │       ├── GalleryCard.tsx        # 갤러리 카드
+│   │       ├── GalleryGrid.tsx        # 갤러리 그리드 레이아웃
+│   │       ├── GalleryPagination.tsx  # 페이지네이션
+│   │       └── PurchaseInquiryButton.tsx # 구매 문의 버튼
+│   │
+│   ├── newsletter/           # 뉴스레터 공개 페이지 (SSR + CSR 하이브리드)
+│   │   ├── page.tsx          # /newsletter (목록, SSR initialData)
+│   │   ├── [id]/page.tsx     # /newsletter/[id] (상세)
+│   │   ├── _components/
+│   │   │   ├── NewsletterCard.tsx        # 뉴스레터 카드
+│   │   │   ├── NewsletterContent.tsx     # 목록 클라이언트 컴포넌트 (검색+페이지네이션)
+│   │   │   ├── NewsletterPagination.tsx  # 페이지네이션
+│   │   │   └── NewsletterSearch.tsx      # 검색 입력 (디바운스)
+│   │   └── _hooks/
+│   │       └── usePublicNewsletters.ts   # 공개 소식지 Query 훅 (initialData 지원)
 │   │
 │   ├── employee/             # 직원 영역
 │   │   ├── layout.tsx        # 인증 보호 (useAuth)
@@ -234,7 +265,7 @@ durubitteo_web/
 │   │   └── notices/          # 공지사항 탭
 │   │
 │   └── admin/                # 관리자 영역 (라우트 기반 탭)
-│       ├── layout.tsx        # 공통 헤더 + 6개 탭 네비게이션
+│       ├── layout.tsx        # 공통 헤더 + 7개 탭 네비게이션
 │       ├── page.tsx          # → /admin/dashboard 리다이렉트
 │       ├── _hooks/            # admin 전용 훅
 │       │   ├── useCompanyQuery.ts              # 회원사 Query 훅
@@ -245,7 +276,11 @@ durubitteo_web/
 │       │   ├── useAdminNotificationMutations.ts # 알림센터 Mutation 훅
 │       │   ├── useAdminReports.ts              # 리포트 파일 Query/Mutation 훅
 │       │   ├── useAdminWorkstats.ts            # 근무통계 Query/Mutation 훅
-│       │   └── useAdminAccountQuery.ts         # 관리자 계정 Query 훅
+│       │   ├── useAdminAccountQuery.ts         # 관리자 계정 Query 훅
+│       │   ├── useGalleryQuery.ts              # 갤러리 Query 훅
+│       │   ├── useGalleryMutations.ts          # 갤러리 Mutation 훅
+│       │   ├── useNewsletterQuery.ts           # 뉴스레터 Query 훅
+│       │   └── useNewsletterMutations.ts       # 뉴스레터 Mutation 훅
 │       ├── _components/
 │       │   ├── AdminStatCard.tsx
 │       │   ├── CompanyCard.tsx
@@ -280,6 +315,16 @@ durubitteo_web/
 │       │       ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
 │       │       ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
 │       │       └── FileUploadModal.tsx # 업로드 모달
+│       ├── content/          # 콘텐츠 관리 탭 (갤러리 + 뉴스레터)
+│       │   ├── layout.tsx    # 콘텐츠 탭 레이아웃
+│       │   ├── page.tsx      # → /admin/content/gallery 리다이렉트
+│       │   ├── gallery/page.tsx    # 갤러리 관리
+│       │   ├── newsletter/page.tsx # 뉴스레터 관리
+│       │   └── _components/
+│       │       ├── GalleryAdminCard.tsx  # 갤러리 관리 카드
+│       │       ├── GalleryForm.tsx       # 갤러리 생성/수정 폼
+│       │       ├── NewsletterAdminCard.tsx # 뉴스레터 관리 카드
+│       │       └── NewsletterForm.tsx    # 뉴스레터 생성/수정 폼
 │       └── settings/        # 설정 탭
 │           └── page.tsx
 │
@@ -309,7 +354,9 @@ durubitteo_web/
 │   ├── schedule.ts           # 근무일정 타입
 │   ├── notice.ts             # 공지사항 타입
 │   ├── inquiry.ts            # 기업 문의 타입
-│   └── resume.ts             # 이력서 타입
+│   ├── resume.ts             # 이력서 타입
+│   ├── gallery.ts            # 갤러리 타입
+│   └── newsletter.ts         # 뉴스레터 타입
 │
 └── lib/                      # 유틸리티 함수
     ├── cn.ts                 # Tailwind 클래스 병합
@@ -338,7 +385,10 @@ durubitteo_web/
         ├── companies.ts      # 기업 API
         ├── companyFiles.ts   # 기업 파일 API
         ├── inquiries.ts      # 기업 문의 API
-        └── resumes.ts        # 이력서 API (제출, 목록, 확인완료)
+        ├── resumes.ts        # 이력서 API (제출, 목록, 확인완료)
+        ├── galleries.ts      # 갤러리 API (공개 목록/상세, 관리자 CRUD)
+        ├── newsletters.ts    # 뉴스레터 API (공개 목록/상세, 관리자 CRUD)
+        └── server-fetch.ts   # 서버 컴포넌트용 fetch 래퍼 (SSR/ISR)
 ```
 
 #### Component & Hook Placement
