@@ -3,13 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { Search, RefreshCw, AlertCircle } from 'lucide-react';
+import { Search, RefreshCw, AlertCircle, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { PaginationBar } from '@/components/ui/PaginationBar';
+import { useToast } from '@/components/ui/Toast';
 import { WorkerTable } from '../_components/WorkerTable';
 import { useAdminEmployees } from '@/hooks/useEmployeeQuery';
+import { useDeleteEmployee } from '@/hooks/useEmployeeMutations';
+import { extractErrorMessage } from '@/lib/api/error';
 import { employeeKeys } from '@/lib/query/keys';
 import type { EmployeeWithCompany } from '@/types/employee';
 import type { WorkerFilter } from '@/types/adminDashboard';
@@ -24,10 +29,13 @@ const filters: { id: WorkerFilter; label: string }[] = [
 export default function AdminEmployeesPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [filter, setFilter] = useState<WorkerFilter>('current');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [deleteTarget, setDeleteTarget] = useState<EmployeeWithCompany | null>(null);
+  const deleteMutation = useDeleteEmployee();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -47,6 +55,19 @@ export default function AdminEmployeesPage() {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    deleteMutation.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        toast.success(`${deleteTarget.name} 근로자가 영구 삭제되었습니다.`);
+        setDeleteTarget(null);
+      },
+      onError: (error) => {
+        toast.error(extractErrorMessage(error));
+      },
+    });
   };
 
   return (
@@ -126,6 +147,7 @@ export default function AdminEmployeesPage() {
           <WorkerTable
             workers={employees}
             onViewDetail={handleViewDetail}
+            onDelete={setDeleteTarget}
           />
           {pagination && (
             <PaginationBar
@@ -137,6 +159,42 @@ export default function AdminEmployeesPage() {
           )}
         </>
       )}
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="근로자 영구 삭제"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700">
+              이 작업은 되돌릴 수 없습니다. 해당 근로자의 모든 데이터(출퇴근 기록, 첨부파일 등)가 영구적으로 삭제됩니다.
+            </p>
+          </div>
+          <p className="text-gray-700">
+            <span className="font-semibold">{deleteTarget?.name}</span> 근로자를 영구 삭제하시겠습니까?
+          </p>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleteMutation.isPending}
+            >
+              취소
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? '삭제 중...' : '영구 삭제'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

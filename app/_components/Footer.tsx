@@ -1,4 +1,4 @@
-import { Mail, MapPin } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -33,6 +33,7 @@ export default function Footer() {
             <h6 className="text-white font-bold mb-4 text-lg">문의처</h6>
             <ul className="space-y-2">
               <li className="flex items-center gap-2"><Mail className="w-5 h-5"/> irubitteo26@naver.com</li>
+              <li className="flex items-center gap-2"><Phone className="w-5 h-5"/> 0262137773</li>
               <li className="flex items-center gap-2"><MapPin className="w-5 h-5"/> 서울특별시 성동구 아차산로17길 49,703호</li>
             </ul>
           </div>

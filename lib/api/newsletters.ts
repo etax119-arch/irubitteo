@@ -30,7 +30,7 @@ export async function createNewsletter(
   formData.append('title', input.title);
   formData.append('content', input.content);
   if (image) formData.append('image', image);
-  if (input.imageAlt) formData.append('imageAlt', input.imageAlt);
+
 
   const response = await apiClient.post<{ success: boolean; data: NewsletterItem }>(
     '/admin/newsletters',
@@ -54,7 +54,6 @@ export async function updateNewsletter(
   if (image) formData.append('image', image);
   if (input.title !== undefined) formData.append('title', input.title);
   if (input.content !== undefined) formData.append('content', input.content);
-  if (input.imageAlt !== undefined) formData.append('imageAlt', input.imageAlt);
   if (input.removeImage !== undefined) formData.append('removeImage', String(input.removeImage));
   if (input.isPublished !== undefined) formData.append('isPublished', String(input.isPublished));
 

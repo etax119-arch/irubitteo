@@ -62,6 +62,15 @@ export async function uploadProfileImage(
   return response.data;
 }
 
+export async function deleteEmployee(
+  id: string
+): Promise<{ success: boolean }> {
+  const response = await apiClient.delete<{ success: boolean }>(
+    `/employees/${id}`
+  );
+  return response.data;
+}
+
 export async function deleteProfileImage(
   id: string
 ): Promise<{ success: boolean; data: Employee }> {

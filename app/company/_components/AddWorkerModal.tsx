@@ -455,18 +455,34 @@ export function AddWorkerModal({
                   </div>
                 )}
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  출근 시간 <span className="text-duru-orange-500">*</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <TimePicker
-                    value={form.workStartTime}
-                    onChange={(v) => onUpdateForm('workStartTime', v)}
-                  />
-                  {complete.workStartTime && (
-                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  )}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    출근 시간 <span className="text-duru-orange-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <TimePicker
+                      value={form.workStartTime}
+                      onChange={(v) => onUpdateForm('workStartTime', v)}
+                    />
+                    {complete.workStartTime && (
+                      <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    퇴근 시간
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <TimePicker
+                      value={form.workEndTime}
+                      onChange={(v) => onUpdateForm('workEndTime', v)}
+                    />
+                    {complete.workEndTime && (
+                      <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

@@ -31,7 +31,6 @@ export default function AdminGalleryPage() {
       artistName: string;
       description?: string;
       disabilityType?: string;
-      imageAlt?: string;
       sortOrder?: number;
     },
     image?: File,
@@ -52,7 +51,6 @@ export default function AdminGalleryPage() {
       artistName?: string;
       description?: string;
       disabilityType?: string;
-      imageAlt?: string;
       removeImage?: boolean;
       sortOrder?: number;
       isPublished?: boolean;

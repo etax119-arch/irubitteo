@@ -15,5 +15,6 @@ export interface AddWorkerForm {
   recognitionDate: string;
   workDays: string[];
   workStartTime: string;
+  workEndTime: string;
   workerId: string;
 }

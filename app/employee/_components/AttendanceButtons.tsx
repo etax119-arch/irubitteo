@@ -1,6 +1,7 @@
 'use client';
 
-import { Clock, CheckCircle2, Coffee } from 'lucide-react';
+import { CheckCircle2, Coffee } from 'lucide-react';
+import Image from 'next/image';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatUtcTimestampAsKST } from '@/lib/kst';
 
@@ -75,7 +76,7 @@ export function AttendanceButtons({ mode, onCheckIn, onCheckOut, holidayContent,
       >
         <div className="flex flex-col items-center gap-4">
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-            <Clock className="w-8 h-8" />
+            <Image src="/images/attendance/sun3.png" alt="출근" width={100} height={100} />
           </div>
           <div>
             <h3 className="text-2xl font-bold mb-2">출근하기</h3>
@@ -94,7 +95,7 @@ export function AttendanceButtons({ mode, onCheckIn, onCheckOut, holidayContent,
     >
       <div className="flex flex-col items-center gap-4">
         <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-          <CheckCircle2 className="w-8 h-8" />
+          <Image src="/images/attendance/moon3.png" alt="퇴근" width={100} height={100} />
         </div>
         <div>
           <h3 className="text-2xl font-bold mb-2">퇴근하기</h3>

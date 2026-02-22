@@ -36,6 +36,7 @@ function createInitialAddWorkerForm(): AddWorkerForm {
     recognitionDate: '',
     workDays: [],
     workStartTime: '',
+    workEndTime: '',
     workerId: '',
   };
 }
@@ -175,6 +176,7 @@ export default function EmployeesPage() {
         hireDate: addWorkerForm.hireDate,
         workDays: addWorkerForm.workDays.map((day) => LABEL_TO_NUM[day]).filter((n): n is WorkDay => n !== undefined),
         workStartTime: addWorkerForm.workStartTime,
+        workEndTime: addWorkerForm.workEndTime || undefined,
         disabilityType: addWorkerForm.disabilityType,
         disabilitySeverity: severity === '중증' || severity === '경증' ? severity : '경증',
         disabilityRecognitionDate: addWorkerForm.recognitionDate,

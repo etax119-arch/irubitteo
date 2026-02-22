@@ -22,7 +22,6 @@ export type GalleryCreateInput = {
   description?: string;
   artistName: string;
   disabilityType?: string;
-  imageAlt?: string;
 };
 
 export type GalleryUpdateInput = {
@@ -30,7 +29,6 @@ export type GalleryUpdateInput = {
   description?: string;
   artistName?: string;
   disabilityType?: string;
-  imageAlt?: string;
   removeImage?: boolean;
   isPublished?: boolean;
   sortOrder?: number;

@@ -50,6 +50,7 @@ export type Employee = {
   resignReason: string | null;
   workDays: WorkDay[];
   workStartTime: string | null;
+  workEndTime: string | null;
   disabilityType: DisabilityType | null;
   disabilitySeverity: '중증' | '경증' | null;
   disabilityRecognitionDate: string | null;
@@ -66,6 +67,7 @@ export type EmployeeCreateInput = {
   hireDate: string;
   workDays: WorkDay[];
   workStartTime: string;
+  workEndTime?: string;
   disabilityType: string;
   disabilitySeverity: '중증' | '경증';
   disabilityRecognitionDate: string;
@@ -81,6 +83,7 @@ export type EmployeeCreateInput = {
 export type EmployeeUpdateInput = {
   workDays?: WorkDay[];
   workStartTime?: string;
+  workEndTime?: string;
   name?: string;
   phone?: string;
   gender?: '남' | '여';

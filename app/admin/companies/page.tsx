@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search } from 'lucide-react';
+import { Search, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { PaginationBar } from '@/components/ui/PaginationBar';
 import { CompanyCard } from '../_components/CompanyCard';
 import { AddCompanyModal } from '../_components/AddCompanyModal';
 import { useCompanies } from '../_hooks/useCompanyQuery';
-import { useCreateCompany } from '../_hooks/useCompanyMutations';
+import { useCreateCompany, useDeleteCompany } from '../_hooks/useCompanyMutations';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
 import { cn } from '@/lib/cn';
@@ -25,10 +27,12 @@ export default function AdminCompaniesPage() {
   const router = useRouter();
   const toast = useToast();
   const createMutation = useCreateCompany();
+  const deleteMutation = useDeleteCompany();
   const [filter, setFilter] = useState<CompanyFilter>('active');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<CompanyWithEmployeeCount | null>(null);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -45,6 +49,19 @@ export default function AdminCompaniesPage() {
 
   const handleViewDetail = (company: CompanyWithEmployeeCount) => {
     router.push(`/admin/companies/${company.id}`);
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    deleteMutation.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        toast.success(`'${deleteTarget.name}' 회원사가 영구 삭제되었습니다.`);
+        setDeleteTarget(null);
+      },
+      onError: (err) => {
+        toast.error(extractErrorMessage(err));
+      },
+    });
   };
 
   const handleAddCompany = (data: CompanyCreateInput) => {
@@ -138,6 +155,7 @@ export default function AdminCompaniesPage() {
                   key={company.id}
                   company={company}
                   onViewDetail={handleViewDetail}
+                  onDelete={setDeleteTarget}
                 />
               ))
             ) : (
@@ -163,6 +181,41 @@ export default function AdminCompaniesPage() {
         onSubmit={handleAddCompany}
         isSubmitting={createMutation.isPending}
       />
+
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="회원사 영구 삭제"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700">
+              이 작업은 되돌릴 수 없습니다. 소속 근로자 및 모든 데이터가 영구적으로 삭제됩니다.
+            </p>
+          </div>
+          <p className="text-gray-700">
+            <span className="font-semibold">{deleteTarget?.name}</span> 회원사를 영구 삭제하시겠습니까?
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleteMutation.isPending}
+            >
+              취소
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? '삭제 중...' : '영구 삭제'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

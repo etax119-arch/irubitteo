@@ -200,11 +200,14 @@ export default function CompanyEmployeeDetailPage() {
             <WorkInfoSection
               workDays={workDays}
               workStartTime={employee.workStartTime || ''}
+              workEndTime={employee.workEndTime || ''}
               isEditing={editForm.isEditingWorkInfo}
               isSaving={editForm.isSavingWorkInfo}
               tempWorkDays={editForm.tempWorkDays}
               tempWorkStartTime={editForm.tempWorkStartTime}
+              tempWorkEndTime={editForm.tempWorkEndTime}
               setTempWorkStartTime={editForm.setTempWorkStartTime}
+              setTempWorkEndTime={editForm.setTempWorkEndTime}
               toggleTempWorkDay={editForm.toggleTempWorkDay}
               onEdit={() => editForm.handleEditWorkInfo(employee)}
               onSave={editForm.handleSaveWorkInfo}

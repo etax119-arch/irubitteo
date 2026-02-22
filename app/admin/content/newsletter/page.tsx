@@ -25,7 +25,7 @@ export default function AdminNewsletterPage() {
   const updateMutation = useUpdateNewsletter();
   const deleteMutation = useDeleteNewsletter();
 
-  const handleCreate = async (input: { title: string; content: string; imageAlt?: string }, image?: File) => {
+  const handleCreate = async (input: { title: string; content: string }, image?: File) => {
     try {
       await createMutation.mutateAsync({ input, image });
       toast.success('소식지가 등록되었습니다.');
@@ -36,7 +36,7 @@ export default function AdminNewsletterPage() {
   };
 
   const handleEdit = async (
-    input: { title?: string; content?: string; imageAlt?: string; removeImage?: boolean; isPublished?: boolean },
+    input: { title?: string; content?: string; removeImage?: boolean; isPublished?: boolean },
     image?: File,
   ) => {
     if (!editTarget) return;

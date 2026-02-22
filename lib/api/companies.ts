@@ -41,3 +41,12 @@ export async function updateCompany(
   );
   return response.data;
 }
+
+export async function deleteCompany(
+  id: string
+): Promise<{ success: boolean }> {
+  const response = await apiClient.delete<{ success: boolean }>(
+    `/companies/${id}`
+  );
+  return response.data;
+}

@@ -6,11 +6,14 @@ import { DAY_LABELS } from '@/lib/workDays';
 interface WorkInfoSectionProps {
   workDays: string[];
   workStartTime: string;
+  workEndTime: string;
   isEditing: boolean;
   isSaving: boolean;
   tempWorkDays: string[];
   tempWorkStartTime: string;
+  tempWorkEndTime: string;
   setTempWorkStartTime: (v: string) => void;
+  setTempWorkEndTime: (v: string) => void;
   toggleTempWorkDay: (day: string) => void;
   onEdit: () => void;
   onSave: () => void;
@@ -20,11 +23,14 @@ interface WorkInfoSectionProps {
 export function WorkInfoSection({
   workDays,
   workStartTime,
+  workEndTime,
   isEditing,
   isSaving,
   tempWorkDays,
   tempWorkStartTime,
+  tempWorkEndTime,
   setTempWorkStartTime,
+  setTempWorkEndTime,
   toggleTempWorkDay,
   onEdit,
   onSave,
@@ -92,6 +98,13 @@ export function WorkInfoSection({
               <span className="text-sm font-bold text-gray-900">{workStartTime}</span>
             </div>
           </div>
+          <div className="w-32">
+            <label className="block text-xs font-semibold text-gray-700 mb-2">퇴근 시간</label>
+            <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-200">
+              <Clock className="w-3.5 h-3.5 text-gray-400" />
+              <span className="text-sm font-bold text-gray-900">{workEndTime}</span>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="flex items-center gap-4">
@@ -123,6 +136,14 @@ export function WorkInfoSection({
             <TimePicker
               value={tempWorkStartTime}
               onChange={setTempWorkStartTime}
+              inputClassName="py-1"
+            />
+          </div>
+          <div className="w-40">
+            <label className="block text-xs font-semibold text-gray-700 mb-2">퇴근 시간</label>
+            <TimePicker
+              value={tempWorkEndTime}
+              onChange={setTempWorkEndTime}
               inputClassName="py-1"
             />
           </div>

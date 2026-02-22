@@ -20,7 +20,6 @@ interface GalleryFormProps {
       artistName: string;
       description?: string;
       disabilityType?: string;
-      imageAlt?: string;
       removeImage?: boolean;
       sortOrder?: number;
     },
@@ -36,7 +35,6 @@ export default function GalleryForm({ isOpen, onClose, onSubmit, isSubmitting, i
   const [artistName, setArtistName] = useState('');
   const [description, setDescription] = useState('');
   const [disabilityType, setDisabilityType] = useState('');
-  const [imageAlt, setImageAlt] = useState('');
   const [sortOrder, setSortOrder] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -54,7 +52,6 @@ export default function GalleryForm({ isOpen, onClose, onSubmit, isSubmitting, i
         setArtistName(initialData.artistName);
         setDescription(initialData.description || '');
         setDisabilityType(initialData.disabilityType || '');
-        setImageAlt(initialData.imageAlt || '');
         setSortOrder(initialData.sortOrder);
         setPreview(initialData.imageThumbUrl || initialData.imageUrl);
         setRemoveExistingImage(false);
@@ -63,7 +60,6 @@ export default function GalleryForm({ isOpen, onClose, onSubmit, isSubmitting, i
         setArtistName('');
         setDescription('');
         setDisabilityType('');
-        setImageAlt('');
         setSortOrder(0);
         setPreview(null);
         setRemoveExistingImage(false);
@@ -135,7 +131,6 @@ export default function GalleryForm({ isOpen, onClose, onSubmit, isSubmitting, i
         artistName: artistName.trim(),
         description: description.trim() || undefined,
         disabilityType: disabilityType || undefined,
-        imageAlt: imageAlt.trim() || undefined,
         removeImage: isEdit && removeExistingImage && !selectedFile ? true : undefined,
         sortOrder,
       },
@@ -217,13 +212,6 @@ export default function GalleryForm({ isOpen, onClose, onSubmit, isSubmitting, i
           />
           <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP, GIF (최대 10MB) -- 가로 1600px 이상 권장</p>
         </div>
-
-        <Input
-          label="이미지 대체 텍스트 (접근성)"
-          value={imageAlt}
-          onChange={(e) => setImageAlt(e.target.value)}
-          placeholder="이미지를 설명하는 텍스트"
-        />
 
         <Input
           label="정렬 순서"

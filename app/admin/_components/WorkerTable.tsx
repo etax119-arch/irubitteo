@@ -1,5 +1,6 @@
 'use client';
 
+import { Trash2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import type { EmployeeWithCompany } from '@/types/employee';
@@ -7,9 +8,10 @@ import type { EmployeeWithCompany } from '@/types/employee';
 interface WorkerTableProps {
   workers: EmployeeWithCompany[];
   onViewDetail: (worker: EmployeeWithCompany) => void;
+  onDelete?: (worker: EmployeeWithCompany) => void;
 }
 
-export function WorkerTable({ workers, onViewDetail }: WorkerTableProps) {
+export function WorkerTable({ workers, onViewDetail, onDelete }: WorkerTableProps) {
   return (
     <div>
       <div className="bg-white rounded-xl border border-gray-200">
@@ -79,12 +81,23 @@ export function WorkerTable({ workers, onViewDetail }: WorkerTableProps) {
                         {worker.uniqueCode}
                       </td>
                       <td className="px-8 py-4">
-                        <button
-                          onClick={() => onViewDetail(worker)}
-                          className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm"
-                        >
-                          상세보기
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => onViewDetail(worker)}
+                            className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm"
+                          >
+                            상세보기
+                          </button>
+                          {isResigned && onDelete && (
+                            <button
+                              onClick={() => onDelete(worker)}
+                              className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                              title="영구 삭제"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

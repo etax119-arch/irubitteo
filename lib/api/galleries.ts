@@ -36,7 +36,6 @@ export async function createGallery(
   formData.append('artistName', input.artistName);
   if (input.description) formData.append('description', input.description);
   if (input.disabilityType) formData.append('disabilityType', input.disabilityType);
-  if (input.imageAlt) formData.append('imageAlt', input.imageAlt);
 
   const response = await apiClient.post<{ success: boolean; data: GalleryItem }>(
     '/admin/galleries',
@@ -62,7 +61,6 @@ export async function updateGallery(
   if (input.artistName !== undefined) formData.append('artistName', input.artistName);
   if (input.description !== undefined) formData.append('description', input.description);
   if (input.disabilityType !== undefined) formData.append('disabilityType', input.disabilityType);
-  if (input.imageAlt !== undefined) formData.append('imageAlt', input.imageAlt);
   if (input.removeImage !== undefined) formData.append('removeImage', String(input.removeImage));
   if (input.isPublished !== undefined) formData.append('isPublished', String(input.isPublished));
   if (input.sortOrder !== undefined) formData.append('sortOrder', String(input.sortOrder));

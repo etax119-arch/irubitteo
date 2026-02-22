@@ -291,6 +291,7 @@ durubitteo_web/
 │       │   ├── InquiryList.tsx
 │       │   ├── InquiryDetailModal.tsx
 │       │   ├── ResumeList.tsx
+│       │   ├── ResumePdfPreviewModal.tsx
 │       │   ├── NoteUpdateAlertList.tsx
 │       │   ├── AddCompanyModal.tsx
 │       │   └── PrintPreviewModal.tsx

@@ -17,13 +17,11 @@ export type NewsletterItem = {
 export type NewsletterCreateInput = {
   title: string;
   content: string;
-  imageAlt?: string;
 };
 
 export type NewsletterUpdateInput = {
   title?: string;
   content?: string;
-  imageAlt?: string;
   removeImage?: boolean;
   isPublished?: boolean;
 };

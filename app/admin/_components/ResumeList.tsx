@@ -1,8 +1,10 @@
 'use client';
 
-import { FileText, Download, X } from 'lucide-react';
+import { useState } from 'react';
+import { FileText, Download, Eye, X } from 'lucide-react';
 import type { Resume } from '@/types/resume';
 import { downloadExternalFile } from '@/lib/api/download';
+import { ResumePdfPreviewModal } from './ResumePdfPreviewModal';
 
 interface ResumeListProps {
   resumes: Resume[];
@@ -10,6 +12,8 @@ interface ResumeListProps {
 }
 
 export function ResumeList({ resumes, onReview }: ResumeListProps) {
+  const [previewResume, setPreviewResume] = useState<Resume | null>(null);
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden h-[480px] flex flex-col">
       <div className="h-1 bg-gradient-to-r from-duru-orange-400 to-duru-orange-500 shrink-0" />
@@ -40,13 +44,22 @@ export function ResumeList({ resumes, onReview }: ResumeListProps) {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {resume.pdfPath && (
-                  <button
-                    onClick={() => downloadExternalFile(resume.pdfPath!, `${resume.name}_이력서.pdf`)}
-                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                    title="PDF 다운로드"
-                  >
-                    <Download className="w-4 h-4 text-gray-500" />
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setPreviewResume(resume)}
+                      className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      title="PDF 미리보기"
+                    >
+                      <Eye className="w-4 h-4 text-gray-500" />
+                    </button>
+                    <button
+                      onClick={() => downloadExternalFile(resume.pdfPath!, `${resume.name}_이력서.pdf`)}
+                      className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      title="PDF 다운로드"
+                    >
+                      <Download className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </>
                 )}
                 <button
                   onClick={() => onReview(resume.id)}
@@ -64,6 +77,10 @@ export function ResumeList({ resumes, onReview }: ResumeListProps) {
           </div>
         )}
       </div>
+      <ResumePdfPreviewModal
+        resume={previewResume}
+        onClose={() => setPreviewResume(null)}
+      />
     </div>
   );
 }

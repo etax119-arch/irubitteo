@@ -1,15 +1,16 @@
 'use client';
 
-import { Eye } from 'lucide-react';
+import { Eye, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import type { CompanyWithEmployeeCount } from '@/types/company';
 
 interface CompanyCardProps {
   company: CompanyWithEmployeeCount;
   onViewDetail: (company: CompanyWithEmployeeCount) => void;
+  onDelete?: (company: CompanyWithEmployeeCount) => void;
 }
 
-export function CompanyCard({ company, onViewDetail }: CompanyCardProps) {
+export function CompanyCard({ company, onViewDetail, onDelete }: CompanyCardProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all">
       <div className="flex items-center gap-3 mb-3">
@@ -42,13 +43,24 @@ export function CompanyCard({ company, onViewDetail }: CompanyCardProps) {
             <p className="font-semibold text-gray-900">{company.pmContactName || '-'}</p>
           </div>
         </div>
-        <button
-          onClick={() => onViewDetail(company)}
-          className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2 shrink-0"
-        >
-          <Eye className="w-4 h-4" />
-          상세보기
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => onViewDetail(company)}
+            className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
+          >
+            <Eye className="w-4 h-4" />
+            상세보기
+          </button>
+          {!company.isActive && onDelete && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(company); }}
+              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              title="영구 삭제"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -29,6 +29,8 @@
 │   ├── InquiryList.tsx     # 기업 문의 리스트
 │   ├── AddCompanyModal.tsx # 회원사 추가 모달
 │   ├── InquiryDetailModal.tsx  # 문의 상세 모달
+│   ├── ResumeList.tsx          # 이력서 접수 리스트
+│   ├── ResumePdfPreviewModal.tsx # 이력서 PDF 미리보기 모달
 │   └── PrintPreviewModal.tsx   # 인쇄 프리뷰 모달
 ├── dashboard/page.tsx      # 대시보드 탭
 ├── companies/

@@ -13,7 +13,7 @@ import type { NewsletterItem } from '@/types/newsletter';
 interface NewsletterFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (input: { title: string; content: string; imageAlt?: string; removeImage?: boolean }, image?: File) => Promise<void>;
+  onSubmit: (input: { title: string; content: string; removeImage?: boolean }, image?: File) => Promise<void>;
   isSubmitting: boolean;
   initialData?: NewsletterItem;
 }
@@ -22,7 +22,6 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
   const toast = useToast();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [imageAlt, setImageAlt] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
@@ -37,13 +36,11 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
         // eslint-disable-next-line react-hooks/set-state-in-effect -- 모달 열릴 때 기존 데이터로 폼 초기화
         setTitle(initialData.title);
         setContent(initialData.content);
-        setImageAlt(initialData.imageAlt || '');
         setPreview(initialData.imageThumbUrl || initialData.imageUrl || null);
         setRemoveExistingImage(false);
       } else {
         setTitle('');
         setContent('');
-        setImageAlt('');
         setPreview(null);
         setRemoveExistingImage(false);
       }
@@ -111,7 +108,6 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
       {
         title: title.trim(),
         content: content.trim(),
-        imageAlt: imageAlt.trim() || undefined,
         removeImage: isEdit && removeExistingImage && !selectedFile ? true : undefined,
       },
       selectedFile || undefined,
@@ -168,13 +164,6 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
           />
           <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP, GIF (최대 10MB)</p>
         </div>
-
-        <Input
-          label="이미지 대체 텍스트 (접근성)"
-          value={imageAlt}
-          onChange={(e) => setImageAlt(e.target.value)}
-          placeholder="이미지를 설명하는 텍스트"
-        />
 
         <div className="flex justify-end gap-3 pt-2">
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>

@@ -54,6 +54,7 @@ export default function EmployeeDetailPage() {
     [worker?.workDays],
   );
   const workStartTime = worker?.workStartTime ? worker.workStartTime.slice(0, 5) : '09:00';
+  const workEndTime = worker?.workEndTime ? worker.workEndTime.slice(0, 5) : '18:00';
 
   if (isLoading) {
     return (
@@ -171,10 +172,13 @@ export default function EmployeeDetailPage() {
             <WorkInfoSection
               workDays={workDays}
               workStartTime={workStartTime}
+              workEndTime={workEndTime}
               isEditingWorkInfo={editForm.isEditingWorkInfo}
               tempWorkDays={editForm.tempWorkDays}
               tempWorkStartTime={editForm.tempWorkStartTime}
+              tempWorkEndTime={editForm.tempWorkEndTime}
               setTempWorkStartTime={editForm.setTempWorkStartTime}
+              setTempWorkEndTime={editForm.setTempWorkEndTime}
               savingWorkInfo={editForm.savingWorkInfo}
               toggleTempWorkDay={editForm.toggleTempWorkDay}
               onEdit={() => editForm.handleEditWorkInfo(worker)}

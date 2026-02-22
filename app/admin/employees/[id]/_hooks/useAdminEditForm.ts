@@ -43,12 +43,14 @@ export function useAdminEditForm(employeeId: string) {
   const [isEditingWorkInfo, setIsEditingWorkInfo] = useState(false);
   const [tempWorkDays, setTempWorkDays] = useState<string[]>([]);
   const [tempWorkStartTime, setTempWorkStartTime] = useState('');
+  const [tempWorkEndTime, setTempWorkEndTime] = useState('');
   const [savingWorkInfo, setSavingWorkInfo] = useState(false);
 
   const handleEditWorkInfo = (employee: Employee) => {
     const dayLabels = (employee.workDays ?? []).map((d) => NUM_TO_LABEL[d]).filter(Boolean);
     setTempWorkDays([...dayLabels]);
     setTempWorkStartTime(employee.workStartTime ? employee.workStartTime.slice(0, 5) : '09:00');
+    setTempWorkEndTime(employee.workEndTime ? employee.workEndTime.slice(0, 5) : '18:00');
     setIsEditingWorkInfo(true);
   };
 
@@ -62,6 +64,7 @@ export function useAdminEditForm(employeeId: string) {
       await updateMutation.mutateAsync({
         workDays: dayNums,
         workStartTime: tempWorkStartTime,
+        workEndTime: tempWorkEndTime,
       });
       setIsEditingWorkInfo(false);
       toast.success('근무 정보가 저장되었습니다.');
@@ -76,6 +79,7 @@ export function useAdminEditForm(employeeId: string) {
     setIsEditingWorkInfo(false);
     setTempWorkDays([]);
     setTempWorkStartTime('');
+    setTempWorkEndTime('');
   };
 
   const toggleTempWorkDay = (day: string) => {
@@ -100,6 +104,8 @@ export function useAdminEditForm(employeeId: string) {
     tempWorkDays,
     tempWorkStartTime,
     setTempWorkStartTime,
+    tempWorkEndTime,
+    setTempWorkEndTime,
     savingWorkInfo,
     handleEditWorkInfo,
     handleSaveWorkInfo,

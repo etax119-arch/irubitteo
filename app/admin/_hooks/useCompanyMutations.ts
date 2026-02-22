@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCompany, updateCompany } from '@/lib/api/companies';
-import { companyKeys } from '@/lib/query/keys';
+import { createCompany, updateCompany, deleteCompany } from '@/lib/api/companies';
+import { companyKeys, adminKeys } from '@/lib/query/keys';
 import type { CompanyCreateInput, CompanyUpdateInput } from '@/types/company';
 
 export function useCreateCompany() {
@@ -23,6 +23,18 @@ export function useUpdateCompany(companyId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: companyKeys.detail(companyId) });
       queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
+    },
+  });
+}
+
+export function useDeleteCompany() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (companyId: string) => deleteCompany(companyId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
     },
   });
 }
