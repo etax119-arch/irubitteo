@@ -75,6 +75,14 @@ export const attendanceApi = {
   },
 
   /**
+   * 출퇴근 기록 삭제
+   * DELETE /v1/attendances/:id
+   */
+  async deleteAttendance(id: string): Promise<void> {
+    await apiClient.delete(`/attendances/${id}`);
+  },
+
+  /**
    * 활동 사진 추가
    * POST /v1/attendances/:id/photos
    */

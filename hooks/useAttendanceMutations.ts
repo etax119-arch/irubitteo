@@ -14,3 +14,15 @@ export function useUpdateAttendance(employeeId: string) {
     },
   });
 }
+
+export function useDeleteAttendance(employeeId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (attendanceId: string) =>
+      attendanceApi.deleteAttendance(attendanceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: attendanceKeys.employeeHistory(employeeId) });
+      queryClient.invalidateQueries({ queryKey: employeeKeys.detail(employeeId) });
+    },
+  });
+}

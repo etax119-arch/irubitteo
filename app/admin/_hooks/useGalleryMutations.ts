@@ -30,9 +30,9 @@ export function useUpdateGallery() {
       image?: File;
       onUploadProgress?: (progress: number) => void;
     }) => updateGallery(id, input, image, onUploadProgress),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: galleryKeys.lists() });
-      revalidateGallery();
+      revalidateGallery(variables.id);
     },
   });
 }
@@ -41,9 +41,9 @@ export function useDeleteGallery() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteGallery(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: galleryKeys.lists() });
-      revalidateGallery();
+      revalidateGallery(id);
     },
   });
 }

@@ -30,9 +30,9 @@ export function useUpdateNewsletter() {
       image?: File;
       onUploadProgress?: (progress: number) => void;
     }) => updateNewsletter(id, input, image, onUploadProgress),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: newsletterKeys.lists() });
-      revalidateNewsletter();
+      revalidateNewsletter(variables.id);
     },
   });
 }
@@ -41,9 +41,9 @@ export function useDeleteNewsletter() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteNewsletter(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: newsletterKeys.lists() });
-      revalidateNewsletter();
+      revalidateNewsletter(id);
     },
   });
 }

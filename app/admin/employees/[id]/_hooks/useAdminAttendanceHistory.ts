@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useEmployeeAttendanceHistory } from '@/hooks/useAttendanceQuery';
-import { useUpdateAttendance } from '@/hooks/useAttendanceMutations';
+import { useUpdateAttendance, useDeleteAttendance } from '@/hooks/useAttendanceMutations';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
@@ -16,6 +16,7 @@ export function useAdminAttendanceHistory(employeeId: string) {
   const [endDate, setEndDate] = useState('');
   const { data } = useEmployeeAttendanceHistory(employeeId, { page: currentPage, limit: 10, startDate: startDate || undefined, endDate: endDate || undefined });
   const updateAttendance = useUpdateAttendance(employeeId);
+  const deleteAttendance = useDeleteAttendance(employeeId);
 
   const attendanceHistory: AttendanceWithEmployee[] = data?.records ?? [];
   const pagination: Pagination | undefined = data?.pagination;
@@ -23,12 +24,18 @@ export function useAdminAttendanceHistory(employeeId: string) {
   // Work time edit modal
   const [isEditingWorkTime, setIsEditingWorkTime] = useState(false);
   const [editingAttendanceId, setEditingAttendanceId] = useState<string | null>(null);
-  const [editedWorkTime, setEditedWorkTime] = useState({
+  const [editedWorkTime, setEditedWorkTime] = useState<{
+    date: string;
+    checkin: string;
+    checkout: string;
+    workDone: string;
+    status: AttendanceStatus | '__reset__';
+  }>({
     date: '',
     checkin: '09:00',
     checkout: '18:00',
     workDone: '',
-    status: 'checkin' as AttendanceStatus,
+    status: 'checkin',
   });
 
   // Work done modal
@@ -50,6 +57,20 @@ export function useAdminAttendanceHistory(employeeId: string) {
 
   const handleSaveWorkTime = async () => {
     if (!editingAttendanceId) return;
+
+    // 초기화(삭제) 처리
+    if (editedWorkTime.status === '__reset__') {
+      if (!window.confirm('이 출퇴근 기록을 삭제하시겠습니까?')) return;
+      try {
+        await deleteAttendance.mutateAsync(editingAttendanceId);
+        setIsEditingWorkTime(false);
+        toast.success('출퇴근 기록이 삭제되었습니다.');
+      } catch (err) {
+        toast.error(extractErrorMessage(err));
+      }
+      return;
+    }
+
     const record = attendanceHistory.find((r) => r.id === editingAttendanceId);
     const finalStatus =
       record && editedWorkTime.status !== record.status
@@ -115,7 +136,7 @@ export function useAdminAttendanceHistory(employeeId: string) {
     setIsEditingWorkTime,
     editedWorkTime,
     setEditedWorkTime,
-    savingWorkTime: updateAttendance.isPending,
+    savingWorkTime: updateAttendance.isPending || deleteAttendance.isPending,
     handleEditWorkTime,
     handleSaveWorkTime,
     // Work done modal

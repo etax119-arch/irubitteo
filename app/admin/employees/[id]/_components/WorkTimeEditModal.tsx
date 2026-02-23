@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Save, Loader2 } from 'lucide-react';
+import { X, Save, Loader2, Trash2 } from 'lucide-react';
 import { TimePicker } from '@/components/ui/TimePicker';
 import { Textarea } from '@/components/ui/Textarea';
 import { Input } from '@/components/ui/Input';
@@ -11,7 +11,7 @@ type EditedWorkTime = {
   checkin: string;
   checkout: string;
   workDone: string;
-  status: AttendanceStatus;
+  status: AttendanceStatus | '__reset__';
 };
 
 type WorkTimeEditModalProps = {
@@ -33,12 +33,17 @@ export function WorkTimeEditModal({
 }: WorkTimeEditModalProps) {
   if (!isOpen) return null;
 
+  const isReset = editedWorkTime.status === '__reset__';
   const isAbsentOrLeave = editedWorkTime.status === 'absent' || editedWorkTime.status === 'leave';
-  const isCheckinDisabled = isAbsentOrLeave || editedWorkTime.status === 'checkout';
-  const isCheckoutDisabled = isAbsentOrLeave || editedWorkTime.status === 'checkin';
+  const isCheckinDisabled = isReset || isAbsentOrLeave || editedWorkTime.status === 'checkout';
+  const isCheckoutDisabled = isReset || isAbsentOrLeave || editedWorkTime.status === 'checkin';
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value as AttendanceStatus;
+    const newStatus = e.target.value as AttendanceStatus | '__reset__';
+    if (newStatus === '__reset__') {
+      setEditedWorkTime({ ...editedWorkTime, status: '__reset__' });
+      return;
+    }
     const clearTime = newStatus === 'absent' || newStatus === 'leave';
     const clearCheckout = newStatus === 'checkin';
     setEditedWorkTime({
@@ -90,6 +95,7 @@ export function WorkTimeEditModal({
             label="업무 내용"
             value={editedWorkTime.workDone}
             onChange={(e) => setEditedWorkTime({ ...editedWorkTime, workDone: e.target.value })}
+            disabled={isReset || savingWorkTime}
             rows={3}
           />
 
@@ -105,6 +111,8 @@ export function WorkTimeEditModal({
               <option value="checkout">퇴근</option>
               <option value="absent">결근</option>
               <option value="leave">휴가</option>
+              <option disabled>──────────</option>
+              <option value="__reset__">초기화 (기록 삭제)</option>
             </select>
           </div>
 
@@ -119,10 +127,20 @@ export function WorkTimeEditModal({
             <button
               onClick={onSave}
               disabled={savingWorkTime}
-              className="py-3 px-6 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className={`py-3 px-6 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 ${
+                isReset
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-duru-orange-500 hover:bg-duru-orange-600'
+              }`}
             >
-              {savingWorkTime ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              저장
+              {savingWorkTime ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isReset ? (
+                <Trash2 className="w-4 h-4" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {isReset ? '초기화' : '저장'}
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useEmployeeAttendanceHistory } from '@/hooks/useAttendanceQuery';
-import { useUpdateAttendance } from '@/hooks/useAttendanceMutations';
+import { useUpdateAttendance, useDeleteAttendance } from '@/hooks/useAttendanceMutations';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
 import type {
@@ -44,6 +44,7 @@ export function useAttendanceHistory(employeeId: string) {
   const [endDate, setEndDate] = useState('');
   const { data, isLoading: isLoadingAttendance, error: queryError } = useEmployeeAttendanceHistory(employeeId, { page: currentPage, limit: 10, startDate: startDate || undefined, endDate: endDate || undefined });
   const updateAttendance = useUpdateAttendance(employeeId);
+  const deleteAttendance = useDeleteAttendance(employeeId);
 
   const attendanceHistory = useMemo(() => (data?.records ?? []).map(toAttendanceRecord), [data?.records]);
   const pagination: Pagination | undefined = data?.pagination;
@@ -53,12 +54,18 @@ export function useAttendanceHistory(employeeId: string) {
   const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string; photoUrls: string[] } | null>(null);
 
   const [isEditingWorkTime, setIsEditingWorkTime] = useState(false);
-  const [editedWorkTime, setEditedWorkTime] = useState({
+  const [editedWorkTime, setEditedWorkTime] = useState<{
+    date: string;
+    checkin: string;
+    checkout: string;
+    workDone: string;
+    status: AttendanceStatus | '__reset__';
+  }>({
     date: '',
     checkin: '09:00',
     checkout: '18:00',
     workDone: '',
-    status: 'checkin' as AttendanceStatus,
+    status: 'checkin',
   });
   const [originalWorkTime, setOriginalWorkTime] = useState({
     checkin: '',
@@ -90,6 +97,19 @@ export function useAttendanceHistory(employeeId: string) {
     const record = attendanceHistory.find((r) => r.date === editedWorkTime.date);
     if (!record) {
       toast.error('해당 출퇴근 기록을 찾을 수 없습니다.');
+      return;
+    }
+
+    // 초기화(삭제) 처리
+    if (editedWorkTime.status === '__reset__') {
+      if (!window.confirm('이 출퇴근 기록을 삭제하시겠습니까?')) return;
+      try {
+        await deleteAttendance.mutateAsync(record.id);
+        setIsEditingWorkTime(false);
+        toast.success('출퇴근 기록이 삭제되었습니다.');
+      } catch {
+        toast.error('출퇴근 기록 삭제에 실패했습니다.');
+      }
       return;
     }
 
@@ -149,7 +169,7 @@ export function useAttendanceHistory(employeeId: string) {
     attendanceHistory,
     isLoadingAttendance,
     attendanceError,
-    isSaving: updateAttendance.isPending,
+    isSaving: updateAttendance.isPending || deleteAttendance.isPending,
     isEditingWorkTime,
     editedWorkTime,
     setEditedWorkTime,

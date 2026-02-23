@@ -1,4 +1,4 @@
-import { Save } from 'lucide-react';
+import { Save, Trash2 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -11,7 +11,7 @@ interface EditedWorkTime {
   checkin: string;
   checkout: string;
   workDone: string;
-  status: AttendanceStatus;
+  status: AttendanceStatus | '__reset__';
 }
 
 interface WorkTimeEditModalProps {
@@ -38,12 +38,17 @@ export function WorkTimeEditModal({
   onSave,
   isSaving,
 }: WorkTimeEditModalProps) {
+  const isReset = editedWorkTime.status === '__reset__';
   const isAbsentOrLeave = editedWorkTime.status === 'absent' || editedWorkTime.status === 'leave';
-  const isCheckinDisabled = isAbsentOrLeave || editedWorkTime.status === 'checkout';
-  const isCheckoutDisabled = isAbsentOrLeave || editedWorkTime.status === 'checkin';
+  const isCheckinDisabled = isReset || isAbsentOrLeave || editedWorkTime.status === 'checkout';
+  const isCheckoutDisabled = isReset || isAbsentOrLeave || editedWorkTime.status === 'checkin';
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value as AttendanceStatus;
+    const newStatus = e.target.value as AttendanceStatus | '__reset__';
+    if (newStatus === '__reset__') {
+      setEditedWorkTime({ ...editedWorkTime, status: '__reset__' });
+      return;
+    }
     const clearTime = newStatus === 'absent' || newStatus === 'leave';
     const clearCheckout = newStatus === 'checkin';
     setEditedWorkTime({
@@ -83,7 +88,7 @@ export function WorkTimeEditModal({
           label="업무 내용"
           value={editedWorkTime.workDone}
           onChange={(e) => setEditedWorkTime({ ...editedWorkTime, workDone: e.target.value })}
-          disabled={isSaving}
+          disabled={isReset || isSaving}
           rows={3}
         />
 
@@ -98,6 +103,8 @@ export function WorkTimeEditModal({
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
+            <option disabled>──────────</option>
+            <option value="__reset__">초기화 (기록 삭제)</option>
           </select>
         </div>
 
@@ -105,8 +112,13 @@ export function WorkTimeEditModal({
           <Button variant="outline" onClick={onClose} disabled={isSaving}>
             취소
           </Button>
-          <Button variant="primary" onClick={onSave} disabled={isSaving} leftIcon={<Save className="w-4 h-4" />}>
-            {isSaving ? '저장 중...' : '저장'}
+          <Button
+            variant={isReset ? 'danger' : 'primary'}
+            onClick={onSave}
+            disabled={isSaving}
+            leftIcon={isReset ? <Trash2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+          >
+            {isSaving ? '처리 중...' : isReset ? '초기화' : '저장'}
           </Button>
         </div>
       </div>
