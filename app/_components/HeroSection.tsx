@@ -20,8 +20,9 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-xl text-gray-600 leading-relaxed break-keep max-w-xl">
-            이루빛터는 장애인 근로자를 위한 맞춤형 일자리 매칭부터<br className="hidden sm:block"/>
-            편리한 출퇴근 관리까지, 든든한 다리가 되어드립니다.
+            가능성이 일상의 빛이 되는 곳, 이루빛터에서는<br className="hidden sm:block"/>
+            장애인 근로자를 위한 맞춤형 직무를 설계하고 매칭하여<br className="hidden sm:block"/>
+            빛나는 내일을 함께 합니다.
           </p>
 
           <div className="flex flex-wrap gap-4 pt-4">
