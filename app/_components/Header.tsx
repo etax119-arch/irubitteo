@@ -18,7 +18,7 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-8">
-          <nav className="hidden md:flex items-center gap-8 text-lg font-semibold text-gray-600">
+          <nav aria-label="메인 네비게이션" className="hidden md:flex items-center gap-8 text-lg font-semibold text-gray-600">
             <Link href="/gallery" className="hover:text-landing-orange transition-colors">빛터 갤러리</Link>
             <Link href="/newsletter" className="hover:text-landing-orange transition-colors">빛터 소식지</Link>
             <Link href="/inquiry" className="hover:text-landing-orange transition-colors">신규기업 문의</Link>

@@ -281,6 +281,8 @@ durubitteo_web/
 │       │   ├── useGalleryMutations.ts          # 갤러리 Mutation 훅
 │       │   ├── useNewsletterQuery.ts           # 뉴스레터 Query 훅
 │       │   └── useNewsletterMutations.ts       # 뉴스레터 Mutation 훅
+│       ├── _utils/
+│       │   └── generateWorkStatsPdf.ts  # jsPDF + autoTable 기반 근무통계 PDF 생성
 │       ├── _components/
 │       │   ├── AdminStatCard.tsx
 │       │   ├── CompanyCard.tsx

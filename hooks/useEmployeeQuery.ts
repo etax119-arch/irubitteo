@@ -88,7 +88,6 @@ export function useEmployeeDetail(id: string) {
   return useQuery({
     queryKey: employeeKeys.detail(id),
     queryFn: () => getEmployee(id),
-    select: (data) => data.data,
     enabled: !!id,
   });
 }

@@ -6,7 +6,6 @@ export function useMyProfile() {
   return useQuery({
     queryKey: employeeKeys.me(),
     queryFn: () => getMyEmployeeProfile(),
-    select: (data) => data.data,
     staleTime: 5 * 60 * 1000,
   });
 }

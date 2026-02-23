@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
+
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 type ModalSize = 'sm' | 'md' | 'lg';
 
@@ -35,10 +38,29 @@ function Modal({
   className,
   contentClassName,
 }: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+        return;
+      }
+
+      // 포커스 트랩: Tab 키 순환
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     },
     [onClose]
@@ -46,13 +68,20 @@ function Modal({
 
   useEffect(() => {
     if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
+      // 열릴 때 모달 내 첫 포커스 가능 요소에 focus
+      requestAnimationFrame(() => {
+        const first = modalRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+        first?.focus();
+      });
     }
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
+      previousFocusRef.current?.focus();
     };
   }, [isOpen, handleKeyDown]);
 
@@ -69,6 +98,7 @@ function Modal({
       aria-labelledby={title ? 'modal-title' : undefined}
     >
       <div
+        ref={modalRef}
         className={cn(
           'bg-white rounded-2xl shadow-xl w-full max-h-[calc(100vh-2rem)] flex flex-col',
           sizeStyles[size],
