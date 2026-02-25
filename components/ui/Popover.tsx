@@ -14,18 +14,20 @@ interface PopoverProps {
 export function Popover({ trigger, children, isOpen, onClose, className }: PopoverProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [placement, setPlacement] = useState<'bottom' | 'top'>('bottom');
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        onClose();
+        onCloseRef.current();
       }
     };
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -34,7 +36,7 @@ export function Popover({ trigger, children, isOpen, onClose, className }: Popov
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   const dropdownRef = useCallback((node: HTMLDivElement | null) => {
     if (!node) return;

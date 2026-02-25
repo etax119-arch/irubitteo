@@ -12,10 +12,12 @@ interface PhotoLightboxProps {
 
 export function PhotoLightbox({ photo, onClose }: PhotoLightboxProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     };
     document.addEventListener('keydown', handleKeyDown);
     document.body.style.overflow = 'hidden';
@@ -23,7 +25,7 @@ export function PhotoLightbox({ photo, onClose }: PhotoLightboxProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [onClose]);
+  }, []);
 
   useEffect(() => {
     overlayRef.current?.focus();

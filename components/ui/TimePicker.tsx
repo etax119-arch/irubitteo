@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Clock } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Popover } from '@/components/ui/Popover';
@@ -33,7 +33,7 @@ export function TimePicker({
 
   const [hour, minute] = (value || '').split(':');
 
-  const scrollToSelected = useCallback(() => {
+  useEffect(() => {
     if (!isOpen) return;
     requestAnimationFrame(() => {
       if (hourRef.current && hour) {
@@ -49,11 +49,8 @@ export function TimePicker({
         }
       }
     });
-  }, [isOpen, hour, minute]);
-
-  useEffect(() => {
-    scrollToSelected();
-  }, [scrollToSelected]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const handleHourClick = (h: string) => {
     const m = minute || '00';
