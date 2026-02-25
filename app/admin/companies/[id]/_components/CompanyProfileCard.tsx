@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Building2,
   Phone,
@@ -11,6 +12,8 @@ import {
   Edit3,
   Save,
   Clock,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/Textarea';
 import { Input } from '@/components/ui/Input';
@@ -43,6 +46,15 @@ export function CompanyProfileCard({
   onSaveEdit,
   onCancelEdit,
 }: CompanyProfileCardProps) {
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const handleCopyCode = async () => {
+    if (!company.code) return;
+    await navigator.clipboard.writeText(company.code);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
+
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <div className="text-center mb-6">
@@ -150,9 +162,19 @@ export function CompanyProfileCard({
           <Hash className="w-4 h-4 text-gray-400" />
           <div className="flex-1">
             <span className="text-gray-600 block">기업 고유 번호:</span>
-            <span className="font-semibold text-gray-900 font-mono tracking-wide">
+            <button
+              type="button"
+              onClick={handleCopyCode}
+              className="inline-flex items-center gap-1.5 font-semibold text-gray-900 font-mono tracking-wide hover:text-blue-600 transition-colors cursor-pointer"
+              title="클릭하여 복사"
+            >
               {company.code}
-            </span>
+              {codeCopied ? (
+                <Check className="w-3.5 h-3.5 text-green-500" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 text-gray-400" />
+              )}
+            </button>
           </div>
         </div>
         <div className="flex items-center gap-3 text-sm">

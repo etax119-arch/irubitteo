@@ -17,8 +17,7 @@ export default function CompanyLoginPage() {
   const isValidId = companyId.length >= 1;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 영숫자만 허용 (포맷 제한 없음)
-    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+    const value = e.target.value;
     setCompanyId(value);
     setLoginError('');
   };

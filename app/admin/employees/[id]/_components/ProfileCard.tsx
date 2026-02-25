@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Building2,
   Phone,
@@ -9,6 +10,8 @@ import {
   IdCard,
   Shield,
   Hash,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
@@ -28,8 +31,16 @@ export function ProfileCard({
   onUploadImage,
   onDeleteImage,
 }: ProfileCardProps) {
+  const [codeCopied, setCodeCopied] = useState(false);
   const statusLabel = getEmployeeStatusLabel(worker.status, worker.isActive);
   const statusClass = getEmployeeStatusStyle(worker.status, worker.isActive);
+
+  const handleCopyCode = async () => {
+    if (!worker.uniqueCode) return;
+    await navigator.clipboard.writeText(worker.uniqueCode);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
 
   return (
     <>
@@ -102,11 +113,21 @@ export function ProfileCard({
           <Hash className="w-5 h-5 text-duru-orange-600" />
           근로자 고유번호
         </h3>
-        <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
-          <p className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider">
+        <button
+          type="button"
+          onClick={handleCopyCode}
+          className="w-full bg-white rounded-lg p-4 border border-duru-orange-300 hover:bg-duru-orange-50 transition-colors cursor-pointer"
+          title="클릭하여 복사"
+        >
+          <p className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider flex items-center justify-center gap-2">
             {worker.uniqueCode}
+            {codeCopied ? (
+              <Check className="w-5 h-5 text-green-500" />
+            ) : (
+              <Copy className="w-5 h-5 text-duru-orange-400" />
+            )}
           </p>
-        </div>
+        </button>
       </div>
 
       {/* 장애 정보 */}
