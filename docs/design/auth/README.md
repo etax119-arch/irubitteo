@@ -15,7 +15,8 @@
 ### 토큰 정책
 
 - **Access Token**: 유효기간 15분 (900s), HttpOnly Cookie
-- **Refresh Token**: 유효기간 7일, HttpOnly Cookie
+- **Refresh Token**: 유효기간 5시간 (18000s), HttpOnly Cookie
+- **Idle Timeout**: 5시간 미사용 시 자동 로그아웃 (서버 DB lastActivityAt 기반)
 - **저장 위치**: HttpOnly Cookie (서버에서 Set-Cookie 헤더로 설정)
 - **갱신 방식**: Cookie 자동 전송, 서버에서 검증 후 새 Cookie 발급
 
@@ -24,9 +25,9 @@
 | Cookie | HttpOnly | Secure | SameSite | Path | Max-Age |
 |--------|----------|--------|----------|------|---------|
 | accessToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 900 (15분) |
-| refreshToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) |
-| auth-status | No | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) |
-| user-role | No | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) |
+| refreshToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 18000 (5시간) |
+| auth-status | No | Yes(prod) | None(prod) / Lax(dev) | / | 18000 (5시간) |
+| user-role | No | Yes(prod) | None(prod) / Lax(dev) | / | 18000 (5시간) |
 
 **참고**: `auth-status`와 `user-role`은 클라이언트(middleware.ts)에서 라우트 보호를 위해 읽을 수 있도록 HttpOnly가 아닙니다.
 

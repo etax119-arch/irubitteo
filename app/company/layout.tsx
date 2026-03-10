@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { TrendingUp, Users, Clock, MessageSquare, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 
@@ -21,6 +22,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   // ⚠ useAuth()는 checkAuth() 호출 → isLoading=true → children 언마운트 가능.
   // 하위 페이지에서 user 정보만 필요하면 useAuthStore((s) => s.user) 직접 사용.
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  useIdleTimeout(logout);
 
   const [today, setToday] = useState('');
   useEffect(() => {

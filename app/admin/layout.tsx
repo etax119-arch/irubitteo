@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { TrendingUp, Building2, Users, BarChart3, Bell, FileText, Newspaper, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useNoteUpdateAlerts, useNotifAbsenceAlerts, usePendingInquiries, usePendingResumes } from './_hooks/useAdminNotificationQuery';
@@ -23,6 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, isLoading, logout } = useAuth();
+  useIdleTimeout(logout);
   const { data: noteUpdates } = useNoteUpdateAlerts();
   const { data: absenceAlerts } = useNotifAbsenceAlerts();
   const { data: pendingInquiries } = usePendingInquiries();

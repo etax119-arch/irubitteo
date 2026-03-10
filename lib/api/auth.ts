@@ -43,6 +43,14 @@ export const authApi = {
   },
 
   /**
+   * 활동 기록 (idle timeout용 서버 ping)
+   */
+  recordActivity: () =>
+    apiClient.post('/auth/activity', undefined, {
+      _skipAuthRetry: true,
+    }),
+
+  /**
    * 현재 사용자 정보 조회
    * - access token으로 사용자 정보 확인
    */

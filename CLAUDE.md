@@ -339,6 +339,7 @@ durubitteo_web/
 ├── hooks/                    # 공용 훅 (여러 라우트에서 공유)
 │   ├── useAuth.ts            # 인증 훅 (login, logout, checkAuth — useAuthQuery 기반)
 │   ├── useAuthQuery.ts       # 인증 Query 훅 (TanStack Query, staleTime: 5분)
+│   ├── useIdleTimeout.ts     # 5시간 미사용 자동 로그아웃 (DOM 활동 감지 + 서버 ping)
 │   ├── useAttendanceQuery.ts # 출퇴근 Query 훅 (TanStack Query)
 │   ├── useAttendanceMutations.ts # 출퇴근 Mutation 훅 (TanStack Query)
 │   ├── useEmployeeQuery.ts   # 근로자 Query 훅 (TanStack Query)

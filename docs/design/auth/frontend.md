@@ -65,7 +65,8 @@ durubitteo_web/
 │
 ├── hooks/
 │   ├── useAuth.ts            # 인증 훅 (로그인, 로그아웃, checkAuth — useAuthQuery 기반)
-│   └── useAuthQuery.ts       # 인증 Query 훅 (TanStack Query, staleTime: 5분)
+│   ├── useAuthQuery.ts       # 인증 Query 훅 (TanStack Query, staleTime: 5분)
+│   └── useIdleTimeout.ts     # 5시간 미사용 자동 로그아웃 (DOM 활동 감지 + 서버 ping)
 │
 ├── middleware.ts             # Next.js 라우트 보호 (쿠키 기반 역할별 접근 제어)
 │
@@ -83,9 +84,9 @@ durubitteo_web/
 
 | 파일 | 역할 |
 |------|------|
-| `lib/api/client.ts` | axios 인스턴스, 401 응답 시 토큰 갱신 큐 시스템 |
-| `lib/api/auth.ts` | login, logout, refresh, getMe API 함수 |
-| `lib/auth/store.ts` | Zustand + persist로 UI 표시용 사용자 상태 관리 |
+| `lib/api/client.ts` | axios 인스턴스, 401 응답 시 토큰 갱신 큐 시스템, idle 체크 |
+| `lib/api/auth.ts` | login, logout, refresh, getMe, recordActivity API 함수 |
+| `lib/auth/store.ts` | Zustand + persist로 사용자 상태 + lastActivityAt 관리 |
 | `hooks/useAuthQuery.ts` | TanStack Query 기반 인증 상태 조회 (`GET /auth/me`, staleTime: 5분) |
 | `hooks/useAuth.ts` | 컴포넌트용 인증 훅 (useAuthQuery 결과를 Zustand에 동기화, 로그인/로그아웃) |
 | `middleware.ts` | 쿠키 기반 역할별 라우트 접근 제어 |
@@ -110,6 +111,7 @@ const REFRESH_CONFIG = {
   CIRCUIT_BREAKER_RESET_MS: 30_000, // 서킷 차단 시간 (30s)
   PROACTIVE_REFRESH_BEFORE_MS: 2 * 60 * 1000,   // 만료 2분 전 갱신
   ACCESS_TOKEN_TTL_MS: 15 * 60 * 1000,           // 15분 (서버 설정과 동일)
+  IDLE_TIMEOUT_MS: 5 * 60 * 60 * 1000,           // 5시간 idle timeout
 } as const;
 
 // 상태 변수
@@ -167,6 +169,18 @@ async function performProactiveRefresh() { ... }
 - 프로액티브 갱신 중 401 발생 → 큐에 추가 → 성공 시 `processQueue(null)`로 처리
 - 프로액티브 실패 → `drainQueue(err)` → 다음 401에서 reactive 경로 재시도
 - 프로액티브 실패 시 `clearAuthState()` 미호출 (치명적이지 않음)
+
+### 5시간 미사용 자동 로그아웃 (`hooks/useIdleTimeout.ts`)
+
+DOM 이벤트(mousedown, keydown, click, scroll, touchstart) 기반으로 사용자 활동을 감지하고, 5시간 미사용 시 자동 로그아웃합니다:
+
+- **이중 throttle**: 로컬 30초 (idle 정밀도) + 서버 ping 5분 (DB 부하 최소화)
+- **서버 ping**: `POST /auth/activity` → DB `lastActivityAt` 갱신
+- **idle 체크**: 1분 간격 + 탭 복귀(visibilitychange) 시 즉시 체크
+- **탭 간 동기화**: storage 이벤트로 다른 탭의 활동/로그아웃을 감지
+- **프로액티브 갱신 연동**: idle 상태이면 `performProactiveRefresh()` 중단
+
+**Layout 통합**: `employee/layout.tsx`, `company/layout.tsx`, `admin/layout.tsx`에서 `useIdleTimeout(logout)` 호출
 
 ### 429 Rate Limit 재시도 (`lib/api/client.ts`)
 
@@ -296,9 +310,9 @@ export function useAuth() {
 | Cookie | HttpOnly | Secure | SameSite | Path | Max-Age | 설명 |
 |--------|----------|--------|----------|------|---------|------|
 | accessToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 900 (15분) | JWT Access Token |
-| refreshToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) | JWT Refresh Token |
-| auth-status | No | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) | 인증 상태 플래그 |
-| user-role | No | Yes(prod) | None(prod) / Lax(dev) | / | 604800 (7일) | 사용자 역할 |
+| refreshToken | Yes | Yes(prod) | None(prod) / Lax(dev) | / | 18000 (5시간) | JWT Refresh Token |
+| auth-status | No | Yes(prod) | None(prod) / Lax(dev) | / | 18000 (5시간) | 인증 상태 플래그 |
+| user-role | No | Yes(prod) | None(prod) / Lax(dev) | / | 18000 (5시간) | 사용자 역할 |
 
 ---
 
@@ -358,6 +372,7 @@ export function useAuth() {
 - [x] 로그아웃
 - [x] 토큰 자동 갱신 (401 → refresh → 재시도)
 - [x] 프로액티브 토큰 갱신 (만료 2분 전 자동 갱신)
+- [x] 5시간 미사용 자동 로그아웃 (idle timeout)
 - [x] 갱신 실패 시 로그아웃
 
 ### 라우트 보호 검증

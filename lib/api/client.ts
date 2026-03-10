@@ -39,6 +39,7 @@ const REFRESH_CONFIG = {
   CIRCUIT_BREAKER_RESET_MS: 30_000,
   PROACTIVE_REFRESH_BEFORE_MS: 2 * 60 * 1000,   // 만료 2분 전 갱신
   ACCESS_TOKEN_TTL_MS: 15 * 60 * 1000,           // 15분 (서버 설정과 동일)
+  IDLE_TIMEOUT_MS: 5 * 60 * 60 * 1000,           // 5시간 (프로액티브 갱신 중단용, cf. useIdleTimeout.ts는 5h5m)
 } as const;
 
 // ── 토큰 갱신 상태 ──
@@ -94,6 +95,13 @@ export function cancelProactiveRefresh() {
 async function performProactiveRefresh() {
   proactiveTimer = null;
 
+  // idle 상태이면 갱신 중단 (불필요한 요청 방지)
+  const { lastActivityAt, isAuthenticated } = useAuthStore.getState();
+  if (!isAuthenticated || !lastActivityAt ||
+      Date.now() - lastActivityAt >= REFRESH_CONFIG.IDLE_TIMEOUT_MS) {
+    return; // 재스케줄 안함 — 복귀 시 reactive refresh가 자동 재개
+  }
+
   if (isCircuitOpen()) {
     proactiveTimer = setTimeout(performProactiveRefresh, REFRESH_CONFIG.CIRCUIT_BREAKER_RESET_MS);
     return;
@@ -148,7 +156,7 @@ function drainQueue(error: unknown) {
   failedQueue = [];
 }
 
-function clearAuthState() {
+export function clearAuthState() {
   cancelProactiveRefresh();
   useAuthStore.getState().clearUser();
   if (typeof window !== 'undefined') {

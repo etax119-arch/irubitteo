@@ -73,6 +73,7 @@ export function useAuth() {
 
         const response = await authApi.login(params);
         setUser(response.user);
+        useAuthStore.getState().recordActivity();
 
         // 캐시에 직접 설정 (이후 탭 이동 시 API 호출 없음)
         queryClient.setQueryData(authKeys.me(), response.user);
