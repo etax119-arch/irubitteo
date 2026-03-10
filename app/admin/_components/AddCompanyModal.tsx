@@ -31,6 +31,20 @@ interface AddCompanyModalProps {
   isSubmitting?: boolean;
 }
 
+function formatPhoneNumber(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+}
+
+function formatBusinessNumber(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 5) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5)}`;
+}
+
 const getTodayDateString = () => {
   const today = new Date();
   const year = today.getFullYear();
@@ -173,7 +187,7 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: Add
                   type="text"
                   placeholder="000-00-00000"
                   value={form.businessNumber}
-                  onChange={(e) => updateForm('businessNumber', e.target.value)}
+                  onChange={(e) => updateForm('businessNumber', formatBusinessNumber(e.target.value))}
                   size="sm"
                 />
                 {complete.businessNumber && (
@@ -237,7 +251,7 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: Add
                   type="tel"
                   placeholder="010-0000-0000"
                   value={form.contactPhone}
-                  onChange={(e) => updateForm('contactPhone', e.target.value)}
+                  onChange={(e) => updateForm('contactPhone', formatPhoneNumber(e.target.value))}
                   size="sm"
                   leftIcon={<Phone className="w-4 h-4" />}
                 />
@@ -282,7 +296,7 @@ export function AddCompanyModal({ isOpen, onClose, onSubmit, isSubmitting }: Add
                 type="tel"
                 placeholder="010-0000-0000"
                 value={pmInfo.phone}
-                onChange={(e) => updatePmInfo('phone', e.target.value)}
+                onChange={(e) => updatePmInfo('phone', formatPhoneNumber(e.target.value))}
                 size="sm"
                 leftIcon={<Phone className="w-4 h-4" />}
               />

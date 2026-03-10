@@ -7,6 +7,7 @@ import { TrendingUp, Building2, Users, BarChart3, Bell, FileText, Newspaper, Log
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useNoteUpdateAlerts, useNotifAbsenceAlerts, usePendingInquiries, usePendingResumes } from './_hooks/useAdminNotificationQuery';
 
 const tabs = [
   { id: 'dashboard', label: '대시보드', icon: TrendingUp, href: '/admin/dashboard' },
@@ -22,7 +23,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, isLoading, logout } = useAuth();
-  const [hasNewNotification, setHasNewNotification] = useState(true);
+  const { data: noteUpdates } = useNoteUpdateAlerts();
+  const { data: absenceAlerts } = useNotifAbsenceAlerts();
+  const { data: pendingInquiries } = usePendingInquiries();
+  const { data: pendingResumes } = usePendingResumes();
+
+  const hasNewNotification =
+    (noteUpdates && noteUpdates.length > 0) ||
+    (absenceAlerts && absenceAlerts.length > 0) ||
+    (pendingInquiries && pendingInquiries.length > 0) ||
+    (pendingResumes && pendingResumes.length > 0);
 
   const [today, setToday] = useState('');
   useEffect(() => {
@@ -46,12 +56,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const activeTab = getActiveTab();
-
-  useEffect(() => {
-    if (activeTab === 'notifications') {
-      setHasNewNotification(false); // eslint-disable-line react-hooks/set-state-in-effect -- 탭 전환 시 알림 뱃지 제거
-    }
-  }, [activeTab]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

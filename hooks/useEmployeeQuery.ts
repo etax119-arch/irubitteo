@@ -5,6 +5,11 @@ import type { Employee, EmployeeQueryParams, EmployeeWithCompany } from '@/types
 import type { WorkerFilter } from '@/types/adminDashboard';
 import type { PaginatedResponse } from '@/types/api';
 
+/** 검색 모드에서 한 번에 가져올 최대 건수. 서버 search 대신 클라이언트 필터링 사용 시 적용.
+ *  500명 이상인 경우 검색 결과가 잘릴 수 있음 — 서버 search 지원 시 제거 가능 */
+const CLIENT_SEARCH_LIMIT = 500;
+const CLIENT_PAGE_SIZE = 20;
+
 /** 서버 limit 상한 미확인 — 서버 확인 후 조정 가능 */
 const ACTIVE_EMPLOYEE_PAGE_SIZE = 100;
 const MAX_CONCURRENCY = 3;
@@ -57,6 +62,8 @@ export function useCompanyPaginatedEmployees(
 
 function buildEmployeeParams(filter: WorkerFilter, search: string, page: number, limit: number): EmployeeQueryParams {
   const params: EmployeeQueryParams = { page, limit };
+  const isSearchMode = !!search.trim();
+
   if (filter === 'current') {
     params.isActive = true;
     params.standby = false;
@@ -65,20 +72,49 @@ function buildEmployeeParams(filter: WorkerFilter, search: string, page: number,
   } else if (filter === 'waiting') {
     params.standby = true;
   }
-  if (search) {
-    params.search = search;
+
+  if (isSearchMode) {
+    // 클라이언트에서 이름+회사명 필터링 — 서버 search 대신 큰 limit으로 가져옴
+    params.page = 1;
+    params.limit = CLIENT_SEARCH_LIMIT;
   }
+
   return params;
 }
 
 export function useAdminEmployees(filter: WorkerFilter, search: string, page: number = 1, limit: number = 20) {
+  const isSearchMode = !!search.trim();
+
   return useQuery({
-    queryKey: employeeKeys.list({ filter, search, page, limit }),
+    queryKey: isSearchMode
+      ? employeeKeys.searchList({ filter, search: search.trim() })
+      : employeeKeys.list({ filter, search: '', page, limit }),
     queryFn: () =>
       getEmployees(buildEmployeeParams(filter, search, page, limit)) as Promise<
         PaginatedResponse<EmployeeWithCompany>
       >,
-    select: (data) => ({ employees: data.data, pagination: data.pagination }),
+    select: (data) => {
+      if (!isSearchMode) {
+        return { employees: data.data, pagination: data.pagination };
+      }
+      // 클라이언트 필터링: 이름 + 회사명
+      const normalized = search.trim().toLowerCase();
+      const filtered = (data.data as EmployeeWithCompany[]).filter(emp =>
+        emp.name.toLowerCase().includes(normalized) ||
+        emp.companyName?.toLowerCase().includes(normalized)
+      );
+      const start = (page - 1) * CLIENT_PAGE_SIZE;
+      const paged = filtered.slice(start, start + CLIENT_PAGE_SIZE);
+      return {
+        employees: paged,
+        pagination: {
+          page,
+          limit: CLIENT_PAGE_SIZE,
+          total: filtered.length,
+          totalPages: Math.max(1, Math.ceil(filtered.length / CLIENT_PAGE_SIZE)),
+        },
+      };
+    },
     staleTime: 5 * 60 * 1000,
     placeholderData: keepPreviousData,
   });

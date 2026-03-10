@@ -23,6 +23,8 @@ export const employeeKeys = {
     ['employees', 'list', 'filtered', params] as const,
   companyList: (params: { search: string; page: number; limit: number }) =>
     ['employees', 'list', 'company', params] as const,
+  searchList: (params: { filter: string; search: string }) =>
+    ['employees', 'list', 'search', params] as const,
   detail: (id: string) => ['employees', id] as const,
   files: (id: string) => ['employees', id, 'files'] as const,
 };

@@ -20,6 +20,7 @@ export function useUpdateEmployee(employeeId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: employeeKeys.detail(employeeId) });
       queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['attendances', 'employee', employeeId] });
     },
   });
 }
