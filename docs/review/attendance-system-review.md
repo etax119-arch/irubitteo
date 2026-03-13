@@ -94,7 +94,7 @@ dayoff → '대기' (BUG)
 | checkin | 근무중 | `bg-green-100 text-green-700` |
 | checkout | 퇴근 | `bg-blue-100 text-blue-700` |
 | absent | 결근 | `bg-red-100 text-red-700` |
-| leave | 휴가 | `bg-blue-100 text-blue-700` |
+| leave | 휴무 | `bg-blue-100 text-blue-700` |
 | pending | 출근 전 | `bg-yellow-100 text-yellow-700` |
 | dayoff | 휴무 | `bg-gray-100 text-gray-600` |
 | (비활성) | 퇴사 | `bg-gray-200 text-gray-600` |

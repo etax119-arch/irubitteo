@@ -147,7 +147,7 @@ type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 | `checkin` | 근무중 | `bg-green-100 text-green-700` |
 | `checkout` | 퇴근 | `bg-blue-100 text-blue-700` |
 | `absent` | 결근 | `bg-red-100 text-red-700` |
-| `leave` | 휴가 | `bg-teal-100 text-teal-700` |
+| `leave` | 휴무 | `bg-teal-100 text-teal-700` |
 | `pending` | 출근 전 | `bg-yellow-100 text-yellow-700` |
 | `dayoff` | 휴무 | `bg-gray-100 text-gray-600` |
 | (비활성) | 퇴사 | `bg-gray-200 text-gray-600` |
@@ -161,7 +161,7 @@ type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
 | `checkin` | 출근 | `bg-green-100 text-green-700` |
 | `checkout` | 퇴근 | `bg-blue-100 text-blue-700` |
 | `absent` | 결근 | `bg-red-100 text-red-700` |
-| `leave` | 휴가 | `bg-teal-100 text-teal-700` |
+| `leave` | 휴무 | `bg-teal-100 text-teal-700` |
 
 ### DisplayStatus 변환 유틸 (getAttendanceDisplayStatus / getDisplayStatusColor)
 

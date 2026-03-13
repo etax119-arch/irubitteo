@@ -7,7 +7,7 @@ export type AttendanceStatus = 'checkin' | 'checkout' | 'absent' | 'leave';
 export type EmployeeDailyStatus = Exclude<Employee['status'], 'resigned'>;
 
 /** 출퇴근 표시 상태 (기업 대시보드용) */
-export type DisplayStatus = '정상' | '지각' | '결근' | '휴가';
+export type DisplayStatus = '정상' | '지각' | '결근' | '휴무';
 
 /** 출퇴근 기록 */
 export type Attendance = {

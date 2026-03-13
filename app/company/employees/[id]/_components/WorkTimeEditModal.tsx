@@ -27,7 +27,7 @@ const STATUS_OPTIONS: { value: AttendanceStatus; label: string }[] = [
   { value: 'checkin', label: '출근(근무중)' },
   { value: 'checkout', label: '퇴근' },
   { value: 'absent', label: '결근' },
-  { value: 'leave', label: '휴가' },
+  { value: 'leave', label: '휴무' },
 ];
 
 export function WorkTimeEditModal({

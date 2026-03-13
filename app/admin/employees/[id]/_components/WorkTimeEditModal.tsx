@@ -110,7 +110,7 @@ export function WorkTimeEditModal({
               <option value="checkin">출근(근무중)</option>
               <option value="checkout">퇴근</option>
               <option value="absent">결근</option>
-              <option value="leave">휴가</option>
+              <option value="leave">휴무</option>
               <option disabled>──────────</option>
               <option value="__reset__">초기화 (기록 삭제)</option>
             </select>

@@ -46,6 +46,17 @@ export default function EmployeeLoginPage() {
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+    if (pasted.length > 4) {
+      e.preventDefault();
+      setFirstPart(pasted.slice(0, 4));
+      setSecondPart(pasted.slice(4, 8));
+      setLoginError('');
+      secondInputRef.current?.focus();
+    }
+  };
+
   const handleFirstPartKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && isValidId) {
       handleLogin();
@@ -107,6 +118,7 @@ export default function EmployeeLoginPage() {
                     value={firstPart}
                     onChange={handleFirstPartChange}
                     onKeyDown={handleFirstPartKeyDown}
+                    onPaste={handlePaste}
                     maxLength={4}
                     autoFocus
                     className="w-[80px] px-0 py-2 text-2xl text-center tracking-[0.2em] font-semibold border-0 bg-transparent hover:border-0 focus:ring-0"

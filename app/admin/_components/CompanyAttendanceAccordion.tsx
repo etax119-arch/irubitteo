@@ -156,8 +156,7 @@ export function CompanyAttendanceAccordion({
                     const statusKey = label === '퇴근' ? 'checkout'
                       : label === '근무중' ? 'checkin'
                       : label === '결근' ? 'absent'
-                      : label === '휴가' ? 'leave'
-                      : label === '휴무' ? 'dayoff'
+                      : label === '휴무' ? 'leave'
                       : 'pending';
                     return (
                       <span
