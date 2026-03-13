@@ -36,6 +36,7 @@ export function ResumeList({ resumes, onReview }: ResumeListProps) {
                   </span>
                 </div>
                 <p className="text-sm text-gray-500">
+                  {resume.gender && `${resume.gender} · `}
                   {resume.disabilityTypes.length > 0
                     ? resume.disabilityTypes.join(', ')
                     : '장애유형 미입력'}{' '}

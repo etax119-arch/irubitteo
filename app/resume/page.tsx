@@ -16,24 +16,20 @@ import { generateResumePdf } from './_utils/generateResumePdf';
 interface FormData {
   name: string;
   birthDate: string;
-  zipCode: string;
+  gender: string;
   address: string;
   phone: string;
   mobile: string;
-  guardianPhone: string;
-  smsConsent: boolean;
   email: string;
-  emailConsent: boolean;
   schoolName: string;
   major: string;
   enrollmentPeriod: string;
   educationStatus: string;
   privacyConsent: boolean;
-  careers: Array<{ companyName: string; period: string; duties: string }>;
+  careers: Array<{ companyName: string; period: string; duties: string; description: string }>;
+  certifications: Array<{ name: string; institution: string }>;
   disabilityTypes: string[];
   disabilityDetail: string;
-  disabilitySeverity: string;
-  workType: string;
 }
 
 interface FormErrors {
@@ -68,31 +64,35 @@ export default function ResumePage() {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     birthDate: '',
-    zipCode: '',
+    gender: '',
     address: '',
     phone: '',
     mobile: '',
-    guardianPhone: '',
-    smsConsent: true,
     email: '',
-    emailConsent: true,
     schoolName: '',
     major: '',
     enrollmentPeriod: '',
     educationStatus: '',
     privacyConsent: false,
-    careers: [{ companyName: '', period: '', duties: '' }],
+    careers: [{ companyName: '', period: '', duties: '', description: '' }],
+    certifications: [{ name: '', institution: '' }],
     disabilityTypes: [],
     disabilityDetail: '',
-    disabilitySeverity: '',
-    workType: '',
   });
+
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const formatted = name === 'phone' || name === 'mobile' ? formatPhone(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: formatted }));
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -163,29 +163,30 @@ export default function ResumePage() {
       fd.append('birthDate', formData.birthDate);
       fd.append('phone', formData.phone);
       fd.append('privacyConsent', String(formData.privacyConsent));
-      fd.append('smsConsent', String(formData.smsConsent));
-      fd.append('emailConsent', String(formData.emailConsent));
-      if (formData.zipCode) fd.append('zipCode', formData.zipCode);
+      if (formData.gender) fd.append('gender', formData.gender);
       if (formData.address) fd.append('address', formData.address);
       if (formData.mobile) fd.append('mobile', formData.mobile);
-      if (formData.guardianPhone) fd.append('guardianPhone', formData.guardianPhone);
       if (formData.email) fd.append('email', formData.email);
       if (formData.schoolName) fd.append('schoolName', formData.schoolName);
       if (formData.major) fd.append('major', formData.major);
       if (formData.enrollmentPeriod) fd.append('enrollmentPeriod', formData.enrollmentPeriod);
       if (formData.educationStatus) fd.append('educationStatus', formData.educationStatus);
       const filledCareers = formData.careers.filter(
-        (c) => c.companyName || c.period || c.duties
+        (c) => c.companyName || c.period || c.duties || c.description
       );
       if (filledCareers.length > 0) {
         fd.append('careers', JSON.stringify(filledCareers));
+      }
+      const filledCerts = formData.certifications.filter(
+        (c) => c.name || c.institution
+      );
+      if (filledCerts.length > 0) {
+        fd.append('certifications', JSON.stringify(filledCerts));
       }
       if (formData.disabilityTypes.length > 0) {
         fd.append('disabilityTypes', JSON.stringify(formData.disabilityTypes));
       }
       if (formData.disabilityDetail) fd.append('disabilityDetail', formData.disabilityDetail);
-      if (formData.disabilitySeverity) fd.append('disabilitySeverity', formData.disabilitySeverity);
-      if (formData.workType) fd.append('workType', formData.workType);
 
       const pdfBlob = await generateResumePdf(formData);
       fd.append('pdf', pdfBlob, `${formData.name}_이력서.pdf`);
@@ -234,7 +235,7 @@ export default function ResumePage() {
         </div>
       </header>
 
-      <div className="max-w-[210mm] mx-auto px-4 sm:px-6 py-10">
+      <div className="max-w-[260mm] mx-auto px-4 sm:px-6 py-10">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-6 sm:p-10">
           <form onSubmit={handleSubmit} noValidate>
             {/* Title */}
@@ -270,9 +271,26 @@ export default function ResumePage() {
                       )}
                     </td>
                     <th className={thClass} style={{ width: '15%' }}>
-                      생년월일 <span className="text-red-500">*</span>
+                      성별
                     </th>
                     <td className={tdClass} style={{ width: '35%' }}>
+                      <select
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleChange}
+                        className={inputClass}
+                      >
+                        <option value="">선택</option>
+                        <option value="남성">남성</option>
+                        <option value="여성">여성</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className={thClass}>
+                      생년월일 <span className="text-red-500">*</span>
+                    </th>
+                    <td className={tdClass}>
                       <DatePicker
                         value={formData.birthDate}
                         onChange={(val) => {
@@ -281,19 +299,6 @@ export default function ResumePage() {
                         }}
                         placeholder="생년월일 선택"
                         error={touched.birthDate && errors.birthDate ? errors.birthDate : undefined}
-                      />
-                    </td>
-                  </tr>
-                  <tr>
-                    <th className={thClass}>우편번호</th>
-                    <td className={tdClass}>
-                      <input
-                        type="text"
-                        name="zipCode"
-                        value={formData.zipCode}
-                        onChange={handleChange}
-                        placeholder="12345"
-                        className={inputClass}
                       />
                     </td>
                     <th className={thClass}>주소</th>
@@ -326,7 +331,7 @@ export default function ResumePage() {
                         <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
                       )}
                     </td>
-                    <th className={thClass}>휴대전화</th>
+                    <th className={thClass}>비상연락처</th>
                     <td className={tdClass}>
                       <input
                         type="tel"
@@ -339,50 +344,8 @@ export default function ResumePage() {
                     </td>
                   </tr>
                   <tr>
-                    <th className={thClass}>보호자전화</th>
-                    <td className={tdClass}>
-                      <input
-                        type="tel"
-                        name="guardianPhone"
-                        value={formData.guardianPhone}
-                        onChange={handleChange}
-                        placeholder="010-0000-0000"
-                        className={inputClass}
-                      />
-                    </td>
-                    <th className={thClass}>문자서비스</th>
-                    <td className={tdClass}>
-                      <div className="flex items-center gap-4">
-                        <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                          <input
-                            type="radio"
-                            name="smsConsent"
-                            checked={formData.smsConsent === true}
-                            onChange={() =>
-                              setFormData((prev) => ({ ...prev, smsConsent: true }))
-                            }
-                            className="accent-duru-orange-500"
-                          />
-                          동의
-                        </label>
-                        <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                          <input
-                            type="radio"
-                            name="smsConsent"
-                            checked={formData.smsConsent === false}
-                            onChange={() =>
-                              setFormData((prev) => ({ ...prev, smsConsent: false }))
-                            }
-                            className="accent-duru-orange-500"
-                          />
-                          비동의
-                        </label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th className={thClass}>전자우편</th>
-                    <td className={tdClass}>
+                    <th className={thClass}>e-mail</th>
+                    <td className={tdClass} colSpan={3}>
                       <input
                         type="email"
                         name="email"
@@ -391,35 +354,6 @@ export default function ResumePage() {
                         placeholder="example@email.com"
                         className={inputClass}
                       />
-                    </td>
-                    <th className={thClass}>수신동의</th>
-                    <td className={tdClass}>
-                      <div className="flex items-center gap-4">
-                        <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                          <input
-                            type="radio"
-                            name="emailConsent"
-                            checked={formData.emailConsent === true}
-                            onChange={() =>
-                              setFormData((prev) => ({ ...prev, emailConsent: true }))
-                            }
-                            className="accent-duru-orange-500"
-                          />
-                          동의
-                        </label>
-                        <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                          <input
-                            type="radio"
-                            name="emailConsent"
-                            checked={formData.emailConsent === false}
-                            onChange={() =>
-                              setFormData((prev) => ({ ...prev, emailConsent: false }))
-                            }
-                            className="accent-duru-orange-500"
-                          />
-                          비동의
-                        </label>
-                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -502,9 +436,10 @@ export default function ResumePage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
-                    <th className={thClass} style={{ width: '30%' }}>회사명</th>
-                    <th className={thClass} style={{ width: '25%' }}>재직기간</th>
-                    <th className={thClass} style={{ width: '35%' }}>담당업무</th>
+                    <th className={thClass} style={{ width: '22%' }}>회사명</th>
+                    <th className={thClass} style={{ width: '18%' }}>재직기간</th>
+                    <th className={thClass} style={{ width: '25%' }}>담당업무</th>
+                    <th className={thClass} style={{ width: '25%' }}>업무 내용</th>
                     <th className={thClass} style={{ width: '10%' }}></th>
                   </tr>
                 </thead>
@@ -550,6 +485,19 @@ export default function ResumePage() {
                           className={inputClass}
                         />
                       </td>
+                      <td className={tdClass}>
+                        <input
+                          type="text"
+                          value={career.description}
+                          onChange={(e) => {
+                            const updated = [...formData.careers];
+                            updated[idx] = { ...updated[idx], description: e.target.value };
+                            setFormData((prev) => ({ ...prev, careers: updated }));
+                          }}
+                          placeholder="업무 내용"
+                          className={inputClass}
+                        />
+                      </td>
                       <td className={`${tdClass} text-center`}>
                         {formData.careers.length > 1 && (
                           <button
@@ -575,12 +523,88 @@ export default function ResumePage() {
                 onClick={() =>
                   setFormData((prev) => ({
                     ...prev,
-                    careers: [...prev.careers, { companyName: '', period: '', duties: '' }],
+                    careers: [...prev.careers, { companyName: '', period: '', duties: '', description: '' }],
                   }))
                 }
                 className="mt-2 text-sm text-duru-orange-500 hover:text-duru-orange-600 font-medium"
               >
                 + 경력 추가
+              </button>
+            </div>
+
+            {/* Section: 보유자격증 */}
+            <div className="mb-6">
+              <div className="bg-duru-orange-500 text-white text-sm font-bold px-4 py-2 rounded-t-lg">
+                보유자격증
+              </div>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className={thClass} style={{ width: '45%' }}>자격증명</th>
+                    <th className={thClass} style={{ width: '45%' }}>취득기관</th>
+                    <th className={thClass} style={{ width: '10%' }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.certifications.map((cert, idx) => (
+                    <tr key={idx}>
+                      <td className={tdClass}>
+                        <input
+                          type="text"
+                          value={cert.name}
+                          onChange={(e) => {
+                            const updated = [...formData.certifications];
+                            updated[idx] = { ...updated[idx], name: e.target.value };
+                            setFormData((prev) => ({ ...prev, certifications: updated }));
+                          }}
+                          placeholder="자격증명"
+                          className={inputClass}
+                        />
+                      </td>
+                      <td className={tdClass}>
+                        <input
+                          type="text"
+                          value={cert.institution}
+                          onChange={(e) => {
+                            const updated = [...formData.certifications];
+                            updated[idx] = { ...updated[idx], institution: e.target.value };
+                            setFormData((prev) => ({ ...prev, certifications: updated }));
+                          }}
+                          placeholder="취득기관"
+                          className={inputClass}
+                        />
+                      </td>
+                      <td className={`${tdClass} text-center`}>
+                        {formData.certifications.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                certifications: prev.certifications.filter((_, i) => i !== idx),
+                              }));
+                            }}
+                            className="text-red-400 hover:text-red-600 text-sm"
+                          >
+                            삭제
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    certifications: [...prev.certifications, { name: '', institution: '' }],
+                  }))
+                }
+                className="mt-2 text-sm text-duru-orange-500 hover:text-duru-orange-600 font-medium"
+              >
+                + 자격증 추가
               </button>
             </div>
 
@@ -630,36 +654,6 @@ export default function ResumePage() {
                         placeholder="장애 내용을 구체적으로 기재해주세요."
                         className={`${inputClass} resize-none`}
                       />
-                    </td>
-                  </tr>
-                  <tr>
-                    <th className={thClass}>장애정도</th>
-                    <td className={tdClass}>
-                      <select
-                        name="disabilitySeverity"
-                        value={formData.disabilitySeverity}
-                        onChange={handleChange}
-                        className={inputClass}
-                      >
-                        <option value="">선택</option>
-                        <option value="중증">중증</option>
-                        <option value="경증">경증</option>
-                      </select>
-                    </td>
-                    <th className={thClass}>근무형태</th>
-                    <td className={tdClass}>
-                      <select
-                        name="workType"
-                        value={formData.workType}
-                        onChange={handleChange}
-                        className={inputClass}
-                      >
-                        <option value="">선택</option>
-                        <option value="전일제">전일제</option>
-                        <option value="시간제">시간제</option>
-                        <option value="재택근무">재택근무</option>
-                        <option value="기타">기타</option>
-                      </select>
                     </td>
                   </tr>
                 </tbody>

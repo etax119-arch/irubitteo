@@ -3,10 +3,9 @@ export type Resume = {
   id: string;
   name: string;
   birthDate: string;
+  gender: string | null;
   phone: string;
   disabilityTypes: string[];
-  disabilitySeverity: string | null;
-  workType: string | null;
   pdfPath: string | null;
   status: 'pending' | 'reviewed';
   createdAt: string;

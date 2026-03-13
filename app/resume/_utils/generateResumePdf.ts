@@ -5,24 +5,20 @@ import { DISABILITY_TYPES } from '@/types/employee';
 interface ResumeFormData {
   name: string;
   birthDate: string;
-  zipCode: string;
+  gender: string;
   address: string;
   phone: string;
   mobile: string;
-  guardianPhone: string;
-  smsConsent: boolean;
   email: string;
-  emailConsent: boolean;
   schoolName: string;
   major: string;
   enrollmentPeriod: string;
   educationStatus: string;
   privacyConsent: boolean;
-  careers: Array<{ companyName: string; period: string; duties: string }>;
+  careers: Array<{ companyName: string; period: string; duties: string; description: string }>;
+  certifications: Array<{ name: string; institution: string }>;
   disabilityTypes: string[];
   disabilityDetail: string;
-  disabilitySeverity: string;
-  workType: string;
 }
 
 /* ── 색상 (tailwind.config.js 기준) ── */
@@ -159,32 +155,24 @@ export async function generateResumePdf(
       [
         { content: '성명', styles: thStyles },
         formData.name,
-        { content: '생년월일', styles: thStyles },
-        formData.birthDate,
+        { content: '성별', styles: thStyles },
+        formData.gender,
       ],
       [
-        { content: '우편번호', styles: thStyles },
-        formData.zipCode,
+        { content: '생년월일', styles: thStyles },
+        formData.birthDate,
         { content: '주소', styles: thStyles },
         formData.address,
       ],
       [
         { content: '전화번호', styles: thStyles },
         formData.phone,
-        { content: '휴대전화', styles: thStyles },
+        { content: '비상연락처', styles: thStyles },
         formData.mobile,
       ],
       [
-        { content: '보호자전화', styles: thStyles },
-        formData.guardianPhone,
-        { content: '문자서비스', styles: thStyles },
-        formData.smsConsent ? '동의' : '비동의',
-      ],
-      [
-        { content: '전자우편', styles: thStyles },
-        formData.email,
-        { content: '수신동의', styles: thStyles },
-        formData.emailConsent ? '동의' : '비동의',
+        { content: 'e-mail', styles: thStyles },
+        { content: formData.email, colSpan: 3 },
       ],
     ],
   });
@@ -230,17 +218,17 @@ export async function generateResumePdf(
      3) 경력사항
      ══════════════════════════════════════════ */
   const filledCareers = formData.careers.filter(
-    (c) => c.companyName || c.period || c.duties,
+    (c) => c.companyName || c.period || c.duties || c.description,
   );
 
   const careerBody =
     filledCareers.length > 0
-      ? filledCareers.map((c) => [c.companyName, c.period, c.duties])
+      ? filledCareers.map((c) => [c.companyName, c.period, c.duties, c.description])
       : [
           [
             {
               content: '없음',
-              colSpan: 3,
+              colSpan: 4,
               styles: { halign: 'center' as const, textColor: C.gray400 },
             },
           ],
@@ -252,18 +240,62 @@ export async function generateResumePdf(
     styles: baseStyles,
     margin: centerMargin(careerTableWidth),
     columnStyles: {
-      0: { cellWidth: 52 },
-      1: { cellWidth: 42 },
-      2: { cellWidth: 78 },
+      0: { cellWidth: 36 },
+      1: { cellWidth: 34 },
+      2: { cellWidth: 50 },
+      3: { cellWidth: 52 },
     },
     body: [
-      sectionHeaderRow('경력사항', 3),
+      sectionHeaderRow('경력사항', 4),
       [
         { content: '회사명', styles: thStyles },
         { content: '재직기간', styles: thStyles },
         { content: '담당업무', styles: thStyles },
+        { content: '업무 내용', styles: thStyles },
       ],
       ...careerBody,
+    ],
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  startY = (doc as any).lastAutoTable.finalY + 4;
+
+  /* ══════════════════════════════════════════
+     3.5) 보유자격증
+     ══════════════════════════════════════════ */
+  const filledCerts = formData.certifications.filter(
+    (c) => c.name || c.institution,
+  );
+
+  const certBody =
+    filledCerts.length > 0
+      ? filledCerts.map((c) => [c.name, c.institution])
+      : [
+          [
+            {
+              content: '없음',
+              colSpan: 2,
+              styles: { halign: 'center' as const, textColor: C.gray400 },
+            },
+          ],
+        ];
+
+  autoTable(doc, {
+    startY,
+    theme: 'grid',
+    styles: baseStyles,
+    margin: centerMargin(standardTableWidth),
+    columnStyles: {
+      0: { cellWidth: 86 },
+      1: { cellWidth: 86 },
+    },
+    body: [
+      sectionHeaderRow('보유자격증', 2),
+      [
+        { content: '자격증명', styles: thStyles },
+        { content: '취득기관', styles: thStyles },
+      ],
+      ...certBody,
     ],
   });
 
@@ -309,12 +341,6 @@ export async function generateResumePdf(
       [
         { content: '구체적 장애내용', styles: thStyles },
         { content: formData.disabilityDetail, colSpan: 3 },
-      ],
-      [
-        { content: '장애정도', styles: thStyles },
-        formData.disabilitySeverity,
-        { content: '근무형태', styles: thStyles },
-        formData.workType,
       ],
     ],
   });
