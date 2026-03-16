@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Clock } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Popover } from '@/components/ui/Popover';
@@ -13,10 +13,10 @@ interface TimePickerProps {
   disabled?: boolean;
   className?: string;
   inputClassName?: string;
+  minuteStep?: number;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
-const MINUTES = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
 
 export function TimePicker({
   value,
@@ -26,7 +26,14 @@ export function TimePicker({
   disabled = false,
   className,
   inputClassName,
+  minuteStep = 1,
 }: TimePickerProps) {
+  const minutes = useMemo(
+    () => Array.from({ length: Math.floor(60 / minuteStep) }, (_, i) =>
+      (i * minuteStep).toString().padStart(2, '0')
+    ),
+    [minuteStep]
+  );
   const [isOpen, setIsOpen] = useState(false);
   const hourRef = useRef<HTMLDivElement>(null);
   const minuteRef = useRef<HTMLDivElement>(null);
@@ -43,7 +50,7 @@ export function TimePicker({
         }
       }
       if (minuteRef.current && minute) {
-        const idx = MINUTES.indexOf(minute);
+        const idx = minutes.indexOf(minute);
         if (idx >= 0) {
           minuteRef.current.scrollTop = idx * 36 - 72;
         }
@@ -122,7 +129,7 @@ export function TimePicker({
             className="flex-1 overflow-y-auto scrollbar-light"
           >
             <div className="py-1">
-              {MINUTES.map((m) => (
+              {minutes.map((m) => (
                 <button
                   key={m}
                   type="button"
