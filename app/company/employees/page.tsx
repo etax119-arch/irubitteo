@@ -172,7 +172,7 @@ export default function EmployeesPage() {
         ssn: addWorkerForm.ssn,
         phone: addWorkerForm.phone,
         gender,
-        uniqueCode: addWorkerForm.workerId,
+        uniqueCode: addWorkerForm.workerId.replace(/-/g, ''),
         hireDate: addWorkerForm.hireDate,
         workDays: addWorkerForm.workDays.map((day) => LABEL_TO_NUM[day]).filter((n): n is WorkDay => n !== undefined),
         workStartTime: addWorkerForm.workStartTime,

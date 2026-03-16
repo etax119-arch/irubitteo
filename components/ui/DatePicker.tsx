@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { DayPicker } from 'react-day-picker';
+import { DayPicker, type Matcher } from 'react-day-picker';
 import { format, parse, isValid, addMonths, subMonths, addYears, subYears } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
@@ -17,6 +17,8 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   inputClassName?: string;
+  minDate?: string;
+  maxDate?: string;
 }
 
 function formatDisplay(value: string): string {
@@ -35,12 +37,24 @@ export function DatePicker({
   placeholder = '날짜 선택',
   className,
   inputClassName,
+  minDate,
+  maxDate,
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const selected = value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined;
   const initialMonth = selected && isValid(selected) ? selected : new Date();
   const [month, setMonth] = useState(initialMonth);
+
+  const disabledMatchers: Matcher[] = [];
+  if (minDate) {
+    const min = parse(minDate, 'yyyy-MM-dd', new Date());
+    if (isValid(min)) disabledMatchers.push({ before: min });
+  }
+  if (maxDate) {
+    const max = parse(maxDate, 'yyyy-MM-dd', new Date());
+    if (isValid(max)) disabledMatchers.push({ after: max });
+  }
 
   const handleSelect = useCallback(
     (date: Date | undefined) => {
@@ -90,6 +104,7 @@ export function DatePicker({
           month={month}
           onMonthChange={setMonth}
           onSelect={handleSelect}
+          disabled={disabledMatchers.length > 0 ? disabledMatchers : undefined}
           showOutsideDays
           classNames={{
             root: 'p-4',

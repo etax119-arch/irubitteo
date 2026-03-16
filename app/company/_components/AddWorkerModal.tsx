@@ -24,6 +24,7 @@ import { Modal } from '@/components/ui/Modal';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { TimePicker } from '@/components/ui/TimePicker';
 import { DAY_LABELS } from '@/lib/workDays';
+import { format, subMonths } from 'date-fns';
 
 interface AddWorkerModalProps {
   isOpen: boolean;
@@ -48,6 +49,12 @@ function formatSSN(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 13);
   if (digits.length <= 6) return digits;
   return `${digits.slice(0, 6)}-${digits.slice(6)}`;
+}
+
+function formatWorkerId(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 4) return digits;
+  return `${digits.slice(0, 4)}-${digits.slice(4)}`;
 }
 
 const REQUIRED_FIELDS: (keyof AddWorkerForm)[] = [
@@ -80,6 +87,10 @@ export function AddWorkerModal({
   onManualWorkerIdEdit,
   onSubmit,
 }: AddWorkerModalProps) {
+  const today = new Date();
+  const hireDateMin = format(subMonths(today, 1), 'yyyy-MM-dd');
+  const hireDateMax = format(today, 'yyyy-MM-dd');
+
   const isFormValid = REQUIRED_FIELDS.every((field) => {
     if (field === 'workDays') {
       return form[field] && Array.isArray(form[field]) && form[field].length > 0;
@@ -405,6 +416,8 @@ export function AddWorkerModal({
                   <DatePicker
                     value={form.hireDate}
                     onChange={(v) => onUpdateForm('hireDate', v)}
+                    minDate={hireDateMin}
+                    maxDate={hireDateMax}
                   />
                   {complete.hireDate && (
                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -502,9 +515,11 @@ export function AddWorkerModal({
                 <Input
                   type="text"
                   size="sm"
-                  placeholder="주민번호 + 전화번호 입력 시 자동 생성"
-                  value={form.workerId}
-                  onChange={(e) => onManualWorkerIdEdit(e.target.value)}
+                  inputMode="numeric"
+                  maxLength={9}
+                  placeholder="0000-0000"
+                  value={formatWorkerId(form.workerId)}
+                  onChange={(e) => onManualWorkerIdEdit(formatWorkerId(e.target.value))}
                   leftIcon={<Lock className="w-4 h-4 text-duru-orange-400" />}
                   className="border-duru-orange-300"
                 />
