@@ -9,7 +9,7 @@ import type { GalleryItem } from '@/types/gallery';
 import type { PaginatedResponse } from '@/types/api';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import PurchaseInquiryButton from '../_components/PurchaseInquiryButton';
+
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -154,9 +154,6 @@ export default async function GalleryDetailPage({ params }: PageProps) {
                 </div>
               )}
 
-              <div className="mt-auto">
-                <PurchaseInquiryButton />
-              </div>
             </div>
           </div>
         </div>

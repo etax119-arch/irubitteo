@@ -79,6 +79,14 @@ export default async function GalleryPage({
             </>
           )}
         </section>
+
+        {/* 굿즈 문의 안내 */}
+        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-16 mb-4">
+          <div className="text-center text-gray-500 text-sm leading-relaxed">
+            <p>빛터 갤러리의 작품으로 그립톡, 컵, 탁상 달력 등 다양한 굿즈를 만들 수 있습니다.</p>
+            <p>굿즈 관련 문의는 유선으로 연락주시기 바랍니다. (02-6213-7773)</p>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
