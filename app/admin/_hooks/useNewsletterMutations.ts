@@ -9,11 +9,11 @@ import { revalidateNewsletter } from '../content/actions';
 export function useCreateNewsletter() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ input, image, onUploadProgress }: {
+    mutationFn: ({ input, images, onUploadProgress }: {
       input: NewsletterCreateInput;
-      image?: File;
+      images?: File[];
       onUploadProgress?: (progress: number) => void;
-    }) => createNewsletter(input, image, onUploadProgress),
+    }) => createNewsletter(input, images ?? [], onUploadProgress),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: newsletterKeys.lists() });
       revalidateNewsletter();
@@ -24,12 +24,12 @@ export function useCreateNewsletter() {
 export function useUpdateNewsletter() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, input, image, onUploadProgress }: {
+    mutationFn: ({ id, input, newImages, onUploadProgress }: {
       id: string;
       input: NewsletterUpdateInput;
-      image?: File;
+      newImages?: File[];
       onUploadProgress?: (progress: number) => void;
-    }) => updateNewsletter(id, input, image, onUploadProgress),
+    }) => updateNewsletter(id, input, newImages ?? [], onUploadProgress),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: newsletterKeys.lists() });
       revalidateNewsletter(variables.id);

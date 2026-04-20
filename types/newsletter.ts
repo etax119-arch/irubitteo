@@ -1,14 +1,20 @@
-export type NewsletterItem = {
+export type NewsletterImage = {
   id: string;
-  title: string;
-  content: string;
-  imageUrl: string | null;
+  imageUrl: string;
   imageThumbUrl: string | null;
   imageCardUrl: string | null;
   imageWidth: number | null;
   imageHeight: number | null;
   imageBlurData: string | null;
   imageAlt: string | null;
+  sortOrder: number;
+};
+
+export type NewsletterItem = {
+  id: string;
+  title: string;
+  content: string;
+  images: NewsletterImage[];
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -22,6 +28,6 @@ export type NewsletterCreateInput = {
 export type NewsletterUpdateInput = {
   title?: string;
   content?: string;
-  removeImage?: boolean;
   isPublished?: boolean;
+  deleteImageIds?: string[];
 };

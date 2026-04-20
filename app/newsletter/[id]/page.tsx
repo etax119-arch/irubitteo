@@ -34,6 +34,7 @@ export async function generateMetadata({
   const { id } = await params;
   try {
     const item = await getNewsletterItem(id);
+    const cover = item.images[0];
     return {
       title: `${item.title} | 빛터 소식지`,
       description: item.content.slice(0, 160),
@@ -41,8 +42,8 @@ export async function generateMetadata({
       openGraph: {
         title: `${item.title} | 빛터 소식지`,
         description: item.content.slice(0, 160),
-        images: item.imageCardUrl
-          ? [{ url: item.imageCardUrl }]
+        images: cover?.imageCardUrl
+          ? [{ url: cover.imageCardUrl }]
           : undefined,
       },
     };
@@ -68,6 +69,7 @@ export default async function NewsletterDetailPage({ params }: PageProps) {
   });
 
   // JSON-LD
+  const coverImage = item.images[0];
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -78,7 +80,7 @@ export default async function NewsletterDetailPage({ params }: PageProps) {
       '@type': 'Organization',
       name: '이루빛터',
     },
-    ...(item.imageCardUrl ? { image: item.imageCardUrl } : {}),
+    ...(coverImage?.imageCardUrl ? { image: coverImage.imageCardUrl } : {}),
   };
 
   return (
@@ -103,23 +105,27 @@ export default async function NewsletterDetailPage({ params }: PageProps) {
           </h1>
           <p className="text-gray-500 mb-8">{date}</p>
 
-          {/* Cover image */}
-          {(item.imageCardUrl || item.imageUrl) && (
-            <div className="relative aspect-[16/9] bg-gray-100 rounded-2xl overflow-hidden mb-8">
-              <Image
-                src={item.imageCardUrl || item.imageUrl!}
-                alt={item.imageAlt || item.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 768px"
-                className="object-cover"
-                priority
-                {...(item.imageBlurData
-                  ? {
-                      placeholder: 'blur' as const,
-                      blurDataURL: item.imageBlurData,
-                    }
-                  : {})}
-              />
+          {/* Images */}
+          {item.images.length > 0 && (
+            <div className="space-y-6 mb-8">
+              {item.images.map((img, idx) => (
+                <div key={img.id} className="relative aspect-[16/9] bg-gray-100 rounded-2xl overflow-hidden">
+                  <Image
+                    src={img.imageCardUrl || img.imageUrl}
+                    alt={img.imageAlt || `${item.title} - ${idx + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 768px"
+                    className="object-cover"
+                    priority={idx === 0}
+                    {...(img.imageBlurData
+                      ? {
+                          placeholder: 'blur' as const,
+                          blurDataURL: img.imageBlurData,
+                        }
+                      : {})}
+                  />
+                </div>
+              ))}
             </div>
           )}
 

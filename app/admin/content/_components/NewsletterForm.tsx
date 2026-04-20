@@ -8,12 +8,19 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { formatFileSize, FILE_CONSTRAINTS, validateUploadFile } from '@/lib/file';
-import type { NewsletterItem } from '@/types/newsletter';
+import type { NewsletterItem, NewsletterImage } from '@/types/newsletter';
+
+const MAX_IMAGES = 10;
+
+type NewFileEntry = { file: File; url: string };
 
 interface NewsletterFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (input: { title: string; content: string; removeImage?: boolean }, image?: File) => Promise<void>;
+  onSubmit: (
+    input: { title: string; content: string; deleteImageIds?: string[] },
+    newImages: File[],
+  ) => Promise<void>;
   isSubmitting: boolean;
   initialData?: NewsletterItem;
 }
@@ -22,95 +29,96 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
   const toast = useToast();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [removeExistingImage, setRemoveExistingImage] = useState(false);
+  const [newFiles, setNewFiles] = useState<NewFileEntry[]>([]);
+  const [existingImages, setExistingImages] = useState<NewsletterImage[]>([]);
+  const [deleteImageIds, setDeleteImageIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Track object URLs for cleanup
-  const objectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- 모달 열릴 때 기존 데이터로 폼 초기화
         setTitle(initialData.title);
         setContent(initialData.content);
-        setPreview(initialData.imageThumbUrl || initialData.imageUrl || null);
-        setRemoveExistingImage(false);
+        setExistingImages(initialData.images);
       } else {
         setTitle('');
         setContent('');
-        setPreview(null);
-        setRemoveExistingImage(false);
+        setExistingImages([]);
       }
-      setSelectedFile(null);
-      // Clean up any previous object URL
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-        objectUrlRef.current = null;
-      }
+      setNewFiles((prev) => {
+        prev.forEach((e) => URL.revokeObjectURL(e.url));
+        return [];
+      });
+      setDeleteImageIds(new Set());
     }
   }, [isOpen, initialData]);
 
-  // Cleanup object URL on unmount
   useEffect(() => {
     return () => {
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-      }
+      setNewFiles((prev) => {
+        prev.forEach((e) => URL.revokeObjectURL(e.url));
+        return prev;
+      });
     };
   }, []);
 
+  const visibleExistingImages = existingImages.filter((img) => !deleteImageIds.has(img.id));
+  const totalCount = visibleExistingImages.length + newFiles.length;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const error = validateUploadFile(file, FILE_CONSTRAINTS.CONTENT_IMAGE);
-      if (error) {
-        toast.error(error);
-        return;
-      }
-      setSelectedFile(file);
-      // Revoke previous object URL
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-      }
-      const url = URL.createObjectURL(file);
-      objectUrlRef.current = url;
-      setPreview(url);
-      setRemoveExistingImage(false);
-    }
-  };
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
 
-  const handleRemoveFile = () => {
-    const existingImagePreview = initialData?.imageThumbUrl || initialData?.imageUrl || null;
-
-    if (selectedFile) {
-      setSelectedFile(null);
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-        objectUrlRef.current = null;
-      }
-      setPreview(removeExistingImage ? null : existingImagePreview);
+    const slots = MAX_IMAGES - totalCount;
+    if (slots <= 0) {
+      toast.error(`이미지는 최대 ${MAX_IMAGES}장까지 등록할 수 있습니다.`);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
-    if (existingImagePreview) {
-      setPreview(null);
-      setRemoveExistingImage(true);
+    const accepted: NewFileEntry[] = [];
+    for (const file of files.slice(0, slots)) {
+      const error = validateUploadFile(file, FILE_CONSTRAINTS.CONTENT_IMAGE);
+      if (error) {
+        toast.error(error);
+        continue;
+      }
+      accepted.push({ file, url: URL.createObjectURL(file) });
     }
+
+    if (files.length > slots) {
+      toast.error(`${files.length - slots}개 초과분은 추가되지 않았습니다.`);
+    }
+
+    if (accepted.length > 0) {
+      setNewFiles((prev) => [...prev, ...accepted]);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleRemoveExisting = (id: string) => {
+    setDeleteImageIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
+
+  const handleRemoveNew = (target: NewFileEntry) => {
+    URL.revokeObjectURL(target.url);
+    setNewFiles((prev) => prev.filter((entry) => entry !== target));
   };
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) return;
+    const ids = Array.from(deleteImageIds);
     await onSubmit(
       {
         title: title.trim(),
         content: content.trim(),
-        removeImage: isEdit && removeExistingImage && !selectedFile ? true : undefined,
+        deleteImageIds: isEdit && ids.length > 0 ? ids : undefined,
       },
-      selectedFile || undefined,
+      newFiles.map((e) => e.file),
     );
   };
 
@@ -128,41 +136,73 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
           placeholder="소식지 내용을 입력하세요"
         />
 
-        {/* Image upload */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">이미지 (선택)</label>
-          {preview ? (
-            <div className="relative inline-block">
-              <img src={preview} alt="미리보기" className="w-40 h-28 object-cover rounded-lg" />
-              <button
-                type="button"
-                onClick={handleRemoveFile}
-                className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow border border-gray-200"
-              >
-                <X className="w-3 h-3 text-gray-500" />
-              </button>
-              {selectedFile && (
-                <p className="text-xs text-gray-500 mt-1">{formatFileSize(selectedFile.size)}</p>
-              )}
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            이미지 (선택) <span className="text-gray-400 font-normal">— {totalCount}/{MAX_IMAGES}</span>
+          </label>
+
+          {totalCount > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-3">
+              {visibleExistingImages.map((img) => (
+                <div key={img.id} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={img.imageThumbUrl || img.imageUrl}
+                    alt={img.imageAlt || '기존 이미지'}
+                    className="w-full h-28 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveExisting(img.id)}
+                    className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow border border-gray-200"
+                    aria-label="이미지 삭제"
+                  >
+                    <X className="w-3 h-3 text-gray-500" />
+                  </button>
+                </div>
+              ))}
+              {newFiles.map((entry) => (
+                <div key={entry.url} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={entry.url}
+                    alt="미리보기"
+                    className="w-full h-28 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveNew(entry)}
+                    className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow border border-gray-200"
+                    aria-label="이미지 삭제"
+                  >
+                    <X className="w-3 h-3 text-gray-500" />
+                  </button>
+                  <p className="text-xs text-gray-500 mt-1 truncate">{formatFileSize(entry.file.size)}</p>
+                </div>
+              ))}
             </div>
-          ) : (
+          )}
+
+          {totalCount < MAX_IMAGES && (
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
             >
               <Upload className="w-4 h-4" />
-              이미지 선택
+              이미지 추가
             </button>
           )}
+
           <input
             ref={fileInputRef}
             type="file"
+            multiple
             accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif"
             onChange={handleFileChange}
             className="hidden"
           />
-          <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP, GIF (최대 10MB)</p>
+          <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP, GIF (최대 10MB, {MAX_IMAGES}장까지)</p>
         </div>
 
         <div className="flex justify-end gap-3 pt-2">

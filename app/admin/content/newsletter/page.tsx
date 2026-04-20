@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { useAdminNewsletters } from '../../_hooks/useNewsletterQuery';
 import { useCreateNewsletter, useUpdateNewsletter, useDeleteNewsletter } from '../../_hooks/useNewsletterMutations';
-import type { NewsletterItem } from '@/types/newsletter';
+import type { NewsletterItem, NewsletterUpdateInput } from '@/types/newsletter';
 import NewsletterAdminCard from '../_components/NewsletterAdminCard';
 import NewsletterForm from '../_components/NewsletterForm';
 
@@ -25,9 +25,9 @@ export default function AdminNewsletterPage() {
   const updateMutation = useUpdateNewsletter();
   const deleteMutation = useDeleteNewsletter();
 
-  const handleCreate = async (input: { title: string; content: string }, image?: File) => {
+  const handleCreate = async (input: { title: string; content: string }, images: File[]) => {
     try {
-      await createMutation.mutateAsync({ input, image });
+      await createMutation.mutateAsync({ input, images });
       toast.success('소식지가 등록되었습니다.');
       setFormOpen(false);
     } catch {
@@ -36,12 +36,12 @@ export default function AdminNewsletterPage() {
   };
 
   const handleEdit = async (
-    input: { title?: string; content?: string; removeImage?: boolean; isPublished?: boolean },
-    image?: File,
+    input: NewsletterUpdateInput,
+    newImages: File[],
   ) => {
     if (!editTarget) return;
     try {
-      await updateMutation.mutateAsync({ id: editTarget.id, input, image });
+      await updateMutation.mutateAsync({ id: editTarget.id, input, newImages });
       toast.success('소식지가 수정되었습니다.');
       setEditTarget(null);
     } catch {
