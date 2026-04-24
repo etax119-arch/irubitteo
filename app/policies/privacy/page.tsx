@@ -13,21 +13,8 @@ export default function PrivacyPage() {
         <h2 className="text-xl font-semibold text-gray-900">개인정보처리방침</h2>
         <p>시행일: 2026년 3월 1일</p>
         <p>개정일: 2026년 3월 1일</p>
-        <p>세무법인 스타택스(이하 &quot;회사&quot;)는 개인정보보호법 등 관련 법령을 준수하며 이용자의 개인정보를 안전하게 처리합니다.</p>
+        <p>이루빛터(이하 &quot;회사&quot;)는 개인정보보호법 등 관련 법령을 준수하며 이용자의 개인정보를 안전하게 처리합니다.</p>
       </header>
-
-      <section className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <h3 className="text-base font-semibold text-gray-900">개인정보처리자 정보</h3>
-        <p>법인명: 세무법인 스타택스</p>
-        <p>대표자명: 윤현웅</p>
-        <p>사업자등록번호: 154-81-02264</p>
-        <p>
-          사업장 소재지: 서울특별시 성동구 아차산로17길 49, 1509호, 1510호, 1511호, 1512호 (성수동2가, 생각공장 데시앙플렉스)
-        </p>
-        <p>
-          본점 소재지: 서울특별시 성동구 아차산로17길 49, 1509호, 1510호, 1511호, 1512호 (성수동2가, 생각공장 데시앙플렉스)
-        </p>
-      </section>
 
       <section className="space-y-2">
         <h3 className="text-base font-semibold text-gray-900">1. 수집하는 개인정보 항목</h3>
@@ -57,9 +44,7 @@ export default function PrivacyPage() {
       <section className="space-y-2">
         <h3 className="text-base font-semibold text-gray-900">6. 개인정보 보호책임자</h3>
         <p>개인정보 관련 문의는 아래 창구를 통해 접수할 수 있습니다.</p>
-        <p>개인정보 보호책임자: 윤현웅</p>
-        <p>담당 조직: 스타택스</p>
-        <p>문의 이메일: etax119@gmail.com</p>
+        <p>문의 이메일: irubitteo@naver.com</p>
       </section>
     </article>
   );

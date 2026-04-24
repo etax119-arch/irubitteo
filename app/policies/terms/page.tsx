@@ -13,21 +13,8 @@ export default function TermsPage() {
         <h2 className="text-xl font-semibold text-gray-900">이용약관</h2>
         <p>시행일: 2026년 3월 1일</p>
         <p>개정일: 2026년 3월 1일</p>
-        <p>이 약관은 세무법인 스타택스(이하 &quot;회사&quot;)가 제공하는 서비스 이용과 관련한 기본 사항을 규정합니다.</p>
+        <p>이 약관은 이루빛터(이하 &quot;회사&quot;)가 제공하는 서비스 이용과 관련한 기본 사항을 규정합니다.</p>
       </header>
-
-      <section className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <h3 className="text-base font-semibold text-gray-900">회사 정보</h3>
-        <p>법인명: 세무법인 스타택스</p>
-        <p>대표자명: 윤현웅</p>
-        <p>사업자등록번호: 154-81-02264</p>
-        <p>
-          사업장 소재지: 서울특별시 성동구 아차산로17길 49, 1509호, 1510호, 1511호, 1512호 (성수동2가, 생각공장 데시앙플렉스)
-        </p>
-        <p>
-          본점 소재지: 서울특별시 성동구 아차산로17길 49, 1509호, 1510호, 1511호, 1512호 (성수동2가, 생각공장 데시앙플렉스)
-        </p>
-      </section>
 
       <section className="space-y-2">
         <h3 className="text-base font-semibold text-gray-900">제1조 (목적)</h3>

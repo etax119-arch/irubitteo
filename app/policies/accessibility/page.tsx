@@ -13,7 +13,7 @@ export default function AccessibilityPage() {
         <h2 className="text-xl font-semibold text-gray-900">웹접근성정책</h2>
         <p>시행일: 2026년 3월 1일</p>
         <p>개정일: 2026년 3월 1일</p>
-        <p>세무법인 스타택스는 모든 사용자가 차별 없이 서비스를 이용할 수 있도록 웹접근성 향상을 지속적으로 추진합니다.</p>
+        <p>이루빛터는 모든 사용자가 차별 없이 서비스를 이용할 수 있도록 웹접근성 향상을 지속적으로 추진합니다.</p>
       </header>
 
       <section className="space-y-2">
