@@ -87,9 +87,7 @@ export function AddWorkerModal({
   onManualWorkerIdEdit,
   onSubmit,
 }: AddWorkerModalProps) {
-  const today = new Date();
-  const hireDateMin = format(subMonths(today, 1), 'yyyy-MM-dd');
-  const hireDateMax = format(today, 'yyyy-MM-dd');
+  const hireDateMin = format(subMonths(new Date(), 1), 'yyyy-MM-dd');
 
   const isFormValid = REQUIRED_FIELDS.every((field) => {
     if (field === 'workDays') {
@@ -417,7 +415,6 @@ export function AddWorkerModal({
                     value={form.hireDate}
                     onChange={(v) => onUpdateForm('hireDate', v)}
                     minDate={hireDateMin}
-                    maxDate={hireDateMax}
                   />
                   {complete.hireDate && (
                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />

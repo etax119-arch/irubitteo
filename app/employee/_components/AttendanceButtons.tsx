@@ -1,11 +1,11 @@
 'use client';
 
-import { CheckCircle2, Coffee } from 'lucide-react';
+import { CalendarClock, CheckCircle2, Coffee } from 'lucide-react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatUtcTimestampAsKST } from '@/lib/kst';
 
-export type AttendanceMode = 'loading' | 'error' | 'holiday' | 'dayoff' | 'checkin' | 'checkout' | 'completed';
+export type AttendanceMode = 'loading' | 'error' | 'beforeHire' | 'holiday' | 'dayoff' | 'checkin' | 'checkout' | 'completed';
 
 interface AttendanceButtonsProps {
   mode: AttendanceMode;
@@ -14,9 +14,10 @@ interface AttendanceButtonsProps {
   holidayContent?: string;
   clockIn?: string | null;
   clockOut?: string | null;
+  hireDate?: string;
 }
 
-export function AttendanceButtons({ mode, onCheckIn, onCheckOut, holidayContent, clockIn, clockOut }: AttendanceButtonsProps) {
+export function AttendanceButtons({ mode, onCheckIn, onCheckOut, holidayContent, clockIn, clockOut, hireDate }: AttendanceButtonsProps) {
   if (mode === 'loading') {
     return <Skeleton className="h-40 w-full rounded-xl" />;
   }
@@ -26,6 +27,18 @@ export function AttendanceButtons({ mode, onCheckIn, onCheckOut, holidayContent,
       <div className="bg-red-50 rounded-xl p-8 text-center">
         <p className="text-red-600 font-medium">출퇴근 정보를 불러올 수 없습니다</p>
         <p className="text-red-400 text-sm mt-1">페이지를 새로고침해 주세요</p>
+      </div>
+    );
+  }
+
+  if (mode === 'beforeHire') {
+    return (
+      <div className="bg-gray-50 rounded-xl p-8 text-center">
+        <CalendarClock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+        <p className="text-gray-700 font-medium text-lg">아직 출근 전이에요</p>
+        {hireDate && (
+          <p className="text-gray-500 text-sm mt-1">입사일({hireDate})부터 출근할 수 있습니다</p>
+        )}
       </div>
     );
   }

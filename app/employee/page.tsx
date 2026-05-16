@@ -38,11 +38,14 @@ function getAttendanceMode(params: {
   workDays: WorkDay[] | undefined;
   todayWorkDay: WorkDay;
   todayAttendance: AttendanceWithEmployee | null | undefined;
+  hireDate: string | undefined;
 }): AttendanceMode {
-  const { isLoading, isError, todaySchedule, workDays, todayWorkDay, todayAttendance } = params;
+  const { isLoading, isError, todaySchedule, workDays, todayWorkDay, todayAttendance, hireDate } = params;
 
   if (isLoading) return 'loading';
   if (isError) return 'error';
+
+  if (hireDate && formatDateAsKST(new Date()) < hireDate) return 'beforeHire';
 
   if (todaySchedule?.isHoliday) return 'holiday';
   if (workDays && !workDays.includes(todayWorkDay)) return 'dayoff';
@@ -100,6 +103,7 @@ export default function EmployeeDashboard() {
     workDays: myProfile?.workDays,
     todayWorkDay,
     todayAttendance: todayAttendance ?? null,
+    hireDate: myProfile?.hireDate,
   });
 
   useEffect(() => {
@@ -182,6 +186,7 @@ export default function EmployeeDashboard() {
             holidayContent={todaySchedule?.isHoliday ? todaySchedule.content : undefined}
             clockIn={todayAttendance?.clockIn}
             clockOut={todayAttendance?.clockOut}
+            hireDate={myProfile?.hireDate}
           />
         </div>
 
