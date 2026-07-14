@@ -63,6 +63,26 @@ export const attendanceApi = {
   },
 
   /**
+   * 선택 조건의 모든 출퇴근 기록을 페이지네이션으로 전부 조회 (엑셀 내보내기용).
+   * 서버 limit 최대치(100)를 반복 호출로 우회한다.
+   */
+  async getAllAttendances(
+    params?: Omit<AttendanceQueryParams, 'page' | 'limit'>
+  ): Promise<AttendanceWithEmployee[]> {
+    const limit = 100;
+    const first = await attendanceApi.getAttendances({ ...params, page: 1, limit });
+    const totalPages = first.pagination?.totalPages ?? 1;
+    if (totalPages <= 1) return first.data;
+
+    // 남은 페이지는 서로 독립적이므로 병렬로 조회한다.
+    const restPages = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+    const rest = await Promise.all(
+      restPages.map((page) => attendanceApi.getAttendances({ ...params, page, limit }))
+    );
+    return [first.data, ...rest.map((res) => res.data)].flat();
+  },
+
+  /**
    * 출퇴근 기록 수정
    * PATCH /v1/attendances/:id
    */

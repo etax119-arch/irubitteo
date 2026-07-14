@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Edit3 } from 'lucide-react';
+import { Clock, Edit3, FileSpreadsheet, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { formatUtcTimestampAsKST, formatDateAsKST } from '@/lib/kst';
 import {
@@ -24,6 +24,8 @@ type AttendanceHistoryTableProps = {
   onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
   onClearDates: () => void;
+  onExportExcel: () => void;
+  isExporting?: boolean;
 };
 
 export function AttendanceHistoryTable({
@@ -39,6 +41,8 @@ export function AttendanceHistoryTable({
   onStartDateChange,
   onEndDateChange,
   onClearDates,
+  onExportExcel,
+  isExporting,
 }: AttendanceHistoryTableProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -55,6 +59,19 @@ export function AttendanceHistoryTable({
           onEndDateChange={onEndDateChange}
           onClear={onClearDates}
         />
+        <button
+          type="button"
+          onClick={onExportExcel}
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExporting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileSpreadsheet className="w-4 h-4" />
+          )}
+          엑셀
+        </button>
       </div>
 
       <div className="overflow-x-auto">

@@ -20,7 +20,6 @@ import { AttendanceHistoryTable } from './_components/AttendanceHistoryTable';
 import { WorkInfoSection } from './_components/WorkInfoSection';
 import { DocumentSection } from './_components/DocumentSection';
 import { UploadModal } from './_components/UploadModal';
-import { WorkTimeEditModal } from './_components/WorkTimeEditModal';
 import { WorkDoneModal } from './_components/WorkDoneModal';
 import { ResignModal } from './_components/ResignModal';
 
@@ -185,7 +184,6 @@ export default function CompanyEmployeeDetailPage() {
               records={attendance.attendanceHistory}
               isLoading={attendance.isLoadingAttendance}
               error={attendance.attendanceError}
-              onEditWorkTime={attendance.handleEditWorkTime}
               onOpenWorkDone={attendance.openWorkDoneModal}
               currentPage={attendance.currentPage}
               pagination={attendance.pagination}
@@ -196,6 +194,8 @@ export default function CompanyEmployeeDetailPage() {
               onStartDateChange={attendance.handleStartDateChange}
               onEndDateChange={attendance.handleEndDateChange}
               onClearDates={attendance.handleClearDates}
+              onExportExcel={() => attendance.handleExportExcel(employee.name)}
+              isExporting={attendance.isExporting}
             />
             <WorkInfoSection
               workDays={workDays}
@@ -229,14 +229,6 @@ export default function CompanyEmployeeDetailPage() {
         onClose={() => setShowUploadModal(false)}
         onUpload={employeeFiles.upload}
         isUploading={employeeFiles.isUploading}
-      />
-      <WorkTimeEditModal
-        isOpen={attendance.isEditingWorkTime}
-        onClose={() => attendance.setIsEditingWorkTime(false)}
-        editedWorkTime={attendance.editedWorkTime}
-        setEditedWorkTime={attendance.setEditedWorkTime}
-        onSave={attendance.handleSaveWorkTime}
-        isSaving={attendance.isSaving}
       />
       <WorkDoneModal
         isOpen={attendance.showWorkDoneModal}

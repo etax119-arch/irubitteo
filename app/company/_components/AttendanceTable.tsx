@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight, FileText, RefreshCw } from 'lucide-react';
 import type { DailyAttendanceRecord } from '@/types/attendance';
 import { Avatar } from '@/components/ui/Avatar';
@@ -102,7 +103,12 @@ export function AttendanceTable({
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <Avatar src={record.profileImage ?? undefined} name={record.name} size="sm" className="text-xs font-bold" />
-                      <span className="font-semibold text-gray-900">{record.name}</span>
+                      <Link
+                        href={`/company/employees/${record.employeeId}`}
+                        className="font-semibold text-gray-900 hover:text-duru-orange-600 hover:underline"
+                      >
+                        {record.name}
+                      </Link>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-600">{record.phone}</td>

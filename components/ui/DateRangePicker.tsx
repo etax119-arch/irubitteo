@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { format, parse, isValid } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -15,6 +15,9 @@ interface DateRangePickerProps {
   onEndDateChange: (value: string) => void;
   onClear?: () => void;
 }
+
+// DayPicker를 완전히 제어형으로 쓰기 위한 no-op (선택 로직은 onDayClick에서 처리)
+const noop = () => {};
 
 function toDate(value: string): Date | undefined {
   if (!value) return undefined;
@@ -37,44 +40,58 @@ export function DateRangePicker({
   onClear,
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  // 진행 중인 선택의 시작일(1차 클릭). null이면 다음 클릭이 새 시작일이 된다.
+  const [pendingStart, setPendingStart] = useState<Date | undefined>(undefined);
 
   const from = toDate(startDate);
   const to = toDate(endDate);
 
-  const selected = from ? (to ? { from, to } : { from, to: from }) : undefined;
+  // 팝오버를 열거나 닫을 때 진행 중 선택을 초기화해, 다시 열 때 새 범위를 처음부터 고를 수 있게 한다.
+  const closePopover = () => {
+    setIsOpen(false);
+    setPendingStart(undefined);
+  };
+  const togglePopover = () => {
+    setPendingStart(undefined);
+    setIsOpen((prev) => !prev);
+  };
 
-  const handleSelect = useCallback(
-    (range: { from?: Date; to?: Date } | undefined) => {
-      if (!range) {
-        onStartDateChange('');
-        onEndDateChange('');
-        return;
-      }
-      if (range.from) {
-        onStartDateChange(format(range.from, 'yyyy-MM-dd'));
-      }
-      if (range.to) {
-        onEndDateChange(format(range.to, 'yyyy-MM-dd'));
-        if (range.from && range.to) {
-          setIsOpen(false);
-        }
-      } else {
-        onEndDateChange('');
-      }
-    },
-    [onStartDateChange, onEndDateChange]
-  );
+  const selected = pendingStart
+    ? { from: pendingStart, to: undefined }
+    : from
+    ? { from, to }
+    : undefined;
+
+  // 호텔 예약식 2단계 선택: 1차 클릭=시작일(팝오버 유지), 2차 클릭=종료일(팝오버 닫힘).
+  const handleDayClick = (day: Date) => {
+    if (!pendingStart) {
+      setPendingStart(day);
+      onStartDateChange(format(day, 'yyyy-MM-dd'));
+      onEndDateChange('');
+      return;
+    }
+    let rangeStart = pendingStart;
+    let rangeEnd = day;
+    if (day.getTime() < pendingStart.getTime()) {
+      rangeStart = day;
+      rangeEnd = pendingStart;
+    }
+    onStartDateChange(format(rangeStart, 'yyyy-MM-dd'));
+    onEndDateChange(format(rangeEnd, 'yyyy-MM-dd'));
+    setPendingStart(undefined);
+    setIsOpen(false);
+  };
 
   return (
     <div className="flex items-center gap-2">
       <Popover
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={closePopover}
         className="min-w-[340px]"
         trigger={
           <button
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={togglePopover}
             className="flex items-center gap-3 px-4 py-1.5 text-sm border border-gray-300 rounded-lg bg-white hover:border-gray-400 transition-all focus:outline-none focus:ring-2 focus:ring-duru-orange-400 focus:border-transparent"
           >
             <Calendar className="w-4 h-4 text-gray-500" />
@@ -92,7 +109,9 @@ export function DateRangePicker({
           mode="range"
           locale={ko}
           selected={selected}
-          onSelect={handleSelect}
+          defaultMonth={from}
+          onSelect={noop}
+          onDayClick={handleDayClick}
           showOutsideDays
           classNames={{
             root: 'p-4',

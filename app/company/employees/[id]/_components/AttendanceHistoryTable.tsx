@@ -1,4 +1,4 @@
-import { Clock, Edit3 } from 'lucide-react';
+import { Clock, FileSpreadsheet, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import {
   getAttendanceRecordStatusColor as getStatusColor,
@@ -12,7 +12,6 @@ interface AttendanceHistoryTableProps {
   records: AttendanceRecord[];
   isLoading?: boolean;
   error?: string | null;
-  onEditWorkTime: (record: AttendanceRecord) => void;
   onOpenWorkDone: (date: string, workDone: string, photoUrls: string[]) => void;
   currentPage: number;
   pagination?: Pagination;
@@ -23,9 +22,11 @@ interface AttendanceHistoryTableProps {
   onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
   onClearDates: () => void;
+  onExportExcel: () => void;
+  isExporting?: boolean;
 }
 
-export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTime, onOpenWorkDone, currentPage, pagination, onNextPage, onPrevPage, startDate, endDate, onStartDateChange, onEndDateChange, onClearDates }: AttendanceHistoryTableProps) {
+export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDone, currentPage, pagination, onNextPage, onPrevPage, startDate, endDate, onStartDateChange, onEndDateChange, onClearDates, onExportExcel, isExporting }: AttendanceHistoryTableProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
@@ -41,6 +42,19 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
           onEndDateChange={onEndDateChange}
           onClear={onClearDates}
         />
+        <button
+          type="button"
+          onClick={onExportExcel}
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExporting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileSpreadsheet className="w-4 h-4" />
+          )}
+          엑셀
+        </button>
       </div>
 
       {isLoading ? (
@@ -60,7 +74,6 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">퇴근</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">상태</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">수정</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -94,16 +107,6 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
                   ) : (
                     <span className="text-gray-400 text-sm">-</span>
                   )}
-                </td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => onEditWorkTime(record)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="수정"
-                    aria-label="수정"
-                  >
-                    <Edit3 className="w-4 h-4 text-gray-600" />
-                  </button>
                 </td>
               </tr>
             ))}

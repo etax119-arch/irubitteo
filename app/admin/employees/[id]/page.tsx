@@ -168,6 +168,8 @@ export default function EmployeeDetailPage() {
               onStartDateChange={attendance.handleStartDateChange}
               onEndDateChange={attendance.handleEndDateChange}
               onClearDates={attendance.handleClearDates}
+              onExportExcel={() => attendance.handleExportExcel(worker.name)}
+              isExporting={attendance.isExporting}
             />
             <WorkInfoSection
               workDays={workDays}

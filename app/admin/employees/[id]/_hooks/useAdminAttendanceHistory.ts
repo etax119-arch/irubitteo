@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { useEmployeeAttendanceHistory } from '@/hooks/useAttendanceQuery';
 import { useUpdateAttendance, useDeleteAttendance } from '@/hooks/useAttendanceMutations';
+import { attendanceApi } from '@/lib/api/attendance';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
+import { exportAttendancesToExcel } from '@/lib/attendanceExcel';
 import type { AttendanceWithEmployee, AttendanceStatus } from '@/types/attendance';
 import type { Pagination } from '@/types/api';
 
@@ -14,6 +16,7 @@ export function useAdminAttendanceHistory(employeeId: string) {
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
   const { data } = useEmployeeAttendanceHistory(employeeId, { page: currentPage, limit: 10, startDate: startDate || undefined, endDate: endDate || undefined });
   const updateAttendance = useUpdateAttendance(employeeId);
   const deleteAttendance = useDeleteAttendance(employeeId);
@@ -117,6 +120,31 @@ export function useAdminAttendanceHistory(employeeId: string) {
     setSelectedWorkDone(null);
   };
 
+  const handleExportExcel = async (employeeName?: string) => {
+    setIsExporting(true);
+    try {
+      const records = await attendanceApi.getAllAttendances({
+        employeeId,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+      if (records.length === 0) {
+        toast.error('내보낼 출퇴근 기록이 없습니다.');
+        return;
+      }
+      exportAttendancesToExcel({
+        records,
+        employeeName,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const goToNextPage = () => {
     if (pagination && currentPage < pagination.totalPages) {
       setCurrentPage((p) => p + 1);
@@ -149,6 +177,9 @@ export function useAdminAttendanceHistory(employeeId: string) {
     pagination,
     goToNextPage,
     goToPrevPage,
+    // Excel export
+    isExporting,
+    handleExportExcel,
     // Date filter
     startDate,
     endDate,

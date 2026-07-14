@@ -415,6 +415,7 @@ export function AddWorkerModal({
                     value={form.hireDate}
                     onChange={(v) => onUpdateForm('hireDate', v)}
                     minDate={hireDateMin}
+                    allowManualInput
                   />
                   {complete.hireDate && (
                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -429,6 +430,7 @@ export function AddWorkerModal({
                   <DatePicker
                     value={form.recognitionDate}
                     onChange={(v) => onUpdateForm('recognitionDate', v)}
+                    allowManualInput
                   />
                   {complete.recognitionDate && (
                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -474,6 +476,7 @@ export function AddWorkerModal({
                     <TimePicker
                       value={form.workStartTime}
                       onChange={(v) => onUpdateForm('workStartTime', v)}
+                      allowManualInput
                     />
                     {complete.workStartTime && (
                       <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -488,6 +491,7 @@ export function AddWorkerModal({
                     <TimePicker
                       value={form.workEndTime}
                       onChange={(v) => onUpdateForm('workEndTime', v)}
+                      allowManualInput
                     />
                     {complete.workEndTime && (
                       <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Building2, ChevronDown, ChevronRight, AlertCircle, Search, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
@@ -194,7 +195,12 @@ export function CompanyAttendanceAccordion({
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              <span className="font-semibold text-gray-900">{employee.name}</span>
+                              <Link
+                                href={`/admin/employees/${employee.employeeId}`}
+                                className="font-semibold text-gray-900 hover:text-duru-orange-600 hover:underline"
+                              >
+                                {employee.name}
+                              </Link>
                               {needsAttention && (
                                 <span title={employee.isLate ? '지각' : '결근'}>
                                   <AlertCircle className="w-4 h-4 text-yellow-600" />

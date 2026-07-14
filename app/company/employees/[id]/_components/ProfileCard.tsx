@@ -200,6 +200,7 @@ export function ProfileCard({
                 value={profileForm.hireDate}
                 onChange={(v) => onUpdateForm('hireDate', v)}
                 inputClassName="py-1.5"
+                allowManualInput
               />
             </div>
             <div>

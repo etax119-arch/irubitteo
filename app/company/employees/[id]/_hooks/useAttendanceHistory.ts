@@ -1,13 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useEmployeeAttendanceHistory } from '@/hooks/useAttendanceQuery';
-import { useUpdateAttendance, useDeleteAttendance } from '@/hooks/useAttendanceMutations';
+import { attendanceApi } from '@/lib/api/attendance';
 import { useToast } from '@/components/ui/Toast';
-import { formatUtcTimestampAsKST, buildKSTTimestamp } from '@/lib/kst';
-import type {
-  AttendanceStatus,
-  AttendanceUpdateInput,
-  AttendanceWithEmployee,
-} from '@/types/attendance';
+import { formatUtcTimestampAsKST } from '@/lib/kst';
+import { exportAttendancesToExcel } from '@/lib/attendanceExcel';
+import type { AttendanceStatus, AttendanceWithEmployee } from '@/types/attendance';
 import type { Pagination } from '@/types/api';
 
 export interface AttendanceRecord {
@@ -16,7 +13,6 @@ export interface AttendanceRecord {
   checkin: string;
   checkout: string;
   status: AttendanceStatus;
-  rawStatus: AttendanceStatus;
   workDone: string;
   photoUrls: string[];
 }
@@ -31,7 +27,6 @@ function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
     checkin: isAbsentOrLeave ? '-' : (att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '-'),
     checkout: isAbsentOrLeave ? '-' : (att.clockOut ? formatUtcTimestampAsKST(att.clockOut) : '-'),
     status: att.status,
-    rawStatus: att.status,
     workDone: att.workContent || '-',
     photoUrls: att.photoUrls,
   };
@@ -42,9 +37,8 @@ export function useAttendanceHistory(employeeId: string) {
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
   const { data, isLoading: isLoadingAttendance, error: queryError } = useEmployeeAttendanceHistory(employeeId, { page: currentPage, limit: 10, startDate: startDate || undefined, endDate: endDate || undefined });
-  const updateAttendance = useUpdateAttendance(employeeId);
-  const deleteAttendance = useDeleteAttendance(employeeId);
 
   const attendanceHistory = useMemo(() => (data?.records ?? []).map(toAttendanceRecord), [data?.records]);
   const pagination: Pagination | undefined = data?.pagination;
@@ -52,27 +46,6 @@ export function useAttendanceHistory(employeeId: string) {
 
   const [showWorkDoneModal, setShowWorkDoneModal] = useState(false);
   const [selectedWorkDone, setSelectedWorkDone] = useState<{ date: string; workDone: string; photoUrls: string[] } | null>(null);
-
-  const [isEditingWorkTime, setIsEditingWorkTime] = useState(false);
-  const [editedWorkTime, setEditedWorkTime] = useState<{
-    date: string;
-    checkin: string;
-    checkout: string;
-    workDone: string;
-    status: AttendanceStatus | '__reset__';
-  }>({
-    date: '',
-    checkin: '09:00',
-    checkout: '18:00',
-    workDone: '',
-    status: 'checkin',
-  });
-  const [originalWorkTime, setOriginalWorkTime] = useState({
-    checkin: '',
-    checkout: '',
-    workDone: '',
-    status: 'checkin' as AttendanceStatus,
-  });
 
   const openWorkDoneModal = (date: string, workDone: string, photoUrls: string[]) => {
     setSelectedWorkDone({ date, workDone, photoUrls });
@@ -84,72 +57,28 @@ export function useAttendanceHistory(employeeId: string) {
     setSelectedWorkDone(null);
   };
 
-  const handleEditWorkTime = (record: AttendanceRecord) => {
-    const checkin = record.checkin === '-' ? '' : record.checkin;
-    const checkout = record.checkout === '-' ? '' : record.checkout;
-    const workDone = record.workDone === '-' ? '' : record.workDone;
-    setEditedWorkTime({ date: record.date, checkin, checkout, workDone, status: record.rawStatus });
-    setOriginalWorkTime({ checkin, checkout, workDone, status: record.rawStatus });
-    setIsEditingWorkTime(true);
-  };
-
-  const handleSaveWorkTime = async () => {
-    const record = attendanceHistory.find((r) => r.date === editedWorkTime.date);
-    if (!record) {
-      toast.error('해당 출퇴근 기록을 찾을 수 없습니다.');
-      return;
-    }
-
-    // 초기화(삭제) 처리
-    if (editedWorkTime.status === '__reset__') {
-      if (!window.confirm('이 출퇴근 기록을 삭제하시겠습니까?')) return;
-      try {
-        await deleteAttendance.mutateAsync(record.id);
-        setIsEditingWorkTime(false);
-        toast.success('출퇴근 기록이 삭제되었습니다.');
-      } catch {
-        toast.error('출퇴근 기록 삭제에 실패했습니다.');
-      }
-      return;
-    }
-
-    const payload: AttendanceUpdateInput = {};
-    if (editedWorkTime.checkin !== originalWorkTime.checkin && editedWorkTime.checkin) {
-      payload.clockIn = buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkin);
-    }
-    if (editedWorkTime.checkout !== originalWorkTime.checkout && editedWorkTime.checkout) {
-      payload.clockOut = buildKSTTimestamp(editedWorkTime.date, editedWorkTime.checkout);
-    }
-    if (editedWorkTime.workDone !== originalWorkTime.workDone) {
-      payload.workContent = editedWorkTime.workDone;
-    }
-    const finalStatus =
-      editedWorkTime.status !== originalWorkTime.status
-        ? editedWorkTime.status
-        : originalWorkTime.status;
-    const finalCheckout = editedWorkTime.checkout.trim();
-    const shouldForceCheckinSave =
-      editedWorkTime.status === 'checkin' && !!originalWorkTime.checkout && !finalCheckout;
-    if (editedWorkTime.status !== originalWorkTime.status || shouldForceCheckinSave) {
-      payload.status = editedWorkTime.status;
-    }
-
-    if (finalStatus === 'checkout' && !finalCheckout) {
-      toast.error('퇴근 상태로 저장하려면 퇴근 시간을 입력해주세요.');
-      return;
-    }
-
-    if (Object.keys(payload).length === 0) {
-      setIsEditingWorkTime(false);
-      return;
-    }
-
+  const handleExportExcel = async (employeeName?: string) => {
+    setIsExporting(true);
     try {
-      await updateAttendance.mutateAsync({ attendanceId: record.id, input: payload });
-      setIsEditingWorkTime(false);
-      toast.success('출퇴근 기록이 수정되었습니다.');
+      const records = await attendanceApi.getAllAttendances({
+        employeeId,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+      if (records.length === 0) {
+        toast.error('내보낼 출퇴근 기록이 없습니다.');
+        return;
+      }
+      exportAttendancesToExcel({
+        records,
+        employeeName,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
     } catch {
-      toast.error('출퇴근 기록 수정에 실패했습니다.');
+      toast.error('엑셀 내보내기에 실패했습니다.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -169,13 +98,6 @@ export function useAttendanceHistory(employeeId: string) {
     attendanceHistory,
     isLoadingAttendance,
     attendanceError,
-    isSaving: updateAttendance.isPending || deleteAttendance.isPending,
-    isEditingWorkTime,
-    editedWorkTime,
-    setEditedWorkTime,
-    handleEditWorkTime,
-    handleSaveWorkTime,
-    setIsEditingWorkTime,
     showWorkDoneModal,
     selectedWorkDone,
     openWorkDoneModal,
@@ -185,6 +107,9 @@ export function useAttendanceHistory(employeeId: string) {
     pagination,
     goToNextPage,
     goToPrevPage,
+    // Excel export
+    isExporting,
+    handleExportExcel,
     // Date filter
     startDate,
     endDate,
