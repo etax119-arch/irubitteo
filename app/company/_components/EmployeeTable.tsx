@@ -79,7 +79,19 @@ export function EmployeeTable({
                 </tr>
               ) : (
                 employees.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-gray-50">
+                  <tr
+                    key={emp.id}
+                    onClick={() => onEmployeeClick(emp)}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+                        e.preventDefault();
+                        onEmployeeClick(emp);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <Avatar src={emp.profileImage ?? undefined} name={emp.name} size="md" className="text-sm font-bold" />
@@ -97,7 +109,7 @@ export function EmployeeTable({
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => onEmployeeClick(emp)}
+                        onClick={(e) => { e.stopPropagation(); onEmployeeClick(emp); }}
                         className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm"
                       >
                         상세보기

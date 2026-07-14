@@ -34,7 +34,16 @@ export function WorkerTable({ workers, onViewDetail, onDelete }: WorkerTableProp
                   return (
                     <tr
                       key={worker.id}
-                      className={cn('hover:bg-gray-50', isResigned && 'bg-gray-50')}
+                      onClick={() => onViewDetail(worker)}
+                      onKeyDown={(e) => {
+                        if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+                          e.preventDefault();
+                          onViewDetail(worker);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      className={cn('cursor-pointer hover:bg-gray-50', isResigned && 'bg-gray-50')}
                     >
                       <td className="px-8 py-4">
                         <div className="flex items-center gap-3">
@@ -83,14 +92,14 @@ export function WorkerTable({ workers, onViewDetail, onDelete }: WorkerTableProp
                       <td className="px-8 py-4">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => onViewDetail(worker)}
+                            onClick={(e) => { e.stopPropagation(); onViewDetail(worker); }}
                             className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm"
                           >
                             상세보기
                           </button>
                           {isResigned && onDelete && (
                             <button
-                              onClick={() => onDelete(worker)}
+                              onClick={(e) => { e.stopPropagation(); onDelete(worker); }}
                               className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                               title="영구 삭제"
                             >
