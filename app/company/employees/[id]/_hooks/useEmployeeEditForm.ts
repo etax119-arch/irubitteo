@@ -19,6 +19,7 @@ export type ProfileFormState = {
   emergencyContactRelation: string;
   emergencyContactPhone: string;
   uniqueCode: string;
+  annualLeaveTotal: number;
 };
 
 export interface ResignForm {
@@ -164,6 +165,7 @@ export function useEmployeeEditForm(employeeId: string) {
     emergencyContactRelation: '',
     emergencyContactPhone: '',
     uniqueCode: '',
+    annualLeaveTotal: 0,
   });
 
   const handleEditProfile = (employee: Employee) => {
@@ -180,6 +182,7 @@ export function useEmployeeEditForm(employeeId: string) {
       emergencyContactRelation: employee.emergencyContactRelation || '',
       emergencyContactPhone: employee.emergencyContactPhone || '',
       uniqueCode: employee.uniqueCode || '',
+      annualLeaveTotal: employee.annualLeaveTotal ?? 0,
     });
     setIsEditingProfile(true);
   };
@@ -199,6 +202,7 @@ export function useEmployeeEditForm(employeeId: string) {
         emergencyContactName: profileForm.emergencyContactName || null,
         emergencyContactRelation: profileForm.emergencyContactRelation || null,
         emergencyContactPhone: profileForm.emergencyContactPhone || null,
+        annualLeaveTotal: profileForm.annualLeaveTotal,
       };
       if (profileForm.uniqueCode !== employee.uniqueCode) {
         payload.uniqueCode = profileForm.uniqueCode;

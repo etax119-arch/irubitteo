@@ -22,6 +22,7 @@ import { DocumentSection } from './_components/DocumentSection';
 import { UploadModal } from './_components/UploadModal';
 import { WorkDoneModal } from './_components/WorkDoneModal';
 import { ResignModal } from './_components/ResignModal';
+import { LeaveProcessModal } from './_components/LeaveProcessModal';
 
 export default function CompanyEmployeeDetailPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function CompanyEmployeeDetailPage() {
   const toast = useToast();
   const { data: employee, isLoading, error } = useEmployeeDetail(employeeId);
   const editForm = useEmployeeEditForm(employeeId);
-  const attendance = useAttendanceHistory(employeeId);
+  const attendance = useAttendanceHistory(employeeId, employee?.workDays ?? []);
   const employeeFiles = useEmployeeFiles(employeeId);
   const uploadImage = useUploadProfileImage(employeeId);
   const deleteImage = useDeleteProfileImage(employeeId);
@@ -185,6 +186,7 @@ export default function CompanyEmployeeDetailPage() {
               isLoading={attendance.isLoadingAttendance}
               error={attendance.attendanceError}
               onOpenWorkDone={attendance.openWorkDoneModal}
+              onStatusClick={attendance.openLeaveModal}
               currentPage={attendance.currentPage}
               pagination={attendance.pagination}
               onNextPage={attendance.goToNextPage}
@@ -243,6 +245,14 @@ export default function CompanyEmployeeDetailPage() {
         isSubmitting={editForm.isSubmittingResign}
         onUpdateForm={editForm.updateResignForm}
         onSubmit={editForm.handleSubmitResign}
+      />
+      <LeaveProcessModal
+        isOpen={!!attendance.selectedLeaveRecord}
+        onClose={attendance.closeLeaveModal}
+        record={attendance.selectedLeaveRecord}
+        remaining={employee.annualLeaveRemaining}
+        isSubmitting={attendance.isProcessingLeave}
+        onConfirm={attendance.processLeave}
       />
     </div>
   );

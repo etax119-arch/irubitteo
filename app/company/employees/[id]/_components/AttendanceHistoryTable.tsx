@@ -13,6 +13,7 @@ interface AttendanceHistoryTableProps {
   isLoading?: boolean;
   error?: string | null;
   onOpenWorkDone: (date: string, workDone: string, photoUrls: string[]) => void;
+  onStatusClick: (record: AttendanceRecord) => void;
   currentPage: number;
   pagination?: Pagination;
   onNextPage: () => void;
@@ -26,7 +27,7 @@ interface AttendanceHistoryTableProps {
   isExporting?: boolean;
 }
 
-export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDone, currentPage, pagination, onNextPage, onPrevPage, startDate, endDate, onStartDateChange, onEndDateChange, onClearDates, onExportExcel, isExporting }: AttendanceHistoryTableProps) {
+export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDone, onStatusClick, currentPage, pagination, onNextPage, onPrevPage, startDate, endDate, onStartDateChange, onEndDateChange, onClearDates, onExportExcel, isExporting }: AttendanceHistoryTableProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
@@ -87,14 +88,17 @@ export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDo
                   {record.checkout}
                 </td>
                 <td className="px-4 py-3">
-                  <span
+                  <button
+                    type="button"
+                    onClick={() => onStatusClick(record)}
+                    title="연차 처리"
                     className={cn(
-                      'px-2 py-1 rounded-full text-xs font-semibold',
+                      'px-2 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 cursor-pointer',
                       getStatusColor(record.status)
                     )}
                   >
                     {getStatusLabel(record.status)}
-                  </span>
+                  </button>
                 </td>
                 <td className="px-4 py-3">
                   {record.workDone !== '-' ? (

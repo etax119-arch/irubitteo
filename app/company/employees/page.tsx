@@ -38,6 +38,7 @@ function createInitialAddWorkerForm(): AddWorkerForm {
     workStartTime: '',
     workEndTime: '',
     workerId: '',
+    annualLeave: '0',
   };
 }
 
@@ -186,6 +187,7 @@ export default function EmployeesPage() {
         addressCity: addWorkerForm.addressCity,
         addressDistrict: addWorkerForm.addressDistrict,
         addressDetail: addWorkerForm.addressDetail || undefined,
+        annualLeaveTotal: Number(addWorkerForm.annualLeave) || 0,
       },
       {
         onSuccess: () => {

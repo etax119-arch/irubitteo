@@ -22,7 +22,8 @@ export function exportAttendancesToExcel({
 }: ExportAttendancesOptions): void {
   const rows = records
     .map((att) => {
-      const isAbsentOrLeave = att.status === 'absent' || att.status === 'leave';
+      const isAbsentOrLeave =
+        att.status === 'absent' || att.status === 'leave' || att.status === 'annual_leave';
       return {
         date: formatDateAsKST(new Date(att.date)),
         checkin: isAbsentOrLeave ? '' : att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '',

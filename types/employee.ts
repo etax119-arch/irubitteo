@@ -38,7 +38,7 @@ export type Employee = {
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'resigned' | 'pending' | 'dayoff';
+  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'annual_leave' | 'resigned' | 'pending' | 'dayoff';
   clockIn: string | null;
   clockOut: string | null;
   uniqueCode: string;
@@ -55,6 +55,9 @@ export type Employee = {
   disabilitySeverity: '중증' | '경증' | null;
   disabilityRecognitionDate: string | null;
   profileImage: string | null;
+  annualLeaveTotal: number;
+  annualLeaveUsed: number;
+  annualLeaveRemaining: number;
 };
 
 /** 직원 생성 입력 (companyId는 JWT에서 추출) */
@@ -77,6 +80,7 @@ export type EmployeeCreateInput = {
   addressCity: string;
   addressDistrict: string;
   addressDetail?: string;
+  annualLeaveTotal?: number;
 };
 
 /** 직원 수정 입력 (서버 UpdateEmployeeDto 기준) */
@@ -105,6 +109,7 @@ export type EmployeeUpdateInput = {
   addressDistrict?: string | null;
   addressDetail?: string | null;
   uniqueCode?: string;
+  annualLeaveTotal?: number;
 };
 
 /** 문서 종류 */

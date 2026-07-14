@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, Heart, User, Briefcase, MapPin, IdCard, Edit2, Check } from 'lucide-react';
+import { Phone, Heart, User, Briefcase, MapPin, IdCard, Edit2, Check, CalendarCheck } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
@@ -145,6 +145,14 @@ export function ProfileCard({
               <span className="text-gray-600">입사일:</span>
               <span className="font-semibold text-gray-900">{employee.hireDate}</span>
             </div>
+            <div className="flex items-center gap-3 text-sm">
+              <CalendarCheck className="w-4 h-4 text-gray-400" />
+              <span className="text-gray-600">연차:</span>
+              <span className="font-semibold text-gray-900">
+                잔여 <span className="text-duru-orange-600">{employee.annualLeaveRemaining}</span>개
+                <span className="text-gray-400 font-normal"> / 총 {employee.annualLeaveTotal}개</span>
+              </span>
+            </div>
           </div>
         ) : (
           <div className="space-y-3 border-t border-gray-200 pt-4">
@@ -264,6 +272,17 @@ export function ProfileCard({
               value={profileForm.emergencyContactPhone}
               onChange={(e) => onUpdateForm('emergencyContactPhone', formatPhoneNumber(e.target.value))}
               placeholder="010-0000-0000"
+              className="py-1.5"
+            />
+            <Input
+              label="연차 총 지급 개수"
+              type="number"
+              size="sm"
+              min={0}
+              value={String(profileForm.annualLeaveTotal)}
+              onChange={(e) =>
+                onUpdateForm('annualLeaveTotal', Number(e.target.value.replace(/\D/g, '')) || 0)
+              }
               className="py-1.5"
             />
           </div>

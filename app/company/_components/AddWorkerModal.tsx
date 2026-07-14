@@ -7,6 +7,7 @@ import {
   Heart,
   Shield,
   Briefcase,
+  CalendarCheck,
   Hash,
   Lock,
   ChevronDown,
@@ -502,7 +503,29 @@ export function AddWorkerModal({
             </div>
           </div>
 
-          {/* 섹션 5: 근로자 고유 번호 설정 */}
+          {/* 섹션 5: 연차 */}
+          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 className="text-sm font-bold text-gray-900 mb-1 flex items-center gap-2">
+              <CalendarCheck className="w-4 h-4 text-duru-orange-500" />
+              연차
+            </h3>
+            <p className="text-xs text-gray-500 mb-4">근로자에게 지급할 연차 개수를 입력해주세요 (선택)</p>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                연차 지급 개수
+              </label>
+              <Input
+                type="number"
+                size="sm"
+                min={0}
+                placeholder="0"
+                value={form.annualLeave}
+                onChange={(e) => onUpdateForm('annualLeave', e.target.value.replace(/\D/g, ''))}
+              />
+            </div>
+          </div>
+
+          {/* 섹션 6: 근로자 고유 번호 설정 */}
           <div className="bg-duru-orange-50 rounded-xl p-5 border border-duru-orange-200">
             <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
               <Hash className="w-4 h-4 text-duru-orange-500" />

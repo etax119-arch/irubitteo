@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useEmployeeAttendanceHistory } from '@/hooks/useAttendanceQuery';
+import { useUpdateAttendance } from '@/hooks/useAttendanceMutations';
 import { attendanceApi } from '@/lib/api/attendance';
 import { useToast } from '@/components/ui/Toast';
+import { extractErrorMessage } from '@/lib/api/error';
 import { formatUtcTimestampAsKST } from '@/lib/kst';
 import { exportAttendancesToExcel } from '@/lib/attendanceExcel';
 import type { AttendanceStatus, AttendanceWithEmployee } from '@/types/attendance';
@@ -19,7 +21,8 @@ export interface AttendanceRecord {
 
 function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   const date = att.date.split('T')[0];
-  const isAbsentOrLeave = att.status === 'absent' || att.status === 'leave';
+  const isAbsentOrLeave =
+    att.status === 'absent' || att.status === 'leave' || att.status === 'annual_leave';
 
   return {
     id: att.id,
@@ -32,7 +35,7 @@ function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   };
 }
 
-export function useAttendanceHistory(employeeId: string) {
+export function useAttendanceHistory(employeeId: string, workDays: number[] = []) {
   const toast = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState('');
@@ -55,6 +58,43 @@ export function useAttendanceHistory(employeeId: string) {
   const closeWorkDoneModal = () => {
     setShowWorkDoneModal(false);
     setSelectedWorkDone(null);
+  };
+
+  // --- 연차 처리 모달 ---
+  const updateMutation = useUpdateAttendance(employeeId);
+  const [selectedLeaveRecord, setSelectedLeaveRecord] = useState<AttendanceRecord | null>(null);
+
+  const openLeaveModal = (record: AttendanceRecord) => setSelectedLeaveRecord(record);
+  const closeLeaveModal = () => setSelectedLeaveRecord(null);
+
+  // 선택된 기록의 현재 상태로 토글 대상을 결정한다.
+  // - 연차가 아니면 → 연차 처리
+  // - 이미 연차면 → 취소(복원): 근무일이면 결근, 아니면 휴무
+  const processLeave = () => {
+    const record = selectedLeaveRecord;
+    if (!record) return;
+
+    const isAnnualLeave = record.status === 'annual_leave';
+    let targetStatus: AttendanceStatus;
+    if (isAnnualLeave) {
+      const [y, m, d] = record.date.split('-').map(Number);
+      const jsDay = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+      const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+      targetStatus = workDays.includes(dayOfWeek) ? 'absent' : 'leave';
+    } else {
+      targetStatus = 'annual_leave';
+    }
+
+    updateMutation.mutate(
+      { attendanceId: record.id, input: { status: targetStatus } },
+      {
+        onSuccess: () => {
+          toast.success(isAnnualLeave ? '연차가 취소되었습니다.' : '연차 처리되었습니다.');
+          closeLeaveModal();
+        },
+        onError: (err) => toast.error(extractErrorMessage(err)),
+      },
+    );
   };
 
   const handleExportExcel = async (employeeName?: string) => {
@@ -102,6 +142,12 @@ export function useAttendanceHistory(employeeId: string) {
     selectedWorkDone,
     openWorkDoneModal,
     closeWorkDoneModal,
+    // 연차 처리
+    selectedLeaveRecord,
+    openLeaveModal,
+    closeLeaveModal,
+    processLeave,
+    isProcessingLeave: updateMutation.isPending,
     // Pagination
     currentPage,
     pagination,

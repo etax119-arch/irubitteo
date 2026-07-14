@@ -17,4 +17,5 @@ export interface AddWorkerForm {
   workStartTime: string;
   workEndTime: string;
   workerId: string;
+  annualLeave: string;
 }
