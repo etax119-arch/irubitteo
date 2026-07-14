@@ -54,32 +54,39 @@ export default function CheckOutPage() {
 
     const results = await Promise.all(
       files.map(async (file) => {
-        let blob: File | Blob = file;
+        try {
+          let blob: File | Blob = file;
 
-        // 확장자/MIME 또는 실제 파일 내용(매직 바이트)으로 HEIC 감지 → JPEG 변환
-        const isHeic = isHeicFile(file) || (await isHeicFileByContent(file));
-        if (isHeic) {
-          try {
-            blob = await convertHeicToJpeg(file);
-          } catch {
-            toast.error('이미지 변환에 실패했습니다. 다른 형식의 사진을 사용해주세요.');
-            return null;
+          // 확장자/MIME 또는 실제 파일 내용(매직 바이트)으로 HEIC 감지 → JPEG 변환
+          const isHeic = isHeicFile(file) || (await isHeicFileByContent(file));
+          if (isHeic) {
+            try {
+              blob = await convertHeicToJpeg(file);
+            } catch {
+              // 변환 실패 시 원본 HEIC 그대로 업로드 (서버가 image/heic 허용) — 사진을 잃지 않도록
+              blob = file;
+            }
           }
+
+          // 리사이징 + JPEG 압축 (실패 시 내부에서 원본 반환)
+          blob = await compressImage(blob);
+
+          const previewUrl = URL.createObjectURL(blob);
+          return {
+            id: crypto.randomUUID(),
+            name: file.name,
+            url: previewUrl,
+            file: blob,
+          };
+        } catch {
+          return null;
         }
-
-        // 리사이징 + JPEG 압축
-        blob = await compressImage(blob);
-
-        const previewUrl = URL.createObjectURL(blob);
-        return {
-          id: crypto.randomUUID(),
-          name: file.name,
-          url: previewUrl,
-          file: blob,
-        };
       })
     );
     const newPhotos = results.filter((p): p is NonNullable<typeof p> => p !== null);
+    if (newPhotos.length < files.length) {
+      toast.error('일부 사진을 처리하지 못해 제외했습니다. 다시 시도해주세요.');
+    }
     if (newPhotos.length > 0) {
       setPhotos((prev) => [...prev, ...newPhotos]);
     }

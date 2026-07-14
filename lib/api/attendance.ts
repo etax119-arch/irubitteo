@@ -10,6 +10,9 @@ import type {
 } from '@/types/attendance';
 import type { PaginatedResponse } from '@/types/api';
 
+// 사진 다중 업로드는 약전계에서 기본 30초를 넘길 수 있어 별도 타임아웃 적용
+const UPLOAD_TIMEOUT = 60000;
+
 export const attendanceApi = {
   /**
    * 출근 처리
@@ -35,7 +38,8 @@ export const attendanceApi = {
       input.photos.forEach((blob) => formData.append('photos', blob, 'photo.jpg'));
       const response = await apiClient.post<{ success: boolean; data: Attendance }>(
         '/attendances/clock-out',
-        formData
+        formData,
+        { timeout: UPLOAD_TIMEOUT }
       );
       return response.data.data;
     }
@@ -111,7 +115,8 @@ export const attendanceApi = {
     photos.forEach((blob) => formData.append('photos', blob, 'photo.jpg'));
     const response = await apiClient.post<{ success: boolean; data: AttendanceWithEmployee }>(
       `/attendances/${attendanceId}/photos`,
-      formData
+      formData,
+      { timeout: UPLOAD_TIMEOUT }
     );
     return response.data.data;
   },
