@@ -7,6 +7,7 @@ import {
   Heart,
   Users as UserIcon,
   Briefcase,
+  CalendarCheck,
   IdCard,
   Shield,
   Hash,
@@ -103,6 +104,14 @@ export function ProfileCard({
             <Briefcase className="w-4 h-4 text-gray-400" />
             <span className="text-gray-600">입사일:</span>
             <span className="font-semibold text-gray-900">{worker.hireDate?.substring(0, 10) ?? '-'}</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <CalendarCheck className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-600">연차:</span>
+            <span className="font-semibold text-gray-900">
+              잔여 <span className="text-duru-orange-600">{worker.annualLeaveRemaining}</span>개
+              <span className="text-gray-400 font-normal"> / 총 {worker.annualLeaveTotal}개</span>
+            </span>
           </div>
         </div>
       </div>
