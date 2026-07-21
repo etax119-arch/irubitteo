@@ -39,7 +39,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="rounded-xl p-4 sm:p-6 border border-gray-200 bg-white">
-              <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg mb-3 sm:mb-4" />
+              <Skeleton className="hidden sm:block w-12 h-12 rounded-lg mb-4" />
               <Skeleton className="w-20 h-4 mb-2" />
               <Skeleton className="w-16 h-8" />
             </div>

@@ -24,7 +24,7 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div className={cn('rounded-xl p-4 sm:p-6 border', cardBgColor, cardBorderColor)}>
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
+      <div className="hidden sm:flex items-center justify-between mb-3 sm:mb-4">
         <div className={cn('w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center', iconBgColor)}>
           <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', iconColor)} />
         </div>
