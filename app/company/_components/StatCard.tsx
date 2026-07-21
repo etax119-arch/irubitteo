@@ -23,14 +23,14 @@ export function StatCard({
   cardBgColor = 'bg-white',
 }: StatCardProps) {
   return (
-    <div className={cn('rounded-xl p-6 border', cardBgColor, cardBorderColor)}>
-      <div className="flex items-center justify-between mb-4">
-        <div className={cn('w-12 h-12 rounded-lg flex items-center justify-center', iconBgColor)}>
-          <Icon className={cn('w-6 h-6', iconColor)} />
+    <div className={cn('rounded-xl p-4 sm:p-6 border', cardBgColor, cardBorderColor)}>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className={cn('w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center', iconBgColor)}>
+          <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', iconColor)} />
         </div>
       </div>
       <p className="text-sm text-gray-600 mb-1">{label}</p>
-      <p className={cn('text-3xl font-bold', valueColor)}>{value}</p>
+      <p className={cn('text-2xl sm:text-3xl font-bold', valueColor)}>{value}</p>
     </div>
   );
 }

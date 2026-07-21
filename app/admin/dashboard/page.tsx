@@ -66,10 +66,10 @@ export default function AdminDashboardPage() {
         <div className="flex justify-end">
           <Skeleton className="w-24 h-9 rounded-lg" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl p-6 border border-gray-200 bg-white">
-              <Skeleton className="w-12 h-12 rounded-lg mb-4" />
+            <div key={i} className="rounded-xl p-4 sm:p-6 border border-gray-200 bg-white">
+              <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg mb-3 sm:mb-4" />
               <Skeleton className="w-20 h-4 mb-2" />
               <Skeleton className="w-16 h-8" />
             </div>
@@ -122,7 +122,7 @@ export default function AdminDashboardPage() {
 
       {/* 통계 카드 */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <AdminStatCard
             icon={Building2}
             iconBgColor="bg-blue-100"

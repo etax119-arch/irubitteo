@@ -35,11 +35,11 @@ export function CompanyCard({ company, onViewDetail, onDelete }: CompanyCardProp
           {company.isActive ? '계약중' : '비활성'}
         </span>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
-          <div>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1 min-w-0">
+          <div className="min-w-0">
             <p className="text-sm text-gray-600">위치</p>
-            <p className="font-semibold text-gray-900">{company.address || '-'}</p>
+            <p className="font-semibold text-gray-900 truncate">{company.address || '-'}</p>
           </div>
           <div>
             <p className="text-sm text-gray-600">근로자 수</p>
@@ -57,7 +57,7 @@ export function CompanyCard({ company, onViewDetail, onDelete }: CompanyCardProp
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={(e) => { e.stopPropagation(); onViewDetail(company); }}
-            className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
+            className="flex-1 sm:flex-none justify-center px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
           >
             <Eye className="w-4 h-4" />
             상세보기

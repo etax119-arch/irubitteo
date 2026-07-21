@@ -114,22 +114,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* 헤더 */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">이루빛터 관리자</h1>
-                <p className="text-sm text-gray-600">통합 관리 시스템</p>
+          <div className="flex items-center justify-between gap-2 h-16">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">이루빛터 관리자</h1>
+                <p className="hidden sm:block text-sm text-gray-600">통합 관리 시스템</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">{today}</span>
+            <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+              <span className="hidden sm:inline text-sm text-gray-600">{today}</span>
               <Button
                 variant="ghost"
                 size="sm"
                 leftIcon={<Settings className="w-4 h-4" />}
                 onClick={() => router.push('/admin/settings')}
               >
-                계정 설정
+                <span className="hidden sm:inline">계정 설정</span>
               </Button>
               <Button
                 variant="ghost"
@@ -137,7 +137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 rightIcon={<LogOut className="w-4 h-4" />}
                 onClick={logout}
               >
-                로그아웃
+                <span className="hidden sm:inline">로그아웃</span>
               </Button>
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* 탭 네비게이션 */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-8 overflow-x-auto">
+          <div className="flex gap-4 sm:gap-8 overflow-x-auto">
             {tabs.map((tab) => (
               <Link
                 key={tab.id}
@@ -158,13 +158,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <tab.icon className="w-5 h-5" />
-                <span className="relative font-semibold">
-                  {tab.label}
+                <span className="relative">
+                  <tab.icon className="w-5 h-5" />
                   {tab.id === 'notifications' && hasNewNotification && (
-                    <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-500 rounded-full" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
                   )}
                 </span>
+                <span className="font-semibold hidden sm:inline">{tab.label}</span>
               </Link>
             ))}
           </div>

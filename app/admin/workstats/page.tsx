@@ -113,12 +113,12 @@ export default function AdminWorkstatsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <BarChart3 className="w-7 h-7 text-duru-orange-600" />
           근무 통계
         </h2>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
           <Input
             type="text"
             placeholder="회사명 검색..."
@@ -126,7 +126,7 @@ export default function AdminWorkstatsPage() {
             onChange={(e) => handleSearchChange(e.target.value)}
             size="sm"
             leftIcon={<Search className="w-5 h-5" />}
-            className="w-64"
+            className="w-full sm:w-64"
           />
           <div className="flex items-center gap-2">
             <button

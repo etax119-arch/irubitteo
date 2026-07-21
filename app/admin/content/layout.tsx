@@ -20,7 +20,7 @@ export default function AdminContentLayout({ children }: { children: React.React
 
       {/* Sub-tab navigation */}
       <div className="border-b border-gray-200">
-        <div className="flex gap-6">
+        <div className="flex gap-6 overflow-x-auto">
           {subTabs.map((tab) => (
             <Link
               key={tab.id}

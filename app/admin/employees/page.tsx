@@ -86,8 +86,8 @@ export default function AdminEmployeesPage() {
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-6">
-        <div className="flex bg-gray-100 rounded-lg p-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex bg-gray-100 rounded-lg p-1 overflow-x-auto">
           {filters.map((f) => (
             <button
               key={f.id}
@@ -104,7 +104,7 @@ export default function AdminEmployeesPage() {
           ))}
         </div>
 
-        <div className="flex-1 max-w-md">
+        <div className="w-full sm:flex-1 sm:max-w-md">
           <Input
             type="text"
             placeholder="이름, 회사명 검색..."

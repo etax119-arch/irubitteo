@@ -78,10 +78,10 @@ export default function AdminCompaniesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold text-gray-900">회원사 관리</h2>
-          <div className="flex bg-gray-100 rounded-lg p-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <h2 className="text-2xl font-bold text-gray-900 shrink-0">회원사 관리</h2>
+          <div className="flex bg-gray-100 rounded-lg p-1 overflow-x-auto">
             {filters.map((f) => (
               <button
                 key={f.id}
@@ -98,7 +98,7 @@ export default function AdminCompaniesPage() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <Input
             type="text"
             placeholder="회사명 검색..."

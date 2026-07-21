@@ -228,7 +228,7 @@ export function AddWorkerModal({
             </h3>
             <p className="text-xs text-gray-500 mb-4">근로자의 거주지 정보를 입력해주세요</p>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
                     시/도 <span className="text-duru-orange-500">*</span>
@@ -354,7 +354,7 @@ export function AddWorkerModal({
               <Shield className="w-4 h-4 text-duru-orange-500" />
               장애 정보
             </h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                   장애 유형 <span className="text-duru-orange-500">*</span>
@@ -468,7 +468,7 @@ export function AddWorkerModal({
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
                     출근 시간 <span className="text-duru-orange-500">*</span>

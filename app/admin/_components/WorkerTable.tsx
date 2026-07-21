@@ -16,15 +16,15 @@ export function WorkerTable({ workers, onViewDetail, onDelete }: WorkerTableProp
     <div>
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full sm:min-w-[720px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-8 py-3 text-left text-sm font-semibold text-gray-900">이름</th>
-                <th className="px-8 py-3 text-left text-sm font-semibold text-gray-900">회사</th>
-                <th className="px-8 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
-                <th className="px-8 py-3 text-left text-sm font-semibold text-gray-900">장애유형</th>
-                <th className="px-8 py-3 text-left text-sm font-semibold text-gray-900">고유번호</th>
-                <th className="px-8 py-3 text-left text-sm font-semibold text-gray-900">관리</th>
+                <th className="px-4 sm:px-8 py-3 text-left text-sm font-semibold text-gray-900">이름</th>
+                <th className="px-4 sm:px-8 py-3 text-left text-sm font-semibold text-gray-900">회사</th>
+                <th className="hidden sm:table-cell px-8 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
+                <th className="hidden sm:table-cell px-8 py-3 text-left text-sm font-semibold text-gray-900">장애유형</th>
+                <th className="hidden sm:table-cell px-8 py-3 text-left text-sm font-semibold text-gray-900">고유번호</th>
+                <th className="hidden sm:table-cell px-8 py-3 text-left text-sm font-semibold text-gray-900">관리</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -45,14 +45,14 @@ export function WorkerTable({ workers, onViewDetail, onDelete }: WorkerTableProp
                       tabIndex={0}
                       className={cn('cursor-pointer hover:bg-gray-50', isResigned && 'bg-gray-50')}
                     >
-                      <td className="px-8 py-4">
+                      <td className="px-4 sm:px-8 py-4">
                         <div className="flex items-center gap-3">
                           <Avatar
                             src={worker.profileImage ?? undefined}
                             name={worker.name}
                             size="md"
                             className={cn(
-                              'text-sm font-bold',
+                              'hidden sm:flex text-sm font-bold',
                               isResigned && 'opacity-50 grayscale'
                             )}
                           />
@@ -67,29 +67,29 @@ export function WorkerTable({ workers, onViewDetail, onDelete }: WorkerTableProp
                         </div>
                       </td>
                       <td
-                        className={cn('px-8 py-4', isResigned ? 'text-gray-500' : 'text-gray-900')}
+                        className={cn('px-4 sm:px-8 py-4', isResigned ? 'text-gray-500' : 'text-gray-900')}
                       >
                         {worker.companyName ?? '-'}
                       </td>
                       <td
-                        className={cn('px-8 py-4', isResigned ? 'text-gray-500' : 'text-gray-900')}
+                        className={cn('hidden sm:table-cell px-8 py-4', isResigned ? 'text-gray-500' : 'text-gray-900')}
                       >
                         {worker.phone}
                       </td>
                       <td
-                        className={cn('px-8 py-4', isResigned ? 'text-gray-500' : 'text-gray-600')}
+                        className={cn('hidden sm:table-cell px-8 py-4', isResigned ? 'text-gray-500' : 'text-gray-600')}
                       >
                         {worker.disability ?? '-'}
                       </td>
                       <td
                         className={cn(
-                          'px-8 py-4 font-mono',
+                          'hidden sm:table-cell px-8 py-4 font-mono',
                           isResigned ? 'text-gray-500' : 'text-gray-900'
                         )}
                       >
                         {worker.uniqueCode}
                       </td>
-                      <td className="px-8 py-4">
+                      <td className="hidden sm:table-cell px-8 py-4">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={(e) => { e.stopPropagation(); onViewDetail(worker); }}

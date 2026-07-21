@@ -108,7 +108,7 @@ export function WorkInfoSection({
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex-1">
             <label className="block text-xs font-semibold text-gray-700 mb-2">근무 요일</label>
             <div className="grid grid-cols-7 gap-1">

@@ -35,9 +35,9 @@ export function AttendanceTable({
   const paginatedRecords = dailyAttendance.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+    <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+      <div className="flex items-center justify-between gap-2 mb-6">
+        <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <FileText className="w-5 h-5 text-duru-orange-600" />
             출퇴근 기록
@@ -59,7 +59,7 @@ export function AttendanceTable({
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <span className="text-base font-semibold text-gray-900 min-w-[180px] text-center">
+            <span className="text-sm sm:text-base font-semibold text-gray-900 min-w-0 sm:min-w-[180px] text-center whitespace-nowrap">
               {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ko-KR', {
                 year: 'numeric',
                 month: 'long',
@@ -79,7 +79,7 @@ export function AttendanceTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[640px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">이름</th>
