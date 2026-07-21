@@ -34,7 +34,10 @@ export function WorkTimeEditModal({
   if (!isOpen) return null;
 
   const isReset = editedWorkTime.status === '__reset__';
-  const isAbsentOrLeave = editedWorkTime.status === 'absent' || editedWorkTime.status === 'leave';
+  const isAbsentOrLeave =
+    editedWorkTime.status === 'absent' ||
+    editedWorkTime.status === 'leave' ||
+    editedWorkTime.status === 'annual_leave';
   const isCheckinDisabled = isReset || isAbsentOrLeave || editedWorkTime.status === 'checkout';
   const isCheckoutDisabled = isReset || isAbsentOrLeave || editedWorkTime.status === 'checkin';
 
@@ -44,7 +47,8 @@ export function WorkTimeEditModal({
       setEditedWorkTime({ ...editedWorkTime, status: '__reset__' });
       return;
     }
-    const clearTime = newStatus === 'absent' || newStatus === 'leave';
+    const clearTime =
+      newStatus === 'absent' || newStatus === 'leave' || newStatus === 'annual_leave';
     const clearCheckout = newStatus === 'checkin';
     setEditedWorkTime({
       ...editedWorkTime,
@@ -111,6 +115,7 @@ export function WorkTimeEditModal({
               <option value="checkout">퇴근</option>
               <option value="absent">결근</option>
               <option value="leave">휴무</option>
+              <option value="annual_leave">연차</option>
               <option disabled>──────────</option>
               <option value="__reset__">초기화 (기록 삭제)</option>
             </select>
