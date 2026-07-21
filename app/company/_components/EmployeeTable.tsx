@@ -46,19 +46,19 @@ export function EmployeeTable({
         </Button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <Input
-            type="text"
-            size="sm"
-            placeholder="이름, 전화번호로 검색..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            aria-label="근로자 검색"
-            leftIcon={<Search className="w-5 h-5" />}
-          />
-        </div>
+      <div className="w-full sm:max-w-md">
+        <Input
+          type="text"
+          size="sm"
+          placeholder="이름, 전화번호로 검색..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          aria-label="근로자 검색"
+          leftIcon={<Search className="w-5 h-5" />}
+        />
+      </div>
 
+      <div className="bg-white rounded-xl border border-gray-200">
         <div className="overflow-x-auto">
           <table className="w-full sm:min-w-[640px]">
             <thead className="bg-gray-50">

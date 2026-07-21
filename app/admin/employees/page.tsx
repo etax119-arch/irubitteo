@@ -8,6 +8,7 @@ import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { IconButton } from '@/components/ui/IconButton';
 import { Modal } from '@/components/ui/Modal';
 import { PaginationBar } from '@/components/ui/PaginationBar';
 import { useToast } from '@/components/ui/Toast';
@@ -72,18 +73,16 @@ export default function AdminEmployeesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">근로자 관리</h2>
-        <button
+      <div className="flex items-center gap-2 min-w-0">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">근로자 관리</h2>
+        <IconButton
+          icon={<RefreshCw className={cn('w-5 h-5', employeesQuery.isFetching && 'animate-spin')} />}
+          variant="ghost"
+          size="sm"
+          label="새로고침"
           onClick={handleRefresh}
           disabled={employeesQuery.isFetching}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-        >
-          <RefreshCw
-            className={cn('w-4 h-4', employeesQuery.isFetching && 'animate-spin')}
-          />
-          새로고침
-        </button>
+        />
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
