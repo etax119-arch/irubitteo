@@ -3,6 +3,7 @@
 import { CalendarCheck } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 import type { AttendanceRecord } from '../_hooks/useAttendanceHistory';
 
 interface LeaveProcessModalProps {
@@ -10,6 +11,8 @@ interface LeaveProcessModalProps {
   onClose: () => void;
   record: AttendanceRecord | null;
   remaining: number;
+  reason: string;
+  onReasonChange: (value: string) => void;
   isSubmitting?: boolean;
   onConfirm: () => void;
 }
@@ -19,6 +22,8 @@ export function LeaveProcessModal({
   onClose,
   record,
   remaining,
+  reason,
+  onReasonChange,
   isSubmitting = false,
   onConfirm,
 }: LeaveProcessModalProps) {
@@ -55,6 +60,25 @@ export function LeaveProcessModal({
             <p className="text-red-500 font-medium">남은 연차가 없습니다.</p>
           )}
         </div>
+
+        {isAnnualLeave && record.workDone !== '-' && (
+          <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
+            <p className="text-xs text-gray-500 mb-1">연차 사유</p>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">{record.workDone}</p>
+          </div>
+        )}
+
+        {!isAnnualLeave && canConfirm && (
+          <Textarea
+            label="연차 사유 (선택)"
+            rows={3}
+            maxLength={2000}
+            placeholder="연차 사유를 입력하면 업무 내용에 저장됩니다."
+            value={reason}
+            onChange={(e) => onReasonChange(e.target.value)}
+            disabled={isSubmitting}
+          />
+        )}
 
         <div className="flex gap-3 pt-2">
           <Button

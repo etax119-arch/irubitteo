@@ -251,6 +251,8 @@ export default function CompanyEmployeeDetailPage() {
         onClose={attendance.closeLeaveModal}
         record={attendance.selectedLeaveRecord}
         remaining={employee.annualLeaveRemaining}
+        reason={attendance.leaveReason}
+        onReasonChange={attendance.setLeaveReason}
         isSubmitting={attendance.isProcessingLeave}
         onConfirm={attendance.processLeave}
       />

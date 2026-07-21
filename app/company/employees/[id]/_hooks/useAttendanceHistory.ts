@@ -63,30 +63,37 @@ export function useAttendanceHistory(employeeId: string, workDays: number[] = []
   // --- 연차 처리 모달 ---
   const updateMutation = useUpdateAttendance(employeeId);
   const [selectedLeaveRecord, setSelectedLeaveRecord] = useState<AttendanceRecord | null>(null);
+  const [leaveReason, setLeaveReason] = useState('');
 
-  const openLeaveModal = (record: AttendanceRecord) => setSelectedLeaveRecord(record);
+  const openLeaveModal = (record: AttendanceRecord) => {
+    setSelectedLeaveRecord(record);
+    setLeaveReason('');
+  };
   const closeLeaveModal = () => setSelectedLeaveRecord(null);
 
   // 선택된 기록의 현재 상태로 토글 대상을 결정한다.
-  // - 연차가 아니면 → 연차 처리
-  // - 이미 연차면 → 취소(복원): 근무일이면 결근, 아니면 휴무
+  // - 연차가 아니면 → 연차 처리(사유를 업무 내용으로 저장)
+  // - 이미 연차면 → 취소(복원): 근무일이면 결근, 아니면 휴무(사유 클리어)
   const processLeave = () => {
     const record = selectedLeaveRecord;
     if (!record) return;
 
     const isAnnualLeave = record.status === 'annual_leave';
     let targetStatus: AttendanceStatus;
+    let workContent: string;
     if (isAnnualLeave) {
       const [y, m, d] = record.date.split('-').map(Number);
       const jsDay = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
       const dayOfWeek = jsDay === 0 ? 7 : jsDay;
       targetStatus = workDays.includes(dayOfWeek) ? 'absent' : 'leave';
+      workContent = '';
     } else {
       targetStatus = 'annual_leave';
+      workContent = leaveReason.trim();
     }
 
     updateMutation.mutate(
-      { attendanceId: record.id, input: { status: targetStatus } },
+      { attendanceId: record.id, input: { status: targetStatus, workContent } },
       {
         onSuccess: () => {
           toast.success(isAnnualLeave ? '연차가 취소되었습니다.' : '연차 처리되었습니다.');
@@ -144,6 +151,8 @@ export function useAttendanceHistory(employeeId: string, workDays: number[] = []
     closeWorkDoneModal,
     // 연차 처리
     selectedLeaveRecord,
+    leaveReason,
+    setLeaveReason,
     openLeaveModal,
     closeLeaveModal,
     processLeave,
