@@ -63,7 +63,7 @@ export default function AdminDashboardPage() {
   if (statsQuery.isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex justify-end">
+        <div className="flex justify-end -mt-4 -mb-2">
           <Skeleton className="w-24 h-9 rounded-lg" />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       {/* 리프레시 버튼 */}
-      <div className="flex justify-end">
+      <div className="flex justify-end -mt-4 -mb-2">
         <button
           onClick={handleRefresh}
           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-duru-orange-600 hover:bg-duru-orange-50 rounded-lg transition-colors"
