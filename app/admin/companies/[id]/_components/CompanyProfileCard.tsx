@@ -21,6 +21,8 @@ import { formatKSTDate } from '@/lib/kst';
 import type { CompanyWithEmployeeCount } from '@/types/company';
 
 interface EditedInfo {
+  name: string;
+  businessNumber: string;
   hrContactName: string;
   hrContactPhone: string;
   hrContactEmail: string;
@@ -61,17 +63,48 @@ export function CompanyProfileCard({
         <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <Building2 className="w-12 h-12 text-blue-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">{company.name}</h2>
-        <p className="text-gray-600">{company.businessNumber || '-'}</p>
-        <span
-          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-2 ${
-            company.isActive
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
-          }`}
-        >
-          {company.isActive ? '활성' : '탈퇴'}
-        </span>
+        {isEditing ? (
+          <div className="space-y-2 mb-2 text-left">
+            <div>
+              <span className="text-xs text-gray-500 font-semibold">회사명</span>
+              <Input
+                type="text"
+                value={editedInfo.name}
+                onChange={(e) => setEditedInfo({ ...editedInfo, name: e.target.value })}
+                size="sm"
+                className="mt-1"
+                placeholder="회사명"
+              />
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 font-semibold">사업자등록번호</span>
+              <Input
+                type="text"
+                value={editedInfo.businessNumber}
+                onChange={(e) => setEditedInfo({ ...editedInfo, businessNumber: e.target.value })}
+                size="sm"
+                className="mt-1"
+                placeholder="000-00-00000"
+              />
+            </div>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">{company.name}</h2>
+            <p className="text-gray-600">{company.businessNumber || '-'}</p>
+          </>
+        )}
+        {!isEditing && (
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-2 ${
+              company.isActive
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}
+          >
+            {company.isActive ? '활성' : '탈퇴'}
+          </span>
+        )}
       </div>
 
       <div className="space-y-3 border-t border-gray-200 pt-6">

@@ -7,6 +7,8 @@ import { useToast } from '@/components/ui/Toast';
 import type { CompanyWithEmployeeCount } from '@/types/company';
 
 interface EditedInfo {
+  name: string;
+  businessNumber: string;
   hrContactName: string;
   hrContactPhone: string;
   hrContactEmail: string;
@@ -26,6 +28,8 @@ export function useCompanyDetailUI(companyId: string) {
   // HR info editing
   const [isEditing, setIsEditing] = useState(false);
   const [editedInfo, setEditedInfo] = useState<EditedInfo>({
+    name: '',
+    businessNumber: '',
     hrContactName: '',
     hrContactPhone: '',
     hrContactEmail: '',
@@ -46,6 +50,8 @@ export function useCompanyDetailUI(companyId: string) {
 
   const handleStartEdit = (company: CompanyWithEmployeeCount) => {
     setEditedInfo({
+      name: company.name || '',
+      businessNumber: company.businessNumber || '',
       hrContactName: company.hrContactName || '',
       hrContactPhone: company.hrContactPhone || '',
       hrContactEmail: company.hrContactEmail || '',
@@ -55,8 +61,15 @@ export function useCompanyDetailUI(companyId: string) {
   };
 
   const handleSaveEdit = async () => {
+    const name = editedInfo.name.trim();
+    if (!name) {
+      toast.error('회사명을 입력해주세요.');
+      return;
+    }
     try {
       await updateMutation.mutateAsync({
+        name,
+        businessNumber: editedInfo.businessNumber.trim() || null,
         hrContactName: editedInfo.hrContactName || null,
         hrContactPhone: editedInfo.hrContactPhone || null,
         hrContactEmail: editedInfo.hrContactEmail || null,

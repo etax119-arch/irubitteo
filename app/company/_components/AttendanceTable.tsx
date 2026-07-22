@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, FileText, RefreshCw } from 'lucide-react';
 import type { DailyAttendanceRecord } from '@/types/attendance';
 import { Avatar } from '@/components/ui/Avatar';
@@ -33,6 +33,7 @@ export function AttendanceTable({
   isRefreshing,
 }: AttendanceTableProps) {
   const [page, setPage] = useState(1);
+  const router = useRouter();
 
   const totalPages = Math.ceil(dailyAttendance.length / PAGE_SIZE);
   const paginatedRecords = dailyAttendance.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -100,16 +101,17 @@ export function AttendanceTable({
               </tr>
             ) : (
               paginatedRecords.map((record) => (
-                <tr key={record.employeeId} className="hover:bg-gray-50">
+                <tr
+                  key={record.employeeId}
+                  onClick={() => router.push(`/company/employees/${record.employeeId}`)}
+                  className="group hover:bg-gray-50 cursor-pointer"
+                >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <Avatar src={record.profileImage ?? undefined} name={record.name} size="sm" className="hidden sm:flex text-xs font-bold" />
-                      <Link
-                        href={`/company/employees/${record.employeeId}`}
-                        className="font-semibold text-gray-900 hover:text-duru-orange-600 hover:underline"
-                      >
+                      <span className="font-semibold text-gray-900 group-hover:text-duru-orange-600">
                         {record.name}
-                      </Link>
+                      </span>
                     </div>
                   </td>
                   <td className="hidden sm:table-cell px-6 py-4 text-gray-600">{record.phone}</td>
