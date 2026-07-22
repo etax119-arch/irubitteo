@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Building2, ChevronDown, ChevronLeft, ChevronRight, AlertCircle, Search, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
@@ -37,6 +37,7 @@ export function CompanyAttendanceAccordion({
   onPrevPage,
   onNextPage,
 }: CompanyAttendanceAccordionProps) {
+  const router = useRouter();
   const [expandedCompanies, setExpandedCompanies] = useState<Record<string, boolean>>({});
 
   const toggleCompany = (companyId: string) => {
@@ -155,7 +156,7 @@ export function CompanyAttendanceAccordion({
                     </span>
                   </h3>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap sm:pl-0 pl-9">
+                <div className="hidden sm:flex items-center gap-2 flex-wrap">
                   {Object.entries(statusCounts).map(([label, count]) => {
                     const statusKey = label === '퇴근' ? 'checkout'
                       : label === '근무중' ? 'checkin'
@@ -177,15 +178,15 @@ export function CompanyAttendanceAccordion({
 
             {isExpanded && (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px]">
+                <table className="w-full sm:min-w-[720px]">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">이름</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">상태</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">출근 시간</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">퇴근 시간</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">출근 시간</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">퇴근 시간</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -194,16 +195,22 @@ export function CompanyAttendanceAccordion({
                       return (
                         <tr
                           key={employee.employeeId}
-                          className={cn('hover:bg-gray-50', needsAttention && 'bg-yellow-50')}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => router.push(`/admin/employees/${employee.employeeId}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              router.push(`/admin/employees/${employee.employeeId}`);
+                            }
+                          }}
+                          className={cn('hover:bg-gray-50 cursor-pointer', needsAttention && 'bg-yellow-50')}
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              <Link
-                                href={`/admin/employees/${employee.employeeId}`}
-                                className="font-semibold text-gray-900 hover:text-duru-orange-600 hover:underline"
-                              >
+                              <span className="font-semibold text-gray-900">
                                 {employee.name}
-                              </Link>
+                              </span>
                               {needsAttention && (
                                 <span title={employee.isLate ? '지각' : '결근'}>
                                   <AlertCircle className="w-4 h-4 text-yellow-600" />
@@ -211,7 +218,7 @@ export function CompanyAttendanceAccordion({
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-gray-700">{employee.phone || '-'}</td>
+                          <td className="hidden sm:table-cell px-6 py-4 text-gray-700">{employee.phone || '-'}</td>
                           <td className="px-6 py-4">
                             <span
                               className={cn(
@@ -222,7 +229,7 @@ export function CompanyAttendanceAccordion({
                               {getEmployeeStatusLabel(employee.status, true)}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="hidden sm:table-cell px-6 py-4">
                             <span
                               className={
                                 !employee.clockIn ? 'text-red-600 font-semibold' : 'text-gray-900'
@@ -231,12 +238,12 @@ export function CompanyAttendanceAccordion({
                               {employee.clockIn ?? '-'}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="hidden sm:table-cell px-6 py-4">
                             <span className="text-gray-900">
                               {employee.clockOut ?? '-'}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="hidden sm:table-cell px-6 py-4">
                             <span className={cn('text-gray-600', !employee.workContent && 'italic')}>
                               {employee.workContent || '업무 내용 없음'}
                             </span>

@@ -186,7 +186,16 @@ export default function AdminDashboardPage() {
             {urgentAlerts.map((alert) => (
               <div
                 key={alert.id}
-                className="flex items-start gap-4 p-4 bg-red-50 border border-red-200 rounded-lg"
+                role="button"
+                tabIndex={0}
+                onClick={() => handleDismissAlert(alert.id, alert.employeeId)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleDismissAlert(alert.id, alert.employeeId);
+                  }
+                }}
+                className="flex items-start gap-4 p-4 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100 transition-colors"
               >
                 <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <AlertCircle className="w-5 h-5 text-red-600" />
@@ -198,12 +207,9 @@ export default function AdminDashboardPage() {
                   </div>
                   <p className="text-sm text-gray-600">{alert.companyName}</p>
                 </div>
-                <button
-                  onClick={() => handleDismissAlert(alert.id, alert.employeeId)}
-                  className="hidden sm:block text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm whitespace-nowrap"
-                >
+                <span className="hidden sm:block self-center text-duru-orange-600 font-semibold text-sm whitespace-nowrap">
                   확인하기
-                </button>
+                </span>
               </div>
             ))}
           </div>
