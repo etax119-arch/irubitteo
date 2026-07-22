@@ -12,6 +12,7 @@ import { useAdminEditForm } from './_hooks/useAdminEditForm';
 import { useAdminAttendanceHistory } from './_hooks/useAdminAttendanceHistory';
 import { useAdminEmployeeFiles } from './_hooks/useAdminEmployeeFiles';
 import { ProfileCard } from './_components/ProfileCard';
+import { DisabilityInfoSection } from './_components/DisabilityInfoSection';
 import { CompanyNoteSection } from './_components/CompanyNoteSection';
 import { AdminNoteSection } from './_components/AdminNoteSection';
 import { ResignInfoSection } from './_components/ResignInfoSection';
@@ -133,7 +134,7 @@ export default function EmployeeDetailPage() {
         <div className="flex flex-col gap-6 lg:grid lg:grid-cols-3">
           {/* 왼쪽: 기본 정보 */}
           <div className="contents lg:block lg:space-y-6">
-            <div className="order-1 space-y-6">
+            <div className="order-1">
               <ProfileCard
                 worker={worker}
                 isUploadingImage={uploadImage.isPending || deleteImage.isPending}
@@ -141,12 +142,15 @@ export default function EmployeeDetailPage() {
                 onDeleteImage={handleDeleteImage}
               />
             </div>
+            <div className="order-4">
+              <DisabilityInfoSection worker={worker} />
+            </div>
             {worker.companyNote && (
-              <div className="order-3">
+              <div className="order-5">
                 <CompanyNoteSection companyNote={worker.companyNote} />
               </div>
             )}
-            <div className="order-4">
+            <div className="order-6">
               <AdminNoteSection
                 notes={worker.adminNote || ''}
                 isEditingNotes={editForm.isEditingNotes}
@@ -185,7 +189,7 @@ export default function EmployeeDetailPage() {
                 isExporting={attendance.isExporting}
               />
             </div>
-            <div className="order-5">
+            <div className="order-3">
               <WorkInfoSection
                 workDays={workDays}
                 workStartTime={workStartTime}
@@ -203,7 +207,7 @@ export default function EmployeeDetailPage() {
                 onCancel={editForm.handleCancelEditWorkInfo}
               />
             </div>
-            <div className="order-6">
+            <div className="order-7">
               <DocumentSection
                 documents={files.documents}
                 onOpenUploadModal={() => files.setShowUploadModal(true)}

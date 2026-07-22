@@ -88,35 +88,6 @@ export function ProfileCard({
           </span>
         </div>
 
-        <div className="flex justify-end mb-2">
-          {!isEditing ? (
-            <button
-              onClick={onEdit}
-              className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200 transition-colors flex items-center gap-1"
-            >
-              <Edit2 className="w-3 h-3" />
-              수정
-            </button>
-          ) : (
-            <div className="flex gap-1">
-              <button
-                onClick={onCancel}
-                className="px-2 py-1 border border-gray-300 text-gray-700 rounded text-xs font-semibold hover:bg-gray-50 transition-colors"
-              >
-                취소
-              </button>
-              <button
-                onClick={onSave}
-                disabled={isSaving}
-                className="px-2 py-1 bg-duru-orange-500 text-white rounded text-xs font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Check className="w-3 h-3" />
-                {isSaving ? '저장 중...' : '저장'}
-              </button>
-            </div>
-          )}
-        </div>
-
         {!isEditing ? (
           <div className="space-y-3 border-t border-gray-200 pt-6">
             <div className="flex items-center gap-3 text-sm">
@@ -321,6 +292,35 @@ export function ProfileCard({
             />
           </div>
         )}
+
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          {!isEditing ? (
+            <button
+              onClick={onEdit}
+              className="w-full py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <Edit2 className="w-4 h-4" />
+              정보 수정
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={onCancel}
+                className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={onSave}
+                disabled={isSaving}
+                className="flex-1 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Check className="w-4 h-4" />
+                {isSaving ? '저장 중...' : '저장'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
   );
 }

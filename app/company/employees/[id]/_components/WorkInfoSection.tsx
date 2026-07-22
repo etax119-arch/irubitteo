@@ -72,7 +72,7 @@ export function WorkInfoSection({
       </div>
 
       {!isEditing ? (
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex-1">
             <label className="block text-xs font-semibold text-gray-700 mb-2">근무 요일</label>
             <div className="flex gap-1">
@@ -91,18 +91,20 @@ export function WorkInfoSection({
               ))}
             </div>
           </div>
-          <div className="w-32">
-            <label className="block text-xs font-semibold text-gray-700 mb-2">출근 시간</label>
-            <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-200">
-              <Clock className="w-3.5 h-3.5 text-gray-400" />
-              <span className="text-sm font-bold text-gray-900">{workStartTime}</span>
+          <div className="flex gap-4">
+            <div className="flex-1 sm:w-32">
+              <label className="block text-xs font-semibold text-gray-700 mb-2">출근 시간</label>
+              <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-200">
+                <Clock className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-sm font-bold text-gray-900">{workStartTime}</span>
+              </div>
             </div>
-          </div>
-          <div className="w-32">
-            <label className="block text-xs font-semibold text-gray-700 mb-2">퇴근 시간</label>
-            <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-200">
-              <Clock className="w-3.5 h-3.5 text-gray-400" />
-              <span className="text-sm font-bold text-gray-900">{workEndTime}</span>
+            <div className="flex-1 sm:w-32">
+              <label className="block text-xs font-semibold text-gray-700 mb-2">퇴근 시간</label>
+              <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-200">
+                <Clock className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-sm font-bold text-gray-900">{workEndTime}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -131,21 +133,23 @@ export function WorkInfoSection({
               })}
             </div>
           </div>
-          <div className="w-40">
-            <label className="block text-xs font-semibold text-gray-700 mb-2">출근 시간</label>
-            <TimePicker
-              value={tempWorkStartTime}
-              onChange={setTempWorkStartTime}
-              inputClassName="py-1"
-            />
-          </div>
-          <div className="w-40">
-            <label className="block text-xs font-semibold text-gray-700 mb-2">퇴근 시간</label>
-            <TimePicker
-              value={tempWorkEndTime}
-              onChange={setTempWorkEndTime}
-              inputClassName="py-1"
-            />
+          <div className="flex gap-4">
+            <div className="flex-1 sm:w-40">
+              <label className="block text-xs font-semibold text-gray-700 mb-2">출근 시간</label>
+              <TimePicker
+                value={tempWorkStartTime}
+                onChange={setTempWorkStartTime}
+                inputClassName="py-1"
+              />
+            </div>
+            <div className="flex-1 sm:w-40">
+              <label className="block text-xs font-semibold text-gray-700 mb-2">퇴근 시간</label>
+              <TimePicker
+                value={tempWorkEndTime}
+                onChange={setTempWorkEndTime}
+                inputClassName="py-1"
+              />
+            </div>
           </div>
         </div>
       )}

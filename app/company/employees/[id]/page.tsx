@@ -154,7 +154,7 @@ export default function CompanyEmployeeDetailPage() {
                 onDeleteImage={handleDeleteImage}
               />
             </div>
-            <div className="order-3">
+            <div className="order-4">
               <DisabilityInfoSection
                 employee={employee}
                 isEditing={editForm.isEditingDisability}
@@ -170,7 +170,7 @@ export default function CompanyEmployeeDetailPage() {
                 onCancel={editForm.handleCancelDisability}
               />
             </div>
-            <div className="order-4">
+            <div className="order-5">
               <NotesSection
                 notes={employee.companyNote || ''}
                 isEditing={editForm.isEditingNotes}
@@ -209,7 +209,7 @@ export default function CompanyEmployeeDetailPage() {
                 isExporting={attendance.isExporting}
               />
             </div>
-            <div className="order-5">
+            <div className="order-3">
               <WorkInfoSection
                 workDays={workDays}
                 workStartTime={employee.workStartTime || ''}
