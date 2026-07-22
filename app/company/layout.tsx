@@ -97,7 +97,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   return (
     <div className="min-h-screen bg-duru-ivory">
       {/* 헤더 */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-2 h-16">
             <div className="flex items-center gap-4 min-w-0">
@@ -121,8 +121,8 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
         </div>
       </header>
 
-      {/* 탭 네비게이션 */}
-      <div className="bg-white border-b border-gray-200">
+      {/* 탭 네비게이션 (sticky) */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-4 sm:gap-8 overflow-x-auto">
             {tabs.map((tab) => (
