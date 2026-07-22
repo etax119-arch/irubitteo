@@ -80,15 +80,15 @@ export function AttendanceTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px]">
+        <table className="w-full sm:min-w-[640px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">이름</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">출근</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">퇴근</th>
+              <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
+              <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">출근</th>
+              <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">퇴근</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">상태</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
+              <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -103,7 +103,7 @@ export function AttendanceTable({
                 <tr key={record.employeeId} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <Avatar src={record.profileImage ?? undefined} name={record.name} size="sm" className="text-xs font-bold" />
+                      <Avatar src={record.profileImage ?? undefined} name={record.name} size="sm" className="hidden sm:flex text-xs font-bold" />
                       <Link
                         href={`/company/employees/${record.employeeId}`}
                         className="font-semibold text-gray-900 hover:text-duru-orange-600 hover:underline"
@@ -112,15 +112,15 @@ export function AttendanceTable({
                       </Link>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{record.phone}</td>
-                  <td className="px-6 py-4 text-gray-900">{record.clockIn || '-'}</td>
-                  <td className="px-6 py-4 text-gray-900">{record.clockOut || '-'}</td>
+                  <td className="hidden sm:table-cell px-6 py-4 text-gray-600">{record.phone}</td>
+                  <td className="hidden sm:table-cell px-6 py-4 text-gray-900">{record.clockIn || '-'}</td>
+                  <td className="hidden sm:table-cell px-6 py-4 text-gray-900">{record.clockOut || '-'}</td>
                   <td className="px-6 py-4">
                     <span className={cn('px-3 py-1 rounded-full text-xs font-semibold', getEmployeeStatusStyle(record.status, true))}>
                       {getEmployeeStatusLabel(record.status, true)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-600 text-sm max-w-xs truncate">
+                  <td className="hidden sm:table-cell px-6 py-4 text-gray-600 text-sm max-w-xs truncate">
                     {record.workContent || '-'}
                   </td>
                 </tr>
