@@ -34,6 +34,7 @@ export function WorkTimeEditModal({
   if (!isOpen) return null;
 
   const isReset = editedWorkTime.status === '__reset__';
+  const isAnnualLeave = editedWorkTime.status === 'annual_leave';
   const isAbsentOrLeave =
     editedWorkTime.status === 'absent' ||
     editedWorkTime.status === 'leave' ||
@@ -101,6 +102,7 @@ export function WorkTimeEditModal({
             onChange={(e) => setEditedWorkTime({ ...editedWorkTime, workDone: e.target.value })}
             disabled={isReset || savingWorkTime}
             rows={3}
+            placeholder={isAnnualLeave ? '연차 사유를 입력해주세요.' : undefined}
           />
 
           <div>
