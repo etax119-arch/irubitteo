@@ -6,6 +6,9 @@ import ServiceSection from './_components/ServiceSection';
 import TargetAudienceSection from './_components/TargetAudienceSection';
 import Footer from './_components/Footer';
 import StructuredData from './_components/StructuredData';
+import { serverFetch } from '@/lib/api/server-fetch';
+import type { GalleryItem } from '@/types/gallery';
+import type { PaginatedResponse } from '@/types/api';
 
 export const metadata: Metadata = {
   alternates: {
@@ -38,15 +41,23 @@ const notoSansKR = Noto_Sans_KR({
   variable: '--font-noto-sans-kr',
 });
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  let galleryItems: GalleryItem[] = [];
+  try {
+    const result = await serverFetch<PaginatedResponse<GalleryItem>>('/galleries?page=1&limit=10');
+    galleryItems = result.data;
+  } catch {
+    // 갤러리 로드 실패 시 캐러셀은 렌더링되지 않음
+  }
+
   return (
     <div className={`min-h-screen bg-duru-ivory text-duru-text-main selection:bg-landing-orange selection:text-white ${notoSansKR.className}`} style={{ fontWeight: 500 }}>
       <StructuredData data={organizationData} />
       <StructuredData data={websiteData} />
       <Header />
       <HeroSection />
-      <ServiceSection />
-      <TargetAudienceSection />
+      <ServiceSection galleryItems={galleryItems} />
+      {/* <TargetAudienceSection /> */}
       <Footer />
     </div>
   );
