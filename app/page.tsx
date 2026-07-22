@@ -5,6 +5,7 @@ import HeroSection from './_components/HeroSection';
 import ServiceSection from './_components/ServiceSection';
 import ManagementSystemSection from './_components/ManagementSystemSection';
 import ConsultingProcessSection from './_components/ConsultingProcessSection';
+import RecommendedJobsSection from './_components/RecommendedJobsSection';
 import TargetAudienceSection from './_components/TargetAudienceSection';
 import Footer from './_components/Footer';
 import StructuredData from './_components/StructuredData';
@@ -60,6 +61,7 @@ export default async function LandingPage() {
       <HeroSection />
       <ServiceSection galleryItems={galleryItems} />
       <ManagementSystemSection />
+      <RecommendedJobsSection />
       <ConsultingProcessSection />
       {/* <TargetAudienceSection /> */}
       <Footer />

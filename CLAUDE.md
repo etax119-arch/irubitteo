@@ -169,6 +169,7 @@ durubitteo_web/
 │   │   ├── HeroSection.tsx
 │   │   ├── ServiceSection.tsx
 │   │   ├── ManagementSystemSection.tsx
+│   │   ├── RecommendedJobsSection.tsx
 │   │   ├── ConsultingProcessSection.tsx
 │   │   ├── TargetAudienceSection.tsx
 │   │   ├── CommuteSection.tsx
