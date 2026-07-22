@@ -58,9 +58,6 @@ export default function ServiceSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 - 이루빛터 의미 중심 */}
         <div className="text-center mb-20">
-          <div className="inline-block px-5 py-2 bg-landing-orange/10 border border-landing-orange/30 rounded-full text-landing-orange text-base font-semibold mb-6 shadow-sm">
-            ABOUT
-          </div>
           <div className={`mb-6 transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>

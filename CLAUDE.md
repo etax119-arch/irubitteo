@@ -167,11 +167,9 @@ durubitteo_web/
 │   │   ├── GoogleAnalytics.tsx
 │   │   ├── NaverAnalytics.tsx
 │   │   ├── HeroSection.tsx
-│   │   ├── HeroSlider.tsx
 │   │   ├── ServiceSection.tsx
 │   │   ├── TargetAudienceSection.tsx
 │   │   ├── CommuteSection.tsx
-│   │   ├── ReviewSection.tsx
 │   │   ├── StorySection.tsx
 │   │   ├── TestimonialsSection.tsx
 │   │   ├── TrustSection.tsx

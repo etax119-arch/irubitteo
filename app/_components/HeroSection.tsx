@@ -1,12 +1,24 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Clock, FileUp, ChevronRight } from 'lucide-react';
-import HeroSlider from './HeroSlider';
 
 export default function HeroSection() {
   return (
-    <section className="pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-        <div className="space-y-8 text-left">
+    <section className="relative isolate flex items-center min-h-[85vh] overflow-hidden">
+      {/* 배경 이미지 */}
+      <Image
+        src="/images/hero-bg.png"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center z-0"
+      />
+      {/* 가독성 오버레이 (왼쪽 아이보리 → 오른쪽 투명) */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-duru-ivory via-duru-ivory/85 to-transparent" />
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 lg:pt-40 lg:pb-32">
+        <div className="max-w-xl space-y-8 text-left">
           <div className="flex items-center gap-3 mb-2">
             <span className="w-12 h-[2px] bg-landing-orange"></span>
             <span className="text-landing-orange font-bold tracking-[0.2em] text-sm uppercase">
@@ -43,8 +55,6 @@ export default function HeroSection() {
             </Link>
           </div>
         </div>
-
-        <HeroSlider />
       </div>
     </section>
   );
