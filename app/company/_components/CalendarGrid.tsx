@@ -71,7 +71,7 @@ export function CalendarGrid({
           } ${cellBg}`}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-1 sm:mb-2">
               <span
                 className={`text-sm sm:text-lg font-bold ${
                   dayOfWeek === 0
@@ -87,16 +87,18 @@ export function CalendarGrid({
 
             {isScheduleHoliday && schedule && (
               <div className="flex-1 flex flex-col gap-1">
-                <p className="text-sm font-bold text-red-600">휴일</p>
+                <span className="sm:hidden mx-auto mt-0.5 w-2 h-2 rounded-full bg-red-500" />
+                <p className="hidden sm:block text-sm font-bold text-red-600">휴일</p>
                 {schedule.content && (
-                  <p className="text-xs text-gray-600 line-clamp-2">{schedule.content}</p>
+                  <p className="hidden sm:block text-xs text-gray-600 line-clamp-2">{schedule.content}</p>
                 )}
               </div>
             )}
 
             {schedule && !isScheduleHoliday && (
               <div className="flex-1 flex flex-col gap-1">
-                <p className="text-sm font-bold text-gray-900 line-clamp-2">
+                <span className="sm:hidden mx-auto mt-0.5 w-2 h-2 rounded-full bg-blue-500" />
+                <p className="hidden sm:block text-sm font-bold text-gray-900 line-clamp-2">
                   업무 지시서
                 </p>
               </div>
@@ -104,7 +106,7 @@ export function CalendarGrid({
 
             {!schedule && !isWeekend && (
               <div className="flex-1 flex items-center justify-center">
-                <Plus className="w-6 h-6 text-gray-400" />
+                <Plus className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" />
               </div>
             )}
           </div>
@@ -117,31 +119,33 @@ export function CalendarGrid({
 
   return (
     <div className="bg-white rounded-xl p-3 sm:p-6 border border-gray-200">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">근무 일정 관리</h2>
-        <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+      <div className="flex items-center justify-between gap-2 mb-6">
+        <h2 className="text-lg sm:text-2xl font-bold text-gray-900">근무 일정 관리</h2>
+        <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
           <button
             type="button"
             onClick={onExportExcel}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors whitespace-nowrap"
+            className="flex items-center gap-2 px-2.5 sm:px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors whitespace-nowrap"
+            title="엑셀 내보내기"
+            aria-label="엑셀 내보내기"
           >
             <FileSpreadsheet className="w-4 h-4" />
-            엑셀 내보내기
+            <span className="hidden sm:inline">엑셀 내보내기</span>
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-2">
             <button
               onClick={onPrevMonth}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="이전 달"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <span className="text-lg font-semibold text-gray-900 min-w-[100px] sm:min-w-[120px] text-center">
+            <span className="text-base sm:text-lg font-semibold text-gray-900 min-w-[84px] sm:min-w-[120px] text-center whitespace-nowrap">
               {year}년 {month + 1}월
             </span>
             <button
               onClick={onNextMonth}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="다음 달"
             >
               <ChevronRight className="w-5 h-5 text-gray-600" />
@@ -156,7 +160,7 @@ export function CalendarGrid({
         {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
           <div
             key={day}
-            className={`text-center font-bold py-3 text-base ${
+            className={`text-center font-bold py-2 sm:py-3 text-sm sm:text-base ${
               idx === 0 ? 'text-red-600' : idx === 6 ? 'text-blue-600' : 'text-gray-900'
             }`}
           >
