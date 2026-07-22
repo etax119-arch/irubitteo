@@ -136,91 +136,105 @@ export default function CompanyEmployeeDetailPage() {
             <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-3">
           {/* 왼쪽: 기본 정보 */}
-          <div className="space-y-6">
-            <ProfileCard
-              employee={employee}
-              isEditing={editForm.isEditingProfile}
-              isSaving={editForm.isSavingProfile}
-              profileForm={editForm.profileForm}
-              onEdit={() => editForm.handleEditProfile(employee)}
-              onSave={() => editForm.handleSaveProfile(employee)}
-              onCancel={editForm.handleCancelProfile}
-              onUpdateForm={editForm.updateProfileForm}
-              isUploadingImage={uploadImage.isPending || deleteImage.isPending}
-              onUploadImage={handleUploadImage}
-              onDeleteImage={handleDeleteImage}
-            />
-            <DisabilityInfoSection
-              employee={employee}
-              isEditing={editForm.isEditingDisability}
-              isSaving={editForm.isSavingDisability}
-              tempDisabilityType={editForm.tempDisabilityType}
-              setTempDisabilityType={editForm.setTempDisabilityType}
-              tempSeverity={editForm.tempDisabilitySeverity}
-              setTempSeverity={editForm.setTempDisabilitySeverity}
-              tempRecognitionDate={editForm.tempDisabilityRecognitionDate}
-              setTempRecognitionDate={editForm.setTempDisabilityRecognitionDate}
-              onEdit={() => editForm.handleEditDisability(employee)}
-              onSave={editForm.handleSaveDisability}
-              onCancel={editForm.handleCancelDisability}
-            />
-            <NotesSection
-              notes={employee.companyNote || ''}
-              isEditing={editForm.isEditingNotes}
-              isSaving={editForm.isSavingNotes}
-              tempNotes={editForm.tempNotes}
-              setTempNotes={editForm.setTempNotes}
-              onEdit={() => editForm.handleEditNotes(employee)}
-              onSave={editForm.handleSaveNotes}
-              onCancel={editForm.handleCancelNotes}
-            />
-            <ResignSection employee={employee} onOpenResignModal={editForm.openResignModal} />
+          <div className="contents lg:block lg:space-y-6">
+            <div className="order-1">
+              <ProfileCard
+                employee={employee}
+                isEditing={editForm.isEditingProfile}
+                isSaving={editForm.isSavingProfile}
+                profileForm={editForm.profileForm}
+                onEdit={() => editForm.handleEditProfile(employee)}
+                onSave={() => editForm.handleSaveProfile(employee)}
+                onCancel={editForm.handleCancelProfile}
+                onUpdateForm={editForm.updateProfileForm}
+                isUploadingImage={uploadImage.isPending || deleteImage.isPending}
+                onUploadImage={handleUploadImage}
+                onDeleteImage={handleDeleteImage}
+              />
+            </div>
+            <div className="order-3">
+              <DisabilityInfoSection
+                employee={employee}
+                isEditing={editForm.isEditingDisability}
+                isSaving={editForm.isSavingDisability}
+                tempDisabilityType={editForm.tempDisabilityType}
+                setTempDisabilityType={editForm.setTempDisabilityType}
+                tempSeverity={editForm.tempDisabilitySeverity}
+                setTempSeverity={editForm.setTempDisabilitySeverity}
+                tempRecognitionDate={editForm.tempDisabilityRecognitionDate}
+                setTempRecognitionDate={editForm.setTempDisabilityRecognitionDate}
+                onEdit={() => editForm.handleEditDisability(employee)}
+                onSave={editForm.handleSaveDisability}
+                onCancel={editForm.handleCancelDisability}
+              />
+            </div>
+            <div className="order-4">
+              <NotesSection
+                notes={employee.companyNote || ''}
+                isEditing={editForm.isEditingNotes}
+                isSaving={editForm.isSavingNotes}
+                tempNotes={editForm.tempNotes}
+                setTempNotes={editForm.setTempNotes}
+                onEdit={() => editForm.handleEditNotes(employee)}
+                onSave={editForm.handleSaveNotes}
+                onCancel={editForm.handleCancelNotes}
+              />
+            </div>
+            <div className="order-last">
+              <ResignSection employee={employee} onOpenResignModal={editForm.openResignModal} />
+            </div>
           </div>
 
           {/* 오른쪽: 상세 정보 */}
-          <div className="lg:col-span-2 space-y-6">
-            <AttendanceHistoryTable
-              records={attendance.attendanceHistory}
-              isLoading={attendance.isLoadingAttendance}
-              error={attendance.attendanceError}
-              onOpenWorkDone={attendance.openWorkDoneModal}
-              onStatusClick={attendance.openLeaveModal}
-              currentPage={attendance.currentPage}
-              pagination={attendance.pagination}
-              onNextPage={attendance.goToNextPage}
-              onPrevPage={attendance.goToPrevPage}
-              startDate={attendance.startDate}
-              endDate={attendance.endDate}
-              onStartDateChange={attendance.handleStartDateChange}
-              onEndDateChange={attendance.handleEndDateChange}
-              onClearDates={attendance.handleClearDates}
-              onExportExcel={() => attendance.handleExportExcel(employee.name)}
-              isExporting={attendance.isExporting}
-            />
-            <WorkInfoSection
-              workDays={workDays}
-              workStartTime={employee.workStartTime || ''}
-              workEndTime={employee.workEndTime || ''}
-              isEditing={editForm.isEditingWorkInfo}
-              isSaving={editForm.isSavingWorkInfo}
-              tempWorkDays={editForm.tempWorkDays}
-              tempWorkStartTime={editForm.tempWorkStartTime}
-              tempWorkEndTime={editForm.tempWorkEndTime}
-              setTempWorkStartTime={editForm.setTempWorkStartTime}
-              setTempWorkEndTime={editForm.setTempWorkEndTime}
-              toggleTempWorkDay={editForm.toggleTempWorkDay}
-              onEdit={() => editForm.handleEditWorkInfo(employee)}
-              onSave={editForm.handleSaveWorkInfo}
-              onCancel={editForm.handleCancelEditWorkInfo}
-            />
-            <DocumentSection
-              files={employeeFiles.files}
-              isLoading={employeeFiles.isLoading}
-              onOpenUploadModal={() => setShowUploadModal(true)}
-              onDelete={employeeFiles.remove}
-            />
+          <div className="contents lg:col-span-2 lg:block lg:space-y-6">
+            <div className="order-2">
+              <AttendanceHistoryTable
+                records={attendance.attendanceHistory}
+                isLoading={attendance.isLoadingAttendance}
+                error={attendance.attendanceError}
+                onOpenWorkDone={attendance.openWorkDoneModal}
+                onStatusClick={attendance.openLeaveModal}
+                currentPage={attendance.currentPage}
+                pagination={attendance.pagination}
+                onNextPage={attendance.goToNextPage}
+                onPrevPage={attendance.goToPrevPage}
+                startDate={attendance.startDate}
+                endDate={attendance.endDate}
+                onStartDateChange={attendance.handleStartDateChange}
+                onEndDateChange={attendance.handleEndDateChange}
+                onClearDates={attendance.handleClearDates}
+                onExportExcel={() => attendance.handleExportExcel(employee.name)}
+                isExporting={attendance.isExporting}
+              />
+            </div>
+            <div className="order-5">
+              <WorkInfoSection
+                workDays={workDays}
+                workStartTime={employee.workStartTime || ''}
+                workEndTime={employee.workEndTime || ''}
+                isEditing={editForm.isEditingWorkInfo}
+                isSaving={editForm.isSavingWorkInfo}
+                tempWorkDays={editForm.tempWorkDays}
+                tempWorkStartTime={editForm.tempWorkStartTime}
+                tempWorkEndTime={editForm.tempWorkEndTime}
+                setTempWorkStartTime={editForm.setTempWorkStartTime}
+                setTempWorkEndTime={editForm.setTempWorkEndTime}
+                toggleTempWorkDay={editForm.toggleTempWorkDay}
+                onEdit={() => editForm.handleEditWorkInfo(employee)}
+                onSave={editForm.handleSaveWorkInfo}
+                onCancel={editForm.handleCancelEditWorkInfo}
+              />
+            </div>
+            <div className="order-6">
+              <DocumentSection
+                files={employeeFiles.files}
+                isLoading={employeeFiles.isLoading}
+                onOpenUploadModal={() => setShowUploadModal(true)}
+                onDelete={employeeFiles.remove}
+              />
+            </div>
           </div>
         </div>
       </div>

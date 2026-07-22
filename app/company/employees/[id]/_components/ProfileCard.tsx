@@ -1,6 +1,7 @@
 'use client';
 
-import { Phone, Heart, User, Briefcase, MapPin, IdCard, Edit2, Check, CalendarCheck } from 'lucide-react';
+import { useState } from 'react';
+import { Phone, Heart, User, Briefcase, MapPin, IdCard, Edit2, Check, CalendarCheck, Hash, Copy } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
@@ -57,9 +58,16 @@ export function ProfileCard({
 
   const districtOptions = getDistrictOptions(profileForm.addressCity);
 
+  const [codeCopied, setCodeCopied] = useState(false);
+  const handleCopyCode = async () => {
+    if (!employee.uniqueCode) return;
+    await navigator.clipboard.writeText(employee.uniqueCode);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
+
   return (
-    <>
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+    <div className="bg-white rounded-xl p-6 border border-gray-200">
         <div className="text-center mb-6">
           <ProfileImageUpload
             src={employee.profileImage}
@@ -112,6 +120,23 @@ export function ProfileCard({
         {!isEditing ? (
           <div className="space-y-3 border-t border-gray-200 pt-6">
             <div className="flex items-center gap-3 text-sm">
+              <Hash className="w-4 h-4 text-gray-400" />
+              <span className="text-gray-600">고유번호:</span>
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                className="inline-flex items-center gap-1.5 font-semibold text-gray-900 font-mono tracking-wide hover:text-duru-orange-600 transition-colors cursor-pointer"
+                title="클릭하여 복사"
+              >
+                {employee.uniqueCode}
+                {codeCopied ? (
+                  <Check className="w-3.5 h-3.5 text-green-500" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5 text-gray-400" />
+                )}
+              </button>
+            </div>
+            <div className="flex items-center gap-3 text-sm">
               <IdCard className="w-4 h-4 text-gray-400" />
               <span className="text-gray-600">주민번호:</span>
               <span className="font-semibold text-gray-900">{employee.ssn ?? '-'}</span>
@@ -162,6 +187,15 @@ export function ProfileCard({
               size="sm"
               value={profileForm.name}
               onChange={(e) => onUpdateForm('name', e.target.value)}
+              className="py-1.5"
+            />
+            <Input
+              label="고유번호"
+              type="text"
+              size="sm"
+              value={profileForm.uniqueCode}
+              onChange={(e) => onUpdateForm('uniqueCode', e.target.value)}
+              maxLength={20}
               className="py-1.5"
             />
             <Input
@@ -288,30 +322,6 @@ export function ProfileCard({
           </div>
         )}
       </div>
-
-      <div className="bg-duru-orange-50 rounded-xl p-6 border border-duru-orange-200">
-        <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="text-duru-orange-600 text-lg">#</span>
-          근로자 고유번호
-        </h3>
-        {isEditing ? (
-          <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
-            <Input
-              type="text"
-              value={profileForm.uniqueCode}
-              onChange={(e) => onUpdateForm('uniqueCode', e.target.value)}
-              maxLength={20}
-              className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider bg-transparent border-0 border-b-2 border-duru-orange-300 rounded-none focus:ring-0 focus:border-duru-orange-500"
-            />
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
-            <p className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider">
-              {employee.uniqueCode}
-            </p>
-          </div>
-        )}
-      </div>
-    </>
   );
 }
+
