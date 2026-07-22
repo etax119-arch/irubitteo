@@ -168,6 +168,7 @@ durubitteo_web/
 │   │   ├── NaverAnalytics.tsx
 │   │   ├── HeroSection.tsx
 │   │   ├── ServiceSection.tsx
+│   │   ├── ManagementSystemSection.tsx
 │   │   ├── TargetAudienceSection.tsx
 │   │   ├── CommuteSection.tsx
 │   │   ├── StorySection.tsx
