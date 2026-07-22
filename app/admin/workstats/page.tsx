@@ -131,7 +131,7 @@ export default function AdminWorkstatsPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => changeMonth(-1)}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shrink-0"
               title="이전 월"
               aria-label="이전 월"
             >
@@ -140,26 +140,26 @@ export default function AdminWorkstatsPage() {
             <MonthPicker
               value={selectedMonth}
               onChange={handleMonthChange}
-              className="w-[150px]"
+              className="flex-1 sm:flex-none sm:w-[150px]"
               inputClassName="border-2 border-duru-orange-500 bg-duru-orange-50 text-duru-orange-600 font-bold hover:border-duru-orange-500"
             />
             <button
               onClick={() => changeMonth(1)}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shrink-0"
               title="다음 월"
               aria-label="다음 월"
             >
               <ChevronDown className="w-5 h-5 -rotate-90" />
             </button>
+            <button
+              onClick={handleCalculate}
+              disabled={calculateMutation.isPending}
+              className="flex items-center justify-center gap-2 shrink-0 px-3 sm:px-4 py-2 bg-duru-orange-500 text-white rounded-lg hover:bg-duru-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium whitespace-nowrap"
+            >
+              <RefreshCw className={`w-4 h-4 ${calculateMutation.isPending ? 'animate-spin' : ''}`} />
+              {calculateMutation.isPending ? '계산 중...' : '재계산'}
+            </button>
           </div>
-          <button
-            onClick={handleCalculate}
-            disabled={calculateMutation.isPending}
-            className="flex items-center gap-2 px-4 py-2 bg-duru-orange-500 text-white rounded-lg hover:bg-duru-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium whitespace-nowrap"
-          >
-            <RefreshCw className={`w-4 h-4 ${calculateMutation.isPending ? 'animate-spin' : ''}`} />
-            {calculateMutation.isPending ? '계산 중...' : '재계산'}
-          </button>
         </div>
       </div>
 

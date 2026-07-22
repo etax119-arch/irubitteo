@@ -100,50 +100,49 @@ export function WorkStatsTable({
                   toggleCompany(company.companyId);
                 }
               }}
-              className="w-full bg-gradient-to-r from-duru-orange-50 to-white px-6 py-5 border-b border-gray-200 hover:from-duru-orange-100 hover:to-duru-orange-50 transition-all cursor-pointer"
+              className="w-full bg-gradient-to-r from-duru-orange-50 to-white px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 hover:from-duru-orange-100 hover:to-duru-orange-50 transition-all cursor-pointer"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                  <div className="p-2 bg-white rounded-lg shadow-sm shrink-0">
                     {isExpanded ? (
                       <ChevronDown className="w-5 h-5 text-duru-orange-600" />
                     ) : (
                       <ChevronRight className="w-5 h-5 text-duru-orange-600" />
                     )}
                   </div>
-                  <div className="text-left">
-                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-1">
-                      <Building2 className="w-5 h-5 text-duru-orange-600" />
-                      {company.companyName}
+                  <div className="text-left min-w-0">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2 mb-0.5 sm:mb-1">
+                      <Building2 className="w-5 h-5 text-duru-orange-600 shrink-0" />
+                      <span className="truncate">{company.companyName}</span>
                     </h3>
                     <p className="text-sm text-gray-600">전체 {totalEmployees}명</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onPrintPreview(company);
-                    }}
-                    className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
-                  >
-                    <Eye className="w-4 h-4" />
-                    인쇄 프리뷰
-                  </button>
-                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPrintPreview(company);
+                  }}
+                  aria-label="인쇄 프리뷰"
+                  className="shrink-0 px-3 sm:px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span className="hidden sm:inline">인쇄 프리뷰</span>
+                </button>
               </div>
             </div>
 
             {isExpanded && (
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="mb-6 print:block hidden">
                   <h2 className="text-2xl font-bold text-center mb-2">{company.companyName} 월 근무 통계</h2>
                   <p className="text-center text-gray-600">
                     {selectedMonth.split('-')[0]}년 {selectedMonth.split('-')[1]}월
                   </p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
+                <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                  <table className="w-full min-w-[520px] border-collapse">
                     <thead className="bg-duru-orange-50">
                       <tr>
                         <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border border-gray-300">
