@@ -22,6 +22,7 @@ import { DocumentSection } from './_components/DocumentSection';
 import { FileUploadModal } from './_components/FileUploadModal';
 import { WorkTimeEditModal } from './_components/WorkTimeEditModal';
 import { WorkDoneModal } from './_components/WorkDoneModal';
+import { LeaveProcessModal } from './_components/LeaveProcessModal';
 
 export default function EmployeeDetailPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function EmployeeDetailPage() {
   const toast = useToast();
   const { data: worker, isLoading } = useEmployeeDetail(employeeId);
   const editForm = useAdminEditForm(employeeId);
-  const attendance = useAdminAttendanceHistory(employeeId);
+  const attendance = useAdminAttendanceHistory(employeeId, worker?.workDays ?? []);
   const files = useAdminEmployeeFiles(employeeId);
   const uploadImage = useUploadProfileImage(employeeId);
   const deleteImage = useDeleteProfileImage(employeeId);
@@ -176,6 +177,7 @@ export default function EmployeeDetailPage() {
                 records={attendance.attendanceHistory}
                 onEditWorkTime={attendance.handleEditWorkTime}
                 onOpenWorkDone={attendance.openWorkDoneModal}
+                onStatusClick={attendance.openLeaveModal}
                 currentPage={attendance.currentPage}
                 pagination={attendance.pagination}
                 onNextPage={attendance.goToNextPage}
@@ -241,6 +243,16 @@ export default function EmployeeDetailPage() {
         isOpen={attendance.showWorkDoneModal}
         onClose={attendance.closeWorkDoneModal}
         selectedWorkDone={attendance.selectedWorkDone}
+      />
+      <LeaveProcessModal
+        isOpen={!!attendance.selectedLeaveRecord}
+        onClose={attendance.closeLeaveModal}
+        record={attendance.selectedLeaveRecord}
+        remaining={worker.annualLeaveRemaining}
+        reason={attendance.leaveReason}
+        onReasonChange={attendance.setLeaveReason}
+        isSubmitting={attendance.isProcessingLeave}
+        onConfirm={attendance.processLeave}
       />
     </div>
   );

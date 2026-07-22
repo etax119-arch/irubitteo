@@ -15,6 +15,7 @@ type AttendanceHistoryTableProps = {
   records: AttendanceWithEmployee[];
   onEditWorkTime: (record: AttendanceWithEmployee) => void;
   onOpenWorkDone: (date: string, workDone: string, photoUrls: string[]) => void;
+  onStatusClick: (record: AttendanceWithEmployee) => void;
   currentPage: number;
   pagination?: Pagination;
   onNextPage: () => void;
@@ -32,6 +33,7 @@ export function AttendanceHistoryTable({
   records,
   onEditWorkTime,
   onOpenWorkDone,
+  onStatusClick,
   currentPage,
   pagination,
   onNextPage,
@@ -44,6 +46,20 @@ export function AttendanceHistoryTable({
   onExportExcel,
   isExporting,
 }: AttendanceHistoryTableProps) {
+  const renderStatusButton = (record: AttendanceWithEmployee) => (
+    <button
+      type="button"
+      onClick={() => onStatusClick(record)}
+      title="연차 처리"
+      className={cn(
+        'px-2 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 cursor-pointer',
+        getAttendanceRecordStatusColor(record.status)
+      )}
+    >
+      {getAttendanceRecordStatusLabel(record.status)}
+    </button>
+  );
+
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
@@ -82,21 +98,13 @@ export function AttendanceHistoryTable({
             const checkinDisplay = isAbsentOrLeave ? '-' : (record.clockIn ? formatUtcTimestampAsKST(record.clockIn) : '-');
             const checkoutDisplay = isAbsentOrLeave ? '-' : (record.clockOut ? formatUtcTimestampAsKST(record.clockOut) : '-');
             const dateDisplay = formatDateAsKST(new Date(record.date));
-            const statusLabel = getAttendanceRecordStatusLabel(record.status);
 
             return (
               <div key={record.id} className="border border-gray-200 rounded-lg p-3">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="font-semibold text-gray-900">{dateDisplay}</span>
                   <div className="flex items-center gap-1 shrink-0">
-                    <span
-                      className={cn(
-                        'px-2 py-1 rounded-full text-xs font-semibold',
-                        getAttendanceRecordStatusColor(record.status)
-                      )}
-                    >
-                      {statusLabel}
-                    </span>
+                    {renderStatusButton(record)}
                     <button
                       onClick={() => onEditWorkTime(record)}
                       className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
@@ -157,7 +165,6 @@ export function AttendanceHistoryTable({
                 const checkinDisplay = isAbsentOrLeave ? '-' : (record.clockIn ? formatUtcTimestampAsKST(record.clockIn) : '-');
                 const checkoutDisplay = isAbsentOrLeave ? '-' : (record.clockOut ? formatUtcTimestampAsKST(record.clockOut) : '-');
                 const dateDisplay = formatDateAsKST(new Date(record.date));
-                const statusLabel = getAttendanceRecordStatusLabel(record.status);
 
                 return (
                   <tr key={record.id} className="hover:bg-gray-50">
@@ -167,14 +174,7 @@ export function AttendanceHistoryTable({
                     </td>
                     <td className="px-4 py-3 text-gray-900">{checkoutDisplay}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          'px-2 py-1 rounded-full text-xs font-semibold',
-                          getAttendanceRecordStatusColor(record.status)
-                        )}
-                      >
-                        {statusLabel}
-                      </span>
+                      {renderStatusButton(record)}
                     </td>
                     <td className="px-4 py-3">
                       {record.workContent ? (
