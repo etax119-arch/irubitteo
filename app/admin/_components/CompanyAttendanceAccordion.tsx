@@ -57,13 +57,13 @@ export function CompanyAttendanceAccordion({
   return (
     <div className="space-y-4">
       {/* 날짜 네비게이션 */}
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Clock className="w-6 h-6 text-duru-orange-600" />
+      <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2 whitespace-nowrap">
+            <Clock className="w-6 h-6 text-duru-orange-600 shrink-0" />
             출퇴근 현황 (회사별)
           </h2>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => changeDate(-1)}
               className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -135,24 +135,24 @@ export function CompanyAttendanceAccordion({
               }}
               className="w-full bg-gray-50 px-6 py-4 border-b border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-1 hover:bg-gray-200 rounded transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0">
                     {isExpanded ? (
                       <ChevronDown className="w-5 h-5 text-gray-600" />
                     ) : (
                       <ChevronRight className="w-5 h-5 text-gray-600" />
                     )}
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-duru-orange-600" />
-                    {company.companyName}
-                    <span className="text-sm font-normal text-gray-600 ml-2">
+                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 min-w-0">
+                    <Building2 className="w-5 h-5 text-duru-orange-600 shrink-0" />
+                    <span className="truncate">{company.companyName}</span>
+                    <span className="text-sm font-normal text-gray-600 shrink-0 whitespace-nowrap">
                       ({checkedInCount}/{totalEmployees}명 출근)
                     </span>
                   </h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap sm:pl-0 pl-9">
                   {Object.entries(statusCounts).map(([label, count]) => {
                     const statusKey = label === '퇴근' ? 'checkout'
                       : label === '근무중' ? 'checkin'

@@ -200,7 +200,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <button
                   onClick={() => handleDismissAlert(alert.id, alert.employeeId)}
-                  className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm whitespace-nowrap"
+                  className="hidden sm:block text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm whitespace-nowrap"
                 >
                   확인하기
                 </button>
