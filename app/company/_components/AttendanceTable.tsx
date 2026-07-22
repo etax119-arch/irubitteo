@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, FileText, RefreshCw } from 'lucide-react';
 import type { DailyAttendanceRecord } from '@/types/attendance';
 import { Avatar } from '@/components/ui/Avatar';
 import { IconButton } from '@/components/ui/IconButton';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { PaginationBar } from '@/components/ui/PaginationBar';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
@@ -17,6 +18,7 @@ interface AttendanceTableProps {
   dailyAttendance: DailyAttendanceRecord[];
   onPrevDay: () => void;
   onNextDay: () => void;
+  onDateChange: (date: string) => void;
   onRefresh?: () => void;
   isRefreshing?: boolean;
 }
@@ -26,6 +28,7 @@ export function AttendanceTable({
   dailyAttendance,
   onPrevDay,
   onNextDay,
+  onDateChange,
   onRefresh,
   isRefreshing,
 }: AttendanceTableProps) {
@@ -36,8 +39,8 @@ export function AttendanceTable({
 
   return (
     <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
-      <div className="flex items-center justify-between gap-2 mb-6">
-        <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div className="flex items-center gap-2">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <FileText className="w-5 h-5 text-duru-orange-600" />
             출퇴근 기록
@@ -51,30 +54,28 @@ export function AttendanceTable({
               onClick={onRefresh}
             />
           )}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onPrevDay}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="이전 날"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <span className="text-sm sm:text-base font-semibold text-gray-900 min-w-0 sm:min-w-[180px] text-center whitespace-nowrap">
-              {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'short',
-              })}
-            </span>
-            <button
-              onClick={onNextDay}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="다음 날"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
+        </div>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            onClick={onPrevDay}
+            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
+            aria-label="이전 날"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <DatePicker
+            value={selectedDate}
+            onChange={onDateChange}
+            className="w-auto"
+            inputClassName="border-0 bg-transparent text-gray-900 font-semibold hover:bg-gray-100 px-2 whitespace-nowrap"
+          />
+          <button
+            onClick={onNextDay}
+            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
+            aria-label="다음 날"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
         </div>
       </div>
 

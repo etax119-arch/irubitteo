@@ -119,6 +119,7 @@ export default function DashboardPage() {
         dailyAttendance={records}
         onPrevDay={goToPrevDay}
         onNextDay={goToNextDay}
+        onDateChange={setSelectedDate}
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
       />

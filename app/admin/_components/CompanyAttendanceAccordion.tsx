@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Building2, ChevronDown, ChevronRight, AlertCircle, Search, Clock, Loader2 } from 'lucide-react';
+import { Building2, ChevronDown, ChevronLeft, ChevronRight, AlertCircle, Search, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { offsetDateString } from '@/lib/kst';
@@ -63,25 +63,28 @@ export function CompanyAttendanceAccordion({
             <Clock className="w-6 h-6 text-duru-orange-600 shrink-0" />
             출퇴근 현황 (회사별)
           </h2>
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={() => changeDate(-1)}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
               title="이전 날짜"
+              aria-label="이전 날짜"
             >
-              <ChevronDown className="w-5 h-5 rotate-90" />
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
             <DatePicker
               value={selectedDate}
               onChange={handleDateChange}
-              inputClassName="border-2 border-duru-orange-500 bg-duru-orange-50 text-duru-orange-600 font-bold hover:border-duru-orange-500"
+              className="w-auto"
+              inputClassName="border-0 bg-transparent text-gray-900 font-semibold hover:bg-gray-100 px-2 whitespace-nowrap"
             />
             <button
               onClick={() => changeDate(1)}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
               title="다음 날짜"
+              aria-label="다음 날짜"
             >
-              <ChevronDown className="w-5 h-5 -rotate-90" />
+              <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
           </div>
         </div>
