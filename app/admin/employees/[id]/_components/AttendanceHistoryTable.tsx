@@ -74,7 +74,71 @@ export function AttendanceHistoryTable({
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* 모바일: 카드 리스트 */}
+      <div className="sm:hidden space-y-3">
+        {records.length > 0 ? (
+          records.map((record) => {
+            const isAbsentOrLeave = record.status === 'absent' || record.status === 'leave';
+            const checkinDisplay = isAbsentOrLeave ? '-' : (record.clockIn ? formatUtcTimestampAsKST(record.clockIn) : '-');
+            const checkoutDisplay = isAbsentOrLeave ? '-' : (record.clockOut ? formatUtcTimestampAsKST(record.clockOut) : '-');
+            const dateDisplay = formatDateAsKST(new Date(record.date));
+            const statusLabel = getAttendanceRecordStatusLabel(record.status);
+
+            return (
+              <div key={record.id} className="border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="font-semibold text-gray-900">{dateDisplay}</span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span
+                      className={cn(
+                        'px-2 py-1 rounded-full text-xs font-semibold',
+                        getAttendanceRecordStatusColor(record.status)
+                      )}
+                    >
+                      {statusLabel}
+                    </span>
+                    <button
+                      onClick={() => onEditWorkTime(record)}
+                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="수정"
+                    >
+                      <Edit3 className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-gray-500">출근</span>
+                    <span className="text-gray-900">{checkinDisplay}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-gray-500">퇴근</span>
+                    <span className="text-gray-900">{checkoutDisplay}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-500">업무 내용</span>
+                  {record.workContent ? (
+                    <button
+                      onClick={() => onOpenWorkDone(dateDisplay, record.workContent!, record.photoUrls)}
+                      className="text-duru-orange-600 underline hover:text-duru-orange-700"
+                    >
+                      확인하기
+                    </button>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-center text-gray-400 py-8">출퇴근 기록이 없습니다.</p>
+        )}
+      </div>
+
+      {/* 데스크톱: 테이블 */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full min-w-[720px]">
           <thead className="bg-gray-50">
             <tr>

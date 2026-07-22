@@ -66,7 +66,53 @@ export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDo
         <p className="text-center text-gray-400 py-8">출퇴근 기록이 없습니다.</p>
       ) : (
       <>
-      <div className="overflow-x-auto">
+      {/* 모바일: 카드 리스트 */}
+      <div className="sm:hidden space-y-3">
+        {records.map((record) => (
+          <div key={record.id} className="border border-gray-200 rounded-lg p-3">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="font-semibold text-gray-900">{record.date}</span>
+              <button
+                type="button"
+                onClick={() => onStatusClick(record)}
+                title="연차 처리"
+                className={cn(
+                  'px-2 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 cursor-pointer shrink-0',
+                  getStatusColor(record.status)
+                )}
+              >
+                {getStatusLabel(record.status)}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm mb-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-gray-500">출근</span>
+                <span className="text-gray-900">{record.checkin}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-gray-500">퇴근</span>
+                <span className="text-gray-900">{record.checkout}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-500">업무 내용</span>
+              {record.workDone !== '-' ? (
+                <button
+                  onClick={() => onOpenWorkDone(record.date, record.workDone, record.photoUrls)}
+                  className="text-duru-orange-600 underline hover:text-duru-orange-700"
+                >
+                  확인하기
+                </button>
+              ) : (
+                <span className="text-gray-400">-</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 데스크톱: 테이블 */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full min-w-[640px]">
           <thead className="bg-gray-50">
             <tr>
