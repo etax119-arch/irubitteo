@@ -49,11 +49,12 @@
 ├── notifications/page.tsx  # 알림센터 탭
 ├── reports/page.tsx        # 리포트 탭
 ├── content/                # 콘텐츠 관리 탭
-│   ├── layout.tsx          # 갤러리/뉴스레터 서브탭
+│   ├── layout.tsx          # 갤러리/뉴스레터/공고 서브탭
 │   ├── page.tsx            # → /admin/content/gallery 리다이렉트
 │   ├── gallery/page.tsx    # 갤러리 관리
 │   ├── newsletter/page.tsx # 뉴스레터 관리
-│   └── _components/        # GalleryAdminCard, GalleryForm, NewsletterAdminCard, NewsletterForm
+│   ├── announcement/page.tsx # 공고 관리
+│   └── _components/        # GalleryAdminCard, GalleryForm, NewsletterAdminCard, NewsletterForm, AnnouncementAdminCard, AnnouncementForm
 └── settings/page.tsx       # 관리자 계정 설정 (비밀번호 변경 + 관리자 계정 추가 + 관리자 계정 리스트)
 ```
 
@@ -85,6 +86,7 @@
 | `/admin/content` | `/admin/content/gallery`로 리다이렉트 |
 | `/admin/content/gallery` | 갤러리 관리 |
 | `/admin/content/newsletter` | 뉴스레터 관리 |
+| `/admin/content/announcement` | 공고 관리 |
 | `/admin/settings` | 관리자 계정 설정 페이지 |
 
 ---
@@ -99,7 +101,7 @@
 | workstats | 근무 통계 | BarChart3 | 회사별 월간 근무 통계 |
 | notifications | 알림센터 | Bell | 결근 알림, 기업 문의 |
 | reports | 리포트 | FileText | 문서 템플릿 및 통계 리포트 |
-| content | 콘텐츠 관리 | Image | 갤러리 및 뉴스레터 관리 |
+| content | 콘텐츠 관리 | Image | 갤러리, 뉴스레터 및 공고 관리 |
 
 ---
 

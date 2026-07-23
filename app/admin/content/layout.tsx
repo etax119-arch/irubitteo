@@ -6,11 +6,12 @@ import { usePathname } from 'next/navigation';
 const subTabs = [
   { id: 'newsletter', label: '소식지', href: '/admin/content/newsletter' },
   { id: 'gallery', label: '갤러리', href: '/admin/content/gallery' },
+  { id: 'announcement', label: '공고', href: '/admin/content/announcement' },
 ];
 
 export default function AdminContentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const activeSubTab = pathname.includes('/gallery') ? 'gallery' : 'newsletter';
+  const activeSubTab = subTabs.find((tab) => pathname.startsWith(tab.href))?.id ?? subTabs[0].id;
 
   return (
     <div className="space-y-6">

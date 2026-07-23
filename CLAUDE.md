@@ -113,10 +113,11 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 ├── notifications/page.tsx
 ├── reports/page.tsx
 ├── content/
-│   ├── layout.tsx    # 콘텐츠 서브 탭 (갤러리/소식지)
+│   ├── layout.tsx    # 콘텐츠 서브 탭 (갤러리/소식지/공고)
 │   ├── page.tsx      # → /admin/content/gallery 리다이렉트
 │   ├── gallery/page.tsx
-│   └── newsletter/page.tsx
+│   ├── newsletter/page.tsx
+│   └── announcement/page.tsx
 └── settings/page.tsx
 ```
 
@@ -171,6 +172,7 @@ durubitteo_web/
 │   │   ├── ManagementSystemSection.tsx
 │   │   ├── RecommendedJobsSection.tsx
 │   │   ├── ConsultingProcessSection.tsx
+│   │   ├── AnnouncementSection.tsx
 │   │   ├── TargetAudienceSection.tsx
 │   │   ├── CommuteSection.tsx
 │   │   ├── StorySection.tsx
@@ -213,6 +215,16 @@ durubitteo_web/
 │   │   │   └── NewsletterSearch.tsx      # 검색 입력 (디바운스)
 │   │   └── _hooks/
 │   │       └── usePublicNewsletters.ts   # 공개 소식지 Query 훅 (initialData 지원)
+│   │
+│   ├── announcements/        # 공고(채용 공고) 공개 페이지 (SSR + CSR 하이브리드)
+│   │   ├── page.tsx          # /announcements (목록, SSR initialData)
+│   │   ├── [id]/page.tsx     # /announcements/[id] (상세)
+│   │   ├── _components/
+│   │   │   ├── AnnouncementCard.tsx      # 공고 카드
+│   │   │   ├── AnnouncementContent.tsx   # 목록 클라이언트 컴포넌트 (검색+페이지네이션)
+│   │   │   └── AnnouncementSearch.tsx    # 검색 입력 (디바운스)
+│   │   └── _hooks/
+│   │       └── usePublicAnnouncements.ts # 공개 공고 Query 훅 (initialData 지원)
 │   │
 │   ├── employee/             # 직원 영역
 │   │   ├── layout.tsx        # 인증 보호 (useAuth)
@@ -281,7 +293,9 @@ durubitteo_web/
 │       │   ├── useGalleryQuery.ts              # 갤러리 Query 훅
 │       │   ├── useGalleryMutations.ts          # 갤러리 Mutation 훅
 │       │   ├── useNewsletterQuery.ts           # 뉴스레터 Query 훅
-│       │   └── useNewsletterMutations.ts       # 뉴스레터 Mutation 훅
+│       │   ├── useNewsletterMutations.ts       # 뉴스레터 Mutation 훅
+│       │   ├── useAnnouncementQuery.ts         # 공고 Query 훅
+│       │   └── useAnnouncementMutations.ts     # 공고 Mutation 훅
 │       ├── _utils/
 │       │   └── generateWorkStatsPdf.ts  # jsPDF + autoTable 기반 근무통계 PDF 생성
 │       ├── _components/
@@ -319,16 +333,19 @@ durubitteo_web/
 │       │       ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
 │       │       ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
 │       │       └── FileUploadModal.tsx # 업로드 모달
-│       ├── content/          # 콘텐츠 관리 탭 (갤러리 + 뉴스레터)
+│       ├── content/          # 콘텐츠 관리 탭 (갤러리 + 뉴스레터 + 공고)
 │       │   ├── layout.tsx    # 콘텐츠 탭 레이아웃
 │       │   ├── page.tsx      # → /admin/content/gallery 리다이렉트
-│       │   ├── gallery/page.tsx    # 갤러리 관리
-│       │   ├── newsletter/page.tsx # 뉴스레터 관리
+│       │   ├── gallery/page.tsx       # 갤러리 관리
+│       │   ├── newsletter/page.tsx    # 뉴스레터 관리
+│       │   ├── announcement/page.tsx  # 공고 관리
 │       │   └── _components/
 │       │       ├── GalleryAdminCard.tsx  # 갤러리 관리 카드
 │       │       ├── GalleryForm.tsx       # 갤러리 생성/수정 폼
 │       │       ├── NewsletterAdminCard.tsx # 뉴스레터 관리 카드
-│       │       └── NewsletterForm.tsx    # 뉴스레터 생성/수정 폼
+│       │       ├── NewsletterForm.tsx    # 뉴스레터 생성/수정 폼
+│       │       ├── AnnouncementAdminCard.tsx # 공고 관리 카드
+│       │       └── AnnouncementForm.tsx  # 공고 생성/수정 폼
 │       └── settings/        # 설정 탭
 │           └── page.tsx
 │
@@ -361,7 +378,8 @@ durubitteo_web/
 │   ├── inquiry.ts            # 기업 문의 타입
 │   ├── resume.ts             # 이력서 타입
 │   ├── gallery.ts            # 갤러리 타입
-│   └── newsletter.ts         # 뉴스레터 타입
+│   ├── newsletter.ts         # 뉴스레터 타입
+│   └── announcement.ts       # 공고(채용 공고) 타입
 │
 └── lib/                      # 유틸리티 함수
     ├── cn.ts                 # Tailwind 클래스 병합
@@ -393,6 +411,7 @@ durubitteo_web/
         ├── resumes.ts        # 이력서 API (제출, 목록, 확인완료)
         ├── galleries.ts      # 갤러리 API (공개 목록/상세, 관리자 CRUD)
         ├── newsletters.ts    # 뉴스레터 API (공개 목록/상세, 관리자 CRUD)
+        ├── announcements.ts  # 공고 API (공개 목록/상세, 관리자 CRUD)
         └── server-fetch.ts   # 서버 컴포넌트용 fetch 래퍼 (SSR/ISR)
 ```
 

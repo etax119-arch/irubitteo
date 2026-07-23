@@ -101,3 +101,15 @@ export const newsletterKeys = {
       : (['newsletters', 'list', 'admin'] as const),
   detail: (id: string) => ['newsletters', id] as const,
 };
+
+export const announcementKeys = {
+  all: ['announcements'] as const,
+  lists: () => ['announcements', 'list'] as const,
+  publicList: (params: { page: number; limit: number; search?: string }) =>
+    ['announcements', 'list', 'public', params] as const,
+  adminList: (params?: { page: number; limit: number }) =>
+    params
+      ? (['announcements', 'list', 'admin', params] as const)
+      : (['announcements', 'list', 'admin'] as const),
+  detail: (id: string) => ['announcements', id] as const,
+};

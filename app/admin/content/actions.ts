@@ -11,3 +11,9 @@ export async function revalidateGallery(id?: string) {
   revalidatePath('/gallery', 'page');
   if (id) revalidatePath(`/gallery/${id}`, 'page');
 }
+
+export async function revalidateAnnouncement(id?: string) {
+  revalidatePath('/', 'page');
+  revalidatePath('/announcements', 'page');
+  if (id) revalidatePath(`/announcements/${id}`, 'page');
+}
