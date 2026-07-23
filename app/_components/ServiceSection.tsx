@@ -34,8 +34,8 @@ export default function ServiceSection({ galleryItems }: ServiceSectionProps) {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-gradient-to-b from-duru-ivory/30 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section ref={sectionRef} className="min-h-screen flex items-center py-32 bg-gradient-to-b from-duru-ivory/30 to-white">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 - 이루빛터 의미 중심 */}
         <div className="text-center mb-8">
           <div className={`mb-6 transition-all duration-700 ${

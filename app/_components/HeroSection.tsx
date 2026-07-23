@@ -4,7 +4,7 @@ import { Clock, FileUp, ChevronRight } from 'lucide-react';
 
 export default function HeroSection() {
   return (
-    <section className="relative isolate flex items-center min-h-[85vh] overflow-hidden">
+    <section className="relative isolate flex items-center min-h-screen overflow-hidden">
       {/* 배경 이미지 */}
       <Image
         src="/images/hero-bg.png"

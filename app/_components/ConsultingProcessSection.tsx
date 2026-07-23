@@ -118,8 +118,8 @@ export default function ConsultingProcessSection() {
   });
 
   return (
-    <section ref={sectionRef} className="py-24 bg-gradient-to-b from-duru-orange-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section ref={sectionRef} className="min-h-screen flex items-center py-32 bg-gradient-to-b from-duru-orange-50 to-white">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 */}
         <div
           className={`text-center mb-12 lg:mb-16 transition-all duration-700 ${
