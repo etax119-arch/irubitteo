@@ -39,6 +39,18 @@ const websiteData = {
   url: 'https://www.irubitteo.com',
 };
 
+const siteNavigationData = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: [
+    { '@type': 'SiteNavigationElement', position: 1, name: '빛터 갤러리', url: 'https://www.irubitteo.com/gallery' },
+    { '@type': 'SiteNavigationElement', position: 2, name: '빛터 소식지', url: 'https://www.irubitteo.com/newsletter' },
+    { '@type': 'SiteNavigationElement', position: 3, name: '빛터 공고', url: 'https://www.irubitteo.com/announcements' },
+    { '@type': 'SiteNavigationElement', position: 4, name: '신규기업 문의', url: 'https://www.irubitteo.com/inquiry' },
+    { '@type': 'SiteNavigationElement', position: 5, name: '이력서 등록', url: 'https://www.irubitteo.com/resume' },
+  ],
+};
+
 const notoSansKR = Noto_Sans_KR({
   subsets: ['latin'],
   weight: ['500', '600', '700', '800'],
@@ -61,6 +73,7 @@ export default async function LandingPage() {
     <div className={`min-h-screen bg-duru-ivory text-duru-text-main selection:bg-landing-orange selection:text-white ${notoSansKR.className}`} style={{ fontWeight: 500 }}>
       <StructuredData data={organizationData} />
       <StructuredData data={websiteData} />
+      <StructuredData data={siteNavigationData} />
       <Header />
       <HeroSection />
       <ServiceSection galleryItems={galleryItems} />
