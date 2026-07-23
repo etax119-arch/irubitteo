@@ -88,7 +88,7 @@ export default function RecommendedJobsSection() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 */}
         <div
-          className={`text-center mb-12 lg:mb-16 transition-all duration-700 ${
+          className={`text-center mb-12 lg:mb-16 transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -108,7 +108,7 @@ export default function RecommendedJobsSection() {
           {JOBS.map((job, index) => (
             <li
               key={job.id}
-              className={`transition-all duration-500 ${
+              className={`transition-all duration-700 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
               style={{ transitionDelay: isVisible ? `${100 + index * 60}ms` : '0ms' }}

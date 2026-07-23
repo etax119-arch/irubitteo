@@ -60,7 +60,7 @@ function CardsVariant({ isVisible }: { isVisible: boolean }) {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div
-        className={`text-center mb-12 lg:mb-16 transition-all duration-700 ${
+        className={`text-center mb-12 lg:mb-16 transition-all duration-1000 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
       >
@@ -80,7 +80,7 @@ function CardsVariant({ isVisible }: { isVisible: boolean }) {
           return (
             <div
               key={item.href}
-              className={`transition-all duration-500 ${
+              className={`transition-all duration-700 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
               style={{ transitionDelay: isVisible ? `${150 + index * 120}ms` : '0ms' }}
@@ -128,7 +128,7 @@ function CardsVariant({ isVisible }: { isVisible: boolean }) {
 function BannerVariant({ isVisible }: { isVisible: boolean }) {
   return (
     <div
-      className={`w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center transition-all duration-700 ${
+      className={`w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center transition-all duration-1000 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
     >
@@ -179,7 +179,7 @@ function SplitPanel({
   return (
     <Link
       href={item.href}
-      className={`group flex flex-col justify-center px-8 py-16 sm:px-12 lg:px-16 lg:py-20 transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white ${
+      className={`group flex flex-col justify-center px-8 py-16 sm:px-12 lg:px-16 lg:py-20 transition-all duration-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white ${
         isOrange
           ? 'bg-landing-orange text-white hover:bg-duru-orange-600'
           : 'bg-duru-orange-50 text-duru-text-main hover:bg-duru-orange-100'

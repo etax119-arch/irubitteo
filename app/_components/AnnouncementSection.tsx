@@ -69,7 +69,7 @@ export default function AnnouncementSection({ items }: AnnouncementSectionProps)
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 */}
         <div
-          className={`text-center mb-12 lg:mb-16 transition-all duration-700 ${
+          className={`text-center mb-12 lg:mb-16 transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -106,7 +106,7 @@ export default function AnnouncementSection({ items }: AnnouncementSectionProps)
                 return (
                   <li
                     key={item.id}
-                    className={`transition-all duration-500 ${
+                    className={`transition-all duration-700 ${
                       isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                     }`}
                     style={{ transitionDelay: isVisible ? `${100 + index * 60}ms` : '0ms' }}
@@ -145,7 +145,7 @@ export default function AnnouncementSection({ items }: AnnouncementSectionProps)
 
         {/* 전체 보기 */}
         <div
-          className={`mt-10 text-center transition-all duration-700 ${
+          className={`mt-10 text-center transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
           style={{ transitionDelay: isVisible ? '300ms' : '0ms' }}

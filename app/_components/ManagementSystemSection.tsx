@@ -79,7 +79,7 @@ export default function ManagementSystemSection() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 */}
         <div
-          className={`text-center mb-12 lg:mb-16 transition-all duration-700 ${
+          className={`text-center mb-12 lg:mb-16 transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -98,7 +98,7 @@ export default function ManagementSystemSection() {
           <div
             role="tablist"
             aria-label="관리 시스템 기능"
-            className={`lg:col-span-4 grid grid-cols-2 gap-2 lg:flex lg:flex-col lg:gap-3 transition-all duration-700 delay-200 ${
+            className={`lg:col-span-4 grid grid-cols-2 gap-2 lg:flex lg:flex-col lg:gap-3 transition-all duration-1000 delay-200 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
           >
@@ -144,7 +144,7 @@ export default function ManagementSystemSection() {
             role="tabpanel"
             id="management-tabpanel"
             aria-labelledby={`management-tab-${activeFeature.id}`}
-            className={`lg:col-span-8 relative aspect-[3/2] w-full rounded-2xl overflow-hidden bg-white shadow-soft border border-duru-orange-100 transition-all duration-700 delay-400 ${
+            className={`lg:col-span-8 relative aspect-[3/2] w-full rounded-2xl overflow-hidden bg-white shadow-soft border border-duru-orange-100 transition-all duration-1000 delay-400 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
           >

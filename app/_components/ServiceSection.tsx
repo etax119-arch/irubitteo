@@ -38,7 +38,7 @@ export default function ServiceSection({ galleryItems }: ServiceSectionProps) {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 - 이루빛터 의미 중심 */}
         <div className="text-center mb-8">
-          <div className={`mb-6 transition-all duration-700 ${
+          <div className={`mb-6 transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             <Image
@@ -50,19 +50,19 @@ export default function ServiceSection({ galleryItems }: ServiceSectionProps) {
             />
           </div>
           <div className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed space-y-2">
-            <p className={`transition-all duration-700 delay-200 ${
+            <p className={`transition-all duration-1000 delay-200 ${
               showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               <span className="font-semibold text-gray-900">&apos;이루다&apos;</span>와{' '}
               <span className="font-semibold text-gray-900">&apos;빛&apos;</span>, 그리고{' '}
               <span className="font-semibold text-gray-900">&apos;터전&apos;</span>이 만나
             </p>
-            <p className={`transition-all duration-700 delay-400 ${
+            <p className={`transition-all duration-1000 delay-400 ${
               showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               장애인 근로자들이 자립의 꿈을 이루고,
             </p>
-            <p className={`transition-all duration-700 delay-600 ${
+            <p className={`transition-all duration-1000 delay-600 ${
               showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               기업은 사회적 가치를 실현하는{' '}

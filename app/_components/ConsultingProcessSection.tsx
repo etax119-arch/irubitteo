@@ -111,7 +111,7 @@ export default function ConsultingProcessSection() {
   }, []);
 
   const stepTransition = (index: number) => ({
-    className: `transition-all duration-700 ${
+    className: `transition-all duration-1000 ${
       isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
     }`,
     style: { transitionDelay: isVisible ? `${150 + index * 120}ms` : '0ms' },
@@ -122,7 +122,7 @@ export default function ConsultingProcessSection() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 */}
         <div
-          className={`text-center mb-12 lg:mb-16 transition-all duration-700 ${
+          className={`text-center mb-12 lg:mb-16 transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -142,7 +142,7 @@ export default function ConsultingProcessSection() {
           {/* 원 중심(10%~90%)을 관통하는 점선 */}
           <div
             aria-hidden
-            className={`absolute left-[10%] right-[10%] top-10 xl:top-12 border-t-2 border-dashed border-duru-orange-200 transition-opacity duration-700 delay-700 ${
+            className={`absolute left-[10%] right-[10%] top-10 xl:top-12 border-t-2 border-dashed border-duru-orange-200 transition-opacity duration-1000 delay-700 ${
               isVisible ? 'opacity-100' : 'opacity-0'
             }`}
           />
@@ -150,7 +150,7 @@ export default function ConsultingProcessSection() {
             <div
               key={pos}
               aria-hidden
-              className={`absolute top-10 xl:top-12 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-0.5 shadow-soft z-10 transition-opacity duration-700 delay-700 ${
+              className={`absolute top-10 xl:top-12 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-0.5 shadow-soft z-10 transition-opacity duration-1000 delay-700 ${
                 isVisible ? 'opacity-100' : 'opacity-0'
               }`}
               style={{ left: `${pos}%` }}
@@ -189,7 +189,7 @@ export default function ConsultingProcessSection() {
         <div className="relative lg:hidden">
           <div
             aria-hidden
-            className={`absolute left-7 top-7 bottom-7 border-l-2 border-dashed border-duru-orange-200 transition-opacity duration-700 delay-700 ${
+            className={`absolute left-7 top-7 bottom-7 border-l-2 border-dashed border-duru-orange-200 transition-opacity duration-1000 delay-700 ${
               isVisible ? 'opacity-100' : 'opacity-0'
             }`}
           />
