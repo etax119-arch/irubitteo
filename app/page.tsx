@@ -7,7 +7,7 @@ import ManagementSystemSection from './_components/ManagementSystemSection';
 import ConsultingProcessSection from './_components/ConsultingProcessSection';
 import RecommendedJobsSection from './_components/RecommendedJobsSection';
 import AnnouncementSection from './_components/AnnouncementSection';
-import TargetAudienceSection from './_components/TargetAudienceSection';
+import ClosingCtaSection from './_components/ClosingCtaSection';
 import Footer from './_components/Footer';
 import StructuredData from './_components/StructuredData';
 import { serverFetch } from '@/lib/api/server-fetch';
@@ -68,7 +68,7 @@ export default async function LandingPage() {
       <RecommendedJobsSection />
       <ConsultingProcessSection />
       <AnnouncementSection items={announcementItems} />
-      {/* <TargetAudienceSection /> */}
+      <ClosingCtaSection variant="split" />
       <Footer />
     </div>
   );

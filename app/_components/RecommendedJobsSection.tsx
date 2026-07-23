@@ -104,7 +104,7 @@ export default function RecommendedJobsSection() {
         </div>
 
         {/* 직무 카드 그리드 */}
-        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+        <ul className="grid grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
           {JOBS.map((job, index) => (
             <li
               key={job.id}
@@ -119,7 +119,7 @@ export default function RecommendedJobsSection() {
                 <h3 className="mt-3 font-bold text-sm lg:text-base text-duru-text-main break-keep leading-snug">
                   {job.title}
                 </h3>
-                <p className="mt-1 text-xs lg:text-sm text-duru-text-sub break-keep leading-relaxed">
+                <p className="hidden sm:block mt-1 text-xs lg:text-sm text-duru-text-sub break-keep leading-relaxed">
                   {job.example}
                 </p>
               </div>
