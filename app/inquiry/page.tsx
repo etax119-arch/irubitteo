@@ -1,11 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Home,
   Phone,
   Users,
   CheckCircle2,
@@ -14,6 +11,7 @@ import {
   MessageSquare,
   Loader2,
 } from 'lucide-react';
+import Header from '@/app/_components/Header';
 import { createInquiry } from '@/lib/api/inquiries';
 import { extractErrorMessage } from '@/lib/api/error';
 import { Checkbox } from '@/components/ui/Checkbox';
@@ -147,28 +145,9 @@ export default function InquiryPage() {
   return (
     <div className="min-h-screen bg-duru-ivory">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/images/logo_tran.png"
-              alt="이루빛터"
-              width={1563}
-              height={1563}
-              className="h-[220px] w-auto -my-[40px] -ml-[30px]"
-            />
-          </Link>
-          <Link
-            href="/"
-            className="p-2.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
-            aria-label="메인으로 이동"
-          >
-            <Home className="w-5 h-5" />
-          </Link>
-        </div>
-      </header>
+      <Header />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
         {/* Hero Section */}
         <section className="pt-12 pb-10 text-center">
           <div className="flex items-center justify-center gap-3 mb-5">
