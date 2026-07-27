@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { useEmployeeDetail } from '@/hooks/useEmployeeQuery';
 import { useUploadProfileImage, useDeleteProfileImage } from '@/hooks/useEmployeeMutations';
-import { NUM_TO_LABEL } from '@/lib/workDays';
+import { numsToLabels } from '@/lib/workDays';
 import { useAdminEditForm } from './_hooks/useAdminEditForm';
 import { useAdminAttendanceHistory } from './_hooks/useAdminAttendanceHistory';
 import { useAdminEmployeeFiles } from './_hooks/useAdminEmployeeFiles';
@@ -17,7 +17,7 @@ import { CompanyNoteSection } from './_components/CompanyNoteSection';
 import { AdminNoteSection } from './_components/AdminNoteSection';
 import { ResignInfoSection } from './_components/ResignInfoSection';
 import { AttendanceHistoryTable } from './_components/AttendanceHistoryTable';
-import { WorkInfoSection } from './_components/WorkInfoSection';
+import { WorkInfoSection } from '@/components/WorkInfoSection';
 import { DocumentSection } from './_components/DocumentSection';
 import { FileUploadModal } from './_components/FileUploadModal';
 import { WorkTimeEditModal } from './_components/WorkTimeEditModal';
@@ -52,11 +52,11 @@ export default function EmployeeDetailPage() {
   };
 
   const workDays = useMemo(
-    () => (worker?.workDays ?? []).map((d) => NUM_TO_LABEL[d]).filter(Boolean),
+    () => numsToLabels(worker?.workDays ?? []),
     [worker?.workDays],
   );
-  const workStartTime = worker?.workStartTime ? worker.workStartTime.slice(0, 5) : '09:00';
-  const workEndTime = worker?.workEndTime ? worker.workEndTime.slice(0, 5) : '18:00';
+  const workStartTime = worker?.workStartTime || '';
+  const workEndTime = worker?.workEndTime || '';
 
   if (isLoading) {
     return (
@@ -225,17 +225,9 @@ export default function EmployeeDetailPage() {
                 workDays={workDays}
                 workStartTime={workStartTime}
                 workEndTime={workEndTime}
-                isEditingWorkInfo={editForm.isEditingWorkInfo}
-                tempWorkDays={editForm.tempWorkDays}
-                tempWorkStartTime={editForm.tempWorkStartTime}
-                tempWorkEndTime={editForm.tempWorkEndTime}
-                setTempWorkStartTime={editForm.setTempWorkStartTime}
-                setTempWorkEndTime={editForm.setTempWorkEndTime}
-                savingWorkInfo={editForm.savingWorkInfo}
-                toggleTempWorkDay={editForm.toggleTempWorkDay}
+                workTimes={worker.workTimes}
+                form={editForm}
                 onEdit={() => editForm.handleEditWorkInfo(worker)}
-                onSave={editForm.handleSaveWorkInfo}
-                onCancel={editForm.handleCancelEditWorkInfo}
               />
             </div>
             <div className="order-7">

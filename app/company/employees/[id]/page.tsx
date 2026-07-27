@@ -11,13 +11,13 @@ import { useUploadProfileImage, useDeleteProfileImage } from '@/hooks/useEmploye
 import { useEmployeeEditForm } from './_hooks/useEmployeeEditForm';
 import { useAttendanceHistory } from './_hooks/useAttendanceHistory';
 import { useEmployeeFiles } from './_hooks/useEmployeeFiles';
-import { NUM_TO_LABEL } from '@/lib/workDays';
+import { numsToLabels } from '@/lib/workDays';
 import { ProfileCard } from './_components/ProfileCard';
 import { DisabilityInfoSection } from './_components/DisabilityInfoSection';
 import { NotesSection } from './_components/NotesSection';
 import { ResignSection } from './_components/ResignSection';
 import { AttendanceHistoryTable } from './_components/AttendanceHistoryTable';
-import { WorkInfoSection } from './_components/WorkInfoSection';
+import { WorkInfoSection } from '@/components/WorkInfoSection';
 import { DocumentSection } from './_components/DocumentSection';
 import { UploadModal } from './_components/UploadModal';
 import { WorkDoneModal } from './_components/WorkDoneModal';
@@ -54,7 +54,7 @@ export default function CompanyEmployeeDetailPage() {
   };
 
   const workDays = useMemo(
-    () => (employee?.workDays ?? []).map((n: number) => NUM_TO_LABEL[n] ?? ''),
+    () => numsToLabels(employee?.workDays ?? []),
     [employee?.workDays],
   );
 
@@ -216,17 +216,9 @@ export default function CompanyEmployeeDetailPage() {
                 workDays={workDays}
                 workStartTime={employee.workStartTime || ''}
                 workEndTime={employee.workEndTime || ''}
-                isEditing={editForm.isEditingWorkInfo}
-                isSaving={editForm.isSavingWorkInfo}
-                tempWorkDays={editForm.tempWorkDays}
-                tempWorkStartTime={editForm.tempWorkStartTime}
-                tempWorkEndTime={editForm.tempWorkEndTime}
-                setTempWorkStartTime={editForm.setTempWorkStartTime}
-                setTempWorkEndTime={editForm.setTempWorkEndTime}
-                toggleTempWorkDay={editForm.toggleTempWorkDay}
+                workTimes={employee.workTimes}
+                form={editForm}
                 onEdit={() => editForm.handleEditWorkInfo(employee)}
-                onSave={editForm.handleSaveWorkInfo}
-                onCancel={editForm.handleCancelEditWorkInfo}
               />
             </div>
             <div className="order-6">

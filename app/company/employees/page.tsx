@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
-import type { Employee, WorkDay } from '@/types/employee';
+import type { Employee, WorkTimesMap } from '@/types/employee';
 import type { AddWorkerForm } from '@/types/companyDashboard';
 import { useQueryClient } from '@tanstack/react-query';
 import { employeeKeys } from '@/lib/query/keys';
@@ -15,8 +15,14 @@ import { useToast } from '@/components/ui/Toast';
 import { PaginationBar } from '@/components/ui/PaginationBar';
 import { EmployeeTable } from '../_components/EmployeeTable';
 import { AddWorkerModal } from '../_components/AddWorkerModal';
-import { LABEL_TO_NUM } from '@/lib/workDays';
+import { buildWorkTimesPayload, labelsToSortedNums } from '@/lib/workDays';
 import { formatDateAsKST } from '@/lib/kst';
+
+/** 완성도 체크(문자열 truthy 판정)를 적용하지 않는 필드 */
+const NO_COMPLETION_CHECK = new Set<keyof AddWorkerForm>([
+  'perDayWorkTime',
+  'workTimes',
+]);
 
 function createInitialAddWorkerForm(): AddWorkerForm {
   return {
@@ -37,6 +43,8 @@ function createInitialAddWorkerForm(): AddWorkerForm {
     workDays: [],
     workStartTime: '',
     workEndTime: '',
+    perDayWorkTime: false,
+    workTimes: {},
     workerId: '',
     annualLeave: '0',
   };
@@ -82,7 +90,10 @@ export default function EmployeesPage() {
     queryClient.invalidateQueries({ queryKey: employeeKeys.lists() });
   };
 
-  const updateAddWorkerForm = (field: keyof AddWorkerForm, value: string | string[]) => {
+  const updateAddWorkerForm = (
+    field: keyof AddWorkerForm,
+    value: string | string[] | boolean | WorkTimesMap,
+  ) => {
     let autoId: string | null = null;
 
     setAddWorkerForm((prev) => {
@@ -116,16 +127,18 @@ export default function EmployeesPage() {
       }
 
       // 현재 필드 처리
-      if (field === 'workDays') {
-        if (Array.isArray(value) && value.length > 0) {
+      if (!NO_COMPLETION_CHECK.has(field)) {
+        if (field === 'workDays') {
+          if (Array.isArray(value) && value.length > 0) {
+            newComplete[field] = true;
+          } else {
+            delete newComplete[field];
+          }
+        } else if (value && value.toString().trim()) {
           newComplete[field] = true;
         } else {
           delete newComplete[field];
         }
-      } else if (value && value.toString().trim()) {
-        newComplete[field] = true;
-      } else {
-        delete newComplete[field];
       }
 
       // ssn/phone 변경으로 workerId가 자동 생성된 경우 complete 상태도 업데이트
@@ -167,6 +180,23 @@ export default function EmployeesPage() {
       return;
     }
 
+    const workDayNums = labelsToSortedNums(addWorkerForm.workDays);
+
+    // 서버 400 왕복을 피하기 위해 먼저 검증한다 (퇴근 시간은 등록 시 선택 입력)
+    const workTime = buildWorkTimesPayload({
+      days: workDayNums,
+      perDayEnabled: addWorkerForm.perDayWorkTime,
+      workTimes: addWorkerForm.workTimes,
+      start: addWorkerForm.workStartTime,
+      end: addWorkerForm.workEndTime,
+      requireEnd: false,
+    });
+
+    if (!workTime.ok) {
+      toast.error(workTime.message);
+      return;
+    }
+
     createMutation.mutate(
       {
         name: addWorkerForm.name,
@@ -175,9 +205,10 @@ export default function EmployeesPage() {
         gender,
         uniqueCode: addWorkerForm.workerId.replace(/-/g, ''),
         hireDate: addWorkerForm.hireDate,
-        workDays: addWorkerForm.workDays.map((day) => LABEL_TO_NUM[day]).filter((n): n is WorkDay => n !== undefined),
-        workStartTime: addWorkerForm.workStartTime,
-        workEndTime: addWorkerForm.workEndTime || undefined,
+        workDays: workDayNums,
+        workStartTime: workTime.start,
+        workEndTime: workTime.end || undefined,
+        workTimes: workTime.workTimes ?? undefined,
         disabilityType: addWorkerForm.disabilityType,
         disabilitySeverity: severity === '중증' || severity === '경증' ? severity : '경증',
         disabilityRecognitionDate: addWorkerForm.recognitionDate,

@@ -1,3 +1,5 @@
+import type { WorkTimesMap } from '@/types/employee';
+
 export interface AddWorkerForm {
   name: string;
   ssn: string;
@@ -16,6 +18,10 @@ export interface AddWorkerForm {
   workDays: string[];
   workStartTime: string;
   workEndTime: string;
+  /** 요일별로 다른 출퇴근 시간을 쓸지 여부 */
+  perDayWorkTime: boolean;
+  /** perDayWorkTime이 true일 때만 사용 */
+  workTimes: WorkTimesMap;
   workerId: string;
   annualLeave: string;
 }

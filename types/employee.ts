@@ -1,6 +1,17 @@
 /** 출근 요일 (1=월, 2=화, ..., 7=일) */
 export type WorkDay = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
+/** 하루의 출퇴근 시간 ("HH:mm") */
+export type WorkTimeEntry = { start: string; end: string };
+
+/**
+ * 요일별 출퇴근 시간.
+ *
+ * 설정하지 않은 요일은 키가 없으며, 그 경우 workStartTime/workEndTime을 사용한다.
+ * 전체가 null이면 모든 근무요일에 단일 시간이 적용된다(기본 모드).
+ */
+export type WorkTimesMap = Partial<Record<`${WorkDay}`, WorkTimeEntry>>;
+
 /** 장애 유형 목록 */
 export const DISABILITY_TYPES = [
   '지체장애',
@@ -51,6 +62,7 @@ export type Employee = {
   workDays: WorkDay[];
   workStartTime: string | null;
   workEndTime: string | null;
+  workTimes: WorkTimesMap | null;
   disabilityType: DisabilityType | null;
   disabilitySeverity: '중증' | '경증' | null;
   disabilityRecognitionDate: string | null;
@@ -71,6 +83,7 @@ export type EmployeeCreateInput = {
   workDays: WorkDay[];
   workStartTime: string;
   workEndTime?: string;
+  workTimes?: WorkTimesMap;
   disabilityType: string;
   disabilitySeverity: '중증' | '경증';
   disabilityRecognitionDate: string;
@@ -88,6 +101,8 @@ export type EmployeeUpdateInput = {
   workDays?: WorkDay[];
   workStartTime?: string;
   workEndTime?: string;
+  /** null을 보내면 요일별 설정을 해제하고 단일 시간 모드로 돌아간다 */
+  workTimes?: WorkTimesMap | null;
   name?: string;
   phone?: string;
   gender?: '남' | '여';
