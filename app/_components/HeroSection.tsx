@@ -33,6 +33,8 @@ export default function HeroSection() {
       />
       {/* 가독성 오버레이 (왼쪽 아이보리 → 오른쪽 투명) */}
       <div className="absolute inset-0 z-0 bg-gradient-to-r from-duru-ivory via-duru-ivory/85 to-transparent" />
+      {/* 하단 페이드 (주황 → 옅은 오렌지빛 → 아이보리로 서비스 섹션과 연결) */}
+      <div className="absolute inset-x-0 bottom-0 z-0 h-40 bg-gradient-to-b from-transparent via-duru-orange-50/60 to-duru-ivory" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 lg:pt-40 lg:pb-32">
         <div className="max-w-xl space-y-8 text-left">
