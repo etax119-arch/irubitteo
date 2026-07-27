@@ -17,10 +17,12 @@ export default function Header() {
           />
         </Link>
 
-        <div className="flex items-center gap-8">
-          <nav aria-label="메인 네비게이션" className="hidden md:flex items-center gap-8 text-lg font-semibold text-gray-600">
+        <div className="flex items-center gap-4 lg:gap-8">
+          {/* 항목이 4개라 md에서는 글자·간격을 줄여 헤더가 잘리지 않게 함 */}
+          <nav aria-label="메인 네비게이션" className="hidden md:flex items-center gap-4 lg:gap-8 text-base lg:text-lg font-semibold text-gray-600 whitespace-nowrap">
             <Link href="/gallery" className="hover:text-landing-orange transition-colors">빛터 갤러리</Link>
             <Link href="/newsletter" className="hover:text-landing-orange transition-colors">빛터 소식지</Link>
+            <Link href="/story" className="hover:text-landing-orange transition-colors">빛터 이야기</Link>
             <Link href="/inquiry" className="hover:text-landing-orange transition-colors">신규기업 문의</Link>
           </nav>
           <Link

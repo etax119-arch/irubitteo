@@ -7,6 +7,11 @@ export async function revalidateNewsletter(id?: string) {
   if (id) revalidatePath(`/newsletter/${id}`, 'page');
 }
 
+export async function revalidateStory(id?: string) {
+  revalidatePath('/story', 'page');
+  if (id) revalidatePath(`/story/${id}`, 'page');
+}
+
 export async function revalidateGallery(id?: string) {
   revalidatePath('/gallery', 'page');
   if (id) revalidatePath(`/gallery/${id}`, 'page');

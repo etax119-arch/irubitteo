@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 
 const subTabs = [
   { id: 'newsletter', label: '소식지', href: '/admin/content/newsletter' },
+  { id: 'story', label: '이야기', href: '/admin/content/story' },
   { id: 'gallery', label: '갤러리', href: '/admin/content/gallery' },
   { id: 'announcement', label: '공고', href: '/admin/content/announcement' },
 ];

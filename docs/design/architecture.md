@@ -177,6 +177,7 @@ app/
 │   └── _components/             # GalleryCard, GalleryGrid, GalleryPagination, PurchaseInquiryButton
 │
 ├── newsletter/                  # 뉴스레터 공개 페이지 (SSR/ISR)
+├── story/                       # 빛터 이야기 공개 페이지 (SSR/ISR)
 │   ├── page.tsx                 # 뉴스레터 목록
 │   ├── [id]/page.tsx            # 뉴스레터 상세
 │   └── _components/             # NewsletterCard, NewsletterPagination
@@ -230,6 +231,7 @@ app/
         ├── page.tsx             # → /admin/content/gallery 리다이렉트
         ├── gallery/page.tsx     # 갤러리 관리
         ├── newsletter/page.tsx  # 뉴스레터 관리
+        ├── story/page.tsx       # 빛터 이야기 관리
         ├── announcement/page.tsx # 공고 관리
         └── _components/         # GalleryAdminCard, GalleryForm, NewsletterAdminCard, NewsletterForm, AnnouncementAdminCard, AnnouncementForm
 ```
@@ -256,11 +258,14 @@ app/
 | `/admin/reports` | AdminDashboard.jsx | 탭: 리포트 |
 | `/admin/content/gallery` | — | 갤러리 관리 (SSR/ISR 공개 연동) |
 | `/admin/content/newsletter` | — | 뉴스레터 관리 (SSR/ISR 공개 연동) |
+| `/admin/content/story` | — | 빛터 이야기 관리 (SSR/ISR 공개 연동) |
 | `/admin/content/announcement` | — | 공고 관리 (SSR/ISR 공개 연동) |
 | `/gallery` | — | 갤러리 공개 목록 (SSR/ISR) |
 | `/gallery/[id]` | — | 갤러리 상세 (SSR) |
 | `/newsletter` | — | 뉴스레터 공개 목록 (SSR/ISR) |
 | `/newsletter/[id]` | — | 뉴스레터 상세 (SSR) |
+| `/story` | — | 빛터 이야기 공개 목록 (SSR/ISR) |
+| `/story/[id]` | — | 빛터 이야기 상세 (SSR) |
 | `/announcements` | — | 공고 공개 목록 (SSR/ISR) |
 | `/announcements/[id]` | — | 공고 상세 (SSR) |
 | `/admin/settings` | AdminDashboard.jsx (확장) | 관리자 계정 설정 (비밀번호 변경 + 관리자 계정 추가 + 관리자 계정 리스트) |
@@ -288,6 +293,7 @@ src/
 ├── inquiries/                   # 기업 문의 모듈
 ├── galleries/                   # 갤러리 모듈 (공개 + 관리자 API, 이미지 처리)
 ├── newsletters/                 # 뉴스레터 모듈 (공개 + 관리자 API, 이미지 처리)
+├── stories/                     # 빛터 이야기 모듈 (공개 + 관리자 API, 이미지 처리)
 ├── announcements/               # 공고(채용 공고) 모듈 (공개 + 관리자 API, 이미지 처리)
 │
 ├── admin/                       # 관리자 전용 모듈 (통계, 알림)

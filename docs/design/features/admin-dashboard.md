@@ -53,6 +53,7 @@
 │   ├── page.tsx            # → /admin/content/gallery 리다이렉트
 │   ├── gallery/page.tsx    # 갤러리 관리
 │   ├── newsletter/page.tsx # 뉴스레터 관리
+│   ├── story/page.tsx      # 빛터 이야기 관리
 │   ├── announcement/page.tsx # 공고 관리
 │   └── _components/        # GalleryAdminCard, GalleryForm, NewsletterAdminCard, NewsletterForm, AnnouncementAdminCard, AnnouncementForm
 └── settings/page.tsx       # 관리자 계정 설정 (비밀번호 변경 + 관리자 계정 추가 + 관리자 계정 리스트)
@@ -86,6 +87,7 @@
 | `/admin/content` | `/admin/content/gallery`로 리다이렉트 |
 | `/admin/content/gallery` | 갤러리 관리 |
 | `/admin/content/newsletter` | 뉴스레터 관리 |
+| `/admin/content/story` | 빛터 이야기 관리 |
 | `/admin/content/announcement` | 공고 관리 |
 | `/admin/settings` | 관리자 계정 설정 페이지 |
 

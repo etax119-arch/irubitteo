@@ -39,16 +39,24 @@ const websiteData = {
   url: 'https://www.irubitteo.com',
 };
 
+// position은 순서에서 파생 — 항목 추가/삭제 시 번호를 손으로 고치지 않도록 map으로 생성
+const siteNavigationItems = [
+  { name: '빛터 갤러리', url: 'https://www.irubitteo.com/gallery' },
+  { name: '빛터 소식지', url: 'https://www.irubitteo.com/newsletter' },
+  { name: '빛터 이야기', url: 'https://www.irubitteo.com/story' },
+  { name: '빛터 공고', url: 'https://www.irubitteo.com/announcements' },
+  { name: '신규기업 문의', url: 'https://www.irubitteo.com/inquiry' },
+  { name: '이력서 등록', url: 'https://www.irubitteo.com/resume' },
+];
+
 const siteNavigationData = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  itemListElement: [
-    { '@type': 'SiteNavigationElement', position: 1, name: '빛터 갤러리', url: 'https://www.irubitteo.com/gallery' },
-    { '@type': 'SiteNavigationElement', position: 2, name: '빛터 소식지', url: 'https://www.irubitteo.com/newsletter' },
-    { '@type': 'SiteNavigationElement', position: 3, name: '빛터 공고', url: 'https://www.irubitteo.com/announcements' },
-    { '@type': 'SiteNavigationElement', position: 4, name: '신규기업 문의', url: 'https://www.irubitteo.com/inquiry' },
-    { '@type': 'SiteNavigationElement', position: 5, name: '이력서 등록', url: 'https://www.irubitteo.com/resume' },
-  ],
+  itemListElement: siteNavigationItems.map((item, i) => ({
+    '@type': 'SiteNavigationElement',
+    position: i + 1,
+    ...item,
+  })),
 };
 
 const notoSansKR = Noto_Sans_KR({

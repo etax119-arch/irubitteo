@@ -113,10 +113,11 @@ All pages and layouts live in `app/`. Server Components are the default - add `'
 ├── notifications/page.tsx
 ├── reports/page.tsx
 ├── content/
-│   ├── layout.tsx    # 콘텐츠 서브 탭 (갤러리/소식지/공고)
-│   ├── page.tsx      # → /admin/content/gallery 리다이렉트
+│   ├── layout.tsx    # 콘텐츠 서브 탭 (소식지/이야기/갤러리/공고)
+│   ├── page.tsx      # → /admin/content/newsletter 리다이렉트
 │   ├── gallery/page.tsx
 │   ├── newsletter/page.tsx
+│   ├── story/page.tsx
 │   └── announcement/page.tsx
 └── settings/page.tsx
 ```
@@ -216,6 +217,17 @@ durubitteo_web/
 │   │   └── _hooks/
 │   │       └── usePublicNewsletters.ts   # 공개 소식지 Query 훅 (initialData 지원)
 │   │
+│   ├── story/                # 빛터 이야기 공개 페이지 (SSR + CSR 하이브리드)
+│   │   ├── page.tsx          # /story (목록, SSR initialData)
+│   │   ├── [id]/page.tsx     # /story/[id] (상세)
+│   │   ├── _components/
+│   │   │   ├── StoryCard.tsx           # 이야기 카드
+│   │   │   ├── StoryContent.tsx        # 목록 클라이언트 컴포넌트 (검색+페이지네이션)
+│   │   │   ├── StoryPagination.tsx     # 페이지네이션
+│   │   │   └── StorySearch.tsx         # 검색 입력 (디바운스)
+│   │   └── _hooks/
+│   │       └── usePublicStories.ts     # 공개 이야기 Query 훅 (initialData 지원)
+│   │
 │   ├── announcements/        # 공고(채용 공고) 공개 페이지 (SSR + CSR 하이브리드)
 │   │   ├── page.tsx          # /announcements (목록, SSR initialData)
 │   │   ├── [id]/page.tsx     # /announcements/[id] (상세)
@@ -294,6 +306,8 @@ durubitteo_web/
 │       │   ├── useGalleryMutations.ts          # 갤러리 Mutation 훅
 │       │   ├── useNewsletterQuery.ts           # 뉴스레터 Query 훅
 │       │   ├── useNewsletterMutations.ts       # 뉴스레터 Mutation 훅
+│       │   ├── useStoryQuery.ts                # 빛터 이야기 Query 훅
+│       │   ├── useStoryMutations.ts            # 빛터 이야기 Mutation 훅
 │       │   ├── useAnnouncementQuery.ts         # 공고 Query 훅
 │       │   └── useAnnouncementMutations.ts     # 공고 Mutation 훅
 │       ├── _utils/
@@ -333,17 +347,21 @@ durubitteo_web/
 │       │       ├── FileSection.tsx     # 섹션 (목록 + 업로드 버튼)
 │       │       ├── FileListItem.tsx    # 파일 행 (다운로드/삭제)
 │       │       └── FileUploadModal.tsx # 업로드 모달
-│       ├── content/          # 콘텐츠 관리 탭 (갤러리 + 뉴스레터 + 공고)
+│       ├── content/          # 콘텐츠 관리 탭 (소식지 + 이야기 + 갤러리 + 공고)
 │       │   ├── layout.tsx    # 콘텐츠 탭 레이아웃
-│       │   ├── page.tsx      # → /admin/content/gallery 리다이렉트
+│       │   ├── page.tsx      # → /admin/content/newsletter 리다이렉트
+│       │   ├── actions.ts    # 'use server' revalidate* (공개 페이지 캐시 무효화)
 │       │   ├── gallery/page.tsx       # 갤러리 관리
 │       │   ├── newsletter/page.tsx    # 뉴스레터 관리
+│       │   ├── story/page.tsx         # 빛터 이야기 관리
 │       │   ├── announcement/page.tsx  # 공고 관리
 │       │   └── _components/
 │       │       ├── GalleryAdminCard.tsx  # 갤러리 관리 카드
 │       │       ├── GalleryForm.tsx       # 갤러리 생성/수정 폼
 │       │       ├── NewsletterAdminCard.tsx # 뉴스레터 관리 카드
 │       │       ├── NewsletterForm.tsx    # 뉴스레터 생성/수정 폼
+│       │       ├── StoryAdminCard.tsx    # 이야기 관리 카드
+│       │       ├── StoryForm.tsx         # 이야기 생성/수정 폼
 │       │       ├── AnnouncementAdminCard.tsx # 공고 관리 카드
 │       │       └── AnnouncementForm.tsx  # 공고 생성/수정 폼
 │       └── settings/        # 설정 탭
@@ -379,6 +397,7 @@ durubitteo_web/
 │   ├── resume.ts             # 이력서 타입
 │   ├── gallery.ts            # 갤러리 타입
 │   ├── newsletter.ts         # 뉴스레터 타입
+│   ├── story.ts              # 빛터 이야기 타입
 │   └── announcement.ts       # 공고(채용 공고) 타입
 │
 └── lib/                      # 유틸리티 함수
@@ -411,6 +430,7 @@ durubitteo_web/
         ├── resumes.ts        # 이력서 API (제출, 목록, 확인완료)
         ├── galleries.ts      # 갤러리 API (공개 목록/상세, 관리자 CRUD)
         ├── newsletters.ts    # 뉴스레터 API (공개 목록/상세, 관리자 CRUD)
+        ├── stories.ts        # 빛터 이야기 API (공개 목록/상세, 관리자 CRUD)
         ├── announcements.ts  # 공고 API (공개 목록/상세, 관리자 CRUD)
         └── server-fetch.ts   # 서버 컴포넌트용 fetch 래퍼 (SSR/ISR)
 ```

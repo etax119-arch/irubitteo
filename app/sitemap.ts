@@ -51,15 +51,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const listPages: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/gallery`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${baseUrl}/newsletter`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/story`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${baseUrl}/announcements`, changeFrequency: 'weekly', priority: 0.7 },
   ];
 
-  // 동적 상세 페이지 (갤러리 / 소식지 / 공고)
-  const [galleryPages, newsletterPages, announcementPages] = await Promise.all([
+  // 동적 상세 페이지 (갤러리 / 소식지 / 이야기 / 공고)
+  const [galleryPages, newsletterPages, storyPages, announcementPages] = await Promise.all([
     fetchDetailPages('/galleries', `${baseUrl}/gallery`),
     fetchDetailPages('/newsletters', `${baseUrl}/newsletter`),
+    fetchDetailPages('/stories', `${baseUrl}/story`),
     fetchDetailPages('/announcements', `${baseUrl}/announcements`),
   ]);
 
-  return [...staticPages, ...listPages, ...galleryPages, ...newsletterPages, ...announcementPages];
+  return [
+    ...staticPages,
+    ...listPages,
+    ...galleryPages,
+    ...newsletterPages,
+    ...storyPages,
+    ...announcementPages,
+  ];
 }
