@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Edit3, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Clock, Edit3, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { formatUtcTimestampAsKST, formatDateAsKST } from '@/lib/kst';
 import {
@@ -27,6 +27,8 @@ type AttendanceHistoryTableProps = {
   onClearDates: () => void;
   onExportExcel: () => void;
   isExporting?: boolean;
+  onExportPdf: () => void;
+  isExportingPdf?: boolean;
 };
 
 export function AttendanceHistoryTable({
@@ -45,6 +47,8 @@ export function AttendanceHistoryTable({
   onClearDates,
   onExportExcel,
   isExporting,
+  onExportPdf,
+  isExportingPdf,
 }: AttendanceHistoryTableProps) {
   const renderStatusButton = (record: AttendanceWithEmployee) => (
     <button
@@ -87,6 +91,19 @@ export function AttendanceHistoryTable({
             <FileSpreadsheet className="w-4 h-4" />
           )}
           엑셀
+        </button>
+        <button
+          type="button"
+          onClick={onExportPdf}
+          disabled={isExportingPdf}
+          className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExportingPdf ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileText className="w-4 h-4" />
+          )}
+          PDF
         </button>
       </div>
 

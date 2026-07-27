@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/Toast';
 import { extractErrorMessage } from '@/lib/api/error';
 import { formatUtcTimestampAsKST } from '@/lib/kst';
 import { exportAttendancesToExcel } from '@/lib/attendanceExcel';
+import { exportAttendancesToPdf } from '@/lib/attendancePdf';
 import type { AttendanceStatus, AttendanceWithEmployee } from '@/types/attendance';
 import type { Pagination } from '@/types/api';
 
@@ -41,6 +42,7 @@ export function useAttendanceHistory(employeeId: string, workDays: number[] = []
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isExporting, setIsExporting] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const { data, isLoading: isLoadingAttendance, error: queryError } = useEmployeeAttendanceHistory(employeeId, { page: currentPage, limit: 10, startDate: startDate || undefined, endDate: endDate || undefined });
 
   const attendanceHistory = useMemo(() => (data?.records ?? []).map(toAttendanceRecord), [data?.records]);
@@ -129,6 +131,31 @@ export function useAttendanceHistory(employeeId: string, workDays: number[] = []
     }
   };
 
+  const handleExportPdf = async (employeeName?: string) => {
+    setIsExportingPdf(true);
+    try {
+      const records = await attendanceApi.getAllAttendances({
+        employeeId,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+      if (records.length === 0) {
+        toast.error('내보낼 출퇴근 기록이 없습니다.');
+        return;
+      }
+      await exportAttendancesToPdf({
+        records,
+        employeeName,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+    } catch {
+      toast.error('PDF 내보내기에 실패했습니다.');
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   const goToNextPage = () => {
     if (pagination && currentPage < pagination.totalPages) {
       setCurrentPage((p) => p + 1);
@@ -165,6 +192,9 @@ export function useAttendanceHistory(employeeId: string, workDays: number[] = []
     // Excel export
     isExporting,
     handleExportExcel,
+    // PDF export
+    isExportingPdf,
+    handleExportPdf,
     // Date filter
     startDate,
     endDate,

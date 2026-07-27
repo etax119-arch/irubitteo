@@ -138,19 +138,46 @@ export default function EmployeeDetailPage() {
             <div className="order-1">
               <ProfileCard
                 worker={worker}
+                isEditing={editForm.isEditingProfile}
+                isSaving={editForm.isSavingProfile}
+                profileForm={editForm.profileForm}
+                onEdit={() => editForm.handleEditProfile(worker)}
+                onSave={() => editForm.handleSaveProfile(worker)}
+                onCancel={editForm.handleCancelProfile}
+                onUpdateForm={editForm.updateProfileForm}
                 isUploadingImage={uploadImage.isPending || deleteImage.isPending}
                 onUploadImage={handleUploadImage}
                 onDeleteImage={handleDeleteImage}
               />
             </div>
             <div className="order-4">
-              <DisabilityInfoSection worker={worker} />
+              <DisabilityInfoSection
+                worker={worker}
+                isEditing={editForm.isEditingDisability}
+                isSaving={editForm.isSavingDisability}
+                tempDisabilityType={editForm.tempDisabilityType}
+                setTempDisabilityType={editForm.setTempDisabilityType}
+                tempSeverity={editForm.tempDisabilitySeverity}
+                setTempSeverity={editForm.setTempDisabilitySeverity}
+                tempRecognitionDate={editForm.tempDisabilityRecognitionDate}
+                setTempRecognitionDate={editForm.setTempDisabilityRecognitionDate}
+                onEdit={() => editForm.handleEditDisability(worker)}
+                onSave={editForm.handleSaveDisability}
+                onCancel={editForm.handleCancelDisability}
+              />
             </div>
-            {worker.companyNote && (
-              <div className="order-5">
-                <CompanyNoteSection companyNote={worker.companyNote} />
-              </div>
-            )}
+            <div className="order-5">
+              <CompanyNoteSection
+                companyNote={worker.companyNote || ''}
+                isEditing={editForm.isEditingCompanyNote}
+                isSaving={editForm.isSavingCompanyNote}
+                tempNote={editForm.tempCompanyNote}
+                setTempNote={editForm.setTempCompanyNote}
+                onEdit={() => editForm.handleEditCompanyNote(worker)}
+                onSave={editForm.handleSaveCompanyNote}
+                onCancel={editForm.handleCancelCompanyNote}
+              />
+            </div>
             <div className="order-6">
               <AdminNoteSection
                 notes={worker.adminNote || ''}
@@ -189,6 +216,8 @@ export default function EmployeeDetailPage() {
                 onClearDates={attendance.handleClearDates}
                 onExportExcel={() => attendance.handleExportExcel(worker.name)}
                 isExporting={attendance.isExporting}
+                onExportPdf={() => attendance.handleExportPdf(worker.name)}
+                isExportingPdf={attendance.isExportingPdf}
               />
             </div>
             <div className="order-3">

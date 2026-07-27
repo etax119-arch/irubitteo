@@ -207,6 +207,8 @@ export default function CompanyEmployeeDetailPage() {
                 onClearDates={attendance.handleClearDates}
                 onExportExcel={() => attendance.handleExportExcel(employee.name)}
                 isExporting={attendance.isExporting}
+                onExportPdf={() => attendance.handleExportPdf(employee.name)}
+                isExportingPdf={attendance.isExportingPdf}
               />
             </div>
             <div className="order-3">

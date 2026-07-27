@@ -132,6 +132,7 @@ export function DisabilityInfoSection({
               value={tempRecognitionDate}
               onChange={setTempRecognitionDate}
               inputClassName="py-1.5 text-xs"
+              allowManualInput
             />
           </div>
         </div>

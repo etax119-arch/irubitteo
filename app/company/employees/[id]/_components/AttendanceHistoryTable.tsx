@@ -1,4 +1,4 @@
-import { Clock, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Clock, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import {
   getAttendanceRecordStatusColor as getStatusColor,
@@ -25,9 +25,11 @@ interface AttendanceHistoryTableProps {
   onClearDates: () => void;
   onExportExcel: () => void;
   isExporting?: boolean;
+  onExportPdf: () => void;
+  isExportingPdf?: boolean;
 }
 
-export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDone, onStatusClick, currentPage, pagination, onNextPage, onPrevPage, startDate, endDate, onStartDateChange, onEndDateChange, onClearDates, onExportExcel, isExporting }: AttendanceHistoryTableProps) {
+export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDone, onStatusClick, currentPage, pagination, onNextPage, onPrevPage, startDate, endDate, onStartDateChange, onEndDateChange, onClearDates, onExportExcel, isExporting, onExportPdf, isExportingPdf }: AttendanceHistoryTableProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
@@ -55,6 +57,19 @@ export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDo
             <FileSpreadsheet className="w-4 h-4" />
           )}
           엑셀
+        </button>
+        <button
+          type="button"
+          onClick={onExportPdf}
+          disabled={isExportingPdf}
+          className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExportingPdf ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileText className="w-4 h-4" />
+          )}
+          PDF
         </button>
       </div>
 

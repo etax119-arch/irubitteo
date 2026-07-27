@@ -9,6 +9,22 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { scheduleApi } from '@/lib/api/schedules';
 import type { Schedule } from '@/types/schedule';
 
+function formatNowClock(date: Date): { date: string; time: string } {
+  return {
+    date: date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    }),
+    time: date.toLocaleTimeString('ko-KR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }),
+  };
+}
+
 export default function CheckInPage() {
   const router = useRouter();
   const [confirmedTasks, setConfirmedTasks] = useState(false);
@@ -16,12 +32,20 @@ export default function CheckInPage() {
   const clockInMutation = useClockIn();
   const isLoading = clockInMutation.isPending;
   const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     scheduleApi.getToday()
       .then(setTodaySchedule)
       .catch(() => setTodaySchedule(null));
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const clock = formatNowClock(now);
 
   const handleBack = () => {
     router.back();
@@ -66,7 +90,18 @@ export default function CheckInPage() {
               <Clock className="w-8 h-8 text-duru-orange-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">출근하기</h1>
-            <p className="text-lg text-gray-500">오늘 할 일을 확인해주세요</p>
+            <p className="text-lg text-gray-500 mb-5">오늘 할 일을 확인해주세요</p>
+
+            {/* 실시간 현재 시각 (읽기 전용) */}
+            <div className="inline-flex flex-col items-center gap-1 px-8 py-4 bg-duru-orange-50 border border-duru-orange-100 rounded-2xl">
+              <span className="text-sm font-medium text-gray-500">{clock.date}</span>
+              <span
+                className="text-4xl sm:text-5xl font-bold text-duru-orange-600 tabular-nums tracking-tight"
+                aria-live="off"
+              >
+                {clock.time}
+              </span>
+            </div>
           </div>
 
           {/* 오늘의 작업 내용 */}

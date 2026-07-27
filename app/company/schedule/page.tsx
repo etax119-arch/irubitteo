@@ -7,6 +7,7 @@ import { useMonthlySchedules } from '../_hooks/useScheduleQuery';
 import { useCreateSchedule, useUpdateSchedule, useDeleteSchedule } from '../_hooks/useScheduleMutations';
 import { formatDateAsKST } from '@/lib/kst';
 import { exportToExcel } from '@/lib/excel';
+import { exportSchedulesToPdf } from '../_utils/generateSchedulePdf';
 import { useToast } from '@/components/ui/Toast';
 import type { Schedule } from '@/types/schedule';
 
@@ -94,6 +95,18 @@ export default function SchedulePage() {
     });
   }, [schedules, year, month, toast]);
 
+  const handleExportPdf = useCallback(async () => {
+    if (schedules.length === 0) {
+      toast.error('내보낼 일정이 없습니다.');
+      return;
+    }
+    try {
+      await exportSchedulesToPdf({ schedules, year, month });
+    } catch {
+      toast.error('PDF 내보내기에 실패했습니다.');
+    }
+  }, [schedules, year, month, toast]);
+
   const handleDelete = useCallback(async () => {
     if (!selectedSchedule) return;
     deleteMutation.mutate(selectedSchedule.id, {
@@ -114,6 +127,7 @@ export default function SchedulePage() {
         onNextMonth={goToNextMonth}
         onDateClick={handleDateClick}
         onExportExcel={handleExportExcel}
+        onExportPdf={handleExportPdf}
       />
 
       <ScheduleModal

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Plus, FileSpreadsheet } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, FileSpreadsheet, FileText } from 'lucide-react';
 import type { Schedule } from '@/types/schedule';
 
 interface CalendarGridProps {
@@ -11,6 +11,7 @@ interface CalendarGridProps {
   onNextMonth: () => void;
   onDateClick: (date: Date) => void;
   onExportExcel: () => void;
+  onExportPdf: () => void;
 }
 
 export function CalendarGrid({
@@ -20,6 +21,7 @@ export function CalendarGrid({
   onNextMonth,
   onDateClick,
   onExportExcel,
+  onExportPdf,
 }: CalendarGridProps) {
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
@@ -131,6 +133,16 @@ export function CalendarGrid({
           >
             <FileSpreadsheet className="w-4 h-4" />
             <span className="hidden sm:inline">엑셀 내보내기</span>
+          </button>
+          <button
+            type="button"
+            onClick={onExportPdf}
+            className="flex items-center gap-2 px-2.5 sm:px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors whitespace-nowrap"
+            title="PDF 내보내기"
+            aria-label="PDF 내보내기"
+          >
+            <FileText className="w-4 h-4" />
+            <span className="hidden sm:inline">PDF 내보내기</span>
           </button>
           <div className="flex items-center gap-0.5 sm:gap-2">
             <button
