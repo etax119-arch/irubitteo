@@ -24,7 +24,7 @@ export default function HeroSection() {
     <section className="relative isolate flex items-center min-h-screen overflow-hidden">
       {/* 배경 이미지 */}
       <Image
-        src="/images/hero-bg.png"
+        src="/images/hero-bg-02.png"
         alt=""
         fill
         priority
