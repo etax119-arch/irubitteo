@@ -170,7 +170,7 @@ export default function HeroSection() {
           >
             <Link
               href="/login/employee"
-              className="px-8 py-4 bg-landing-orange text-white rounded font-medium text-lg hover:bg-landing-orange/90 transition-colors shadow-soft flex items-center gap-2"
+              className="px-8 py-4 min-w-[240px] bg-landing-orange text-white border border-transparent rounded font-medium text-lg hover:bg-landing-orange/90 transition-colors shadow-soft flex items-center justify-center gap-2"
             >
               <Clock className="w-5 h-5" />
               출퇴근 하기
@@ -178,7 +178,7 @@ export default function HeroSection() {
             </Link>
             <Link
               href="/resume"
-              className="px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded font-medium text-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
+              className="px-8 py-4 min-w-[240px] bg-white text-gray-700 border border-gray-200 rounded font-medium text-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center justify-center gap-2"
             >
               <FileUp className="w-5 h-5" />
               이력서 등록하기

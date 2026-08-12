@@ -55,7 +55,7 @@ export default function Footer() {
               <li><Link href="/gallery" className="hover:text-white">빛터 갤러리</Link></li>
               <li><Link href="/newsletter" className="hover:text-white">빛터 소식지</Link></li>
               <li><Link href="/story" className="hover:text-white">빛터 이야기</Link></li>
-              <li><Link href="/announcements" className="hover:text-white">빛터 공고</Link></li>
+              <li><Link href="/announcements" className="hover:text-white">빛터 채용 공고</Link></li>
               <li><Link href="/inquiry" className="hover:text-white">신규기업 문의</Link></li>
               <li><Link href="/resume" className="hover:text-white">이력서 등록</Link></li>
               <li><Link href="/login/admin" className="hover:text-white">이루빛 관리자</Link></li>

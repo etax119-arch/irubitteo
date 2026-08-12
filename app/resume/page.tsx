@@ -635,7 +635,7 @@ export default function ResumePage() {
                       장애유형
                     </th>
                     <td className={tdClass} colSpan={3}>
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                      <div className="grid grid-cols-4 gap-2">
                         {DISABILITY_TYPES.map((type) => (
                           <label
                             key={type}

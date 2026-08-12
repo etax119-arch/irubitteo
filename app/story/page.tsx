@@ -8,11 +8,11 @@ import StoryContent from './_components/StoryContent';
 
 export const metadata: Metadata = {
   title: '빛터 이야기 | 이루빛터',
-  description: '이루빛터와 함께한 사람들의 이야기를 만나보세요.',
+  description: '이루빛터와 함께한 장애인 근로자들의 이야기를 만나보세요.',
   alternates: { canonical: '/story' },
   openGraph: {
     title: '빛터 이야기 | 이루빛터',
-    description: '이루빛터와 함께한 사람들의 이야기를 만나보세요.',
+    description: '이루빛터와 함께한 장애인 근로자들의 이야기를 만나보세요.',
   },
 };
 
@@ -20,7 +20,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: '빛터 이야기',
-  description: '이루빛터와 함께한 사람들의 이야기를 만나보세요.',
+  description: '이루빛터와 함께한 장애인 근로자들의 이야기를 만나보세요.',
   url: 'https://www.irubitteo.com/story',
   publisher: { '@type': 'Organization', name: '이루빛터' },
 };
@@ -51,7 +51,7 @@ export default async function StoryPage() {
               빛터 이야기
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              이루빛터와 함께한 사람들의 이야기를 만나보세요
+              이루빛터와 함께한 장애인 근로자들의 이야기를 만나보세요
             </p>
           </div>
         </section>

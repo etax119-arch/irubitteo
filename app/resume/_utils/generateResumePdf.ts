@@ -307,8 +307,8 @@ export async function generateResumePdf(
      ══════════════════════════════════════════ */
   // 장애유형: ■/□ 텍스트 (5개씩 한 줄)
   const typeLines: string[] = [];
-  for (let i = 0; i < DISABILITY_TYPES.length; i += 5) {
-    const chunk = DISABILITY_TYPES.slice(i, i + 5);
+  for (let i = 0; i < DISABILITY_TYPES.length; i += 4) {
+    const chunk = DISABILITY_TYPES.slice(i, i + 4);
     typeLines.push(
       chunk
         .map((t) => `${formData.disabilityTypes.includes(t) ? '■' : '□'} ${t}`)
