@@ -14,7 +14,7 @@ const SEEKER = {
   href: '/resume',
   eyebrow: '장애인 구직자',
   title: '나에게 맞는 일자리를 찾고 계신가요?',
-  desc: '상담부터 취업, 근태 관리까지 원스톱으로 도와드려요.',
+  desc: '상담부터 취업까지 일대일 맞춤 직무 연계를 도와드려요.',
   features: ['맞춤형 직무 추천 및 상담', '이력서 등록 및 기업 매칭', '취업 후 적응 지원 프로그램'],
   cta: '이력서 등록 바로가기',
   icon: FileText,
@@ -175,37 +175,39 @@ function SplitPanel({
   delay: number;
 }) {
   const isOrange = tone === 'orange';
+  // 좌/우 패널의 문구가 같은 높이에 오도록, 각 줄을 섹션 그리드의 같은 행(subgrid)에 배치
+  const line = 'w-full max-w-md mx-auto';
 
   return (
     <Link
       href={item.href}
-      className={`group flex flex-col justify-center px-8 py-16 sm:px-12 lg:px-16 lg:py-20 transition-all duration-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white ${
+      className={`group block px-8 py-16 sm:px-12 lg:px-16 lg:py-20 transition-all duration-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white md:grid md:row-span-4 md:grid-rows-[subgrid] md:content-center ${
         isOrange
           ? 'bg-landing-orange text-white hover:bg-duru-orange-600'
           : 'bg-duru-orange-50 text-duru-text-main hover:bg-duru-orange-100'
       } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
       style={{ transitionDelay: isVisible ? `${delay}ms` : '0ms' }}
     >
-      <div className="max-w-md mx-auto w-full">
+      <span
+        className={`${line} block text-sm font-semibold ${
+          isOrange ? 'text-white/80' : 'text-landing-orange'
+        }`}
+      >
+        {item.eyebrow}
+      </span>
+      <h3 className={`${line} mt-1 text-2xl sm:text-3xl font-bold break-keep leading-snug`}>
+        {item.title}
+      </h3>
+      <p
+        className={`${line} mt-4 text-base sm:text-lg break-keep leading-relaxed ${
+          isOrange ? 'text-white/90' : 'text-duru-text-sub'
+        }`}
+      >
+        {item.desc}
+      </p>
+      <div className={`${line} mt-8`}>
         <span
-          className={`block text-sm font-semibold ${
-            isOrange ? 'text-white/80' : 'text-landing-orange'
-          }`}
-        >
-          {item.eyebrow}
-        </span>
-        <h3 className="mt-1 text-2xl sm:text-3xl font-bold break-keep leading-snug">
-          {item.title}
-        </h3>
-        <p
-          className={`mt-4 text-base sm:text-lg break-keep leading-relaxed ${
-            isOrange ? 'text-white/90' : 'text-duru-text-sub'
-          }`}
-        >
-          {item.desc}
-        </p>
-        <span
-          className={`mt-8 inline-flex items-center gap-2 text-lg font-bold ${
+          className={`inline-flex items-center gap-2 text-lg font-bold ${
             isOrange ? 'text-white' : 'text-landing-orange'
           }`}
         >
@@ -225,7 +227,7 @@ export default function ClosingCtaSection({ variant = 'cards' }: ClosingCtaSecti
     return (
       <section
         ref={sectionRef}
-        className="grid md:grid-cols-2 pt-16 lg:pt-24 bg-white"
+        className="grid md:grid-cols-2 md:grid-rows-[auto_auto_auto_auto] pt-16 lg:pt-24 bg-white"
         aria-label="이루빛터 시작하기"
       >
         <SplitPanel item={SEEKER} tone="orange" isVisible={isVisible} delay={100} />

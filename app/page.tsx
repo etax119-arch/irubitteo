@@ -70,7 +70,7 @@ export default async function LandingPage() {
   // 로드 실패 시 해당 섹션(캐러셀/공고)은 렌더링되지 않음
   const [galleryResult, announcementResult] = await Promise.allSettled([
     serverFetch<PaginatedResponse<GalleryItem>>('/galleries?page=1&limit=10'),
-    serverFetch<PaginatedResponse<AnnouncementItem>>('/announcements?page=1&limit=6'),
+    serverFetch<PaginatedResponse<AnnouncementItem>>('/announcements?page=1&limit=1'),
   ]);
   const galleryItems: GalleryItem[] =
     galleryResult.status === 'fulfilled' ? galleryResult.value.data : [];

@@ -35,6 +35,7 @@ interface FormData {
 interface FormErrors {
   name?: string;
   birthDate?: string;
+  address?: string;
   phone?: string;
   privacyConsent?: string;
 }
@@ -42,6 +43,7 @@ interface FormErrors {
 interface TouchedFields {
   name?: boolean;
   birthDate?: boolean;
+  address?: boolean;
   phone?: boolean;
   privacyConsent?: boolean;
 }
@@ -49,6 +51,7 @@ interface TouchedFields {
 const requiredFieldLabels: Record<string, string> = {
   name: '성명',
   birthDate: '생년월일',
+  address: '주소',
   phone: '전화번호',
   privacyConsent: '개인정보 조회 동의',
 };
@@ -128,11 +131,13 @@ export default function ResumePage() {
     }));
   };
 
-  const isSubmitEnabled =
+  const isSubmitEnabled = Boolean(
     formData.name.trim() &&
-    formData.birthDate.trim() &&
-    formData.phone.trim() &&
-    formData.privacyConsent;
+      formData.birthDate.trim() &&
+      formData.address.trim() &&
+      formData.phone.trim() &&
+      formData.privacyConsent
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,6 +145,7 @@ export default function ResumePage() {
     const requiredFields: (keyof FormErrors)[] = [
       'name',
       'birthDate',
+      'address',
       'phone',
       'privacyConsent',
     ];
@@ -301,16 +307,22 @@ export default function ResumePage() {
                         error={touched.birthDate && errors.birthDate ? errors.birthDate : undefined}
                       />
                     </td>
-                    <th className={thClass}>주소</th>
+                    <th className={thClass}>
+                      주소 <span className="text-red-500">*</span>
+                    </th>
                     <td className={tdClass}>
                       <input
                         type="text"
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
+                        onBlur={() => handleBlur('address')}
                         placeholder="서울시 강남구 ..."
                         className={inputClass}
                       />
+                      {touched.address && errors.address && (
+                        <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+                      )}
                     </td>
                   </tr>
                   <tr>
@@ -680,14 +692,18 @@ export default function ResumePage() {
             <button
               type="submit"
               disabled={!isSubmitEnabled || submitting}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+              className={`w-full py-4 rounded-xl font-extrabold tracking-tight text-lg transition-all flex items-center justify-center gap-2 ${
                 isSubmitEnabled && !submitting
                   ? 'bg-duru-orange-500 text-white hover:bg-duru-orange-600 active:scale-[0.99]'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
               }`}
             >
               {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
-              {submitting ? '제출 중...' : '이력서 제출하기'}
+              {submitting
+                ? '제출 중...'
+                : isSubmitEnabled
+                  ? '이력서 제출하기'
+                  : '필수 항목을 모두 입력해주세요'}
             </button>
 
             <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed">

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ChevronRight, Megaphone } from 'lucide-react';
+import { ArrowRight, Megaphone } from 'lucide-react';
 import { formatKSTLongDate } from '@/lib/kst';
 import type { AnnouncementItem } from '@/types/announcement';
 
@@ -11,34 +11,8 @@ interface AnnouncementSectionProps {
   items: AnnouncementItem[];
 }
 
-// 리스트가 꽉 찼을 때와 비었을 때 섹션 높이를 동일하게 유지하기 위한 기준값
-const VISIBLE_ROWS = 6;
-const ROW_MIN_HEIGHT = 96; // px (썸네일 + 상하 여백)
-
-function AnnouncementThumbnail({ item }: { item: AnnouncementItem }) {
-  const cover = item.images[0];
-
-  return (
-    <div className="relative shrink-0 w-24 sm:w-28 aspect-[16/9] rounded-xl bg-duru-orange-50 overflow-hidden">
-      {cover ? (
-        <Image
-          src={cover.imageCardUrl || cover.imageUrl}
-          alt={cover.imageAlt || item.title}
-          fill
-          sizes="112px"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          {...(cover.imageBlurData
-            ? { placeholder: 'blur' as const, blurDataURL: cover.imageBlurData }
-            : {})}
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Megaphone aria-hidden className="w-7 h-7 text-landing-orange/60" />
-        </div>
-      )}
-    </div>
-  );
-}
+// 공고가 있을 때와 없을 때 섹션 높이를 동일하게 유지하기 위한 기준값
+const CARD_MIN_HEIGHT = 340; // px
 
 export default function AnnouncementSection({ items }: AnnouncementSectionProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -62,7 +36,9 @@ export default function AnnouncementSection({ items }: AnnouncementSectionProps)
     return () => observer.disconnect();
   }, []);
 
-  const isEmpty = items.length === 0;
+  // 가장 최근 공고 하나만 크게 노출
+  const featured = items[0];
+  const cover = featured?.images[0];
 
   return (
     <section ref={sectionRef} className="min-h-screen flex items-center py-32 bg-white">
@@ -81,12 +57,62 @@ export default function AnnouncementSection({ items }: AnnouncementSectionProps)
           </p>
         </div>
 
-        {/* 공고 리스트 — 비어있어도 동일한 높이를 유지 */}
+        {/* 대표 공고 1건 — 비어있어도 동일한 높이를 유지 */}
         <div
-          className="flex flex-col rounded-2xl border border-duru-orange-100 bg-white shadow-soft overflow-hidden"
-          style={{ minHeight: `${VISIBLE_ROWS * ROW_MIN_HEIGHT}px` }}
+          className={`flex flex-col rounded-3xl border border-duru-orange-100 bg-white shadow-soft overflow-hidden transition-all duration-1000 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}
+          style={{
+            minHeight: `${CARD_MIN_HEIGHT}px`,
+            transitionDelay: isVisible ? '150ms' : '0ms',
+          }}
         >
-          {isEmpty ? (
+          {featured ? (
+            <Link
+              href={`/announcements/${featured.id}`}
+              className="group flex flex-1 flex-col focus:outline-none focus:ring-2 focus:ring-inset focus:ring-duru-orange-500"
+            >
+              <div className="relative w-full aspect-[16/9] bg-duru-orange-50 overflow-hidden">
+                {cover ? (
+                  <Image
+                    src={cover.imageUrl}
+                    alt={cover.imageAlt || featured.title}
+                    fill
+                    sizes="(max-width: 896px) 100vw, 896px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    {...(cover.imageBlurData
+                      ? { placeholder: 'blur' as const, blurDataURL: cover.imageBlurData }
+                      : {})}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Megaphone aria-hidden className="w-14 h-14 text-landing-orange/50" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-1 flex-col px-6 py-7 sm:px-8 sm:py-8">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <span className="inline-flex rounded-full bg-duru-orange-50 px-3 py-1 text-xs font-semibold text-landing-orange">
+                    모집중
+                  </span>
+                  <span className="text-sm text-duru-text-sub">
+                    {formatKSTLongDate(featured.createdAt)}
+                  </span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-duru-text-main break-keep leading-snug line-clamp-2 group-hover:text-landing-orange transition-colors">
+                  {featured.title}
+                </h3>
+                <p className="mt-3 text-base text-duru-text-sub break-keep leading-relaxed line-clamp-3">
+                  {featured.content}
+                </p>
+                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-landing-orange">
+                  자세히 보기
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </div>
+            </Link>
+          ) : (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-duru-orange-50">
                 <Megaphone aria-hidden className="w-7 h-7 text-landing-orange/70" />
@@ -98,48 +124,6 @@ export default function AnnouncementSection({ items }: AnnouncementSectionProps)
                 새로운 공고가 등록되면 이곳에서 가장 먼저 만나보실 수 있어요.
               </p>
             </div>
-          ) : (
-            <ul className="divide-y divide-duru-orange-100">
-              {items.map((item, index) => {
-                const date = formatKSTLongDate(item.createdAt);
-
-                return (
-                  <li
-                    key={item.id}
-                    className={`transition-all duration-700 ${
-                      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                    }`}
-                    style={{ transitionDelay: isVisible ? `${100 + index * 60}ms` : '0ms' }}
-                  >
-                    <Link
-                      href={`/announcements/${item.id}`}
-                      className="group flex items-center gap-4 px-4 py-4 sm:px-5 transition-colors hover:bg-duru-orange-50/60 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-duru-orange-500"
-                      style={{ minHeight: `${ROW_MIN_HEIGHT}px` }}
-                    >
-                      <AnnouncementThumbnail item={item} />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="inline-flex rounded-full bg-duru-orange-50 px-2.5 py-0.5 text-xs font-semibold text-landing-orange">
-                            모집중
-                          </span>
-                          <span className="text-xs text-duru-text-sub">{date}</span>
-                        </div>
-                        <h3 className="font-bold text-duru-text-main break-keep leading-snug line-clamp-1 group-hover:text-landing-orange transition-colors">
-                          {item.title}
-                        </h3>
-                        <p className="mt-1 text-sm text-duru-text-sub break-keep leading-relaxed line-clamp-1">
-                          {item.content}
-                        </p>
-                      </div>
-                      <ChevronRight
-                        aria-hidden
-                        className="hidden sm:block w-5 h-5 shrink-0 text-duru-text-sub/50 transition-colors group-hover:text-landing-orange"
-                      />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
           )}
         </div>
 
@@ -152,7 +136,7 @@ export default function AnnouncementSection({ items }: AnnouncementSectionProps)
         >
           <Link
             href="/announcements"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-landing-orange hover:text-duru-orange-600 transition-colors"
+            className="inline-flex items-center gap-2 rounded-full bg-landing-orange px-7 py-3.5 text-base font-semibold text-white shadow-soft transition-colors hover:bg-duru-orange-600 focus:outline-none focus:ring-2 focus:ring-duru-orange-500 focus:ring-offset-2"
           >
             전체 공고 보기
             <ArrowRight className="w-4 h-4" />
