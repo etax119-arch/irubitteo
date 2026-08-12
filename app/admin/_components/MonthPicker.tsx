@@ -70,7 +70,7 @@ export function MonthPicker({
       <Popover
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        className="min-w-[280px]"
+        className="min-w-[280px] max-w-[calc(100vw-2rem)]"
         trigger={
           <button
             type="button"

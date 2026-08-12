@@ -73,6 +73,19 @@ export function formatKSTDate(isoString: string): string {
 }
 
 /**
+ * UTC 타임스탬프(ISO string) → KST "YYYY년 M월 D일" 형식
+ * 공개 콘텐츠(공고 등) 날짜 표시용 — SSG 빌드 환경이 UTC여도 KST 기준 날짜 보장
+ */
+export function formatKSTLongDate(isoString: string): string {
+  return new Date(isoString).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'Asia/Seoul',
+  });
+}
+
+/**
  * UTC 타임스탬프(ISO string) → KST 날짜+시간 문자열
  * 공지사항 발송 기록 표시용
  */

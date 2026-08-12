@@ -5,12 +5,14 @@ import { usePathname } from 'next/navigation';
 
 const subTabs = [
   { id: 'newsletter', label: '소식지', href: '/admin/content/newsletter' },
+  { id: 'story', label: '이야기', href: '/admin/content/story' },
   { id: 'gallery', label: '갤러리', href: '/admin/content/gallery' },
+  { id: 'announcement', label: '공고', href: '/admin/content/announcement' },
 ];
 
 export default function AdminContentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const activeSubTab = pathname.includes('/gallery') ? 'gallery' : 'newsletter';
+  const activeSubTab = subTabs.find((tab) => pathname.startsWith(tab.href))?.id ?? subTabs[0].id;
 
   return (
     <div className="space-y-6">
@@ -20,7 +22,7 @@ export default function AdminContentLayout({ children }: { children: React.React
 
       {/* Sub-tab navigation */}
       <div className="border-b border-gray-200">
-        <div className="flex gap-6">
+        <div className="flex gap-6 overflow-x-auto">
           {subTabs.map((tab) => (
             <Link
               key={tab.id}

@@ -3,17 +3,22 @@
 import { useState } from 'react';
 import { useEmployeeAttendanceHistory } from '@/hooks/useAttendanceQuery';
 import { useUpdateAttendance, useDeleteAttendance } from '@/hooks/useAttendanceMutations';
+import { attendanceApi } from '@/lib/api/attendance';
 import { extractErrorMessage } from '@/lib/api/error';
 import { useToast } from '@/components/ui/Toast';
 import { formatUtcTimestampAsKST, formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
+import { exportAttendancesToExcel } from '@/lib/attendanceExcel';
+import { exportAttendancesToPdf } from '@/lib/attendancePdf';
 import type { AttendanceWithEmployee, AttendanceStatus } from '@/types/attendance';
 import type { Pagination } from '@/types/api';
 
-export function useAdminAttendanceHistory(employeeId: string) {
+export function useAdminAttendanceHistory(employeeId: string, workDays: number[] = []) {
   const toast = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const { data } = useEmployeeAttendanceHistory(employeeId, { page: currentPage, limit: 10, startDate: startDate || undefined, endDate: endDate || undefined });
   const updateAttendance = useUpdateAttendance(employeeId);
   const deleteAttendance = useDeleteAttendance(employeeId);
@@ -117,6 +122,99 @@ export function useAdminAttendanceHistory(employeeId: string) {
     setSelectedWorkDone(null);
   };
 
+  // --- 연차 처리 모달 (company/employees와 동일 로직) ---
+  const [selectedLeaveRecord, setSelectedLeaveRecord] = useState<AttendanceWithEmployee | null>(null);
+  const [leaveReason, setLeaveReason] = useState('');
+
+  const openLeaveModal = (record: AttendanceWithEmployee) => {
+    setSelectedLeaveRecord(record);
+    setLeaveReason('');
+  };
+  const closeLeaveModal = () => setSelectedLeaveRecord(null);
+
+  // 선택된 기록의 현재 상태로 토글 대상을 결정한다.
+  // - 연차가 아니면 → 연차 처리(사유를 업무 내용으로 저장)
+  // - 이미 연차면 → 취소(복원): 근무일이면 결근, 아니면 휴무(사유 클리어)
+  const processLeave = () => {
+    const record = selectedLeaveRecord;
+    if (!record) return;
+
+    const isAnnualLeave = record.status === 'annual_leave';
+    let targetStatus: AttendanceStatus;
+    let workContent: string;
+    if (isAnnualLeave) {
+      const [y, m, d] = record.date.split('T')[0].split('-').map(Number);
+      const jsDay = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+      const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+      targetStatus = workDays.includes(dayOfWeek) ? 'absent' : 'leave';
+      workContent = '';
+    } else {
+      targetStatus = 'annual_leave';
+      workContent = leaveReason.trim();
+    }
+
+    updateAttendance.mutate(
+      { attendanceId: record.id, input: { status: targetStatus, workContent } },
+      {
+        onSuccess: () => {
+          toast.success(isAnnualLeave ? '연차가 취소되었습니다.' : '연차 처리되었습니다.');
+          closeLeaveModal();
+        },
+        onError: (err) => toast.error(extractErrorMessage(err)),
+      },
+    );
+  };
+
+  const handleExportExcel = async (employeeName?: string) => {
+    setIsExporting(true);
+    try {
+      const records = await attendanceApi.getAllAttendances({
+        employeeId,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+      if (records.length === 0) {
+        toast.error('내보낼 출퇴근 기록이 없습니다.');
+        return;
+      }
+      exportAttendancesToExcel({
+        records,
+        employeeName,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportPdf = async (employeeName?: string) => {
+    setIsExportingPdf(true);
+    try {
+      const records = await attendanceApi.getAllAttendances({
+        employeeId,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+      if (records.length === 0) {
+        toast.error('내보낼 출퇴근 기록이 없습니다.');
+        return;
+      }
+      await exportAttendancesToPdf({
+        records,
+        employeeName,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   const goToNextPage = () => {
     if (pagination && currentPage < pagination.totalPages) {
       setCurrentPage((p) => p + 1);
@@ -144,11 +242,25 @@ export function useAdminAttendanceHistory(employeeId: string) {
     selectedWorkDone,
     openWorkDoneModal,
     closeWorkDoneModal,
+    // 연차 처리
+    selectedLeaveRecord,
+    leaveReason,
+    setLeaveReason,
+    openLeaveModal,
+    closeLeaveModal,
+    processLeave,
+    isProcessingLeave: updateAttendance.isPending,
     // Pagination
     currentPage,
     pagination,
     goToNextPage,
     goToPrevPage,
+    // Excel export
+    isExporting,
+    handleExportExcel,
+    // PDF export
+    isExportingPdf,
+    handleExportPdf,
     // Date filter
     startDate,
     endDate,

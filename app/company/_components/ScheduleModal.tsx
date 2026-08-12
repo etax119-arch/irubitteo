@@ -42,9 +42,9 @@ export function ScheduleModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" showCloseButton={false}>
-      <div className="-m-6 p-8">
+      <div className="-m-6 p-5 sm:p-8">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-gray-900">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
             {existingSchedule ? '근무 일정 수정' : '근무 일정 등록'}
           </h3>
           <button

@@ -6,6 +6,8 @@ import { ScheduleModal } from '../_components/ScheduleModal';
 import { useMonthlySchedules } from '../_hooks/useScheduleQuery';
 import { useCreateSchedule, useUpdateSchedule, useDeleteSchedule } from '../_hooks/useScheduleMutations';
 import { formatDateAsKST } from '@/lib/kst';
+import { exportToExcel } from '@/lib/excel';
+import { exportSchedulesToPdf } from '../_utils/generateSchedulePdf';
 import { useToast } from '@/components/ui/Toast';
 import type { Schedule } from '@/types/schedule';
 
@@ -69,6 +71,42 @@ export default function SchedulePage() {
     }
   }, [selectedDate, selectedSchedule, updateMutation, createMutation, toast]);
 
+  const handleExportExcel = useCallback(() => {
+    if (schedules.length === 0) {
+      toast.error('내보낼 일정이 없습니다.');
+      return;
+    }
+    const rows = schedules
+      .map((s) => ({
+        date: s.date.slice(0, 10),
+        type: s.isHoliday ? '휴일' : '업무 지시서',
+        content: s.content ?? '',
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+    exportToExcel({
+      fileName: `근무일정_${year}-${String(month).padStart(2, '0')}.xlsx`,
+      sheetName: '근무일정',
+      columns: [
+        { key: 'date', header: '날짜', width: 14 },
+        { key: 'type', header: '구분', width: 12 },
+        { key: 'content', header: '내용', width: 50 },
+      ],
+      rows,
+    });
+  }, [schedules, year, month, toast]);
+
+  const handleExportPdf = useCallback(async () => {
+    if (schedules.length === 0) {
+      toast.error('내보낼 일정이 없습니다.');
+      return;
+    }
+    try {
+      await exportSchedulesToPdf({ schedules, year, month });
+    } catch {
+      toast.error('PDF 내보내기에 실패했습니다.');
+    }
+  }, [schedules, year, month, toast]);
+
   const handleDelete = useCallback(async () => {
     if (!selectedSchedule) return;
     deleteMutation.mutate(selectedSchedule.id, {
@@ -88,6 +126,8 @@ export default function SchedulePage() {
         onPrevMonth={goToPrevMonth}
         onNextMonth={goToNextMonth}
         onDateClick={handleDateClick}
+        onExportExcel={handleExportExcel}
+        onExportPdf={handleExportPdf}
       />
 
       <ScheduleModal

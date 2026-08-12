@@ -7,8 +7,23 @@ import { SuccessModal } from '../_components/SuccessModal';
 import { useClockIn } from '../_hooks/useMyAttendanceMutations';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { scheduleApi } from '@/lib/api/schedules';
-import { formatDateAsKST, buildKSTTimestamp } from '@/lib/kst';
 import type { Schedule } from '@/types/schedule';
+
+function formatNowClock(date: Date): { date: string; time: string } {
+  return {
+    date: date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    }),
+    time: date.toLocaleTimeString('ko-KR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }),
+  };
+}
 
 export default function CheckInPage() {
   const router = useRouter();
@@ -17,21 +32,20 @@ export default function CheckInPage() {
   const clockInMutation = useClockIn();
   const isLoading = clockInMutation.isPending;
   const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
-
-  // 출근 시간 설정 UI 상태 - KST 현재 시간을 기본값으로
-  const kstParts = new Intl.DateTimeFormat('ko-KR', {
-    hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Seoul',
-  }).formatToParts(new Date());
-  const kstHour = kstParts.find(p => p.type === 'hour')!.value;
-  const kstMinute = kstParts.find(p => p.type === 'minute')!.value;
-  const [hourInput, setHourInput] = useState(kstHour);
-  const [minuteInput, setMinuteInput] = useState(kstMinute);
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     scheduleApi.getToday()
       .then(setTodaySchedule)
       .catch(() => setTodaySchedule(null));
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const clock = formatNowClock(now);
 
   const handleBack = () => {
     router.back();
@@ -43,10 +57,7 @@ export default function CheckInPage() {
     if (submittingRef.current) return;
     submittingRef.current = true;
     try {
-      const todayKST = formatDateAsKST(new Date());
-      const clockInTimestamp = buildKSTTimestamp(todayKST, `${hourInput}:${minuteInput}`);
-
-      await clockInMutation.mutateAsync({ clockIn: clockInTimestamp });
+      await clockInMutation.mutateAsync(undefined);
       setShowModal(true);
     } catch {
       // 글로벌 토스트에서 에러 처리
@@ -79,7 +90,18 @@ export default function CheckInPage() {
               <Clock className="w-8 h-8 text-duru-orange-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">출근하기</h1>
-            <p className="text-lg text-gray-500">오늘 할 일을 확인해주세요</p>
+            <p className="text-lg text-gray-500 mb-5">오늘 할 일을 확인해주세요</p>
+
+            {/* 실시간 현재 시각 (읽기 전용) */}
+            <div className="inline-flex flex-col items-center gap-1 px-8 py-4 bg-duru-orange-50 border border-duru-orange-100 rounded-2xl">
+              <span className="text-sm font-medium text-gray-500">{clock.date}</span>
+              <span
+                className="text-4xl sm:text-5xl font-bold text-duru-orange-600 tabular-nums tracking-tight"
+                aria-live="off"
+              >
+                {clock.time}
+              </span>
+            </div>
           </div>
 
           {/* 오늘의 작업 내용 */}
@@ -121,62 +143,11 @@ export default function CheckInPage() {
             </div>
           </div>
 
-          {/* 출근 시간 설정 섹션 */}
-          <div className="mx-6 sm:mx-8 mb-6 bg-[#FFFBF7] rounded-2xl p-5 sm:p-6 border border-duru-orange-100/60 shadow-sm">
-            {/* 섹션 헤더 */}
-            <div className="mb-5">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">출근 시간 설정</h3>
-              <p className="text-base text-gray-600">시와 분을 모두 선택해주세요</p>
-            </div>
-
-            {/* 시/분 드롭다운 */}
-            <div className="flex items-end gap-3">
-              {/* 시 선택 */}
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">시</label>
-                <select
-                  value={hourInput}
-                  onChange={(e) => setHourInput(e.target.value)}
-                  className="w-full px-4 py-3.5 text-xl text-center font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-duru-orange-300 focus:border-duru-orange-400 transition-all appearance-none"
-                >
-                  <option value="">--</option>
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <option key={i} value={String(i).padStart(2, '0')}>
-                      {String(i).padStart(2, '0')}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 구분자 콜론 */}
-              <div className="pb-3.5">
-                <span className="text-3xl font-bold text-gray-400">:</span>
-              </div>
-
-              {/* 분 선택 */}
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">분</label>
-                <select
-                  value={minuteInput}
-                  onChange={(e) => setMinuteInput(e.target.value)}
-                  className="w-full px-4 py-3.5 text-xl text-center font-medium border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-duru-orange-300 focus:border-duru-orange-400 transition-all appearance-none"
-                >
-                  <option value="">--</option>
-                  {Array.from({ length: 60 }, (_, i) => (
-                    <option key={i} value={String(i).padStart(2, '0')}>
-                      {String(i).padStart(2, '0')}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
           {/* 출근 완료 버튼 */}
-          <div className="px-6 sm:px-8 pb-8">
+          <div className="px-6 sm:px-8 pb-8 pt-2">
             <button
               onClick={completeCheckIn}
-              disabled={!confirmedTasks || !hourInput || !minuteInput || isLoading}
+              disabled={!confirmedTasks || isLoading}
               className="w-full py-5 bg-duru-orange-500 text-white rounded-xl font-bold text-xl hover:bg-duru-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (

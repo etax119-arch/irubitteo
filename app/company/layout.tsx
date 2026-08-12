@@ -97,47 +97,47 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   return (
     <div className="min-h-screen bg-duru-ivory">
       {/* 헤더 */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">기업 관리자</h1>
-                <p className="text-sm text-gray-600">{user?.name ?? ''}</p>
+          <div className="flex items-center justify-between gap-2 h-16">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">기업 관리자</h1>
+                <p className="text-sm text-gray-600 truncate">{user?.name ?? ''}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">{today}</span>
+            <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+              <span className="hidden sm:inline text-sm text-gray-600">{today}</span>
               <Button
                 variant="ghost"
                 size="sm"
                 rightIcon={<LogOut className="w-4 h-4" />}
                 onClick={logout}
               >
-                로그아웃
+                <span className="hidden sm:inline">로그아웃</span>
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* 탭 네비게이션 */}
-      <div className="bg-white border-b border-gray-200">
+      {/* 탭 네비게이션 (sticky) */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-8">
+          <div className="flex gap-4 sm:gap-8 overflow-x-auto">
             {tabs.map((tab) => (
               <Link
                 key={tab.id}
                 href={tab.href}
                 aria-current={activeTab === tab.id ? 'page' : undefined}
-                className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors ${
+                className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-duru-orange-500 text-duru-orange-600'
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
                 <tab.icon className="w-5 h-5" />
-                <span className="font-semibold">{tab.label}</span>
+                <span className="font-semibold hidden sm:inline">{tab.label}</span>
               </Link>
             ))}
           </div>

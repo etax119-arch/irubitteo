@@ -1,6 +1,7 @@
 'use client';
 
-import { Phone, Heart, User, Briefcase, MapPin, IdCard, Edit2, Check } from 'lucide-react';
+import { useState } from 'react';
+import { Phone, Heart, User, Briefcase, MapPin, IdCard, Edit2, Check, CalendarCheck, Hash, Copy } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { CITY_OPTIONS, getDistrictOptions } from '@/lib/address';
@@ -57,9 +58,16 @@ export function ProfileCard({
 
   const districtOptions = getDistrictOptions(profileForm.addressCity);
 
+  const [codeCopied, setCodeCopied] = useState(false);
+  const handleCopyCode = async () => {
+    if (!employee.uniqueCode) return;
+    await navigator.clipboard.writeText(employee.uniqueCode);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
+
   return (
-    <>
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+    <div className="bg-white rounded-xl p-6 border border-gray-200">
         <div className="text-center mb-6">
           <ProfileImageUpload
             src={employee.profileImage}
@@ -80,37 +88,25 @@ export function ProfileCard({
           </span>
         </div>
 
-        <div className="flex justify-end mb-2">
-          {!isEditing ? (
-            <button
-              onClick={onEdit}
-              className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold hover:bg-gray-200 transition-colors flex items-center gap-1"
-            >
-              <Edit2 className="w-3 h-3" />
-              수정
-            </button>
-          ) : (
-            <div className="flex gap-1">
-              <button
-                onClick={onCancel}
-                className="px-2 py-1 border border-gray-300 text-gray-700 rounded text-xs font-semibold hover:bg-gray-50 transition-colors"
-              >
-                취소
-              </button>
-              <button
-                onClick={onSave}
-                disabled={isSaving}
-                className="px-2 py-1 bg-duru-orange-500 text-white rounded text-xs font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Check className="w-3 h-3" />
-                {isSaving ? '저장 중...' : '저장'}
-              </button>
-            </div>
-          )}
-        </div>
-
         {!isEditing ? (
           <div className="space-y-3 border-t border-gray-200 pt-6">
+            <div className="flex items-center gap-3 text-sm">
+              <Hash className="w-4 h-4 text-gray-400" />
+              <span className="text-gray-600">고유번호:</span>
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                className="inline-flex items-center gap-1.5 font-semibold text-gray-900 font-mono tracking-wide hover:text-duru-orange-600 transition-colors cursor-pointer"
+                title="클릭하여 복사"
+              >
+                {employee.uniqueCode}
+                {codeCopied ? (
+                  <Check className="w-3.5 h-3.5 text-green-500" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5 text-gray-400" />
+                )}
+              </button>
+            </div>
             <div className="flex items-center gap-3 text-sm">
               <IdCard className="w-4 h-4 text-gray-400" />
               <span className="text-gray-600">주민번호:</span>
@@ -145,6 +141,14 @@ export function ProfileCard({
               <span className="text-gray-600">입사일:</span>
               <span className="font-semibold text-gray-900">{employee.hireDate}</span>
             </div>
+            <div className="flex items-center gap-3 text-sm">
+              <CalendarCheck className="w-4 h-4 text-gray-400" />
+              <span className="text-gray-600">연차:</span>
+              <span className="font-semibold text-gray-900">
+                잔여 <span className="text-duru-orange-600">{employee.annualLeaveRemaining}</span>개
+                <span className="text-gray-400 font-normal"> / 총 {employee.annualLeaveTotal}개</span>
+              </span>
+            </div>
           </div>
         ) : (
           <div className="space-y-3 border-t border-gray-200 pt-4">
@@ -154,6 +158,15 @@ export function ProfileCard({
               size="sm"
               value={profileForm.name}
               onChange={(e) => onUpdateForm('name', e.target.value)}
+              className="py-1.5"
+            />
+            <Input
+              label="고유번호"
+              type="text"
+              size="sm"
+              value={profileForm.uniqueCode}
+              onChange={(e) => onUpdateForm('uniqueCode', e.target.value)}
+              maxLength={20}
               className="py-1.5"
             />
             <Input
@@ -200,6 +213,7 @@ export function ProfileCard({
                 value={profileForm.hireDate}
                 onChange={(v) => onUpdateForm('hireDate', v)}
                 inputClassName="py-1.5"
+                allowManualInput
               />
             </div>
             <div>
@@ -265,33 +279,49 @@ export function ProfileCard({
               placeholder="010-0000-0000"
               className="py-1.5"
             />
-          </div>
-        )}
-      </div>
-
-      <div className="bg-duru-orange-50 rounded-xl p-6 border border-duru-orange-200">
-        <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="text-duru-orange-600 text-lg">#</span>
-          근로자 고유번호
-        </h3>
-        {isEditing ? (
-          <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
             <Input
-              type="text"
-              value={profileForm.uniqueCode}
-              onChange={(e) => onUpdateForm('uniqueCode', e.target.value)}
-              maxLength={20}
-              className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider bg-transparent border-0 border-b-2 border-duru-orange-300 rounded-none focus:ring-0 focus:border-duru-orange-500"
+              label="연차 총 지급 개수"
+              type="number"
+              size="sm"
+              min={0}
+              value={String(profileForm.annualLeaveTotal)}
+              onChange={(e) =>
+                onUpdateForm('annualLeaveTotal', Number(e.target.value.replace(/\D/g, '')) || 0)
+              }
+              className="py-1.5"
             />
           </div>
-        ) : (
-          <div className="bg-white rounded-lg p-4 border border-duru-orange-300">
-            <p className="text-2xl font-bold text-duru-orange-600 text-center tracking-wider">
-              {employee.uniqueCode}
-            </p>
-          </div>
         )}
+
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          {!isEditing ? (
+            <button
+              onClick={onEdit}
+              className="w-full py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <Edit2 className="w-4 h-4" />
+              정보 수정
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={onCancel}
+                className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={onSave}
+                disabled={isSaving}
+                className="flex-1 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Check className="w-4 h-4" />
+                {isSaving ? '저장 중...' : '저장'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </>
   );
 }
+

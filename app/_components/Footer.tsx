@@ -1,13 +1,42 @@
+'use client';
+
 import { Mail, MapPin, Phone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Footer() {
+  const [isVisible, setIsVisible] = useState(false);
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <footer className="bg-gray-900 text-gray-400 py-12 text-base">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
-          <div className="col-span-1 md:col-span-2">
+      <div
+        ref={footerRef}
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
+      >
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+          <div className="col-span-2 md:col-span-2">
             <Image
               src="/images/footer_logo_tran.png"
               alt="이루빛터"
@@ -23,10 +52,13 @@ export default function Footer() {
           <div>
             <h6 className="text-white font-bold mb-4 text-lg">서비스</h6>
             <ul className="space-y-2">
-              <li><Link href="/login/admin" className="hover:text-white">이루빛 관리자</Link></li>
               <li><Link href="/gallery" className="hover:text-white">빛터 갤러리</Link></li>
               <li><Link href="/newsletter" className="hover:text-white">빛터 소식지</Link></li>
+              <li><Link href="/story" className="hover:text-white">빛터 이야기</Link></li>
+              <li><Link href="/announcements" className="hover:text-white">빛터 공고</Link></li>
+              <li><Link href="/inquiry" className="hover:text-white">신규기업 문의</Link></li>
               <li><Link href="/resume" className="hover:text-white">이력서 등록</Link></li>
+              <li><Link href="/login/admin" className="hover:text-white">이루빛 관리자</Link></li>
             </ul>
           </div>
           <div>

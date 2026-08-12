@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Lock, Loader2, Mail, User } from 'lucide-react';
+import { Lock, Loader2, Mail, User, Calendar } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -294,26 +294,46 @@ export default function AdminSettingsPage() {
           {!isAdminAccountsLoading && !isAdminAccountsError && (
             <>
               {adminAccounts && adminAccounts.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">이름</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">이메일</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">생성일시</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {adminAccounts.map((account) => (
-                        <tr key={account.id} className="border-b border-gray-100 last:border-0">
-                          <td className="px-3 py-3 text-gray-900">{account.name}</td>
-                          <td className="px-3 py-3 text-gray-700">{account.email}</td>
-                          <td className="px-3 py-3 text-gray-700">{formatKSTDateTime(account.createdAt)}</td>
+                <>
+                  {/* 모바일: 카드 리스트 */}
+                  <div className="sm:hidden space-y-3">
+                    {adminAccounts.map((account) => (
+                      <div key={account.id} className="border border-gray-200 rounded-lg p-3">
+                        <p className="font-semibold text-gray-900 mb-1">{account.name}</p>
+                        <div className="flex items-center gap-1.5 text-sm text-gray-700 mb-1 min-w-0">
+                          <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                          <span className="break-all">{account.email}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                          <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+                          <span>{formatKSTDateTime(account.createdAt)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 데스크톱: 테이블 */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="px-3 py-2 text-left font-semibold text-gray-700">이름</th>
+                          <th className="px-3 py-2 text-left font-semibold text-gray-700">이메일</th>
+                          <th className="px-3 py-2 text-left font-semibold text-gray-700">생성일시</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {adminAccounts.map((account) => (
+                          <tr key={account.id} className="border-b border-gray-100 last:border-0">
+                            <td className="px-3 py-3 text-gray-900">{account.name}</td>
+                            <td className="px-3 py-3 text-gray-700">{account.email}</td>
+                            <td className="px-3 py-3 text-gray-700">{formatKSTDateTime(account.createdAt)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               ) : (
                 <p className="text-sm text-gray-600">등록된 관리자 계정이 없습니다.</p>
               )}

@@ -63,13 +63,13 @@ export default function AdminDashboardPage() {
   if (statsQuery.isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex justify-end">
+        <div className="flex justify-end -mt-4 -mb-2">
           <Skeleton className="w-24 h-9 rounded-lg" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl p-6 border border-gray-200 bg-white">
-              <Skeleton className="w-12 h-12 rounded-lg mb-4" />
+            <div key={i} className="rounded-xl p-4 sm:p-6 border border-gray-200 bg-white">
+              <Skeleton className="hidden sm:block w-12 h-12 rounded-lg mb-4" />
               <Skeleton className="w-20 h-4 mb-2" />
               <Skeleton className="w-16 h-8" />
             </div>
@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       {/* 리프레시 버튼 */}
-      <div className="flex justify-end">
+      <div className="flex justify-end -mt-4 -mb-2">
         <button
           onClick={handleRefresh}
           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-duru-orange-600 hover:bg-duru-orange-50 rounded-lg transition-colors"
@@ -122,7 +122,7 @@ export default function AdminDashboardPage() {
 
       {/* 통계 카드 */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <AdminStatCard
             icon={Building2}
             iconBgColor="bg-blue-100"
@@ -186,7 +186,16 @@ export default function AdminDashboardPage() {
             {urgentAlerts.map((alert) => (
               <div
                 key={alert.id}
-                className="flex items-start gap-4 p-4 bg-red-50 border border-red-200 rounded-lg"
+                role="button"
+                tabIndex={0}
+                onClick={() => handleDismissAlert(alert.id, alert.employeeId)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleDismissAlert(alert.id, alert.employeeId);
+                  }
+                }}
+                className="flex items-start gap-4 p-4 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100 transition-colors"
               >
                 <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <AlertCircle className="w-5 h-5 text-red-600" />
@@ -198,12 +207,9 @@ export default function AdminDashboardPage() {
                   </div>
                   <p className="text-sm text-gray-600">{alert.companyName}</p>
                 </div>
-                <button
-                  onClick={() => handleDismissAlert(alert.id, alert.employeeId)}
-                  className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm whitespace-nowrap"
-                >
+                <span className="hidden sm:block self-center text-duru-orange-600 font-semibold text-sm whitespace-nowrap">
                   확인하기
-                </button>
+                </span>
               </div>
             ))}
           </div>

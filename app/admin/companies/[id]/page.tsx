@@ -145,54 +145,64 @@ export default function CompanyDetailPage() {
             <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-3">
           {/* 왼쪽: 기본 정보 */}
-          <div className="space-y-6">
-            <CompanyProfileCard
-              company={company}
-              isEditing={detailUI.isEditing}
-              editedInfo={detailUI.editedInfo}
-              setEditedInfo={detailUI.setEditedInfo}
-              onStartEdit={() => detailUI.handleStartEdit(company)}
-              onSaveEdit={detailUI.handleSaveEdit}
-              onCancelEdit={() => detailUI.setIsEditing(false)}
-            />
-            <PMInfoCard
-              pmInfo={pmInfo}
-              isEditingPm={detailUI.isEditingPm}
-              editedPm={detailUI.editedPm}
-              setEditedPm={detailUI.setEditedPm}
-              copiedEmail={detailUI.copiedEmail}
-              onEdit={() => detailUI.handleEditPm(company)}
-              onSave={detailUI.handleSavePm}
-              onCancel={detailUI.handleCancelPmEdit}
-              onCopyEmail={() => detailUI.handleCopyEmail(company.pmContactEmail)}
-            />
-            <ResignSection
-              company={company}
-              onOpenResignModal={() => detailUI.setShowResignModal(true)}
-              onRestore={detailUI.handleRestore}
-            />
+          <div className="contents lg:block lg:space-y-6">
+            <div className="order-1">
+              <CompanyProfileCard
+                company={company}
+                isEditing={detailUI.isEditing}
+                editedInfo={detailUI.editedInfo}
+                setEditedInfo={detailUI.setEditedInfo}
+                onStartEdit={() => detailUI.handleStartEdit(company)}
+                onSaveEdit={detailUI.handleSaveEdit}
+                onCancelEdit={() => detailUI.setIsEditing(false)}
+              />
+            </div>
+            <div className="order-3">
+              <PMInfoCard
+                pmInfo={pmInfo}
+                isEditingPm={detailUI.isEditingPm}
+                editedPm={detailUI.editedPm}
+                setEditedPm={detailUI.setEditedPm}
+                copiedEmail={detailUI.copiedEmail}
+                onEdit={() => detailUI.handleEditPm(company)}
+                onSave={detailUI.handleSavePm}
+                onCancel={detailUI.handleCancelPmEdit}
+                onCopyEmail={() => detailUI.handleCopyEmail(company.pmContactEmail)}
+              />
+            </div>
+            <div className="order-last">
+              <ResignSection
+                company={company}
+                onOpenResignModal={() => detailUI.setShowResignModal(true)}
+                onRestore={detailUI.handleRestore}
+              />
+            </div>
           </div>
 
           {/* 오른쪽: 상세 정보 */}
-          <div className="lg:col-span-2 space-y-6">
-            <EmployeeListSection
-              employees={employees}
-              totalCount={employeePagination?.total ?? employees.length}
-              pagination={employeePagination}
-              currentPage={employeePage}
-              onPrevPage={() => setEmployeePage((p) => Math.max(1, p - 1))}
-              onNextPage={() => setEmployeePage((p) => Math.min(p + 1, employeePagination?.totalPages ?? p))}
-              onViewEmployee={(employeeId) => router.push(`/admin/employees/${employeeId}`)}
-            />
-            <FileSection
-              files={files}
-              isUploading={uploadFile.isPending}
-              fileInputRef={fileInputRef}
-              onFileChange={handleFileUpload}
-              onDelete={handleFileDelete}
-            />
+          <div className="contents lg:col-span-2 lg:block lg:space-y-6">
+            <div className="order-2">
+              <EmployeeListSection
+                employees={employees}
+                totalCount={employeePagination?.total ?? employees.length}
+                pagination={employeePagination}
+                currentPage={employeePage}
+                onPrevPage={() => setEmployeePage((p) => Math.max(1, p - 1))}
+                onNextPage={() => setEmployeePage((p) => Math.min(p + 1, employeePagination?.totalPages ?? p))}
+                onViewEmployee={(employeeId) => router.push(`/admin/employees/${employeeId}`)}
+              />
+            </div>
+            <div className="order-4">
+              <FileSection
+                files={files}
+                isUploading={uploadFile.isPending}
+                fileInputRef={fileInputRef}
+                onFileChange={handleFileUpload}
+                onDelete={handleFileDelete}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -1,35 +1,15 @@
 'use client';
 
-import { Clock, Building2, HeartHandshake } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import type { GalleryItem } from '@/types/gallery';
+import ServiceGallery from './ServiceGallery';
 
-const services = [
-  {
-    icon: Clock,
-    title: "스마트 출퇴근 관리",
-    desc: "모바일 앱으로 간편하게 출퇴근을 기록하고 근무 일정을 관리합니다.",
-    gradient: "from-landing-orange/10 to-landing-orange/10",
-    iconColor: "text-landing-orange"
-  },
-  {
-    icon: Building2,
-    title: "기업·기관 채용 연계",
-    desc: "장애인 고용을 희망하는 우수 기업 및 공공기관과 협력합니다.",
-    gradient: "from-landing-orange/10 to-landing-orange/10",
-    iconColor: "text-landing-orange"
-  },
-  {
-    icon: HeartHandshake,
-    title: "안정적인 근무 지원",
-    desc: "취업 후에도 지속적인 상담과 모니터링으로 적응을 돕습니다.",
-    gradient: "from-landing-orange/10 to-landing-orange/10",
-    iconColor: "text-landing-orange"
-  }
-];
+interface ServiceSectionProps {
+  galleryItems: GalleryItem[];
+}
 
-
-export default function ServiceSection() {
+export default function ServiceSection({ galleryItems }: ServiceSectionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [showText, setShowText] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -54,14 +34,11 @@ export default function ServiceSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-gradient-to-b from-duru-ivory/30 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section ref={sectionRef} className="min-h-screen flex items-center py-32 bg-gradient-to-b from-duru-orange-50/40 to-white">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 - 이루빛터 의미 중심 */}
-        <div className="text-center mb-20">
-          <div className="inline-block px-5 py-2 bg-landing-orange/10 border border-landing-orange/30 rounded-full text-landing-orange text-base font-semibold mb-6 shadow-sm">
-            ABOUT
-          </div>
-          <div className={`mb-6 transition-all duration-700 ${
+        <div className="text-center mb-8">
+          <div className={`mb-6 transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             <Image
@@ -73,19 +50,19 @@ export default function ServiceSection() {
             />
           </div>
           <div className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed space-y-2">
-            <p className={`transition-all duration-700 delay-200 ${
+            <p className={`transition-all duration-1000 delay-200 ${
               showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               <span className="font-semibold text-gray-900">&apos;이루다&apos;</span>와{' '}
               <span className="font-semibold text-gray-900">&apos;빛&apos;</span>, 그리고{' '}
               <span className="font-semibold text-gray-900">&apos;터전&apos;</span>이 만나
             </p>
-            <p className={`transition-all duration-700 delay-400 ${
+            <p className={`transition-all duration-1000 delay-400 ${
               showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               장애인 근로자들이 자립의 꿈을 이루고,
             </p>
-            <p className={`transition-all duration-700 delay-600 ${
+            <p className={`transition-all duration-1000 delay-600 ${
               showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}>
               기업은 사회적 가치를 실현하는{' '}
@@ -94,64 +71,8 @@ export default function ServiceSection() {
           </div>
         </div>
 
-        {/* 서비스 카드 그리드 - 3개 */}
-        <div className="grid md:grid-cols-3 gap-8">
-          {services.map((service, idx) => {
-            const Icon = service.icon;
-            return (
-              <div
-                key={idx}
-                className={`group relative overflow-hidden bg-white rounded-3xl p-8 border border-gray-100 hover:border-landing-orange/40 transition-all duration-500 hover:shadow-xl ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{
-                  transitionDelay: `${800 + idx * 150}ms`
-                }}
-              >
-                {/* 배경 그라데이션 */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-
-                <div className="relative z-10">
-                  {/* 아이콘 */}
-                  <div className={`mb-6 ${service.iconColor} group-hover:text-landing-orange transition-colors duration-300 group-hover:scale-110 transform transition-transform`}>
-                    <Icon className="w-12 h-12" />
-                  </div>
-
-                  {/* 제목 */}
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                    {service.title}
-                  </h3>
-
-                  {/* 설명 */}
-                  <p className="text-base text-gray-600 leading-relaxed break-keep">
-                    {service.desc}
-                  </p>
-                </div>
-
-                {/* 데코레이션 라인 */}
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-landing-orange to-landing-orange transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-              </div>
-            );
-          })}
-        </div>
-
-        {/* CTA 영역 */}
-        <div className={`mt-16 text-center ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        } transition-all duration-700 delay-500`}>
-          <p className="text-lg text-gray-600 mb-6">
-            더 자세한 서비스 내용이 궁금하신가요?
-          </p>
-          <a
-            href="/inquiry"
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-landing-orange text-white font-semibold rounded-xl hover:bg-landing-orange/90 hover:shadow-lg hover:scale-105 transition-all duration-300"
-          >
-            <span>서비스 문의하기</span>
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </a>
-        </div>
+        {/* 빛터 갤러리 캐러셀 */}
+        <ServiceGallery items={galleryItems} />
       </div>
     </section>
   );

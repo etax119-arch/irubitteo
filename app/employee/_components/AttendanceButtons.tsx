@@ -67,15 +67,21 @@ export function AttendanceButtons({ mode, onCheckIn, onCheckOut, holidayContent,
     return (
       <div className="bg-duru-orange-50 rounded-xl p-8 text-center">
         <CheckCircle2 className="w-12 h-12 text-duru-orange-500 mx-auto mb-3" />
-        <p className="text-duru-orange-700 font-medium text-lg mb-2">오늘 근무를 완료했습니다</p>
-        <div className="flex justify-center gap-6 text-sm">
-          <span className="text-duru-orange-600">
-            출근 {clockIn ? formatUtcTimestampAsKST(clockIn) : '--:--'}
-          </span>
-          <span className="text-gray-300">|</span>
-          <span className="text-duru-orange-600">
-            퇴근 {clockOut ? formatUtcTimestampAsKST(clockOut) : '--:--'}
-          </span>
+        <p className="text-duru-orange-700 font-medium text-lg mb-4">오늘 근무를 완료했습니다</p>
+        <div className="flex justify-center items-center gap-4 sm:gap-8">
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-sm text-gray-500">출근</span>
+            <span className="text-3xl sm:text-4xl font-bold text-duru-orange-600 tabular-nums tracking-tight">
+              {clockIn ? formatUtcTimestampAsKST(clockIn) : '--:--'}
+            </span>
+          </div>
+          <span className="text-2xl text-gray-200">|</span>
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-sm text-gray-500">퇴근</span>
+            <span className="text-3xl sm:text-4xl font-bold text-duru-orange-600 tabular-nums tracking-tight">
+              {clockOut ? formatUtcTimestampAsKST(clockOut) : '--:--'}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -112,7 +118,16 @@ export function AttendanceButtons({ mode, onCheckIn, onCheckOut, holidayContent,
         </div>
         <div>
           <h3 className="text-2xl font-bold mb-2">퇴근하기</h3>
-          <p className="text-white/90">{clockIn ? `출근 시간: ${formatUtcTimestampAsKST(clockIn)}` : '오늘 한 일을 기록하세요'}</p>
+          {clockIn ? (
+            <p className="text-white/90 flex items-baseline justify-center gap-2">
+              <span className="text-base">출근 시간</span>
+              <span className="text-2xl sm:text-3xl font-bold tabular-nums tracking-tight">
+                {formatUtcTimestampAsKST(clockIn)}
+              </span>
+            </p>
+          ) : (
+            <p className="text-white/90">오늘 한 일을 기록하세요</p>
+          )}
         </div>
       </div>
     </button>

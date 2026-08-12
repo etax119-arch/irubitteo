@@ -143,30 +143,31 @@ function PrintPreviewContent({
   const hasPmInfo = pmContactName || pmContactPhone || pmContactEmail;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
       <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
         {/* 헤더 */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 z-10">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xl font-bold text-gray-900">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-3 sm:p-4 z-10">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <h2 className="text-base sm:text-xl font-bold text-gray-900 shrink-0">
               {mode === 'edit' ? '인쇄 프리뷰 - 편집' : 'PDF 미리보기'}
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {mode === 'edit' ? (
                 <button
                   onClick={generatePdf}
                   disabled={isGeneratingPdf}
-                  className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="PDF 미리보기"
+                  className="px-3 sm:px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isGeneratingPdf ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      PDF 생성 중...
+                      <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                      <span className="hidden sm:inline">PDF 생성 중...</span>
                     </>
                   ) : (
                     <>
-                      <Eye className="w-4 h-4" />
-                      PDF 미리보기
+                      <Eye className="w-4 h-4 shrink-0" />
+                      <span className="hidden sm:inline">PDF 미리보기</span>
                     </>
                   )}
                 </button>
@@ -174,24 +175,27 @@ function PrintPreviewContent({
                 <>
                   <button
                     onClick={handleBackToEdit}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
+                    title="수정하기"
+                    className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
                   >
-                    <Pencil className="w-4 h-4" />
-                    수정하기
+                    <Pencil className="w-4 h-4 shrink-0" />
+                    <span className="hidden sm:inline">수정하기</span>
                   </button>
                   <button
                     onClick={handleDownload}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
+                    title="PDF 다운로드"
+                    className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
                   >
-                    <FileDown className="w-4 h-4" />
-                    PDF 다운로드
+                    <FileDown className="w-4 h-4 shrink-0" />
+                    <span className="hidden sm:inline">PDF 다운로드</span>
                   </button>
                   <button
                     onClick={handlePrint}
-                    className="px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
+                    title="인쇄"
+                    className="px-3 sm:px-4 py-2 bg-duru-orange-500 text-white rounded-lg font-semibold hover:bg-duru-orange-600 transition-colors flex items-center gap-2"
                   >
-                    <Printer className="w-4 h-4" />
-                    인쇄
+                    <Printer className="w-4 h-4 shrink-0" />
+                    <span className="hidden sm:inline">인쇄</span>
                   </button>
                 </>
               )}
@@ -199,31 +203,31 @@ function PrintPreviewContent({
             </div>
           </div>
           {mode === 'edit' && hasPmInfo && (
-            <div className="flex items-center gap-4 text-sm bg-duru-orange-50 rounded-lg px-4 py-2">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm bg-duru-orange-50 rounded-lg px-4 py-2">
               <span className="font-semibold text-duru-orange-600">담당자</span>
               {pmContactName && (
                 <div className="flex items-center gap-1 text-gray-700">
-                  <User className="w-4 h-4 text-gray-500" />
+                  <User className="w-4 h-4 text-gray-500 shrink-0" />
                   {pmContactName}
                 </div>
               )}
               {pmContactPhone && (
                 <div className="flex items-center gap-1 text-gray-700">
-                  <Phone className="w-4 h-4 text-gray-500" />
+                  <Phone className="w-4 h-4 text-gray-500 shrink-0" />
                   {pmContactPhone}
                 </div>
               )}
               {pmContactEmail && (
-                <div className="flex items-center gap-1 text-gray-700">
-                  <Mail className="w-4 h-4 text-gray-500" />
-                  <span>{pmContactEmail}</span>
+                <div className="flex items-center gap-1 text-gray-700 min-w-0">
+                  <Mail className="w-4 h-4 text-gray-500 shrink-0" />
+                  <span className="break-all">{pmContactEmail}</span>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(pmContactEmail);
                       setCopiedEmail(true);
                       setTimeout(() => setCopiedEmail(false), 2000);
                     }}
-                    className="ml-1 p-1 hover:bg-duru-orange-100 rounded transition-colors"
+                    className="ml-1 p-1 hover:bg-duru-orange-100 rounded transition-colors shrink-0"
                     title="이메일 복사"
                   >
                     {copiedEmail ? (
@@ -240,16 +244,16 @@ function PrintPreviewContent({
 
         {/* 본문 */}
         {mode === 'edit' ? (
-          <div className="p-8">
+          <div className="p-4 sm:p-8">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-center mb-2">{companyName} 월 근무 통계</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-center mb-2">{companyName} 월 근무 통계</h2>
               <p className="text-center text-gray-600">
                 {selectedMonth.split('-')[0]}년 {selectedMonth.split('-')[1]}월
               </p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full min-w-[560px] border-collapse">
                 <thead className="bg-duru-orange-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-sm font-bold text-gray-900 border border-gray-300">
@@ -354,16 +358,16 @@ function PrintPreviewContent({
             </div>
 
             <div className="mt-8 pt-6 border-t-2 border-gray-300">
-              <div className="grid grid-cols-2 gap-8 mb-6">
+              <div className="grid grid-cols-2 gap-4 sm:gap-8 mb-6">
                 <div>
                   <p className="text-sm text-gray-600 mb-2">기업 (대표자)</p>
-                  <div className="border-2 border-gray-300 rounded-lg p-6 h-24 flex items-center justify-center">
+                  <div className="border-2 border-gray-300 rounded-lg p-4 sm:p-6 h-24 flex items-center justify-center">
                     <p className="text-gray-400">(서명/인)</p>
                   </div>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-2">이루빛터 (담당자)</p>
-                  <div className="border-2 border-gray-300 rounded-lg p-6 h-24 flex items-center justify-center">
+                  <div className="border-2 border-gray-300 rounded-lg p-4 sm:p-6 h-24 flex items-center justify-center">
                     <p className="text-gray-400">(서명/인)</p>
                   </div>
                 </div>

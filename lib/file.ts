@@ -90,12 +90,53 @@ export async function compressImage(
     newH = Math.round(height * ratio);
   }
 
-  const canvas = new OffscreenCanvas(newW, newH);
-  const ctx = canvas.getContext('2d')!;
-  ctx.drawImage(bitmap, 0, 0, newW, newH);
-  bitmap.close();
+  try {
+    const blob = await drawToJpegBlob(bitmap, newW, newH, quality);
+    // 압축 실패(구형 브라우저 등) 시 원본 반환 — 사진을 잃지 않도록
+    return blob ?? file;
+  } catch {
+    return file;
+  } finally {
+    bitmap.close();
+  }
+}
 
-  return canvas.convertToBlob({ type: 'image/jpeg', quality });
+/**
+ * ImageBitmap을 지정 크기의 JPEG Blob으로 그린다.
+ * OffscreenCanvas.convertToBlob(구형 iOS Safari 미지원) 우선, 실패 시 HTMLCanvasElement.toBlob로 폴백.
+ */
+async function drawToJpegBlob(
+  bitmap: ImageBitmap,
+  width: number,
+  height: number,
+  quality: number
+): Promise<Blob | null> {
+  if (typeof OffscreenCanvas !== 'undefined') {
+    try {
+      const canvas = new OffscreenCanvas(width, height);
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(bitmap, 0, 0, width, height);
+        return await canvas.convertToBlob({ type: 'image/jpeg', quality });
+      }
+    } catch {
+      // HTMLCanvasElement 폴백으로 진행
+    }
+  }
+
+  if (typeof document !== 'undefined') {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    return await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob((b) => resolve(b), 'image/jpeg', quality)
+    );
+  }
+
+  return null;
 }
 
 /**

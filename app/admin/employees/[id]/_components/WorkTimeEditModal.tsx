@@ -34,8 +34,14 @@ export function WorkTimeEditModal({
   if (!isOpen) return null;
 
   const isReset = editedWorkTime.status === '__reset__';
-  const isAbsentOrLeave = editedWorkTime.status === 'absent' || editedWorkTime.status === 'leave';
-  const isCheckinDisabled = isReset || isAbsentOrLeave || editedWorkTime.status === 'checkout';
+  const isAnnualLeave = editedWorkTime.status === 'annual_leave';
+  const isAbsentOrLeave =
+    editedWorkTime.status === 'absent' ||
+    editedWorkTime.status === 'leave' ||
+    editedWorkTime.status === 'annual_leave';
+  // 퇴근 상태에서는 출근/퇴근 시간을 모두 수정할 수 있어야 한다.
+  // 출근(근무중) 상태는 아직 퇴근 전이므로 퇴근 시간만 잠근다.
+  const isCheckinDisabled = isReset || isAbsentOrLeave;
   const isCheckoutDisabled = isReset || isAbsentOrLeave || editedWorkTime.status === 'checkin';
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -44,7 +50,8 @@ export function WorkTimeEditModal({
       setEditedWorkTime({ ...editedWorkTime, status: '__reset__' });
       return;
     }
-    const clearTime = newStatus === 'absent' || newStatus === 'leave';
+    const clearTime =
+      newStatus === 'absent' || newStatus === 'leave' || newStatus === 'annual_leave';
     const clearCheckout = newStatus === 'checkin';
     setEditedWorkTime({
       ...editedWorkTime,
@@ -82,6 +89,7 @@ export function WorkTimeEditModal({
             value={editedWorkTime.checkin}
             onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkin: v })}
             disabled={isCheckinDisabled || savingWorkTime}
+            allowManualInput
           />
 
           <TimePicker
@@ -89,6 +97,7 @@ export function WorkTimeEditModal({
             value={editedWorkTime.checkout}
             onChange={(v) => setEditedWorkTime({ ...editedWorkTime, checkout: v })}
             disabled={isCheckoutDisabled || savingWorkTime}
+            allowManualInput
           />
 
           <Textarea
@@ -97,6 +106,7 @@ export function WorkTimeEditModal({
             onChange={(e) => setEditedWorkTime({ ...editedWorkTime, workDone: e.target.value })}
             disabled={isReset || savingWorkTime}
             rows={3}
+            placeholder={isAnnualLeave ? '연차 사유를 입력해주세요.' : undefined}
           />
 
           <div>
@@ -111,6 +121,7 @@ export function WorkTimeEditModal({
               <option value="checkout">퇴근</option>
               <option value="absent">결근</option>
               <option value="leave">휴무</option>
+              <option value="annual_leave">연차</option>
               <option disabled>──────────</option>
               <option value="__reset__">초기화 (기록 삭제)</option>
             </select>

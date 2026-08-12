@@ -1,5 +1,13 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import {
+  PDF_COLORS as C,
+  PDF_FONT as FONT,
+  loadNanumFonts,
+  registerNanumFonts,
+  pdfBaseStyles as baseStyles,
+  pdfThStyles as thStyles,
+} from '@/lib/pdf';
 import type { WorkStatEmployee } from '@/types/adminDashboard';
 
 export interface WorkStatsPdfData {
@@ -10,62 +18,6 @@ export interface WorkStatsPdfData {
   pmContactPhone: string | null;
   pmContactEmail: string | null;
 }
-
-/* ── 색상 (tailwind.config.js 기준) ── */
-const C = {
-  sectionBg: [255, 149, 79] as [number, number, number],   // duru-orange-500
-  thBg: [255, 247, 237] as [number, number, number],        // orange-50
-  thText: [204, 96, 26] as [number, number, number],        // duru-orange-700
-  border: [229, 231, 235] as [number, number, number],      // gray-200
-  text: [17, 24, 39] as [number, number, number],           // gray-900
-  gray400: [156, 163, 175] as [number, number, number],     // gray-400
-  blue600: [37, 99, 235] as [number, number, number],       // blue-600
-  white: [255, 255, 255] as [number, number, number],
-};
-
-/* ── 폰트 캐시 (TTF → base64) ── */
-let fontCache: { regular: string; bold: string } | null = null;
-
-async function loadFonts(): Promise<{ regular: string; bold: string }> {
-  if (fontCache) return fontCache;
-
-  const [regBuf, boldBuf] = await Promise.all([
-    fetch('/fonts/NanumGothic-Regular.ttf').then((r) => r.arrayBuffer()),
-    fetch('/fonts/NanumGothic-Bold.ttf').then((r) => r.arrayBuffer()),
-  ]);
-
-  const toBase64 = (buf: ArrayBuffer) => {
-    const bytes = new Uint8Array(buf);
-    const chunks: string[] = [];
-    const CHUNK = 8192;
-    for (let i = 0; i < bytes.length; i += CHUNK) {
-      chunks.push(String.fromCharCode(...bytes.subarray(i, i + CHUNK)));
-    }
-    return btoa(chunks.join(''));
-  };
-
-  fontCache = { regular: toBase64(regBuf), bold: toBase64(boldBuf) };
-  return fontCache;
-}
-
-const FONT = 'NanumGothic';
-
-/* ── 공통 autoTable 스타일 ── */
-const baseStyles = {
-  font: FONT,
-  fontSize: 10,
-  textColor: C.text,
-  lineColor: C.border,
-  lineWidth: 0.3,
-  cellPadding: { top: 4, right: 6, bottom: 4, left: 6 },
-};
-
-const thStyles = {
-  fillColor: C.thBg,
-  textColor: C.thText,
-  fontStyle: 'bold' as const,
-  fontSize: 10,
-};
 
 /* ── 섹션 헤더 행 (colSpan 전체) ── */
 function sectionHeaderRow(title: string, colSpan: number) {
@@ -87,7 +39,7 @@ function sectionHeaderRow(title: string, colSpan: number) {
 export async function generateWorkStatsPdf(
   data: WorkStatsPdfData,
 ): Promise<Blob> {
-  const fonts = await loadFonts();
+  const fonts = await loadNanumFonts();
 
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -95,11 +47,7 @@ export async function generateWorkStatsPdf(
   const sideMargin = (pageWidth - tableWidth) / 2;
 
   /* ── 폰트 등록 ── */
-  doc.addFileToVFS('NanumGothic-Regular.ttf', fonts.regular);
-  doc.addFont('NanumGothic-Regular.ttf', FONT, 'normal');
-  doc.addFileToVFS('NanumGothic-Bold.ttf', fonts.bold);
-  doc.addFont('NanumGothic-Bold.ttf', FONT, 'bold');
-  doc.setFont(FONT, 'normal');
+  registerNanumFonts(doc, fonts);
 
   /* ── 타이틀 ── */
   const titleY = 22;

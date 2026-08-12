@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, ChevronDown, ChevronRight, AlertCircle, Search, Clock, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Building2, ChevronDown, ChevronLeft, ChevronRight, AlertCircle, Search, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { getEmployeeStatusLabel, getEmployeeStatusStyle } from '@/lib/status';
 import { offsetDateString } from '@/lib/kst';
@@ -36,6 +37,7 @@ export function CompanyAttendanceAccordion({
   onPrevPage,
   onNextPage,
 }: CompanyAttendanceAccordionProps) {
+  const router = useRouter();
   const [expandedCompanies, setExpandedCompanies] = useState<Record<string, boolean>>({});
 
   const toggleCompany = (companyId: string) => {
@@ -56,31 +58,34 @@ export function CompanyAttendanceAccordion({
   return (
     <div className="space-y-4">
       {/* 날짜 네비게이션 */}
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Clock className="w-6 h-6 text-duru-orange-600" />
+      <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2 whitespace-nowrap">
+            <Clock className="w-6 h-6 text-duru-orange-600 shrink-0" />
             출퇴근 현황 (회사별)
           </h2>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={() => changeDate(-1)}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
               title="이전 날짜"
+              aria-label="이전 날짜"
             >
-              <ChevronDown className="w-5 h-5 rotate-90" />
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
             <DatePicker
               value={selectedDate}
               onChange={handleDateChange}
-              inputClassName="border-2 border-duru-orange-500 bg-duru-orange-50 text-duru-orange-600 font-bold hover:border-duru-orange-500"
+              className="w-auto"
+              inputClassName="border-0 bg-transparent text-gray-900 font-semibold hover:bg-gray-100 px-2 whitespace-nowrap"
             />
             <button
               onClick={() => changeDate(1)}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
               title="다음 날짜"
+              aria-label="다음 날짜"
             >
-              <ChevronDown className="w-5 h-5 -rotate-90" />
+              <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
           </div>
         </div>
@@ -134,24 +139,24 @@ export function CompanyAttendanceAccordion({
               }}
               className="w-full bg-gray-50 px-6 py-4 border-b border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-1 hover:bg-gray-200 rounded transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0">
                     {isExpanded ? (
                       <ChevronDown className="w-5 h-5 text-gray-600" />
                     ) : (
                       <ChevronRight className="w-5 h-5 text-gray-600" />
                     )}
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-duru-orange-600" />
-                    {company.companyName}
-                    <span className="text-sm font-normal text-gray-600 ml-2">
+                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 min-w-0">
+                    <Building2 className="w-5 h-5 text-duru-orange-600 shrink-0" />
+                    <span className="truncate">{company.companyName}</span>
+                    <span className="text-sm font-normal text-gray-600 shrink-0 whitespace-nowrap">
                       ({checkedInCount}/{totalEmployees}명 출근)
                     </span>
                   </h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2 flex-wrap">
                   {Object.entries(statusCounts).map(([label, count]) => {
                     const statusKey = label === '퇴근' ? 'checkout'
                       : label === '근무중' ? 'checkin'
@@ -173,15 +178,15 @@ export function CompanyAttendanceAccordion({
 
             {isExpanded && (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full sm:min-w-[720px]">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">이름</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">상태</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">출근 시간</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">퇴근 시간</th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">출근 시간</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">퇴근 시간</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -190,11 +195,22 @@ export function CompanyAttendanceAccordion({
                       return (
                         <tr
                           key={employee.employeeId}
-                          className={cn('hover:bg-gray-50', needsAttention && 'bg-yellow-50')}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => router.push(`/admin/employees/${employee.employeeId}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              router.push(`/admin/employees/${employee.employeeId}`);
+                            }
+                          }}
+                          className={cn('hover:bg-gray-50 cursor-pointer', needsAttention && 'bg-yellow-50')}
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              <span className="font-semibold text-gray-900">{employee.name}</span>
+                              <span className="font-semibold text-gray-900">
+                                {employee.name}
+                              </span>
                               {needsAttention && (
                                 <span title={employee.isLate ? '지각' : '결근'}>
                                   <AlertCircle className="w-4 h-4 text-yellow-600" />
@@ -202,7 +218,7 @@ export function CompanyAttendanceAccordion({
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-gray-700">{employee.phone || '-'}</td>
+                          <td className="hidden sm:table-cell px-6 py-4 text-gray-700">{employee.phone || '-'}</td>
                           <td className="px-6 py-4">
                             <span
                               className={cn(
@@ -213,7 +229,7 @@ export function CompanyAttendanceAccordion({
                               {getEmployeeStatusLabel(employee.status, true)}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="hidden sm:table-cell px-6 py-4">
                             <span
                               className={
                                 !employee.clockIn ? 'text-red-600 font-semibold' : 'text-gray-900'
@@ -222,12 +238,12 @@ export function CompanyAttendanceAccordion({
                               {employee.clockIn ?? '-'}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="hidden sm:table-cell px-6 py-4">
                             <span className="text-gray-900">
                               {employee.clockOut ?? '-'}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="hidden sm:table-cell px-6 py-4">
                             <span className={cn('text-gray-600', !employee.workContent && 'italic')}>
                               {employee.workContent || '업무 내용 없음'}
                             </span>

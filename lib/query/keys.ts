@@ -101,3 +101,27 @@ export const newsletterKeys = {
       : (['newsletters', 'list', 'admin'] as const),
   detail: (id: string) => ['newsletters', id] as const,
 };
+
+export const storyKeys = {
+  all: ['stories'] as const,
+  lists: () => ['stories', 'list'] as const,
+  publicList: (params: { page: number; limit: number; search?: string }) =>
+    ['stories', 'list', 'public', params] as const,
+  adminList: (params?: { page: number; limit: number }) =>
+    params
+      ? (['stories', 'list', 'admin', params] as const)
+      : (['stories', 'list', 'admin'] as const),
+  detail: (id: string) => ['stories', id] as const,
+};
+
+export const announcementKeys = {
+  all: ['announcements'] as const,
+  lists: () => ['announcements', 'list'] as const,
+  publicList: (params: { page: number; limit: number; search?: string }) =>
+    ['announcements', 'list', 'public', params] as const,
+  adminList: (params?: { page: number; limit: number }) =>
+    params
+      ? (['announcements', 'list', 'admin', params] as const)
+      : (['announcements', 'list', 'admin'] as const),
+  detail: (id: string) => ['announcements', id] as const,
+};

@@ -1,4 +1,4 @@
-import { Clock, Edit3 } from 'lucide-react';
+import { Clock, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import {
   getAttendanceRecordStatusColor as getStatusColor,
@@ -12,8 +12,8 @@ interface AttendanceHistoryTableProps {
   records: AttendanceRecord[];
   isLoading?: boolean;
   error?: string | null;
-  onEditWorkTime: (record: AttendanceRecord) => void;
   onOpenWorkDone: (date: string, workDone: string, photoUrls: string[]) => void;
+  onStatusClick: (record: AttendanceRecord) => void;
   currentPage: number;
   pagination?: Pagination;
   onNextPage: () => void;
@@ -23,9 +23,13 @@ interface AttendanceHistoryTableProps {
   onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
   onClearDates: () => void;
+  onExportExcel: () => void;
+  isExporting?: boolean;
+  onExportPdf: () => void;
+  isExportingPdf?: boolean;
 }
 
-export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTime, onOpenWorkDone, currentPage, pagination, onNextPage, onPrevPage, startDate, endDate, onStartDateChange, onEndDateChange, onClearDates }: AttendanceHistoryTableProps) {
+export function AttendanceHistoryTable({ records, isLoading, error, onOpenWorkDone, onStatusClick, currentPage, pagination, onNextPage, onPrevPage, startDate, endDate, onStartDateChange, onEndDateChange, onClearDates, onExportExcel, isExporting, onExportPdf, isExportingPdf }: AttendanceHistoryTableProps) {
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
@@ -41,6 +45,32 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
           onEndDateChange={onEndDateChange}
           onClear={onClearDates}
         />
+        <button
+          type="button"
+          onClick={onExportExcel}
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExporting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileSpreadsheet className="w-4 h-4" />
+          )}
+          엑셀
+        </button>
+        <button
+          type="button"
+          onClick={onExportPdf}
+          disabled={isExportingPdf}
+          className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExportingPdf ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileText className="w-4 h-4" />
+          )}
+          PDF
+        </button>
       </div>
 
       {isLoading ? (
@@ -51,8 +81,54 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
         <p className="text-center text-gray-400 py-8">출퇴근 기록이 없습니다.</p>
       ) : (
       <>
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      {/* 모바일: 카드 리스트 */}
+      <div className="sm:hidden space-y-3">
+        {records.map((record) => (
+          <div key={record.id} className="border border-gray-200 rounded-lg p-3">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="font-semibold text-gray-900">{record.date}</span>
+              <button
+                type="button"
+                onClick={() => onStatusClick(record)}
+                title="연차 처리"
+                className={cn(
+                  'px-2 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 cursor-pointer shrink-0',
+                  getStatusColor(record.status)
+                )}
+              >
+                {getStatusLabel(record.status)}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm mb-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-gray-500">출근</span>
+                <span className="text-gray-900">{record.checkin}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-gray-500">퇴근</span>
+                <span className="text-gray-900">{record.checkout}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-500">업무 내용</span>
+              {record.workDone !== '-' ? (
+                <button
+                  onClick={() => onOpenWorkDone(record.date, record.workDone, record.photoUrls)}
+                  className="text-duru-orange-600 underline hover:text-duru-orange-700"
+                >
+                  확인하기
+                </button>
+              ) : (
+                <span className="text-gray-400">-</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 데스크톱: 테이블 */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full min-w-[640px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">날짜</th>
@@ -60,7 +136,6 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">퇴근</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">상태</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">수정</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -74,14 +149,17 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
                   {record.checkout}
                 </td>
                 <td className="px-4 py-3">
-                  <span
+                  <button
+                    type="button"
+                    onClick={() => onStatusClick(record)}
+                    title="연차 처리"
                     className={cn(
-                      'px-2 py-1 rounded-full text-xs font-semibold',
+                      'px-2 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80 cursor-pointer',
                       getStatusColor(record.status)
                     )}
                   >
                     {getStatusLabel(record.status)}
-                  </span>
+                  </button>
                 </td>
                 <td className="px-4 py-3">
                   {record.workDone !== '-' ? (
@@ -94,16 +172,6 @@ export function AttendanceHistoryTable({ records, isLoading, error, onEditWorkTi
                   ) : (
                     <span className="text-gray-400 text-sm">-</span>
                   )}
-                </td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => onEditWorkTime(record)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="수정"
-                    aria-label="수정"
-                  >
-                    <Edit3 className="w-4 h-4 text-gray-600" />
-                  </button>
                 </td>
               </tr>
             ))}

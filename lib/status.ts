@@ -20,6 +20,8 @@ export function getEmployeeStatusLabel(status: Employee['status'], isActive: boo
       return '결근';
     case 'leave':
       return '휴무';
+    case 'annual_leave':
+      return '연차';
     case 'pending':
       return '출근 전';
     case 'dayoff':
@@ -40,6 +42,8 @@ export function getEmployeeStatusStyle(status: Employee['status'], isActive: boo
       return 'bg-red-100 text-red-700';
     case 'leave':
       return 'bg-teal-100 text-teal-700';
+    case 'annual_leave':
+      return 'bg-purple-100 text-purple-700';
     case 'pending':
       return 'bg-yellow-100 text-yellow-700';
     case 'dayoff':
@@ -56,6 +60,7 @@ export function getEmployeeStatusStyle(status: Employee['status'], isActive: boo
 export function getAttendanceDisplayStatus(record: AttendanceWithEmployee): DisplayStatus {
   if (record.status === 'absent') return '결근';
   if (record.status === 'leave') return '휴무';
+  if (record.status === 'annual_leave') return '연차';
   if (record.isLate) return '지각';
   return '정상';
 }
@@ -66,6 +71,7 @@ export function getDisplayStatusColor(status: DisplayStatus) {
     case '지각': return 'bg-yellow-100 text-yellow-700';
     case '휴무': return 'bg-blue-100 text-blue-700';
     case '결근': return 'bg-red-100 text-red-700';
+    case '연차': return 'bg-purple-100 text-purple-700';
     default: {
       const _exhaustive: never = status;
       return _exhaustive;
@@ -87,6 +93,8 @@ export function getAttendanceRecordStatusLabel(status: AttendanceStatus) {
       return '결근';
     case 'leave':
       return '휴무';
+    case 'annual_leave':
+      return '연차';
     default: {
       const _exhaustive: never = status;
       return _exhaustive;
@@ -104,6 +112,8 @@ export function getAttendanceRecordStatusColor(status: AttendanceStatus) {
       return 'bg-red-100 text-red-700';
     case 'leave':
       return 'bg-teal-100 text-teal-700';
+    case 'annual_leave':
+      return 'bg-purple-100 text-purple-700';
     default: {
       const _exhaustive: never = status;
       return _exhaustive;

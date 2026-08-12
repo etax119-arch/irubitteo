@@ -2,6 +2,7 @@ import { serverFetch } from '@/lib/api/server-fetch';
 import type { PaginatedResponse } from '@/types/api';
 import type { GalleryItem } from '@/types/gallery';
 import type { NewsletterItem } from '@/types/newsletter';
+import type { StoryItem } from '@/types/story';
 
 const BASE_URL = 'https://www.irubitteo.com';
 
@@ -54,34 +55,44 @@ function escapeXml(value: string): string {
     .replace(/'/g, '&apos;');
 }
 
+/** allSettled로 소스별 실패를 격리 — 한 엔드포인트가 죽어도 나머지 항목은 피드에 남음 */
 async function fetchDynamicItems(): Promise<RssItem[]> {
+  const [galleries, newsletters, stories] = await Promise.allSettled([
+    serverFetch<PaginatedResponse<GalleryItem>>('/galleries?limit=20', 3600),
+    serverFetch<PaginatedResponse<NewsletterItem>>('/newsletters?limit=20', 3600),
+    serverFetch<PaginatedResponse<StoryItem>>('/stories?limit=20', 3600),
+  ]);
+
+  const dataOf = <T,>(r: PromiseSettledResult<PaginatedResponse<T>>): T[] =>
+    r.status === 'fulfilled' ? r.value.data : [];
+
   const items: RssItem[] = [];
 
-  try {
-    const [galleries, newsletters] = await Promise.all([
-      serverFetch<PaginatedResponse<GalleryItem>>('/galleries?limit=20', 3600),
-      serverFetch<PaginatedResponse<NewsletterItem>>('/newsletters?limit=20', 3600),
-    ]);
+  for (const g of dataOf(galleries)) {
+    items.push({
+      title: `[갤러리] ${g.title}`,
+      path: `/gallery/${g.id}`,
+      description: g.description || `${g.artistName} 작가의 작품 "${g.title}"`,
+      pubDate: new Date(g.createdAt).toUTCString(),
+    });
+  }
 
-    for (const g of galleries.data) {
-      items.push({
-        title: `[갤러리] ${g.title}`,
-        path: `/gallery/${g.id}`,
-        description: g.description || `${g.artistName} 작가의 작품 "${g.title}"`,
-        pubDate: new Date(g.createdAt).toUTCString(),
-      });
-    }
+  for (const n of dataOf(newsletters)) {
+    items.push({
+      title: `[소식지] ${n.title}`,
+      path: `/newsletter/${n.id}`,
+      description: n.content.slice(0, 200),
+      pubDate: new Date(n.createdAt).toUTCString(),
+    });
+  }
 
-    for (const n of newsletters.data) {
-      items.push({
-        title: `[소식지] ${n.title}`,
-        path: `/newsletter/${n.id}`,
-        description: n.content.slice(0, 200),
-        pubDate: new Date(n.createdAt).toUTCString(),
-      });
-    }
-  } catch {
-    // API 실패 시 정적 항목만 반환
+  for (const s of dataOf(stories)) {
+    items.push({
+      title: `[이야기] ${s.title}`,
+      path: `/story/${s.id}`,
+      description: s.content.slice(0, 200),
+      pubDate: new Date(s.createdAt).toUTCString(),
+    });
   }
 
   return items;

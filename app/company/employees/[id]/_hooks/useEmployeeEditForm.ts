@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useUpdateEmployee } from '@/hooks/useEmployeeMutations';
+import { useWorkInfoForm } from '@/hooks/useWorkInfoForm';
 import { useToast } from '@/components/ui/Toast';
 import { extractErrorMessage } from '@/lib/api/error';
 import { formatDateAsKST } from '@/lib/kst';
-import { NUM_TO_LABEL, LABEL_TO_NUM } from '@/lib/workDays';
-import type { Employee, WorkDay } from '@/types/employee';
+import type { Employee } from '@/types/employee';
 
 export type ProfileFormState = {
   name: string;
@@ -19,6 +19,7 @@ export type ProfileFormState = {
   emergencyContactRelation: string;
   emergencyContactPhone: string;
   uniqueCode: string;
+  annualLeaveTotal: number;
 };
 
 export interface ResignForm {
@@ -59,53 +60,8 @@ export function useEmployeeEditForm(employeeId: string) {
     setTempNotes('');
   };
 
-  // --- Work Info ---
-  const [isEditingWorkInfo, setIsEditingWorkInfo] = useState(false);
-  const [tempWorkDays, setTempWorkDays] = useState<string[]>([]);
-  const [tempWorkStartTime, setTempWorkStartTime] = useState('');
-  const [tempWorkEndTime, setTempWorkEndTime] = useState('');
-  const [isSavingWorkInfo, setIsSavingWorkInfo] = useState(false);
-
-  const handleEditWorkInfo = (employee: Employee) => {
-    const dayLabels = (employee.workDays ?? []).map((n: number) => NUM_TO_LABEL[n] ?? '');
-    setTempWorkDays([...dayLabels]);
-    setTempWorkStartTime(employee.workStartTime || '');
-    setTempWorkEndTime(employee.workEndTime || '');
-    setIsEditingWorkInfo(true);
-  };
-
-  const handleSaveWorkInfo = async () => {
-    setIsSavingWorkInfo(true);
-    try {
-      const workDayNums = tempWorkDays
-        .map((d) => LABEL_TO_NUM[d])
-        .filter((n): n is WorkDay => n !== undefined);
-      await updateMutation.mutateAsync({
-        workDays: workDayNums,
-        workStartTime: tempWorkStartTime,
-        workEndTime: tempWorkEndTime,
-      });
-      setIsEditingWorkInfo(false);
-      toast.success('근무 정보가 수정되었습니다.');
-    } catch {
-      toast.error('근무 정보 수정에 실패했습니다.');
-    } finally {
-      setIsSavingWorkInfo(false);
-    }
-  };
-
-  const handleCancelEditWorkInfo = () => {
-    setIsEditingWorkInfo(false);
-    setTempWorkDays([]);
-    setTempWorkStartTime('');
-    setTempWorkEndTime('');
-  };
-
-  const toggleTempWorkDay = (day: string) => {
-    setTempWorkDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
+  // --- Work Info (admin 상세와 공유) ---
+  const workInfo = useWorkInfoForm(employeeId);
 
   // --- Disability ---
   const [isEditingDisability, setIsEditingDisability] = useState(false);
@@ -164,6 +120,7 @@ export function useEmployeeEditForm(employeeId: string) {
     emergencyContactRelation: '',
     emergencyContactPhone: '',
     uniqueCode: '',
+    annualLeaveTotal: 0,
   });
 
   const handleEditProfile = (employee: Employee) => {
@@ -180,6 +137,7 @@ export function useEmployeeEditForm(employeeId: string) {
       emergencyContactRelation: employee.emergencyContactRelation || '',
       emergencyContactPhone: employee.emergencyContactPhone || '',
       uniqueCode: employee.uniqueCode || '',
+      annualLeaveTotal: employee.annualLeaveTotal ?? 0,
     });
     setIsEditingProfile(true);
   };
@@ -199,6 +157,7 @@ export function useEmployeeEditForm(employeeId: string) {
         emergencyContactName: profileForm.emergencyContactName || null,
         emergencyContactRelation: profileForm.emergencyContactRelation || null,
         emergencyContactPhone: profileForm.emergencyContactPhone || null,
+        annualLeaveTotal: profileForm.annualLeaveTotal,
       };
       if (profileForm.uniqueCode !== employee.uniqueCode) {
         payload.uniqueCode = profileForm.uniqueCode;
@@ -273,17 +232,7 @@ export function useEmployeeEditForm(employeeId: string) {
     handleSaveNotes,
     handleCancelNotes,
     // Work Info
-    isEditingWorkInfo,
-    tempWorkDays,
-    tempWorkStartTime,
-    setTempWorkStartTime,
-    tempWorkEndTime,
-    setTempWorkEndTime,
-    isSavingWorkInfo,
-    handleEditWorkInfo,
-    handleSaveWorkInfo,
-    handleCancelEditWorkInfo,
-    toggleTempWorkDay,
+    ...workInfo,
     // Disability
     isEditingDisability,
     tempDisabilityType,

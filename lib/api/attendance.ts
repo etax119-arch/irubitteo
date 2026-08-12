@@ -10,6 +10,9 @@ import type {
 } from '@/types/attendance';
 import type { PaginatedResponse } from '@/types/api';
 
+// 사진 다중 업로드는 약전계에서 기본 30초를 넘길 수 있어 별도 타임아웃 적용
+const UPLOAD_TIMEOUT = 60000;
+
 export const attendanceApi = {
   /**
    * 출근 처리
@@ -35,7 +38,8 @@ export const attendanceApi = {
       input.photos.forEach((blob) => formData.append('photos', blob, 'photo.jpg'));
       const response = await apiClient.post<{ success: boolean; data: Attendance }>(
         '/attendances/clock-out',
-        formData
+        formData,
+        { timeout: UPLOAD_TIMEOUT }
       );
       return response.data.data;
     }
@@ -60,6 +64,26 @@ export const attendanceApi = {
       { params }
     );
     return response.data;
+  },
+
+  /**
+   * 선택 조건의 모든 출퇴근 기록을 페이지네이션으로 전부 조회 (엑셀 내보내기용).
+   * 서버 limit 최대치(100)를 반복 호출로 우회한다.
+   */
+  async getAllAttendances(
+    params?: Omit<AttendanceQueryParams, 'page' | 'limit'>
+  ): Promise<AttendanceWithEmployee[]> {
+    const limit = 100;
+    const first = await attendanceApi.getAttendances({ ...params, page: 1, limit });
+    const totalPages = first.pagination?.totalPages ?? 1;
+    if (totalPages <= 1) return first.data;
+
+    // 남은 페이지는 서로 독립적이므로 병렬로 조회한다.
+    const restPages = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+    const rest = await Promise.all(
+      restPages.map((page) => attendanceApi.getAttendances({ ...params, page, limit }))
+    );
+    return [first.data, ...rest.map((res) => res.data)].flat();
   },
 
   /**
@@ -91,7 +115,8 @@ export const attendanceApi = {
     photos.forEach((blob) => formData.append('photos', blob, 'photo.jpg'));
     const response = await apiClient.post<{ success: boolean; data: AttendanceWithEmployee }>(
       `/attendances/${attendanceId}/photos`,
-      formData
+      formData,
+      { timeout: UPLOAD_TIMEOUT }
     );
     return response.data.data;
   },

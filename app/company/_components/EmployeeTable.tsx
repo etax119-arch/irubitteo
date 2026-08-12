@@ -28,9 +28,9 @@ export function EmployeeTable({
 }: EmployeeTableProps) {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold text-gray-900">근로자 관리</h2>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">근로자 관리</h2>
           {onRefresh && (
             <IconButton
               icon={<RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />}
@@ -41,33 +41,33 @@ export function EmployeeTable({
             />
           )}
         </div>
-        <Button variant="primary" onClick={onAddWorker} className="py-2">
+        <Button variant="primary" onClick={onAddWorker} className="py-2 shrink-0 whitespace-nowrap">
           + 근로자 추가
         </Button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <Input
-            type="text"
-            size="sm"
-            placeholder="이름, 전화번호로 검색..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            aria-label="근로자 검색"
-            leftIcon={<Search className="w-5 h-5" />}
-          />
-        </div>
+      <div className="w-full sm:max-w-md">
+        <Input
+          type="text"
+          size="sm"
+          placeholder="이름, 전화번호로 검색..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          aria-label="근로자 검색"
+          leftIcon={<Search className="w-5 h-5" />}
+        />
+      </div>
 
+      <div className="bg-white rounded-xl border border-gray-200">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full sm:min-w-[640px]">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">이름</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">장애유형</th>
+                <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">전화번호</th>
+                <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">장애유형</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">상태</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">관리</th>
+                <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">관리</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -79,15 +79,27 @@ export function EmployeeTable({
                 </tr>
               ) : (
                 employees.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-gray-50">
+                  <tr
+                    key={emp.id}
+                    onClick={() => onEmployeeClick(emp)}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+                        e.preventDefault();
+                        onEmployeeClick(emp);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <Avatar src={emp.profileImage ?? undefined} name={emp.name} size="md" className="text-sm font-bold" />
+                        <Avatar src={emp.profileImage ?? undefined} name={emp.name} size="md" className="hidden sm:flex text-sm font-bold" />
                         <span className="font-semibold text-gray-900">{emp.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-900">{emp.phone}</td>
-                    <td className="px-6 py-4 text-gray-600">{emp.disabilityType ?? '-'}</td>
+                    <td className="hidden sm:table-cell px-6 py-4 text-gray-900">{emp.phone}</td>
+                    <td className="hidden sm:table-cell px-6 py-4 text-gray-600">{emp.disabilityType ?? '-'}</td>
                     <td className="px-6 py-4">
                       <Badge
                         className={`px-3 py-1 font-semibold ${getEmployeeStatusStyle(emp.status, emp.isActive)}`}
@@ -95,9 +107,9 @@ export function EmployeeTable({
                         {getEmployeeStatusLabel(emp.status, emp.isActive)}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="hidden sm:table-cell px-6 py-4">
                       <button
-                        onClick={() => onEmployeeClick(emp)}
+                        onClick={(e) => { e.stopPropagation(); onEmployeeClick(emp); }}
                         className="text-duru-orange-600 hover:text-duru-orange-700 font-semibold text-sm"
                       >
                         상세보기
