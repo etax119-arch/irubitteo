@@ -36,9 +36,19 @@ module.exports = {
           '0%': { transform: 'translateX(100%)', opacity: '0' },
           '100%': { transform: 'translateX(0)', opacity: '1' },
         },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        'caret-blink': {
+          '0%, 45%': { opacity: '1' },
+          '55%, 100%': { opacity: '0' },
+        },
       },
       animation: {
         'slide-in-right': 'slide-in-right 0.3s ease-out',
+        marquee: 'marquee 40s linear infinite',
+        'caret-blink': 'caret-blink 0.9s steps(1, end) infinite',
       }
     },
   },

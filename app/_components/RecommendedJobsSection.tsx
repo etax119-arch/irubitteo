@@ -7,12 +7,12 @@ import {
   CalendarClock,
   FileSpreadsheet,
   FileUp,
-  Languages,
+  Gift,
   Megaphone,
   Newspaper,
+  Paintbrush,
   Palette,
   Presentation,
-  Receipt,
   ScanSearch,
   ThumbsUp,
   type LucideIcon,
@@ -34,13 +34,13 @@ const JOBS: Job[] = [
   { id: 'job-posting', title: '채용공고 업로드', example: '블로그·카페·채용사이트 업로드 등', icon: FileUp, image: '/images/jobs/job-3.png', imageAlt: '채용공고 업로드 일러스트 — 문서와 업로드 화살표' },
   { id: 'marketing', title: '홍보 마케팅', example: '홍보 블로그·카페 운영 등', icon: Megaphone, image: '/images/jobs/job-4.png', imageAlt: '홍보 마케팅 일러스트 — 확성기' },
   { id: 'attendance', title: '근태관리', example: '근무자 출결·법정교육 관리 등', icon: CalendarClock, image: '/images/jobs/job-5.png', imageAlt: '근태관리 일러스트 — 달력과 시계' },
-  { id: 'translation', title: '번역', example: '영어·일어·중국어 등 외국어 번역', icon: Languages, image: '/images/jobs/job-6.png', imageAlt: '번역 일러스트 — 언어 말풍선' },
+  { id: 'art', title: '미술', example: '달력 제작, 삽화 그림', icon: Paintbrush },
   { id: 'sns', title: 'SNS 활성화', example: '좋아요·댓글 작업 등', icon: ThumbsUp, image: '/images/jobs/job-7.png', imageAlt: 'SNS 활성화 일러스트 — 좋아요와 하트' },
   { id: 'ppt', title: 'PPT 제작', example: '기획안 작성 등', icon: Presentation, image: '/images/jobs/job-8.png', imageAlt: 'PPT 제작 일러스트 — 차트 프레젠테이션 보드' },
   { id: 'biz-support', title: '경영지원', example: '자료조사·보고서 작성 등', icon: Briefcase, image: '/images/jobs/job-9.png', imageAlt: '경영지원 일러스트 — 서류가방과 문서' },
   { id: 'design', title: '디자인', example: '카드뉴스·배너 디자인 등', icon: Palette, image: '/images/jobs/job-10.png', imageAlt: '디자인 일러스트 — 팔레트와 붓' },
   { id: 'news-clipping', title: '뉴스클리핑', example: '인터넷 기사 수집 및 보고 등', icon: Newspaper, image: '/images/jobs/job-11.png', imageAlt: '뉴스클리핑 일러스트 — 신문과 가위' },
-  { id: 'accounting', title: '회계', example: '전표작성·영수증 처리 등', icon: Receipt, image: '/images/jobs/job-12.png', imageAlt: '회계 일러스트 — 영수증과 계산기' },
+  { id: 'promo-goods', title: '홍보물 제작', example: '홍보 물품 제작 업무', icon: Gift },
 ];
 
 function JobVisual({ job }: { job: Job }) {
@@ -97,7 +97,7 @@ export default function RecommendedJobsSection() {
             드려요
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            재택근무로도 충분히 해낼 수 있는 열두 가지 직무예요.{' '}
+            장애유형과 상관없이 충분히 해낼 수 있는 열두가지 대표직무에요.{' '}
             <br className="hidden sm:block" />
             어떤 직무가 맞을지 고민된다면, 이루빛터가 함께 찾아드릴게요.
           </p>

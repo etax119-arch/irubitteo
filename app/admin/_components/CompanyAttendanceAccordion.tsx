@@ -186,7 +186,7 @@ export function CompanyAttendanceAccordion({
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">상태</th>
                       <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">출근 시간</th>
                       <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">퇴근 시간</th>
-                      <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
+                      <th className="hidden sm:table-cell w-[280px] px-6 py-3 text-left text-sm font-semibold text-gray-900">업무 내용</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -243,8 +243,11 @@ export function CompanyAttendanceAccordion({
                               {employee.clockOut ?? '-'}
                             </span>
                           </td>
-                          <td className="hidden sm:table-cell px-6 py-4">
-                            <span className={cn('text-gray-600', !employee.workContent && 'italic')}>
+                          <td className="hidden sm:table-cell px-6 py-4 max-w-[280px]">
+                            <span
+                              className={cn('block truncate text-gray-600', !employee.workContent && 'italic')}
+                              title={employee.workContent || undefined}
+                            >
                               {employee.workContent || '업무 내용 없음'}
                             </span>
                           </td>

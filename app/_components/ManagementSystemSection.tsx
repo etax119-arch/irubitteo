@@ -9,8 +9,6 @@ interface Feature {
   description: string;
   image: string;
   imageAlt: string;
-  /** 세로형 이미지는 상단 기준으로 크롭 */
-  objectPosition?: string;
 }
 
 const FEATURES: Feature[] = [
@@ -28,8 +26,8 @@ const FEATURES: Feature[] = [
     description:
       '근로자가 앱으로 남긴 출퇴근 기록이 실시간으로 정리되어, 오늘의 근태를 바로 확인할 수 있어요.',
     image: '/images/management/attendance-records.png',
-    imageAlt: '출퇴근 기록 페이지 화면 — 날짜별 출근·퇴근 시간과 상태 목록',
-    objectPosition: 'object-top',
+    imageAlt:
+      '출퇴근 기록 화면 — 근로자 정보와 날짜별 출근·퇴근 시간, 상태 목록',
   },
   {
     id: 'schedule',
@@ -43,7 +41,7 @@ const FEATURES: Feature[] = [
     id: 'notices',
     title: '공지사항',
     description:
-      '안전교육, 행사 소식을 근로자 앱으로 바로 전해 중요한 안내를 놓치지 않아요.',
+      '안전교육, 행사 소식을 근로자 웹으로 바로 전해 중요한\n안내를 놓치지 않아요.',
     image: '/images/management/notice-management.png',
     imageAlt: '공지사항 관리 페이지 화면 — 발송 대상 근로자 선택과 공지 작성',
   },
@@ -126,7 +124,7 @@ export default function ManagementSystemSection() {
                   >
                     {feature.title}
                   </span>
-                  <span className="hidden lg:block mt-1.5 text-sm leading-relaxed text-duru-text-sub">
+                  <span className="hidden lg:block mt-1.5 text-sm leading-relaxed text-duru-text-sub whitespace-pre-line">
                     {feature.description}
                   </span>
                 </button>
@@ -135,7 +133,7 @@ export default function ManagementSystemSection() {
           </div>
 
           {/* 모바일: 활성 탭 설명 */}
-          <p className="lg:hidden text-sm text-duru-text-sub text-center leading-relaxed px-2">
+          <p className="lg:hidden text-sm text-duru-text-sub text-center leading-relaxed px-2 whitespace-pre-line">
             {activeFeature.description}
           </p>
 
@@ -159,8 +157,8 @@ export default function ManagementSystemSection() {
                   sizes="(max-width: 1024px) 100vw, 66vw"
                   aria-hidden={!isActive}
                   className={`object-cover transition-opacity duration-300 ease-out ${
-                    feature.objectPosition ?? ''
-                  } ${isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                    isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  }`}
                 />
               );
             })}
