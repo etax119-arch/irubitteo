@@ -4,6 +4,7 @@ import { X, Save, Loader2, Trash2 } from 'lucide-react';
 import { TimePicker } from '@/components/ui/TimePicker';
 import { Textarea } from '@/components/ui/Textarea';
 import { Input } from '@/components/ui/Input';
+import { hasNoClockTimes } from '@/lib/status';
 import type { AttendanceStatus } from '@/types/attendance';
 
 type EditedWorkTime = {
@@ -36,9 +37,8 @@ export function WorkTimeEditModal({
   const isReset = editedWorkTime.status === '__reset__';
   const isAnnualLeave = editedWorkTime.status === 'annual_leave';
   const isAbsentOrLeave =
-    editedWorkTime.status === 'absent' ||
-    editedWorkTime.status === 'leave' ||
-    editedWorkTime.status === 'annual_leave';
+    editedWorkTime.status !== '__reset__' &&
+    hasNoClockTimes(editedWorkTime.status);
   // 퇴근 상태에서는 출근/퇴근 시간을 모두 수정할 수 있어야 한다.
   // 출근(근무중) 상태는 아직 퇴근 전이므로 퇴근 시간만 잠근다.
   const isCheckinDisabled = isReset || isAbsentOrLeave;
@@ -50,8 +50,7 @@ export function WorkTimeEditModal({
       setEditedWorkTime({ ...editedWorkTime, status: '__reset__' });
       return;
     }
-    const clearTime =
-      newStatus === 'absent' || newStatus === 'leave' || newStatus === 'annual_leave';
+    const clearTime = hasNoClockTimes(newStatus);
     const clearCheckout = newStatus === 'checkin';
     setEditedWorkTime({
       ...editedWorkTime,
@@ -117,6 +116,7 @@ export function WorkTimeEditModal({
               disabled={savingWorkTime}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
+              <option value="pending">출근 전</option>
               <option value="checkin">출근(근무중)</option>
               <option value="checkout">퇴근</option>
               <option value="absent">결근</option>

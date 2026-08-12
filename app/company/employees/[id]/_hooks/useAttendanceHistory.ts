@@ -5,6 +5,7 @@ import { attendanceApi } from '@/lib/api/attendance';
 import { useToast } from '@/components/ui/Toast';
 import { extractErrorMessage } from '@/lib/api/error';
 import { formatUtcTimestampAsKST } from '@/lib/kst';
+import { hasNoClockTimes, resolveAnnualLeaveCancelStatus } from '@/lib/status';
 import { exportAttendancesToExcel } from '@/lib/attendanceExcel';
 import { exportAttendancesToPdf } from '@/lib/attendancePdf';
 import type { AttendanceStatus, AttendanceWithEmployee } from '@/types/attendance';
@@ -22,8 +23,7 @@ export interface AttendanceRecord {
 
 function toAttendanceRecord(att: AttendanceWithEmployee): AttendanceRecord {
   const date = att.date.split('T')[0];
-  const isAbsentOrLeave =
-    att.status === 'absent' || att.status === 'leave' || att.status === 'annual_leave';
+  const isAbsentOrLeave = hasNoClockTimes(att.status);
 
   return {
     id: att.id,
@@ -75,7 +75,7 @@ export function useAttendanceHistory(employeeId: string, workDays: number[] = []
 
   // 선택된 기록의 현재 상태로 토글 대상을 결정한다.
   // - 연차가 아니면 → 연차 처리(사유를 업무 내용으로 저장)
-  // - 이미 연차면 → 취소(복원): 근무일이면 결근, 아니면 휴무(사유 클리어)
+  // - 이미 연차면 → 취소(복원, 사유 클리어)
   const processLeave = () => {
     const record = selectedLeaveRecord;
     if (!record) return;
@@ -84,10 +84,7 @@ export function useAttendanceHistory(employeeId: string, workDays: number[] = []
     let targetStatus: AttendanceStatus;
     let workContent: string;
     if (isAnnualLeave) {
-      const [y, m, d] = record.date.split('-').map(Number);
-      const jsDay = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-      const dayOfWeek = jsDay === 0 ? 7 : jsDay;
-      targetStatus = workDays.includes(dayOfWeek) ? 'absent' : 'leave';
+      targetStatus = resolveAnnualLeaveCancelStatus(record.date, workDays);
       workContent = '';
     } else {
       targetStatus = 'annual_leave';

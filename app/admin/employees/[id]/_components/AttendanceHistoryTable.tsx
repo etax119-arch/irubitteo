@@ -6,6 +6,7 @@ import { formatUtcTimestampAsKST, formatDateAsKST } from '@/lib/kst';
 import {
   getAttendanceRecordStatusColor,
   getAttendanceRecordStatusLabel,
+  hasNoClockTimes,
 } from '@/lib/status';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import type { AttendanceWithEmployee } from '@/types/attendance';
@@ -111,7 +112,7 @@ export function AttendanceHistoryTable({
       <div className="sm:hidden space-y-3">
         {records.length > 0 ? (
           records.map((record) => {
-            const isAbsentOrLeave = record.status === 'absent' || record.status === 'leave';
+            const isAbsentOrLeave = hasNoClockTimes(record.status);
             const checkinDisplay = isAbsentOrLeave ? '-' : (record.clockIn ? formatUtcTimestampAsKST(record.clockIn) : '-');
             const checkoutDisplay = isAbsentOrLeave ? '-' : (record.clockOut ? formatUtcTimestampAsKST(record.clockOut) : '-');
             const dateDisplay = formatDateAsKST(new Date(record.date));
@@ -178,7 +179,7 @@ export function AttendanceHistoryTable({
           <tbody className="divide-y divide-gray-200">
             {records.length > 0 ? (
               records.map((record) => {
-                const isAbsentOrLeave = record.status === 'absent' || record.status === 'leave';
+                const isAbsentOrLeave = hasNoClockTimes(record.status);
                 const checkinDisplay = isAbsentOrLeave ? '-' : (record.clockIn ? formatUtcTimestampAsKST(record.clockIn) : '-');
                 const checkoutDisplay = isAbsentOrLeave ? '-' : (record.clockOut ? formatUtcTimestampAsKST(record.clockOut) : '-');
                 const dateDisplay = formatDateAsKST(new Date(record.date));

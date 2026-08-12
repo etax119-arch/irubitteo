@@ -1,9 +1,6 @@
+import { formatDateAsKST } from '@/lib/kst';
 import type { Employee } from '@/types/employee';
-import type {
-  AttendanceStatus,
-  AttendanceWithEmployee,
-  DisplayStatus,
-} from '@/types/attendance';
+import type { AttendanceStatus } from '@/types/attendance';
 
 // ──────────────────────────────────────────────
 // System A: Employee 실시간 상태 (checkin, checkout, absent, leave, pending, dayoff)
@@ -54,37 +51,43 @@ export function getEmployeeStatusStyle(status: Employee['status'], isActive: boo
 }
 
 // ──────────────────────────────────────────────
-// System B: 출퇴근 기록 표시 상태 (정상, 지각, 결근, 휴무)
-// ──────────────────────────────────────────────
-
-export function getAttendanceDisplayStatus(record: AttendanceWithEmployee): DisplayStatus {
-  if (record.status === 'absent') return '결근';
-  if (record.status === 'leave') return '휴무';
-  if (record.status === 'annual_leave') return '연차';
-  if (record.isLate) return '지각';
-  return '정상';
-}
-
-export function getDisplayStatusColor(status: DisplayStatus) {
-  switch (status) {
-    case '정상': return 'bg-green-100 text-green-700';
-    case '지각': return 'bg-yellow-100 text-yellow-700';
-    case '휴무': return 'bg-blue-100 text-blue-700';
-    case '결근': return 'bg-red-100 text-red-700';
-    case '연차': return 'bg-purple-100 text-purple-700';
-    default: {
-      const _exhaustive: never = status;
-      return _exhaustive;
-    }
-  }
-}
-
-// ──────────────────────────────────────────────
 // System C: 최근 출퇴근 기록 상태 (출근, 퇴근, 결근, 휴무)
 // ──────────────────────────────────────────────
 
+/** 출퇴근 시각이 존재할 수 없는 상태 (표·엑셀·PDF에서 시간 대신 '-' 표시) */
+const STATUSES_WITHOUT_CLOCK: AttendanceStatus[] = [
+  'pending',
+  'absent',
+  'leave',
+  'annual_leave',
+];
+
+export function hasNoClockTimes(status: AttendanceStatus) {
+  return STATUSES_WITHOUT_CLOCK.includes(status);
+}
+
+/**
+ * 연차를 취소했을 때 되돌릴 상태.
+ * - 비근무일 → 휴무
+ * - 근무일 중 오늘 → 출근 전 (아직 출근할 수 있다. 결근 크론이 필요하면 결근으로 바꾼다)
+ * - 근무일 중 지난 날 → 결근
+ */
+export function resolveAnnualLeaveCancelStatus(
+  dateOnly: string,
+  workDays: number[],
+): AttendanceStatus {
+  const [y, m, d] = dateOnly.split('-').map(Number);
+  const jsDay = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+
+  if (!workDays.includes(dayOfWeek)) return 'leave';
+  return dateOnly === formatDateAsKST(new Date()) ? 'pending' : 'absent';
+}
+
 export function getAttendanceRecordStatusLabel(status: AttendanceStatus) {
   switch (status) {
+    case 'pending':
+      return '출근 전';
     case 'checkin':
       return '출근';
     case 'checkout':
@@ -104,6 +107,8 @@ export function getAttendanceRecordStatusLabel(status: AttendanceStatus) {
 
 export function getAttendanceRecordStatusColor(status: AttendanceStatus) {
   switch (status) {
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-700';
     case 'checkin':
       return 'bg-green-100 text-green-700';
     case 'checkout':

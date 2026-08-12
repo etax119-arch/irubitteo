@@ -50,7 +50,12 @@ function getAttendanceMode(params: {
   if (todaySchedule?.isHoliday) return 'holiday';
   if (workDays && !workDays.includes(todayWorkDay)) return 'dayoff';
 
-  if (!todayAttendance || todayAttendance.status === 'absent') return 'checkin';
+  if (
+    !todayAttendance ||
+    todayAttendance.status === 'pending' ||
+    todayAttendance.status === 'absent'
+  )
+    return 'checkin';
   if (todayAttendance.status === 'checkin') return 'checkout';
   return 'completed';
 }

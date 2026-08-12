@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { formatUtcTimestampAsKST, formatDateAsKST } from '@/lib/kst';
-import { getAttendanceRecordStatusLabel } from '@/lib/status';
+import { getAttendanceRecordStatusLabel, hasNoClockTimes } from '@/lib/status';
 import {
   PDF_COLORS,
   PDF_FONT,
@@ -31,8 +31,7 @@ export async function exportAttendancesToPdf({
 }: ExportAttendancesOptions): Promise<void> {
   const rows = records
     .map((att) => {
-      const isAbsentOrLeave =
-        att.status === 'absent' || att.status === 'leave' || att.status === 'annual_leave';
+      const isAbsentOrLeave = hasNoClockTimes(att.status);
       return {
         date: formatDateAsKST(new Date(att.date)),
         checkin: isAbsentOrLeave ? '' : att.clockIn ? formatUtcTimestampAsKST(att.clockIn) : '',

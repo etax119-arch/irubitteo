@@ -405,7 +405,7 @@ durubitteo_web/
     ├── file.ts               # HEIC 파일 유틸리티 + formatFileSize + validateUploadFile + FILE_CONSTRAINTS
     ├── kst.ts                # KST 시간 변환 (formatUtcTimestampAsKST, formatKSTDate, offsetDateString 등)
     ├── workDays.ts           # 요일 매핑 (DAY_LABELS, LABEL_TO_NUM, NUM_TO_LABEL)
-    ├── status.ts             # 출퇴근 상태 표시 통합 (getEmployeeStatusLabel/Style, getDisplayStatusColor)
+    ├── status.ts             # 출퇴근 상태 표시 통합 (getEmployeeStatusLabel/Style, getAttendanceRecordStatusLabel/Color, hasNoClockTimes)
     ├── address.ts            # 한국 시/도 → 시/군/구 매핑 (CITY_OPTIONS, getDistrictOptions)
     ├── auth/
     │   └── store.ts          # Zustand 인증 스토어 (useAuthStore)
