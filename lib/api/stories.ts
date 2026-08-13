@@ -24,11 +24,14 @@ export async function getAdminStories(
 export async function createStory(
   input: StoryCreateInput,
   images: File[] = [],
+  coverImage?: File | null,
   onUploadProgress?: (progress: number) => void
 ): Promise<{ success: boolean; data: StoryItem }> {
   const formData = new FormData();
   formData.append('title', input.title);
   formData.append('content', input.content);
+  if (input.videoUrl) formData.append('videoUrl', input.videoUrl);
+  if (coverImage) formData.append('coverImage', coverImage);
   for (const image of images) {
     formData.append('images', image);
   }
@@ -49,15 +52,19 @@ export async function updateStory(
   id: string,
   input: StoryUpdateInput,
   newImages: File[] = [],
+  coverImage?: File | null,
   onUploadProgress?: (progress: number) => void
 ): Promise<{ success: boolean; data: StoryItem }> {
   const formData = new FormData();
   for (const image of newImages) {
     formData.append('images', image);
   }
+  if (coverImage) formData.append('coverImage', coverImage);
   if (input.title !== undefined) formData.append('title', input.title);
   if (input.content !== undefined) formData.append('content', input.content);
   if (input.isPublished !== undefined) formData.append('isPublished', String(input.isPublished));
+  if (input.videoUrl !== undefined) formData.append('videoUrl', input.videoUrl ?? '');
+  if (input.deleteCoverImage) formData.append('deleteCoverImage', 'true');
   if (input.deleteImageIds) {
     for (const imageId of input.deleteImageIds) {
       formData.append('deleteImageIds', imageId);

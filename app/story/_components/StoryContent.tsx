@@ -45,8 +45,8 @@ export default function StoryContent({ initialData }: Props) {
         ) : (
           <div className={isPlaceholderData ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
             <div className="space-y-4">
-              {stories.map((item) => (
-                <StoryCard key={item.id} item={item} />
+              {stories.map((item, index) => (
+                <StoryCard key={item.id} item={item} priority={index < 3} />
               ))}
             </div>
             <StoryPagination

@@ -9,11 +9,12 @@ import { revalidateStory } from '../content/actions';
 export function useCreateStory() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ input, images, onUploadProgress }: {
+    mutationFn: ({ input, images, coverImage, onUploadProgress }: {
       input: StoryCreateInput;
       images?: File[];
+      coverImage?: File | null;
       onUploadProgress?: (progress: number) => void;
-    }) => createStory(input, images ?? [], onUploadProgress),
+    }) => createStory(input, images ?? [], coverImage, onUploadProgress),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: storyKeys.lists() });
       revalidateStory();
@@ -24,12 +25,13 @@ export function useCreateStory() {
 export function useUpdateStory() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, input, newImages, onUploadProgress }: {
+    mutationFn: ({ id, input, newImages, coverImage, onUploadProgress }: {
       id: string;
       input: StoryUpdateInput;
       newImages?: File[];
+      coverImage?: File | null;
       onUploadProgress?: (progress: number) => void;
-    }) => updateStory(id, input, newImages ?? [], onUploadProgress),
+    }) => updateStory(id, input, newImages ?? [], coverImage, onUploadProgress),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: storyKeys.lists() });
       revalidateStory(variables.id);

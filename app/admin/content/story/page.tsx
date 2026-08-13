@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { useAdminStories } from '../../_hooks/useStoryQuery';
 import { useCreateStory, useUpdateStory, useDeleteStory } from '../../_hooks/useStoryMutations';
-import type { StoryItem, StoryUpdateInput } from '@/types/story';
+import type { StoryCreateInput, StoryItem, StoryUpdateInput } from '@/types/story';
 import StoryAdminCard from '../_components/StoryAdminCard';
 import StoryForm from '../_components/StoryForm';
 
@@ -25,9 +25,13 @@ export default function AdminStoryPage() {
   const updateMutation = useUpdateStory();
   const deleteMutation = useDeleteStory();
 
-  const handleCreate = async (input: { title: string; content: string }, images: File[]) => {
+  const handleCreate = async (
+    input: StoryCreateInput,
+    images: File[],
+    coverImage?: File | null,
+  ) => {
     try {
-      await createMutation.mutateAsync({ input, images });
+      await createMutation.mutateAsync({ input, images, coverImage });
       toast.success('이야기가 등록되었습니다.');
       setFormOpen(false);
     } catch {
@@ -38,10 +42,11 @@ export default function AdminStoryPage() {
   const handleEdit = async (
     input: StoryUpdateInput,
     newImages: File[],
+    coverImage?: File | null,
   ) => {
     if (!editTarget) return;
     try {
-      await updateMutation.mutateAsync({ id: editTarget.id, input, newImages });
+      await updateMutation.mutateAsync({ id: editTarget.id, input, newImages, coverImage });
       toast.success('이야기가 수정되었습니다.');
       setEditTarget(null);
     } catch {

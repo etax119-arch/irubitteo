@@ -4,7 +4,9 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Header from '@/app/_components/Header';
 import Footer from '@/app/_components/Footer';
+import YoutubeEmbed from '@/components/YoutubeEmbed';
 import { serverFetch } from '@/lib/api/server-fetch';
+import { resolvePostThumbnail } from '@/lib/postThumbnail';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import type { NewsletterItem } from '@/types/newsletter';
@@ -34,7 +36,7 @@ export async function generateMetadata({
   const { id } = await params;
   try {
     const item = await getNewsletterItem(id);
-    const cover = item.images[0];
+    const ogImage = resolvePostThumbnail(item)?.src;
     return {
       title: `${item.title} | 빛터 소식지`,
       description: item.content.slice(0, 160),
@@ -42,9 +44,7 @@ export async function generateMetadata({
       openGraph: {
         title: `${item.title} | 빛터 소식지`,
         description: item.content.slice(0, 160),
-        images: cover?.imageCardUrl
-          ? [{ url: cover.imageCardUrl }]
-          : undefined,
+        images: ogImage ? [{ url: ogImage }] : undefined,
       },
     };
   } catch {
@@ -69,7 +69,7 @@ export default async function NewsletterDetailPage({ params }: PageProps) {
   });
 
   // JSON-LD
-  const coverImage = item.images[0];
+  const jsonLdImage = resolvePostThumbnail(item)?.src;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -80,7 +80,7 @@ export default async function NewsletterDetailPage({ params }: PageProps) {
       '@type': 'Organization',
       name: '이루빛터',
     },
-    ...(coverImage?.imageCardUrl ? { image: coverImage.imageCardUrl } : {}),
+    ...(jsonLdImage ? { image: jsonLdImage } : {}),
   };
 
   return (
@@ -104,6 +104,9 @@ export default async function NewsletterDetailPage({ params }: PageProps) {
             {item.title}
           </h1>
           <p className="text-gray-500 mb-8">{date}</p>
+
+          {/* Video (대표사진은 목록 전용이라 여기서 노출하지 않음) */}
+          {item.videoUrl && <YoutubeEmbed url={item.videoUrl} title={item.title} />}
 
           {/* Images */}
           {item.images.length > 0 && (

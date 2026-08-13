@@ -45,8 +45,8 @@ export default function NewsletterContent({ initialData }: Props) {
         ) : (
           <div className={isPlaceholderData ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
             <div className="space-y-4">
-              {newsletters.map((item) => (
-                <NewsletterCard key={item.id} item={item} />
+              {newsletters.map((item, index) => (
+                <NewsletterCard key={item.id} item={item} priority={index < 3} />
               ))}
             </div>
             <NewsletterPagination
