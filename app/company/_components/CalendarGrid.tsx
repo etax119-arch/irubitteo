@@ -2,11 +2,18 @@
 
 import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Plus, FileSpreadsheet, FileText } from 'lucide-react';
-import type { Schedule } from '@/types/schedule';
+import type { PublicHoliday, Schedule } from '@/types/schedule';
+
+/** "YYYY-MM-DD"(또는 그로 시작하는 ISO 문자열) → 일(day) */
+function dayOfMonth(dateStr: string): number {
+  return Number(dateStr.slice(0, 10).split('-')[2]);
+}
 
 interface CalendarGridProps {
   currentMonth: Date;
   schedules: Schedule[];
+  /** 해당 월의 국가 공휴일 (빨간날) */
+  holidays: PublicHoliday[];
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onDateClick: (date: Date) => void;
@@ -17,6 +24,7 @@ interface CalendarGridProps {
 export function CalendarGrid({
   currentMonth,
   schedules,
+  holidays,
   onPrevMonth,
   onNextMonth,
   onDateClick,
@@ -32,15 +40,23 @@ export function CalendarGrid({
   const scheduleMap = useMemo(() => {
     const map = new Map<number, Schedule>();
     for (const s of schedules) {
-      const dateStr = s.date.slice(0, 10); // "YYYY-MM-DD"
-      const day = parseInt(dateStr.split('-')[2], 10);
-      map.set(day, s);
+      map.set(dayOfMonth(s.date), s);
     }
     return map;
   }, [schedules]);
 
+  // 일(day) → 공휴일 명칭. 서버가 이미 날짜당 한 항목으로 합쳐서 내려준다
+  const holidayMap = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const h of holidays) {
+      map.set(dayOfMonth(h.date), h.name);
+    }
+    return map;
+  }, [holidays]);
+
   const renderCells = () => {
     const cells = [];
+    const now = new Date();
 
     // 이전 달 빈 셀
     for (let i = 0; i < firstDay; i++) {
@@ -51,18 +67,25 @@ export function CalendarGrid({
     for (let date = 1; date <= lastDate; date++) {
       const dayOfWeek = new Date(year, month, date).getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const now = new Date();
       const isToday = date === now.getDate() && month === now.getMonth() && year === now.getFullYear();
       const schedule = scheduleMap.get(date);
       const isScheduleHoliday = schedule?.isHoliday ?? false;
+      const publicHolidayName = holidayMap.get(date);
 
+      // 공휴일을 주말보다 먼저 판정해 '빨간날'이 회색에 묻히지 않게 한다
       const cellBg = isScheduleHoliday
         ? 'bg-red-50 border-red-300'
+        : publicHolidayName
+        ? 'bg-red-50 border-red-200'
         : isWeekend
         ? 'bg-gray-50 border-gray-200'
         : schedule
         ? 'bg-blue-50 border-blue-300'
         : 'bg-white border-gray-200 hover:border-duru-orange-300';
+
+      // 공휴일이면 명칭("설날")을, 회사 휴일이면 '휴일'을 보여준다.
+      // 둘이 겹치면 더 구체적인 공휴일 명칭을 쓴다.
+      const holidayLabel = publicHolidayName ?? (isScheduleHoliday ? '휴일' : null);
 
       cells.push(
         <div
@@ -76,7 +99,7 @@ export function CalendarGrid({
             <div className="flex items-center justify-between mb-1 sm:mb-2">
               <span
                 className={`text-sm sm:text-lg font-bold ${
-                  dayOfWeek === 0
+                  publicHolidayName || dayOfWeek === 0
                     ? 'text-red-600'
                     : dayOfWeek === 6
                     ? 'text-blue-600'
@@ -87,11 +110,13 @@ export function CalendarGrid({
               </span>
             </div>
 
-            {isScheduleHoliday && schedule && (
+            {holidayLabel && (
               <div className="flex-1 flex flex-col gap-1">
                 <span className="sm:hidden mx-auto mt-0.5 w-2 h-2 rounded-full bg-red-500" />
-                <p className="hidden sm:block text-sm font-bold text-red-600">휴일</p>
-                {schedule.content && (
+                <p className="hidden sm:block text-sm font-bold text-red-600 line-clamp-1">
+                  {holidayLabel}
+                </p>
+                {isScheduleHoliday && schedule?.content && (
                   <p className="hidden sm:block text-xs text-gray-600 line-clamp-2">{schedule.content}</p>
                 )}
               </div>
@@ -106,7 +131,7 @@ export function CalendarGrid({
               </div>
             )}
 
-            {!schedule && !isWeekend && (
+            {!schedule && !isWeekend && !publicHolidayName && (
               <div className="flex-1 flex items-center justify-center">
                 <Plus className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" />
               </div>

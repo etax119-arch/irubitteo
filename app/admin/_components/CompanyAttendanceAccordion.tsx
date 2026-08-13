@@ -10,6 +10,7 @@ import { DatePicker } from '@/components/ui/DatePicker';
 import { Input } from '@/components/ui/Input';
 import { PaginationBar } from '@/components/ui/PaginationBar';
 import type { AdminDailyCompany } from '@/types/adminDashboard';
+import type { EmployeeDailyStatus } from '@/types/attendance';
 import type { Pagination } from '@/types/api';
 
 interface CompanyAttendanceAccordionProps {
@@ -110,13 +111,20 @@ export function CompanyAttendanceAccordion({
       {dailyAttendance.map((company) => {
         const employees = company.employees;
 
+        // 라벨로 묶어 개수를 센다 (leave/dayoff처럼 라벨이 같은 상태는 한 칩으로 합쳐진다).
+        // 색상용 상태값을 함께 들고 있어야 라벨→상태 역매핑이 필요 없다 —
+        // 역매핑은 새 상태를 추가할 때 조용히 엉뚱한 색으로 새기 쉽다.
         const statusCounts = employees.reduce(
           (acc, emp) => {
             const label = getEmployeeStatusLabel(emp.status, true);
-            acc[label] = (acc[label] || 0) + 1;
+            const prev = acc[label];
+            acc[label] = {
+              count: (prev?.count ?? 0) + 1,
+              status: prev?.status ?? emp.status,
+            };
             return acc;
           },
-          {} as Record<string, number>
+          {} as Record<string, { count: number; status: EmployeeDailyStatus }>
         );
 
         const isExpanded = expandedCompanies[company.companyId];
@@ -157,21 +165,14 @@ export function CompanyAttendanceAccordion({
                   </h3>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 flex-wrap">
-                  {Object.entries(statusCounts).map(([label, count]) => {
-                    const statusKey = label === '퇴근' ? 'checkout'
-                      : label === '근무중' ? 'checkin'
-                      : label === '결근' ? 'absent'
-                      : label === '휴무' ? 'leave'
-                      : 'pending';
-                    return (
-                      <span
-                        key={label}
-                        className={cn('px-3 py-1 rounded-full text-xs font-semibold', getEmployeeStatusStyle(statusKey as 'checkin' | 'checkout' | 'absent' | 'leave' | 'pending' | 'dayoff', true))}
-                      >
-                        {label}: {count}명
-                      </span>
-                    );
-                  })}
+                  {Object.entries(statusCounts).map(([label, { count, status }]) => (
+                    <span
+                      key={label}
+                      className={cn('px-3 py-1 rounded-full text-xs font-semibold', getEmployeeStatusStyle(status, true))}
+                    >
+                      {label}: {count}명
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>

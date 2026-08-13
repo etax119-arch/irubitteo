@@ -8,12 +8,46 @@ import {
   pdfBaseStyles,
   pdfThStyles,
 } from '@/lib/pdf';
-import type { Schedule } from '@/types/schedule';
+import type { PublicHoliday, Schedule } from '@/types/schedule';
 
 interface ExportScheduleOptions {
-  schedules: Schedule[];
+  rows: ScheduleExportRow[];
   year: number;
   month: number;
+}
+
+/** 내보내기용 행 (날짜 / 구분 / 내용). 엑셀과 PDF가 같은 표를 쓰도록 여기서 만든다 */
+export type ScheduleExportRow = {
+  date: string;
+  type: string;
+  content: string;
+};
+
+/**
+ * 일정과 국가 공휴일을 하나의 날짜순 표로 합친다.
+ *
+ * 같은 날에 공휴일과 업무 지시서가 둘 다 있으면 두 행으로 나온다 —
+ * 공휴일에도 별도 업무 지시서를 등록할 수 있기 때문이다.
+ */
+export function buildScheduleRows(
+  schedules: Schedule[],
+  holidays: PublicHoliday[],
+): ScheduleExportRow[] {
+  const scheduleRows = schedules.map((s) => ({
+    date: s.date.slice(0, 10),
+    type: s.isHoliday ? '휴일' : '업무 지시서',
+    content: s.content ?? '',
+  }));
+
+  const holidayRows = holidays.map((h) => ({
+    date: h.date.slice(0, 10),
+    type: '공휴일',
+    content: h.name,
+  }));
+
+  return [...holidayRows, ...scheduleRows].sort((a, b) =>
+    a.date.localeCompare(b.date),
+  );
 }
 
 /**
@@ -21,17 +55,10 @@ interface ExportScheduleOptions {
  * 컬럼: 날짜 / 구분 / 내용
  */
 export async function exportSchedulesToPdf({
-  schedules,
+  rows,
   year,
   month,
 }: ExportScheduleOptions): Promise<void> {
-  const rows = schedules
-    .map((s) => ({
-      date: s.date.slice(0, 10),
-      type: s.isHoliday ? '휴일' : '업무 지시서',
-      content: s.content ?? '',
-    }))
-    .sort((a, b) => a.date.localeCompare(b.date));
 
   const fonts = await loadNanumFonts();
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });

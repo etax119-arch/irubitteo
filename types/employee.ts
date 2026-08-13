@@ -50,7 +50,16 @@ export type Employee = {
   emergencyContactName: string | null;
   emergencyContactRelation: string | null;
   emergencyContactPhone: string | null;
-  status: 'checkin' | 'checkout' | 'absent' | 'leave' | 'annual_leave' | 'resigned' | 'pending' | 'dayoff';
+  status:
+    | 'checkin'
+    | 'checkout'
+    | 'absent'
+    | 'leave'
+    | 'annual_leave'
+    | 'public_holiday'
+    | 'resigned'
+    | 'pending'
+    | 'dayoff';
   clockIn: string | null;
   clockOut: string | null;
   uniqueCode: string;

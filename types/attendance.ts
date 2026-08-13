@@ -1,7 +1,15 @@
 import type { Employee } from './employee';
 
 /** 출퇴근 상태 */
-export type AttendanceStatus = 'pending' | 'checkin' | 'checkout' | 'absent' | 'leave' | 'annual_leave';
+export type AttendanceStatus =
+  | 'pending'
+  | 'checkin'
+  | 'checkout'
+  | 'absent'
+  | 'leave'
+  | 'annual_leave'
+  /** 국가 공휴일(빨간날)이라 쉰 날. 결근과 구분된다 */
+  | 'public_holiday';
 
 /** 일별 출퇴근 현황에서 사용하는 직원 상태 (Employee.status에서 resigned 제외) */
 export type EmployeeDailyStatus = Exclude<Employee['status'], 'resigned'>;
@@ -113,7 +121,10 @@ export interface CompanyDailyStats {
 /** 기업 대시보드 일별 출퇴근 응답 */
 export interface CompanyDailyResponse {
   date: string;
+  /** 회사가 직접 등록한 휴일 여부 (국가 공휴일은 publicHoliday를 볼 것) */
   isHoliday: boolean;
+  /** 국가 공휴일 명칭 (예: "설날"). 공휴일이 아니면 null */
+  publicHoliday: string | null;
   stats: CompanyDailyStats;
   records: DailyAttendanceRecord[];
 }

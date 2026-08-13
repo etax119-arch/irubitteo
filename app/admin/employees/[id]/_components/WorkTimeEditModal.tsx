@@ -122,6 +122,7 @@ export function WorkTimeEditModal({
               <option value="absent">결근</option>
               <option value="leave">휴무</option>
               <option value="annual_leave">연차</option>
+              <option value="public_holiday">공휴</option>
               <option disabled>──────────</option>
               <option value="__reset__">초기화 (기록 삭제)</option>
             </select>

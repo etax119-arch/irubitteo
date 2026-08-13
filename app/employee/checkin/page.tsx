@@ -6,8 +6,8 @@ import { ArrowLeft, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { SuccessModal } from '../_components/SuccessModal';
 import { useClockIn } from '../_hooks/useMyAttendanceMutations';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { scheduleApi } from '@/lib/api/schedules';
-import type { Schedule } from '@/types/schedule';
+import { useMyScheduleToday } from '../_hooks/useMyScheduleToday';
+import { PublicHolidayNotice } from '../_components/PublicHolidayNotice';
 
 function formatNowClock(date: Date): { date: string; time: string } {
   return {
@@ -31,14 +31,15 @@ export default function CheckInPage() {
   const [showModal, setShowModal] = useState(false);
   const clockInMutation = useClockIn();
   const isLoading = clockInMutation.isPending;
-  const [todaySchedule, setTodaySchedule] = useState<Schedule | null | undefined>(undefined);
   const [now, setNow] = useState(() => new Date());
 
-  useEffect(() => {
-    scheduleApi.getToday()
-      .then(setTodaySchedule)
-      .catch(() => setTodaySchedule(null));
-  }, []);
+  // 홈 화면(app/employee/page.tsx)이 이미 채워둔 캐시를 그대로 쓴다
+  const { data: today, isLoading: scheduleLoading } = useMyScheduleToday();
+  const todaySchedule = today?.schedule;
+  // 회사 휴일이면 이미 휴일 안내가 뜨므로 공휴일 안내는 겹쳐 띄우지 않는다
+  const publicHolidayName = todaySchedule?.isHoliday
+    ? undefined
+    : today?.publicHoliday?.name;
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -105,6 +106,12 @@ export default function CheckInPage() {
           </div>
 
           {/* 오늘의 작업 내용 */}
+          {publicHolidayName && (
+            <div className="mx-6 sm:mx-8 mb-4">
+              <PublicHolidayNotice name={publicHolidayName} />
+            </div>
+          )}
+
           <div className={`mx-6 sm:mx-8 mb-6 rounded-2xl p-6 sm:p-8 border ${
             todaySchedule?.isHoliday
               ? 'bg-red-50 border-red-200'
@@ -121,9 +128,9 @@ export default function CheckInPage() {
               <>
                 <h3 className="text-xl font-bold text-duru-orange-600 mb-5">오늘의 작업 내용</h3>
                 <p className="text-xl font-medium text-gray-900 leading-loose whitespace-pre-line break-words [overflow-wrap:anywhere]">
-                  {todaySchedule === undefined
+                  {scheduleLoading
                     ? '불러오는 중...'
-                    : todaySchedule === null
+                    : !todaySchedule
                     ? '등록된 작업 내용이 없습니다.'
                     : todaySchedule.content}
                 </p>

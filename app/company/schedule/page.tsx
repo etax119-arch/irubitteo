@@ -1,15 +1,21 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { CalendarGrid } from '../_components/CalendarGrid';
 import { ScheduleModal } from '../_components/ScheduleModal';
 import { useMonthlySchedules } from '../_hooks/useScheduleQuery';
 import { useCreateSchedule, useUpdateSchedule, useDeleteSchedule } from '../_hooks/useScheduleMutations';
 import { formatDateAsKST } from '@/lib/kst';
 import { exportToExcel } from '@/lib/excel';
-import { exportSchedulesToPdf } from '../_utils/generateSchedulePdf';
+import { buildScheduleRows, exportSchedulesToPdf } from '../_utils/generateSchedulePdf';
 import { useToast } from '@/components/ui/Toast';
-import type { Schedule } from '@/types/schedule';
+import type { PublicHoliday, Schedule } from '@/types/schedule';
+
+/** monthly가 아직 없을 때의 안정적인 폴백 (참조가 매 렌더 바뀌지 않아야 한다) */
+const EMPTY_MONTH: { schedules: Schedule[]; holidays: PublicHoliday[] } = {
+  schedules: [],
+  holidays: [],
+};
 
 export default function SchedulePage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -20,7 +26,14 @@ export default function SchedulePage() {
 
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth() + 1;
-  const { data: schedules = [] } = useMonthlySchedules(year, month);
+  const { data: monthly } = useMonthlySchedules(year, month);
+  // 모듈 상수로 폴백해 매 렌더마다 새 배열이 생기지 않게 한다 (아래 useCallback 의존성)
+  const { schedules, holidays } = monthly ?? EMPTY_MONTH;
+  // 엑셀·PDF가 같은 표를 쓴다
+  const exportRows = useMemo(
+    () => buildScheduleRows(schedules, holidays),
+    [schedules, holidays],
+  );
 
   const createMutation = useCreateSchedule(year, month);
   const updateMutation = useUpdateSchedule(year, month);
@@ -72,17 +85,10 @@ export default function SchedulePage() {
   }, [selectedDate, selectedSchedule, updateMutation, createMutation, toast]);
 
   const handleExportExcel = useCallback(() => {
-    if (schedules.length === 0) {
+    if (exportRows.length === 0) {
       toast.error('내보낼 일정이 없습니다.');
       return;
     }
-    const rows = schedules
-      .map((s) => ({
-        date: s.date.slice(0, 10),
-        type: s.isHoliday ? '휴일' : '업무 지시서',
-        content: s.content ?? '',
-      }))
-      .sort((a, b) => a.date.localeCompare(b.date));
     exportToExcel({
       fileName: `근무일정_${year}-${String(month).padStart(2, '0')}.xlsx`,
       sheetName: '근무일정',
@@ -91,21 +97,21 @@ export default function SchedulePage() {
         { key: 'type', header: '구분', width: 12 },
         { key: 'content', header: '내용', width: 50 },
       ],
-      rows,
+      rows: exportRows,
     });
-  }, [schedules, year, month, toast]);
+  }, [exportRows, year, month, toast]);
 
   const handleExportPdf = useCallback(async () => {
-    if (schedules.length === 0) {
+    if (exportRows.length === 0) {
       toast.error('내보낼 일정이 없습니다.');
       return;
     }
     try {
-      await exportSchedulesToPdf({ schedules, year, month });
+      await exportSchedulesToPdf({ rows: exportRows, year, month });
     } catch {
       toast.error('PDF 내보내기에 실패했습니다.');
     }
-  }, [schedules, year, month, toast]);
+  }, [exportRows, year, month, toast]);
 
   const handleDelete = useCallback(async () => {
     if (!selectedSchedule) return;
@@ -123,6 +129,7 @@ export default function SchedulePage() {
       <CalendarGrid
         currentMonth={currentMonth}
         schedules={schedules}
+        holidays={holidays}
         onPrevMonth={goToPrevMonth}
         onNextMonth={goToNextMonth}
         onDateClick={handleDateClick}

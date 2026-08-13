@@ -1,5 +1,11 @@
 import apiClient from './client';
-import type { Schedule, ScheduleCreateInput, ScheduleUpdateInput, MonthlySchedule } from '@/types/schedule';
+import type {
+  Schedule,
+  ScheduleCreateInput,
+  ScheduleUpdateInput,
+  MonthlySchedule,
+  TodayScheduleResponse,
+} from '@/types/schedule';
 
 export const scheduleApi = {
   async getMonthly(year: number, month: number): Promise<MonthlySchedule> {
@@ -30,10 +36,11 @@ export const scheduleApi = {
     await apiClient.delete(`/schedules/${id}`);
   },
 
-  async getToday(): Promise<Schedule | null> {
-    const response = await apiClient.get<{ success: boolean; data: Schedule | null }>(
-      '/schedules/today'
-    );
+  async getToday(): Promise<TodayScheduleResponse> {
+    const response = await apiClient.get<{
+      success: boolean;
+      data: TodayScheduleResponse;
+    }>('/schedules/today');
     return response.data.data;
   },
 };

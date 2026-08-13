@@ -19,6 +19,8 @@ export function getEmployeeStatusLabel(status: Employee['status'], isActive: boo
       return '휴무';
     case 'annual_leave':
       return '연차';
+    case 'public_holiday':
+      return '공휴';
     case 'pending':
       return '출근 전';
     case 'dayoff':
@@ -41,6 +43,8 @@ export function getEmployeeStatusStyle(status: Employee['status'], isActive: boo
       return 'bg-teal-100 text-teal-700';
     case 'annual_leave':
       return 'bg-purple-100 text-purple-700';
+    case 'public_holiday':
+      return 'bg-pink-100 text-pink-700';
     case 'pending':
       return 'bg-yellow-100 text-yellow-700';
     case 'dayoff':
@@ -60,6 +64,7 @@ const STATUSES_WITHOUT_CLOCK: AttendanceStatus[] = [
   'absent',
   'leave',
   'annual_leave',
+  'public_holiday',
 ];
 
 export function hasNoClockTimes(status: AttendanceStatus) {
@@ -71,6 +76,10 @@ export function hasNoClockTimes(status: AttendanceStatus) {
  * - 비근무일 → 휴무
  * - 근무일 중 오늘 → 출근 전 (아직 출근할 수 있다. 결근 크론이 필요하면 결근으로 바꾼다)
  * - 근무일 중 지난 날 → 결근
+ *
+ * 한계: 프론트는 휴일 정보를 모르므로 휴일이었던 지난 날의 연차를 취소하면 '결근'이 된다.
+ * 회사 휴일에 대해 원래 있던 동작이고 국가 공휴일도 동일하다. 이 경우 관리자가
+ * 근무시간 수정 모달에서 '공휴'(또는 '휴무')를 직접 선택해 정정하면 된다.
  */
 export function resolveAnnualLeaveCancelStatus(
   dateOnly: string,
@@ -98,6 +107,8 @@ export function getAttendanceRecordStatusLabel(status: AttendanceStatus) {
       return '휴무';
     case 'annual_leave':
       return '연차';
+    case 'public_holiday':
+      return '공휴';
     default: {
       const _exhaustive: never = status;
       return _exhaustive;
@@ -119,6 +130,10 @@ export function getAttendanceRecordStatusColor(status: AttendanceStatus) {
       return 'bg-teal-100 text-teal-700';
     case 'annual_leave':
       return 'bg-purple-100 text-purple-700';
+    // 결근이 red-100/red-700이라 공휴에 빨강을 쓰면 한눈에 구분되지 않는다.
+    // 달력은 '빨간날'로 칠하되(CalendarGrid), 상태 배지는 별도 색을 쓴다.
+    case 'public_holiday':
+      return 'bg-pink-100 text-pink-700';
     default: {
       const _exhaustive: never = status;
       return _exhaustive;

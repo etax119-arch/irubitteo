@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { HeaderCard } from './_components/HeaderCard';
 import { AttendanceButtons } from './_components/AttendanceButtons';
+import { PublicHolidayNotice } from './_components/PublicHolidayNotice';
 import { NoticeSection } from './_components/NoticeSection';
 import { WorkRecordsSection } from './_components/WorkRecordsSection';
 import { PhotoLightbox } from '@/components/PhotoLightbox';
@@ -47,13 +48,17 @@ function getAttendanceMode(params: {
 
   if (hireDate && formatDateAsKST(new Date()) < hireDate) return 'beforeHire';
 
+  // 회사가 직접 등록한 휴일만 출근을 막는다.
+  // 국가 공휴일은 여기서 걸러내지 않는다 — 공휴일에도 출근은 가능해야 하고,
+  // 출근하지 않으면 서버가 결근 대신 '공휴'로 남긴다.
   if (todaySchedule?.isHoliday) return 'holiday';
   if (workDays && !workDays.includes(todayWorkDay)) return 'dayoff';
 
   if (
     !todayAttendance ||
     todayAttendance.status === 'pending' ||
-    todayAttendance.status === 'absent'
+    todayAttendance.status === 'absent' ||
+    todayAttendance.status === 'public_holiday'
   )
     return 'checkin';
   if (todayAttendance.status === 'checkin') return 'checkout';
@@ -101,10 +106,15 @@ export default function EmployeeDashboard() {
   const isError = attendanceError || scheduleError || profileError;
   const todayWorkDay = getKSTWorkDay();
 
+  // 회사 휴일이면 이미 출근 버튼이 없으니 공휴일 안내는 겹쳐 띄우지 않는다
+  const publicHolidayName = todaySchedule?.schedule?.isHoliday
+    ? undefined
+    : todaySchedule?.publicHoliday?.name;
+
   const mode = getAttendanceMode({
     isLoading,
     isError,
-    todaySchedule: todaySchedule ?? null,
+    todaySchedule: todaySchedule?.schedule ?? null,
     workDays: myProfile?.workDays,
     todayWorkDay,
     todayAttendance: todayAttendance ?? null,
@@ -184,11 +194,18 @@ export default function EmployeeDashboard() {
         {/* 헤더 카드 */}
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-duru-orange-100 mb-6">
           <HeaderCard userName={user?.name || ''} onLogout={handleLogout} />
+          {publicHolidayName && mode === 'checkin' && (
+            <div className="mb-4">
+              <PublicHolidayNotice name={publicHolidayName} />
+            </div>
+          )}
           <AttendanceButtons
             mode={mode}
             onCheckIn={handleCheckIn}
             onCheckOut={handleCheckOut}
-            holidayContent={todaySchedule?.isHoliday ? todaySchedule.content : undefined}
+            holidayContent={
+              todaySchedule?.schedule?.isHoliday ? todaySchedule.schedule.content : undefined
+            }
             clockIn={todayAttendance?.clockIn}
             clockOut={todayAttendance?.clockOut}
             hireDate={myProfile?.hireDate}
