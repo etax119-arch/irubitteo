@@ -54,6 +54,11 @@ export const companyKeys = {
   files: (id: string) => ['companies', id, 'files'] as const,
 };
 
+export const holidayKeys = {
+  all: ['holidays'] as const,
+  year: (year: number) => ['holidays', year] as const,
+};
+
 export const adminKeys = {
   all: ['admin'] as const,
   stats: () => ['admin', 'stats'] as const,

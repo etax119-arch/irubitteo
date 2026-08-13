@@ -277,6 +277,9 @@ status:
 | `app/employee/_hooks/useMyProfile.ts` | `GET /v1/employees/me` — workDays 기반 비근무일 판정 |
 | `app/employee/_hooks/useMyScheduleToday.ts` | `GET /v1/schedules/today` — 회사 휴일 판정 + 공휴일 명칭 |
 | `app/company/_components/CalendarGrid.tsx` | 근무일정 달력 — 공휴일 빨간 배경/명칭, 일요일 빨강·토요일 파랑 |
+| `app/admin/settings/_components/HolidaySection.tsx` | 관리자 설정 — 공휴일 연도별 목록/추가/수정/삭제 |
+| `app/admin/_hooks/useHolidayQuery.ts` · `useHolidayMutations.ts` | 공휴일 Query/Mutation 훅 (변경 시 근무일정 달력 캐시도 무효화) |
+| `lib/api/holidays.ts` · `types/holiday.ts` | 공휴일 API/타입 (`/v1/holidays`, 관리자 전용) |
 | `app/company/_components/AttendanceTable.tsx` | 기업 대시보드 출퇴근 테이블 |
 | `app/admin/_components/CompanyAttendanceAccordion.tsx` | 관리자 회사별 출퇴근 아코디언 |
 | `app/company/employees/_hooks/useAttendanceHistory.ts` | 최근 출퇴근 기록 가공 (raw status 유지) |

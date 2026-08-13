@@ -15,6 +15,7 @@ import { extractErrorMessage } from '@/lib/api/error';
 import { useAuthStore } from '@/lib/auth/store';
 import { formatKSTDateTime } from '@/lib/kst';
 import { adminKeys } from '@/lib/query/keys';
+import { HolidaySection } from './_components/HolidaySection';
 
 export default function AdminSettingsPage() {
   const router = useRouter();
@@ -341,6 +342,8 @@ export default function AdminSettingsPage() {
           )}
         </CardContent>
       </Card>
+
+      <HolidaySection />
     </div>
   );
 }

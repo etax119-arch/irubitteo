@@ -56,7 +56,7 @@
 │   ├── story/page.tsx      # 빛터 이야기 관리
 │   ├── announcement/page.tsx # 공고 관리
 │   └── _components/        # GalleryAdminCard, GalleryForm, NewsletterAdminCard, NewsletterForm, AnnouncementAdminCard, AnnouncementForm
-└── settings/page.tsx       # 관리자 계정 설정 (비밀번호 변경 + 관리자 계정 추가 + 관리자 계정 리스트)
+└── settings/page.tsx       # 설정 (비밀번호 변경 + 관리자 계정 추가/리스트 + 공휴일 관리)
 ```
 
 ### 타입 정의
@@ -89,7 +89,7 @@
 | `/admin/content/newsletter` | 뉴스레터 관리 |
 | `/admin/content/story` | 빛터 이야기 관리 |
 | `/admin/content/announcement` | 공고 관리 |
-| `/admin/settings` | 관리자 계정 설정 페이지 |
+| `/admin/settings` | 설정 페이지 (관리자 계정 + 공휴일 관리) |
 
 ---
 
