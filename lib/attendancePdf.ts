@@ -9,6 +9,7 @@ import {
   registerNanumFonts,
   pdfBaseStyles,
   pdfThStyles,
+  pdfDateColumnStyle,
 } from '@/lib/pdf';
 import type { AttendanceWithEmployee } from '@/types/attendance';
 
@@ -86,7 +87,7 @@ export async function exportAttendancesToPdf({
     head: [['날짜', '출근', '퇴근', '상태', '업무내용']],
     body: rows.map((r) => [r.date, r.checkin, r.checkout, r.status, r.workContent]),
     columnStyles: {
-      0: { cellWidth: 26, halign: 'center' as const },
+      0: pdfDateColumnStyle,
       1: { cellWidth: 22, halign: 'center' as const },
       2: { cellWidth: 22, halign: 'center' as const },
       3: { cellWidth: 22, halign: 'center' as const },

@@ -7,6 +7,7 @@ import {
   registerNanumFonts,
   pdfBaseStyles,
   pdfThStyles,
+  pdfDateColumnStyle,
 } from '@/lib/pdf';
 import type { PublicHoliday, Schedule } from '@/types/schedule';
 
@@ -97,7 +98,7 @@ export async function exportSchedulesToPdf({
     head: [['날짜', '구분', '내용']],
     body: rows.map((r) => [r.date, r.type, r.content]),
     columnStyles: {
-      0: { cellWidth: 30, halign: 'center' as const },
+      0: pdfDateColumnStyle,
       1: { cellWidth: 30, halign: 'center' as const },
       2: { cellWidth: 'auto' as const },
     },

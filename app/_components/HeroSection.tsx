@@ -125,7 +125,8 @@ export default function HeroSection() {
             </span>
           </div>
 
-          <h1 className="grid text-5xl lg:text-6xl font-bold leading-[1.3] tracking-tight text-gray-900 break-keep">
+          {/* text-5xl/lg:text-6xl이 line-height:1을 함께 지정하므로, 줄 간격은 브레이크포인트마다 다시 덮어써야 한다 */}
+          <h1 className="grid text-5xl lg:text-6xl font-bold leading-[1.35] lg:leading-[1.35] tracking-tight text-gray-900 break-keep">
             {/* 검색엔진·스크린리더용 원문 (레이아웃에 영향 없음) */}
             <span className="sr-only">장애인 근로자와 기업이 함께 빛나는 일터</span>
             {/* 타이핑 중에도 높이가 흔들리지 않도록 자리를 잡아두는 사본 */}

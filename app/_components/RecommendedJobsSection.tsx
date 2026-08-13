@@ -97,7 +97,7 @@ export default function RecommendedJobsSection() {
             드려요
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            장애유형과 상관없이 충분히 해낼 수 있는 열두가지 대표직무에요.{' '}
+            장애인 근로자들이 충분히 해낼 수 있는 열두 가지 대표 직무에요.{' '}
             <br className="hidden sm:block" />
             어떤 직무가 맞을지 고민된다면, 이루빛터가 함께 찾아드릴게요.
           </p>

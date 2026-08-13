@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { usePrefersReducedMotion } from '../_hooks/usePrefersReducedMotion';
 
 interface Feature {
   id: string;
@@ -24,7 +25,7 @@ const FEATURES: Feature[] = [
     id: 'attendance',
     title: '출퇴근 기록',
     description:
-      '근로자가 앱으로 남긴 출퇴근 기록이 실시간으로 정리되어, 오늘의 근태를 바로 확인할 수 있어요.',
+      '근로자가 남긴 출퇴근 기록이 실시간으로 정리되어 오늘의 근태를 바로 확인할 수 있어요.',
     image: '/images/management/attendance-records.png',
     imageAlt:
       '출퇴근 기록 화면 — 근로자 정보와 날짜별 출근·퇴근 시간, 상태 목록',
@@ -41,16 +42,21 @@ const FEATURES: Feature[] = [
     id: 'notices',
     title: '공지사항',
     description:
-      '안전교육, 행사 소식을 근로자 웹으로 바로 전해 중요한\n안내를 놓치지 않아요.',
+      '안전교육, 행사 소식을 근로자에게 바로 전해\n중요한 안내를 놓치지 않아요.',
     image: '/images/management/notice-management.png',
     imageAlt: '공지사항 관리 페이지 화면 — 발송 대상 근로자 선택과 공지 작성',
   },
 ];
 
+/** 자동 전환 간격(ms) */
+const AUTO_ROTATE_MS = 5000;
+
 export default function ManagementSystemSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState(FEATURES[0].id);
+  const [isPaused, setIsPaused] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -69,6 +75,24 @@ export default function ManagementSystemSection() {
 
     return () => observer.disconnect();
   }, []);
+
+  /**
+   * 5초마다 다음 기능으로 자동 전환.
+   * activeTab이 바뀔 때마다 타이머가 다시 시작되므로 직접 탭을 누르면 5초가 새로 주어지고,
+   * 마우스를 올리거나 탭에 포커스가 있는 동안에는 멈춘다.
+   */
+  useEffect(() => {
+    if (!isVisible || isPaused || prefersReducedMotion) return;
+
+    const timer = setInterval(() => {
+      setActiveTab((current) => {
+        const index = FEATURES.findIndex((f) => f.id === current);
+        return FEATURES[(index + 1) % FEATURES.length].id;
+      });
+    }, AUTO_ROTATE_MS);
+
+    return () => clearInterval(timer);
+  }, [isVisible, isPaused, prefersReducedMotion, activeTab]);
 
   const activeFeature = FEATURES.find((f) => f.id === activeTab) ?? FEATURES[0];
 
@@ -91,7 +115,14 @@ export default function ManagementSystemSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+        {/* 탭·스크린샷 위에 머무는 동안에는 자동 전환을 멈춘다 */}
+        <div
+          className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-center"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onFocus={() => setIsPaused(true)}
+          onBlur={() => setIsPaused(false)}
+        >
           {/* 기능 메뉴 */}
           <div
             role="tablist"

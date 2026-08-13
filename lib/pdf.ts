@@ -66,6 +66,17 @@ export const pdfBaseStyles = {
   cellPadding: { top: 4, right: 6, bottom: 4, left: 6 },
 };
 
+/**
+ * 날짜(YYYY-MM-DD) 열 스타일.
+ * 기본 셀 패딩(좌우 6mm)을 그대로 두면 남는 폭이 모자라 날짜가 두 줄로 접히므로,
+ * 좌우 패딩을 줄이고 한 줄이 들어갈 폭을 확보한다.
+ */
+export const pdfDateColumnStyle = {
+  cellWidth: 28,
+  halign: 'center' as const,
+  cellPadding: { top: 4, right: 2, bottom: 4, left: 2 },
+};
+
 export const pdfThStyles = {
   fillColor: PDF_COLORS.thBg,
   textColor: PDF_COLORS.thText,

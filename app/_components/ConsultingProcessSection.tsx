@@ -58,7 +58,7 @@ const STEPS: Step[] = [
   {
     id: 'support',
     title: '근로자 관리 지원',
-    description: '재택근로자 운영 관리와 고충 심리 상담까지 지원해요.',
+    description: '근로자 운영 관리와 고충 심리 상담까지 지원해요.',
     icon: HeartHandshake,
     image: '/images/consulting/step-5.png',
     imageAlt: '근로자 관리 지원 일러스트 — 하트를 감싼 두 손과 상담 헤드셋',
