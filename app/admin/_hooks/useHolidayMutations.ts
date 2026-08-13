@@ -7,17 +7,19 @@ import type { HolidayCreateInput, HolidayUpdateInput } from '@/types/holiday';
  * 공휴일이 바뀌면 기업 근무일정 달력도 흐려진다 — 달력은 공휴일을
  * `GET /schedules/monthly` 응답으로 함께 받으므로 그 캐시까지 무효화한다.
  */
-function useInvalidateHolidays(year: number) {
+function useInvalidateHolidays() {
   const queryClient = useQueryClient();
 
   return () => {
-    void queryClient.invalidateQueries({ queryKey: holidayKeys.year(year) });
+    // 연도 단위가 아니라 전체를 비운다 — 날짜를 다른 연도로 옮기는 수정이 있으면
+    // 원래 연도와 옮겨간 연도 두 곳이 모두 흐려진다.
+    void queryClient.invalidateQueries({ queryKey: holidayKeys.all });
     void queryClient.invalidateQueries({ queryKey: scheduleKeys.all });
   };
 }
 
-export function useCreateHoliday(year: number) {
-  const invalidate = useInvalidateHolidays(year);
+export function useCreateHoliday() {
+  const invalidate = useInvalidateHolidays();
 
   return useMutation({
     mutationFn: (input: HolidayCreateInput) => holidayApi.create(input),
@@ -25,8 +27,8 @@ export function useCreateHoliday(year: number) {
   });
 }
 
-export function useUpdateHoliday(year: number) {
-  const invalidate = useInvalidateHolidays(year);
+export function useUpdateHoliday() {
+  const invalidate = useInvalidateHolidays();
 
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: HolidayUpdateInput }) =>
@@ -35,8 +37,8 @@ export function useUpdateHoliday(year: number) {
   });
 }
 
-export function useDeleteHoliday(year: number) {
-  const invalidate = useInvalidateHolidays(year);
+export function useDeleteHoliday() {
+  const invalidate = useInvalidateHolidays();
 
   return useMutation({
     mutationFn: (id: string) => holidayApi.remove(id),

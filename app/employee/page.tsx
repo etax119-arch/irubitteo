@@ -19,18 +19,12 @@ import { useMyScheduleToday } from './_hooks/useMyScheduleToday';
 import { useMyProfile } from './_hooks/useMyProfile';
 import { useToast } from '@/components/ui/Toast';
 import { formatDateAsKST } from '@/lib/kst';
+import { dateStringToWorkDay } from '@/lib/workDays';
 import type { DisplayPhoto } from '@/types/attendance';
 import type { AttendanceMode } from './_components/AttendanceButtons';
 import type { WorkDay } from '@/types/employee';
 import type { AttendanceWithEmployee } from '@/types/attendance';
 import type { Schedule } from '@/types/schedule';
-
-function getKSTWorkDay(): WorkDay {
-  const kstDateStr = formatDateAsKST(new Date());
-  const kstDate = new Date(kstDateStr + 'T12:00:00+09:00');
-  const jsDay = kstDate.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  return (jsDay === 0 ? 7 : jsDay) as WorkDay; // 1=Mon, ..., 7=Sun
-}
 
 function getAttendanceMode(params: {
   isLoading: boolean;
@@ -104,7 +98,7 @@ export default function EmployeeDashboard() {
 
   const isLoading = attendanceLoading || scheduleLoading || profileLoading;
   const isError = attendanceError || scheduleError || profileError;
-  const todayWorkDay = getKSTWorkDay();
+  const todayWorkDay = dateStringToWorkDay(formatDateAsKST(new Date()));
 
   // 회사 휴일이면 이미 출근 버튼이 없으니 공휴일 안내는 겹쳐 띄우지 않는다
   const publicHolidayName = todaySchedule?.schedule?.isHoliday

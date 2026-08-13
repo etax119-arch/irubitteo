@@ -10,6 +10,17 @@ export const NUM_TO_LABEL: Record<number, string> = {
   1: '월', 2: '화', 3: '수', 4: '목', 5: '금', 6: '토', 7: '일',
 };
 
+/**
+ * "YYYY-MM-DD" → 요일 번호 (1=월 … 7=일).
+ *
+ * 정오로 앵커링해 타임존 때문에 날짜가 하루 밀리는 것을 막고, JS의 0=일요일을
+ * 프로젝트 규약인 7=일요일로 바꾼다. 이 변환을 각자 손으로 하면 어긋난다.
+ */
+export function dateStringToWorkDay(dateStr: string): WorkDay {
+  const jsDay = new Date(dateStr.slice(0, 10) + 'T12:00:00+09:00').getDay();
+  return (jsDay === 0 ? 7 : jsDay) as WorkDay;
+}
+
 export const DEFAULT_WORK_START = '09:00';
 export const DEFAULT_WORK_END = '18:00';
 

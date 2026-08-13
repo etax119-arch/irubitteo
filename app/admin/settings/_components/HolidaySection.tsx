@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   CalendarDays,
   ChevronLeft,
@@ -24,16 +24,13 @@ import {
   useDeleteHoliday,
   useUpdateHoliday,
 } from '../../_hooks/useHolidayMutations';
+import { NUM_TO_LABEL, dateStringToWorkDay } from '@/lib/workDays';
 import type { Holiday } from '@/types/holiday';
-
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
 /** "YYYY-MM-DD" → "3월 1일 (일)" */
 function formatHolidayDate(dateStr: string): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  // UTC 정오로 만들어 타임존에 따라 날짜가 밀리지 않게 한다
-  const day = new Date(Date.UTC(y, m - 1, d, 12)).getUTCDay();
-  return `${m}월 ${d}일 (${DAY_LABELS[day]})`;
+  const [, m, d] = dateStr.split('-').map(Number);
+  return `${m}월 ${d}일 (${NUM_TO_LABEL[dateStringToWorkDay(dateStr)]})`;
 }
 
 export function HolidaySection() {
@@ -47,15 +44,10 @@ export function HolidaySection() {
   const [formName, setFormName] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Holiday | null>(null);
 
-  const createMutation = useCreateHoliday(year);
-  const updateMutation = useUpdateHoliday(year);
-  const deleteMutation = useDeleteHoliday(year);
+  const createMutation = useCreateHoliday();
+  const updateMutation = useUpdateHoliday();
+  const deleteMutation = useDeleteHoliday();
   const isSaving = createMutation.isPending || updateMutation.isPending;
-
-  const yearRange = useMemo(
-    () => ({ min: `${year}-01-01`, max: `${year}-12-31` }),
-    [year],
-  );
 
   const openAddForm = () => {
     setEditing(null);
@@ -82,22 +74,20 @@ export function HolidaySection() {
     }
 
     const input = { date: formDate, name: formName.trim() };
-    const onSuccess = (message: string) => () => {
-      toast.success(message);
-      setIsFormOpen(false);
+    const handlers = {
+      onSuccess: () => {
+        toast.success(
+          editing ? '공휴일이 수정되었습니다.' : '공휴일이 추가되었습니다.',
+        );
+        setIsFormOpen(false);
+      },
+      onError: (err: unknown) => toast.error(extractErrorMessage(err)),
     };
-    const onError = (err: unknown) => toast.error(extractErrorMessage(err));
 
     if (editing) {
-      updateMutation.mutate(
-        { id: editing.id, input },
-        { onSuccess: onSuccess('공휴일이 수정되었습니다.'), onError },
-      );
+      updateMutation.mutate({ id: editing.id, input }, handlers);
     } else {
-      createMutation.mutate(input, {
-        onSuccess: onSuccess('공휴일이 추가되었습니다.'),
-        onError,
-      });
+      createMutation.mutate(input, handlers);
     }
   };
 
@@ -158,34 +148,21 @@ export function HolidaySection() {
           </button>
         </div>
 
-        {isLoading && (
+        {/* 한 체인으로 두어 정확히 하나만 렌더된다는 것이 한눈에 보이게 한다 */}
+        {isLoading ? (
           <div className="space-y-2">
             <Skeleton className="h-12 w-full rounded-lg" />
             <Skeleton className="h-12 w-full rounded-lg" />
             <Skeleton className="h-12 w-full rounded-lg" />
           </div>
-        )}
-
-        {isError && (
+        ) : isError ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <p className="text-red-600 font-medium">공휴일을 불러올 수 없습니다</p>
             <Button variant="secondary" className="mt-3" onClick={() => void refetch()}>
               다시 시도
             </Button>
           </div>
-        )}
-
-        {!isLoading && !isError && holidays?.length === 0 && (
-          <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <CalendarDays className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-600 font-medium">{year}년 공휴일이 없습니다</p>
-            <p className="text-sm text-gray-500 mt-1">
-              기본 공휴일은 2026~2030년까지 등록되어 있습니다.
-            </p>
-          </div>
-        )}
-
-        {!isLoading && !isError && holidays && holidays.length > 0 && (
+        ) : holidays?.length ? (
           <>
             <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden">
               {holidays.map((holiday) => (
@@ -222,6 +199,14 @@ export function HolidaySection() {
             </ul>
             <p className="text-sm text-gray-500 text-right">총 {holidays.length}일</p>
           </>
+        ) : (
+          <div className="border border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <CalendarDays className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-600 font-medium">{year}년 공휴일이 없습니다</p>
+            <p className="text-sm text-gray-500 mt-1">
+              기본 공휴일은 2026~2030년까지 등록되어 있습니다.
+            </p>
+          </div>
         )}
       </CardContent>
 
@@ -237,8 +222,8 @@ export function HolidaySection() {
             value={formDate}
             onChange={setFormDate}
             disabled={isSaving}
-            minDate={yearRange.min}
-            maxDate={yearRange.max}
+            minDate={`${year}-01-01`}
+            maxDate={`${year}-12-31`}
             allowManualInput
           />
 
