@@ -98,7 +98,7 @@ export function DatePicker({
       <Popover
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        className="min-w-[340px]"
+        className="min-w-[300px] sm:min-w-[340px]"
         trigger={
           allowManualInput ? (
             <div
@@ -171,7 +171,7 @@ export function DatePicker({
           disabled={disabledMatchers.length > 0 ? disabledMatchers : undefined}
           showOutsideDays
           classNames={{
-            root: 'p-4',
+            root: 'p-3 sm:p-4',
             months: 'flex flex-col',
             month: 'space-y-3',
             month_caption: 'flex justify-center items-center h-10',
@@ -185,7 +185,7 @@ export function DatePicker({
             week: 'grid grid-cols-7 gap-1',
             day: 'text-center',
             day_button:
-              'w-10 h-10 text-sm rounded-lg transition-colors hover:bg-duru-orange-50 focus:outline-none',
+              'w-9 h-9 sm:w-10 sm:h-10 text-sm rounded-lg transition-colors hover:bg-duru-orange-50 focus:outline-none',
             today: 'font-bold',
             selected: '[&>button]:bg-duru-orange-500 [&>button]:text-white [&>button]:hover:bg-duru-orange-600',
             outside: 'text-gray-300',

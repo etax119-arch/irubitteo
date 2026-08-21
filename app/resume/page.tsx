@@ -210,25 +210,46 @@ export default function ResumePage() {
     router.push('/');
   };
 
-  // Shared input styles
+  // Shared styles
+  // 좁은 화면에서는 표를 세로 스택(block)으로 펼치고, 넓은 화면에서만 원래의 표 레이아웃을 쓴다.
+  // 라벨/값 2쌍짜리 표는 md(768px), 열이 많은 경력·자격증 표는 lg(1024px)부터 표로 전환한다.
   const inputClass =
-    'w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-400 focus:border-duru-orange-400';
+    'w-full px-3 py-2.5 md:py-2 text-base md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-duru-orange-400 focus:border-duru-orange-400';
+  const sectionTitleClass =
+    'bg-duru-orange-500 text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-2 rounded-t-lg';
+  // 라벨/값이 짝을 이루는 표 (개인정보 · 학력 · 장애사항)
+  const tableClass =
+    'w-full border-collapse block md:table border-b border-gray-200 md:border-b-0';
+  const rowClass = 'block md:table-row';
+  const bodyClass = 'block md:table-row-group';
   const thClass =
+    'block md:table-cell bg-orange-50 text-duru-orange-700 font-semibold text-xs md:text-sm px-3 py-2 md:px-4 md:py-3 border-x border-t border-gray-200 md:border text-left md:whitespace-nowrap';
+  const tdClass =
+    'block md:table-cell px-3 py-2.5 md:px-4 md:py-3 border-x border-t border-gray-200 md:border';
+  // 행 반복형 표 (경력 · 자격증) — 좁은 화면에서는 행 하나가 카드 하나가 된다.
+  const cardTableClass = 'w-full border-collapse block lg:table';
+  const cardBodyClass = 'block lg:table-row-group';
+  const cardThClass =
     'bg-orange-50 text-duru-orange-700 font-semibold text-sm px-4 py-3 border border-gray-200 text-left whitespace-nowrap';
-  const tdClass = 'px-4 py-3 border border-gray-200';
+  const cardRowClass =
+    'block lg:table-row border border-gray-200 rounded-lg py-1 mb-3 lg:mb-0 lg:py-0 lg:rounded-none lg:border-0';
+  const cardCellBase =
+    'lg:table-cell px-3 py-1.5 lg:px-4 lg:py-3 lg:border lg:border-gray-200';
+  const cardTdClass = `block ${cardCellBase}`;
+  const mobileLabelClass = 'block lg:hidden text-xs font-semibold text-duru-orange-700 mb-1';
 
   return (
     <div className="min-h-screen bg-duru-ivory">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <header className="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <Image
               src="/images/logo_tran.png"
               alt="이루빛터"
               width={1563}
               height={1563}
-              className="h-[220px] w-auto -my-[40px] -ml-[30px]"
+              className="h-[176px] sm:h-[220px] w-auto -my-[32px] sm:-my-[40px] -ml-[24px] sm:-ml-[30px]"
             />
           </Link>
           <Link
@@ -241,28 +262,26 @@ export default function ResumePage() {
         </div>
       </header>
 
-      <div className="max-w-[260mm] mx-auto px-4 sm:px-6 py-10">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-6 sm:p-10">
+      <div className="max-w-[260mm] mx-auto px-3 sm:px-6 py-6 sm:py-10">
+        <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 shadow-soft p-4 sm:p-10">
           <form onSubmit={handleSubmit} noValidate>
             {/* Title */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-[12px] border-b-4 border-duru-orange-500 pb-4 inline-block">
+            <div className="text-center mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 tracking-[8px] sm:tracking-[12px] border-b-4 border-duru-orange-500 pb-3 sm:pb-4 inline-block">
                 이 력 서
               </h1>
             </div>
 
             {/* Section: 개인정보 */}
             <div className="mb-6">
-              <div className="bg-duru-orange-500 text-white text-sm font-bold px-4 py-2 rounded-t-lg">
-                개인정보
-              </div>
-              <table className="w-full border-collapse">
-                <tbody>
-                  <tr>
-                    <th className={thClass} style={{ width: '15%' }}>
+              <div className={sectionTitleClass}>개인정보</div>
+              <table className={tableClass}>
+                <tbody className={bodyClass}>
+                  <tr className={rowClass}>
+                    <th className={`${thClass} md:w-[15%]`}>
                       성명 <span className="text-red-500">*</span>
                     </th>
-                    <td className={tdClass} style={{ width: '35%' }}>
+                    <td className={`${tdClass} md:w-[35%]`}>
                       <input
                         type="text"
                         name="name"
@@ -276,10 +295,8 @@ export default function ResumePage() {
                         <p className="text-xs text-red-500 mt-1">{errors.name}</p>
                       )}
                     </td>
-                    <th className={thClass} style={{ width: '15%' }}>
-                      성별
-                    </th>
-                    <td className={tdClass} style={{ width: '35%' }}>
+                    <th className={`${thClass} md:w-[15%]`}>성별</th>
+                    <td className={`${tdClass} md:w-[35%]`}>
                       <select
                         name="gender"
                         value={formData.gender}
@@ -292,7 +309,7 @@ export default function ResumePage() {
                       </select>
                     </td>
                   </tr>
-                  <tr>
+                  <tr className={rowClass}>
                     <th className={thClass}>
                       생년월일 <span className="text-red-500">*</span>
                     </th>
@@ -325,13 +342,14 @@ export default function ResumePage() {
                       )}
                     </td>
                   </tr>
-                  <tr>
+                  <tr className={rowClass}>
                     <th className={thClass}>
                       전화번호 <span className="text-red-500">*</span>
                     </th>
                     <td className={tdClass}>
                       <input
                         type="tel"
+                        inputMode="numeric"
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
@@ -347,6 +365,7 @@ export default function ResumePage() {
                     <td className={tdClass}>
                       <input
                         type="tel"
+                        inputMode="numeric"
                         name="mobile"
                         value={formData.mobile}
                         onChange={handleChange}
@@ -355,7 +374,7 @@ export default function ResumePage() {
                       />
                     </td>
                   </tr>
-                  <tr>
+                  <tr className={rowClass}>
                     <th className={thClass}>e-mail</th>
                     <td className={tdClass} colSpan={3}>
                       <input
@@ -374,16 +393,12 @@ export default function ResumePage() {
 
             {/* Section: 최종 학력사항 */}
             <div className="mb-6">
-              <div className="bg-duru-orange-500 text-white text-sm font-bold px-4 py-2 rounded-t-lg">
-                최종 학력사항
-              </div>
-              <table className="w-full border-collapse">
-                <tbody>
-                  <tr>
-                    <th className={thClass} style={{ width: '15%' }}>
-                      학교명
-                    </th>
-                    <td className={tdClass} style={{ width: '35%' }}>
+              <div className={sectionTitleClass}>최종 학력사항</div>
+              <table className={tableClass}>
+                <tbody className={bodyClass}>
+                  <tr className={rowClass}>
+                    <th className={`${thClass} md:w-[15%]`}>학교명</th>
+                    <td className={`${tdClass} md:w-[35%]`}>
                       <input
                         type="text"
                         name="schoolName"
@@ -393,10 +408,8 @@ export default function ResumePage() {
                         className={inputClass}
                       />
                     </td>
-                    <th className={thClass} style={{ width: '15%' }}>
-                      전공
-                    </th>
-                    <td className={tdClass} style={{ width: '35%' }}>
+                    <th className={`${thClass} md:w-[15%]`}>전공</th>
+                    <td className={`${tdClass} md:w-[35%]`}>
                       <input
                         type="text"
                         name="major"
@@ -407,7 +420,7 @@ export default function ResumePage() {
                       />
                     </td>
                   </tr>
-                  <tr>
+                  <tr className={rowClass}>
                     <th className={thClass}>재학기간</th>
                     <td className={tdClass}>
                       <input
@@ -442,23 +455,22 @@ export default function ResumePage() {
 
             {/* Section: 경력사항 */}
             <div className="mb-6">
-              <div className="bg-duru-orange-500 text-white text-sm font-bold px-4 py-2 rounded-t-lg">
-                경력사항
-              </div>
-              <table className="w-full border-collapse">
-                <thead>
+              <div className={`${sectionTitleClass} mb-3 lg:mb-0`}>경력사항</div>
+              <table className={cardTableClass}>
+                <thead className="hidden lg:table-header-group">
                   <tr>
-                    <th className={thClass} style={{ width: '22%' }}>회사명</th>
-                    <th className={thClass} style={{ width: '18%' }}>재직기간</th>
-                    <th className={thClass} style={{ width: '25%' }}>담당업무</th>
-                    <th className={thClass} style={{ width: '25%' }}>업무 내용</th>
-                    <th className={thClass} style={{ width: '10%' }}></th>
+                    <th className={`${cardThClass} w-[22%]`}>회사명</th>
+                    <th className={`${cardThClass} w-[18%]`}>재직기간</th>
+                    <th className={`${cardThClass} w-[25%]`}>담당업무</th>
+                    <th className={`${cardThClass} w-[25%]`}>업무 내용</th>
+                    <th className={`${cardThClass} w-[10%]`}></th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className={cardBodyClass}>
                   {formData.careers.map((career, idx) => (
-                    <tr key={idx}>
-                      <td className={tdClass}>
+                    <tr key={idx} className={cardRowClass}>
+                      <td className={cardTdClass}>
+                        <span className={mobileLabelClass}>회사명</span>
                         <input
                           type="text"
                           value={career.companyName}
@@ -471,7 +483,8 @@ export default function ResumePage() {
                           className={inputClass}
                         />
                       </td>
-                      <td className={tdClass}>
+                      <td className={cardTdClass}>
+                        <span className={mobileLabelClass}>재직기간</span>
                         <input
                           type="text"
                           value={career.period}
@@ -484,7 +497,8 @@ export default function ResumePage() {
                           className={inputClass}
                         />
                       </td>
-                      <td className={tdClass}>
+                      <td className={cardTdClass}>
+                        <span className={mobileLabelClass}>담당업무</span>
                         <input
                           type="text"
                           value={career.duties}
@@ -497,7 +511,8 @@ export default function ResumePage() {
                           className={inputClass}
                         />
                       </td>
-                      <td className={tdClass}>
+                      <td className={cardTdClass}>
+                        <span className={mobileLabelClass}>업무 내용</span>
                         <input
                           type="text"
                           value={career.description}
@@ -510,7 +525,11 @@ export default function ResumePage() {
                           className={inputClass}
                         />
                       </td>
-                      <td className={`${tdClass} text-center`}>
+                      <td
+                        className={`${
+                          formData.careers.length > 1 ? 'block' : 'hidden'
+                        } ${cardCellBase} text-right lg:text-center`}
+                      >
                         {formData.careers.length > 1 && (
                           <button
                             type="button"
@@ -520,7 +539,7 @@ export default function ResumePage() {
                                 careers: prev.careers.filter((_, i) => i !== idx),
                               }));
                             }}
-                            className="text-red-400 hover:text-red-600 text-sm"
+                            className="text-red-400 hover:text-red-600 text-sm px-2 py-1"
                           >
                             삭제
                           </button>
@@ -546,21 +565,20 @@ export default function ResumePage() {
 
             {/* Section: 보유자격증 */}
             <div className="mb-6">
-              <div className="bg-duru-orange-500 text-white text-sm font-bold px-4 py-2 rounded-t-lg">
-                보유자격증
-              </div>
-              <table className="w-full border-collapse">
-                <thead>
+              <div className={`${sectionTitleClass} mb-3 lg:mb-0`}>보유자격증</div>
+              <table className={cardTableClass}>
+                <thead className="hidden lg:table-header-group">
                   <tr>
-                    <th className={thClass} style={{ width: '45%' }}>자격증명</th>
-                    <th className={thClass} style={{ width: '45%' }}>취득기관</th>
-                    <th className={thClass} style={{ width: '10%' }}></th>
+                    <th className={`${cardThClass} w-[45%]`}>자격증명</th>
+                    <th className={`${cardThClass} w-[45%]`}>취득기관</th>
+                    <th className={`${cardThClass} w-[10%]`}></th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className={cardBodyClass}>
                   {formData.certifications.map((cert, idx) => (
-                    <tr key={idx}>
-                      <td className={tdClass}>
+                    <tr key={idx} className={cardRowClass}>
+                      <td className={cardTdClass}>
+                        <span className={mobileLabelClass}>자격증명</span>
                         <input
                           type="text"
                           value={cert.name}
@@ -573,7 +591,8 @@ export default function ResumePage() {
                           className={inputClass}
                         />
                       </td>
-                      <td className={tdClass}>
+                      <td className={cardTdClass}>
+                        <span className={mobileLabelClass}>취득기관</span>
                         <input
                           type="text"
                           value={cert.institution}
@@ -586,7 +605,11 @@ export default function ResumePage() {
                           className={inputClass}
                         />
                       </td>
-                      <td className={`${tdClass} text-center`}>
+                      <td
+                        className={`${
+                          formData.certifications.length > 1 ? 'block' : 'hidden'
+                        } ${cardCellBase} text-right lg:text-center`}
+                      >
                         {formData.certifications.length > 1 && (
                           <button
                             type="button"
@@ -596,7 +619,7 @@ export default function ResumePage() {
                                 certifications: prev.certifications.filter((_, i) => i !== idx),
                               }));
                             }}
-                            className="text-red-400 hover:text-red-600 text-sm"
+                            className="text-red-400 hover:text-red-600 text-sm px-2 py-1"
                           >
                             삭제
                           </button>
@@ -622,20 +645,13 @@ export default function ResumePage() {
 
             {/* Section: 추가정보 - 장애사항 */}
             <div className="mb-8">
-              <div className="bg-duru-orange-500 text-white text-sm font-bold px-4 py-2 rounded-t-lg">
-                추가정보 - 장애사항
-              </div>
-              <table className="w-full border-collapse">
-                <tbody>
-                  <tr>
-                    <th
-                      className={thClass}
-                      style={{ width: '15%', verticalAlign: 'top', paddingTop: '16px' }}
-                    >
-                      장애유형
-                    </th>
+              <div className={sectionTitleClass}>추가정보 - 장애사항</div>
+              <table className={tableClass}>
+                <tbody className={bodyClass}>
+                  <tr className={rowClass}>
+                    <th className={`${thClass} md:w-[15%] md:align-top md:pt-4`}>장애유형</th>
                     <td className={tdClass} colSpan={3}>
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-2 gap-y-2.5">
                         {DISABILITY_TYPES.map((type) => (
                           <label
                             key={type}
@@ -647,7 +663,7 @@ export default function ResumePage() {
                               onChange={() => handleDisabilityTypeToggle(type)}
                               className="w-4 h-4 rounded border-gray-300 text-duru-orange-600 accent-duru-orange-500 cursor-pointer shrink-0"
                             />
-                            <span className="text-gray-700 text-xs sm:text-sm">
+                            <span className="text-gray-700 text-xs sm:text-sm break-keep">
                               {type}
                             </span>
                           </label>
@@ -655,7 +671,7 @@ export default function ResumePage() {
                       </div>
                     </td>
                   </tr>
-                  <tr>
+                  <tr className={rowClass}>
                     <th className={thClass}>구체적 장애내용</th>
                     <td className={tdClass} colSpan={3}>
                       <textarea
@@ -692,7 +708,7 @@ export default function ResumePage() {
             <button
               type="submit"
               disabled={!isSubmitEnabled || submitting}
-              className={`w-full py-4 rounded-xl font-extrabold tracking-tight text-lg transition-all flex items-center justify-center gap-2 ${
+              className={`w-full py-3.5 sm:py-4 rounded-xl font-extrabold tracking-tight text-base sm:text-lg transition-all flex items-center justify-center gap-2 ${
                 isSubmitEnabled && !submitting
                   ? 'bg-duru-orange-500 text-white hover:bg-duru-orange-600 active:scale-[0.99]'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'
@@ -706,7 +722,7 @@ export default function ResumePage() {
                   : '필수 항목을 모두 입력해주세요'}
             </button>
 
-            <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed">
+            <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed break-keep">
               입력하신 정보는 취업 알선 및 직업 재활 서비스 목적으로만 사용됩니다.
             </p>
           </form>
@@ -717,20 +733,20 @@ export default function ResumePage() {
       {showCompleteModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100] px-4">
           <div
-            className="bg-white rounded-2xl w-full max-w-md p-10 text-center shadow-xl"
+            className="bg-white rounded-2xl w-full max-w-md p-6 sm:p-10 text-center shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-50 rounded-full mb-6">
-              <CheckCircle2 className="w-9 h-9 text-green-500" />
+            <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-green-50 rounded-full mb-5 sm:mb-6">
+              <CheckCircle2 className="w-8 h-8 sm:w-9 sm:h-9 text-green-500" />
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-3 leading-snug">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 leading-snug break-keep">
               이력서가
               <br />
               성공적으로 제출되었습니다!
             </h2>
 
-            <p className="text-base text-gray-500 mb-8 leading-relaxed">
+            <p className="text-sm sm:text-base text-gray-500 mb-7 sm:mb-8 leading-relaxed break-keep">
               이루빛터에서 확인 후
               <br />
               연락드리겠습니다.
