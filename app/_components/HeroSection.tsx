@@ -15,9 +15,9 @@ const RISE_DELAY = {
 const BLINK_TEXT = '함께 빛나는';
 /**
  * 사이클이 "보이는 상태"에서 시작하므로, 이 지연 동안 문구는 헤드라인과 함께 떠오른 채 유지된다.
- * 첫 사라짐은 여기에 보이는 구간(4s의 55% = 2.2s)을 더한 시점 — 버튼 등장 직후 — 에 일어난다.
+ * 첫 사라짐은 여기에 보이는 구간(4s의 55% = 2.2s)을 더한 2.8초 시점에 일어난다.
  */
-const BLINK_START_DELAY = 1;
+const BLINK_START_DELAY = 0.6;
 /** 글자 사이의 시차 */
 const BLINK_STAGGER = 0.14;
 
