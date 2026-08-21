@@ -4,26 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 히어로 타이핑 강조 - 타이핑이 끝나면 형광펜처럼 밑줄이 좌→우로 채워짐 */
-.hero-highlight {
-  background-image: linear-gradient(
-    to right,
-    rgba(223, 143, 75, 0.28),
-    rgba(255, 176, 117, 0.32)
-  );
-  background-repeat: no-repeat;
-  background-position: 0 88%;
-  background-size: 0% 0.3em;
-  transition: background-size 800ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.hero-highlight-on {
-  background-size: 100% 0.3em;
-}
-
+/* 히어로: 동작 줄이기 설정에서는 등장/반복 애니메이션을 끄고 최종 상태로 보여줍니다 */
 @media (prefers-reduced-motion: reduce) {
-  .hero-highlight {
-    transition: none;
+  .animate-hero-rise,
+  .animate-hero-char {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
