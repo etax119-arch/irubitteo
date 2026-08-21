@@ -320,8 +320,10 @@ export default function ResumePage() {
                           setFormData((prev) => ({ ...prev, birthDate: val }));
                           if (errors.birthDate) setErrors((prev) => ({ ...prev, birthDate: '' }));
                         }}
-                        placeholder="생년월일 선택"
+                        placeholder="예: 19900101"
                         error={touched.birthDate && errors.birthDate ? errors.birthDate : undefined}
+                        allowManualInput
+                        inputClassName="text-base md:text-sm"
                       />
                     </td>
                     <th className={thClass}>

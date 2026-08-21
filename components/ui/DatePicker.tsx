@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { DayPicker, type Matcher } from 'react-day-picker';
 import { format, parse, isValid, addMonths, subMonths, addYears, subYears } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -69,6 +69,14 @@ export function DatePicker({
   const selected = value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined;
   const initialMonth = selected && isValid(selected) ? selected : new Date();
   const [month, setMonth] = useState(initialMonth);
+
+  // 값이 밖에서 바뀌면(직접입력 확정 등) 달력이 그 달을 보여주도록 맞춘다.
+  // 달력 안에서 월을 넘기는 것은 value를 바꾸지 않으므로 이 효과가 방해하지 않는다.
+  useEffect(() => {
+    if (!value) return;
+    const parsed = parse(value, 'yyyy-MM-dd', new Date());
+    if (isValid(parsed)) setMonth(parsed);
+  }, [value]);
 
   const disabledMatchers: Matcher[] = [];
   if (minDate) {
