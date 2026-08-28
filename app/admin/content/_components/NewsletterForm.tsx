@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { formatFileSize, FILE_CONSTRAINTS, validateUploadFile } from '@/lib/file';
 import { extractYoutubeId, getYoutubeThumbnail } from '@/lib/youtube';
-import type { NewsletterItem, NewsletterImage } from '@/types/newsletter';
+import type { NewsletterItem } from '@/types/newsletter';
 
 const MAX_IMAGES = 10;
 
@@ -35,56 +35,40 @@ interface NewsletterFormProps {
 
 export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting, initialData }: NewsletterFormProps) {
   const toast = useToast();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
+  // 부모가 열릴 때만 마운트하므로(닫으면 언마운트) 초기값을 그대로 초기 상태로 쓴다.
+  const [title, setTitle] = useState(initialData?.title ?? '');
+  const [content, setContent] = useState(initialData?.content ?? '');
+  const [videoUrl, setVideoUrl] = useState(initialData?.videoUrl ?? '');
   const [newFiles, setNewFiles] = useState<NewFileEntry[]>([]);
-  const [existingImages, setExistingImages] = useState<NewsletterImage[]>([]);
   const [deleteImageIds, setDeleteImageIds] = useState<Set<string>>(new Set());
   const [coverFile, setCoverFile] = useState<NewFileEntry | null>(null);
-  const [existingCover, setExistingCover] = useState<string | null>(null);
+  const [existingCover, setExistingCover] = useState<string | null>(
+    initialData?.coverImageThumbUrl || initialData?.coverImageUrl || null,
+  );
+  const existingImages = initialData?.images ?? [];
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
+  // 미리보기용 blob URL은 개별 삭제 시점과 언마운트 시점에 모두 정리한다.
+  const objectUrlsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (isOpen) {
-      if (initialData) {
-        setTitle(initialData.title);
-        setContent(initialData.content);
-        setVideoUrl(initialData.videoUrl ?? '');
-        setExistingImages(initialData.images);
-        setExistingCover(initialData.coverImageThumbUrl || initialData.coverImageUrl);
-      } else {
-        setTitle('');
-        setContent('');
-        setVideoUrl('');
-        setExistingImages([]);
-        setExistingCover(null);
-      }
-      setNewFiles((prev) => {
-        prev.forEach((e) => URL.revokeObjectURL(e.url));
-        return [];
-      });
-      setCoverFile((prev) => {
-        if (prev) URL.revokeObjectURL(prev.url);
-        return null;
-      });
-      setDeleteImageIds(new Set());
-    }
-  }, [isOpen, initialData]);
-
-  useEffect(() => {
+    const urls = objectUrlsRef.current;
     return () => {
-      setNewFiles((prev) => {
-        prev.forEach((e) => URL.revokeObjectURL(e.url));
-        return prev;
-      });
-      setCoverFile((prev) => {
-        if (prev) URL.revokeObjectURL(prev.url);
-        return prev;
-      });
+      urls.forEach((url) => URL.revokeObjectURL(url));
+      urls.clear();
     };
   }, []);
+
+  const createPreviewUrl = (file: File) => {
+    const url = URL.createObjectURL(file);
+    objectUrlsRef.current.add(url);
+    return url;
+  };
+
+  const revokePreviewUrl = (url: string) => {
+    URL.revokeObjectURL(url);
+    objectUrlsRef.current.delete(url);
+  };
 
   const visibleExistingImages = existingImages.filter((img) => !deleteImageIds.has(img.id));
   const totalCount = visibleExistingImages.length + newFiles.length;
@@ -107,7 +91,7 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
         toast.error(error);
         continue;
       }
-      accepted.push({ file, url: URL.createObjectURL(file) });
+      accepted.push({ file, url: createPreviewUrl(file) });
     }
 
     if (files.length > slots) {
@@ -129,7 +113,7 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
   };
 
   const handleRemoveNew = (target: NewFileEntry) => {
-    URL.revokeObjectURL(target.url);
+    revokePreviewUrl(target.url);
     setNewFiles((prev) => prev.filter((entry) => entry !== target));
   };
 
@@ -145,14 +129,14 @@ export default function NewsletterForm({ isOpen, onClose, onSubmit, isSubmitting
     }
 
     setCoverFile((prev) => {
-      if (prev) URL.revokeObjectURL(prev.url);
-      return { file, url: URL.createObjectURL(file) };
+      if (prev) revokePreviewUrl(prev.url);
+      return { file, url: createPreviewUrl(file) };
     });
   };
 
   const handleRemoveCover = () => {
     setCoverFile((prev) => {
-      if (prev) URL.revokeObjectURL(prev.url);
+      if (prev) revokePreviewUrl(prev.url);
       return null;
     });
     setExistingCover(null);

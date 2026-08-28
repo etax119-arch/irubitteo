@@ -119,18 +119,21 @@ export default function AdminNewsletterPage() {
         />
       )}
 
-      {/* Create Modal */}
-      <NewsletterForm
-        isOpen={formOpen}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleCreate}
-        isSubmitting={createMutation.isPending}
-      />
+      {/* Create Modal — 닫으면 언마운트되어 입력값이 초기화된다 */}
+      {formOpen && (
+        <NewsletterForm
+          isOpen
+          onClose={() => setFormOpen(false)}
+          onSubmit={handleCreate}
+          isSubmitting={createMutation.isPending}
+        />
+      )}
 
       {/* Edit Modal */}
       {editTarget && (
         <NewsletterForm
-          isOpen={!!editTarget}
+          key={editTarget.id}
+          isOpen
           onClose={() => setEditTarget(null)}
           onSubmit={handleEdit}
           isSubmitting={updateMutation.isPending}

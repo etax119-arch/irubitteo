@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { formatFileSize, FILE_CONSTRAINTS, validateUploadFile } from '@/lib/file';
-import type { AnnouncementItem, AnnouncementImage } from '@/types/announcement';
+import type { AnnouncementItem } from '@/types/announcement';
 
 const MAX_IMAGES = 10;
 
@@ -27,40 +27,34 @@ interface AnnouncementFormProps {
 
 export default function AnnouncementForm({ isOpen, onClose, onSubmit, isSubmitting, initialData }: AnnouncementFormProps) {
   const toast = useToast();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  // 부모가 열릴 때만 마운트하므로(닫으면 언마운트) 초기값을 그대로 초기 상태로 쓴다.
+  const [title, setTitle] = useState(initialData?.title ?? '');
+  const [content, setContent] = useState(initialData?.content ?? '');
   const [newFiles, setNewFiles] = useState<NewFileEntry[]>([]);
-  const [existingImages, setExistingImages] = useState<AnnouncementImage[]>([]);
   const [deleteImageIds, setDeleteImageIds] = useState<Set<string>>(new Set());
+  const existingImages = initialData?.images ?? [];
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // 미리보기용 blob URL은 개별 삭제 시점과 언마운트 시점에 모두 정리한다.
+  const objectUrlsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (isOpen) {
-      if (initialData) {
-        setTitle(initialData.title);
-        setContent(initialData.content);
-        setExistingImages(initialData.images);
-      } else {
-        setTitle('');
-        setContent('');
-        setExistingImages([]);
-      }
-      setNewFiles((prev) => {
-        prev.forEach((e) => URL.revokeObjectURL(e.url));
-        return [];
-      });
-      setDeleteImageIds(new Set());
-    }
-  }, [isOpen, initialData]);
-
-  useEffect(() => {
+    const urls = objectUrlsRef.current;
     return () => {
-      setNewFiles((prev) => {
-        prev.forEach((e) => URL.revokeObjectURL(e.url));
-        return prev;
-      });
+      urls.forEach((url) => URL.revokeObjectURL(url));
+      urls.clear();
     };
   }, []);
+
+  const createPreviewUrl = (file: File) => {
+    const url = URL.createObjectURL(file);
+    objectUrlsRef.current.add(url);
+    return url;
+  };
+
+  const revokePreviewUrl = (url: string) => {
+    URL.revokeObjectURL(url);
+    objectUrlsRef.current.delete(url);
+  };
 
   const visibleExistingImages = existingImages.filter((img) => !deleteImageIds.has(img.id));
   const totalCount = visibleExistingImages.length + newFiles.length;
@@ -83,7 +77,7 @@ export default function AnnouncementForm({ isOpen, onClose, onSubmit, isSubmitti
         toast.error(error);
         continue;
       }
-      accepted.push({ file, url: URL.createObjectURL(file) });
+      accepted.push({ file, url: createPreviewUrl(file) });
     }
 
     if (files.length > slots) {
@@ -105,7 +99,7 @@ export default function AnnouncementForm({ isOpen, onClose, onSubmit, isSubmitti
   };
 
   const handleRemoveNew = (target: NewFileEntry) => {
-    URL.revokeObjectURL(target.url);
+    revokePreviewUrl(target.url);
     setNewFiles((prev) => prev.filter((entry) => entry !== target));
   };
 
