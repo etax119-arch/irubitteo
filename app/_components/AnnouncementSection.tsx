@@ -74,12 +74,14 @@ export default function AnnouncementSection({ items }: AnnouncementSectionProps)
             >
               <div className="relative w-full aspect-[16/9] bg-duru-orange-50 overflow-hidden">
                 {cover ? (
+                  // 세로 사진도 내용이 잘리지 않도록 contain으로 축소해 전체를 보여준다.
+                  // (섹션 높이를 고정하려고 카드 비율은 16/9를 유지)
                   <Image
-                    src={cover.imageUrl}
+                    src={cover.imageCardUrl || cover.imageUrl}
                     alt={cover.imageAlt || featured.title}
                     fill
                     sizes="(max-width: 896px) 100vw, 896px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain"
                     {...(cover.imageBlurData
                       ? { placeholder: 'blur' as const, blurDataURL: cover.imageBlurData }
                       : {})}
