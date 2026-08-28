@@ -45,8 +45,8 @@ export default function AnnouncementContent({ initialData }: Props) {
         ) : (
           <div className={isPlaceholderData ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
             <div className="space-y-4">
-              {announcements.map((item) => (
-                <AnnouncementCard key={item.id} item={item} />
+              {announcements.map((item, index) => (
+                <AnnouncementCard key={item.id} item={item} priority={index < 3} />
               ))}
             </div>
             <PaginationBar

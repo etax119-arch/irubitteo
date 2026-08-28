@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
+import PostImageList from '@/components/PostImageList';
 import Header from '@/app/_components/Header';
 import Footer from '@/app/_components/Footer';
 import { serverFetch } from '@/lib/api/server-fetch';
@@ -103,28 +103,7 @@ export default async function AnnouncementDetailPage({ params }: PageProps) {
           <p className="text-gray-500 mb-8">{date}</p>
 
           {/* Images */}
-          {item.images.length > 0 && (
-            <div className="space-y-6 mb-8">
-              {item.images.map((img, idx) => (
-                <div key={img.id} className="relative aspect-[16/9] bg-gray-100 rounded-2xl overflow-hidden">
-                  <Image
-                    src={img.imageCardUrl || img.imageUrl}
-                    alt={img.imageAlt || `${item.title} - ${idx + 1}`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 768px"
-                    className="object-cover"
-                    priority={idx === 0}
-                    {...(img.imageBlurData
-                      ? {
-                          placeholder: 'blur' as const,
-                          blurDataURL: img.imageBlurData,
-                        }
-                      : {})}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          <PostImageList images={item.images} title={item.title} />
 
           {/* Content */}
           <div className="prose prose-gray max-w-none whitespace-pre-line text-gray-700 leading-relaxed">
