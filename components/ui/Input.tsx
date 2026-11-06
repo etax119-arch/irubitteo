@@ -10,6 +10,8 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, '
   label?: string;
   error?: string;
   leftIcon?: React.ReactNode;
+  /** 입력칸 오른쪽에 배치할 요소 (예: 비밀번호 보기 버튼) */
+  rightElement?: React.ReactNode;
 }
 
 const sizeStyles: Record<InputSize, string> = {
@@ -25,6 +27,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       label,
       error,
       leftIcon,
+      rightElement,
       className,
       id,
       ...props
@@ -59,10 +62,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 : 'border-gray-200 bg-white hover:border-gray-300',
               sizeStyles[size],
               leftIcon && 'pl-10',
+              rightElement && 'pr-12',
               className
             )}
             {...props}
           />
+          {rightElement && (
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+              {rightElement}
+            </span>
+          )}
         </div>
         {error && (
           <p className="mt-1.5 text-sm text-red-500">{error}</p>

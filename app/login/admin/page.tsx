@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LogIn, AlertTriangle, Mail, Lock, Loader2 } from 'lucide-react';
+import { LogIn, AlertTriangle, Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/Input';
 import { AxiosError } from 'axios';
@@ -11,6 +11,7 @@ import { AxiosError } from 'axios';
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
@@ -86,7 +87,7 @@ export default function AdminLoginPage() {
             />
 
             <Input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               label="비밀번호"
               placeholder="비밀번호를 입력하세요"
               value={password}
@@ -94,6 +95,17 @@ export default function AdminLoginPage() {
               onKeyDown={handleKeyDown}
               size="lg"
               leftIcon={<Lock className="w-5 h-5" />}
+              rightElement={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                  aria-pressed={showPassword}
+                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-duru-orange-400"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              }
               className={loginError ? 'border-red-500' : ''}
             />
 
